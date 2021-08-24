@@ -6,6 +6,7 @@
 
 #include <random>
 
+
 /** @brief get a random number between 0 and @arg u
  *
  * Noon-extreme values are preferred, based on a simple cubic function.
