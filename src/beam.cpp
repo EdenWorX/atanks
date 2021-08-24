@@ -198,8 +198,8 @@ void BEAM::applyPhysics ()
 							points[numPoints-1].y,
 							(rand () % 7) - 3,
 							1 - (rand () % 6), radius, DECOR_SMOKE, 0);
-			} catch (std::exception) {
-				perror ( "beam.cpp: Failed to allocate memory for decor in applyPhysics");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
 			}
 		}
 
@@ -208,8 +208,8 @@ void BEAM::applyPhysics ()
 			              points[numPoints-1].x - points[0].x,
 			              points[numPoints-1].y - points[0].y,
 			              weapType, damage, isWeaponFire);
-		} catch (std::exception) {
-			perror ( "beam.cpp: Failed to allocate memory for explosion in applyPhysics");
+		} catch (std::exception &e) {
+			std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
 		}
 	}
 }
@@ -268,8 +268,8 @@ void BEAM::createBeamPath()
 	if (nullptr == points) {
 		try {
 			points = new POINT_t[numPoints];
-		} catch (std::exception) {
-			perror ( "beam.cpp: Failed to allocate memory for points in BEAM::createBeamPath()");
+		} catch (std::exception &e) {
+			std::cerr << __func__ << " new POINT_t: " << e.what() << std::endl;
 		}
 	}
 

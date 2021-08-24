@@ -251,8 +251,8 @@ void MISSILE::applyPhysics ()
 							xv / env.frames_per_second,
 							xv / env.frames_per_second,
 							weap->radius / 20, DECOR_SMOKE, 0);
-			} catch (std::exception) {
-				perror ( "missile.cpp: Failed allocating memory for decor in applyPhysics");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
 			}
 		}
 	} // --- End of normal physic types ---
@@ -862,8 +862,8 @@ void MISSILE::trigger ()
 	// Create explosion
 	try {
 		new EXPLOSION (player, x, y, xv, yv, weapType, isWeaponFire);
-	} catch (...) {
-		perror ( "missile.cpp: Failed allocating memory for explosion in MISSILE::trigger");
+	} catch (std::exception &e) {
+		std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
 	}
 
 	// If the explosion is near a wrapping wall, a second "fake"
@@ -902,8 +902,8 @@ void MISSILE::trigger ()
 			int32_t new_y = top  ? top  : y;
 			try {
 				new EXPLOSION (player, new_x, new_y, xv, yv, weapType, isWeaponFire);
-			} catch (...) {
-				perror ( "missile.cpp: Failed allocating memory for secondary explosion in MISSILE::trigger");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
 			}
 		}
 	}
@@ -1181,9 +1181,8 @@ void MISSILE::triggerTest ()
 						newmis->physType  = submunitionPhys;
 						newmis->countdown = newMissCount;
 						newmis->setUpdateArea(newmis->x - 20, newmis->y - 20, 40, 40);
-					} catch (...) {
-						perror ( "missile.cpp: Failed to allocate memory for"
-								 "newmis in MISSILE::triggerTest (CLUSTER)");
+					} catch (std::exception &e) {
+						std::cerr << __func__ << " new MISSILE: " << e.what() << std::endl;
 					}
 				} // End of looping submunitions
 			} // End of having submunition count

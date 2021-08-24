@@ -114,11 +114,13 @@ PLAYER* ENVIRONMENT::createNewPlayer (const char* player_name)
 	if (reallocatedPlayers)
 		allPlayers = reallocatedPlayers;
 	else
-		perror ("environment.cpp: Failed allocating memory for reallocatedPlayers in ENVIRONMENT::createNewPlayer");
+		perror( "environment.cpp: Failed allocating memory for reallocatedPlayers in ENVIRONMENT::createNewPlayer" );
 
-	player = new PLAYER ();
-	if (!player)
-		perror ("environment.cpp: Failed allocating memory for player in ENVIRONMENT::createNewPlayer");
+	try {
+		player = new PLAYER ();
+	} catch (std::exception &e) {
+		std::cerr << __func__ << " new PLAYER: " << e.what() << std::endl;
+	}
 
 	player->index = numPermanentPlayers;
 	player->setName(player_name);

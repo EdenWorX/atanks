@@ -2536,9 +2536,8 @@ void PLAYER::noteDamageFrom(PLAYER* opponent, int32_t damage, bool destroyed)
 						new FLOATTEXT(selectRevengePhrase(),
 						              tank->x, tank->y - 30, .0, -.4, color,
 						              CENTRE, TS_NO_SWAY, 300, false);
-					} catch (...) {
-						perror ( "player.cpp: Failed to allocate memory for"
-								 " revenge text in noteDamageFrom().");
+					} catch (std::exception &e) {
+						std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 					}
 				}
 			}

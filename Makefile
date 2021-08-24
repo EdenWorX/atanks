@@ -3,7 +3,6 @@ dist tarball zipfile source-dist i686-dist win32-dist
 
 VERSION := 6.7
 
-
 DEBUG   ?= NO
 # Note: Submit as "YES" to enable debugging
 # Note: If any flag starting with -g is found in the CXXFLAGS, DEBUG is

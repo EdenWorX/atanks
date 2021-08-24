@@ -171,9 +171,8 @@ void TANK::activateCurrentSelection()
 				new BEAM (player, x + (env.slope[a][0] * turr_off_x),
                                   y + (env.slope[a][1] * turr_off_x),
                                   a, cw, BT_WEAPON);
-			} catch (...) {
-                  perror ( "tank.cpp: Failed to allocate memory for new"
-						   " beam in TANK::activateCurrentSelection()");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new BEAM: " << e.what() << std::endl;
 			}
 		}
     } // End of weapons
@@ -210,9 +209,8 @@ void TANK::activateCurrentSelection()
 				new TELEPORT (this, new_x, new_y, tank_dia, 120, ci);
 				addDamage(player, 0.); // Fall is a self hit.
 				isTeleported = true;
-			} catch(...) {
-				perror ( "tank.cpp: Failed to allocate memory for teleport"
-						 " in TANK::activateCurrentSelection()");
+			} catch(std::exception &e) {
+				std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
 			}
 		}
 
@@ -256,9 +254,8 @@ void TANK::activateCurrentSelection()
 				new TELEPORT (this, other->x, other->y, tank_dia, 120, ci);
 				// create a teleport object for the other tank
 				new TELEPORT (other, x, y, other->tank_dia, 120, ci);
-			} catch (...) {
-				perror ( "tank.cpp: Failed to allocate memory for swap teleports"
-						 " in TANK::activateCurrentSelection()");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
 			}
 		}
 
@@ -285,9 +282,8 @@ void TANK::activateCurrentSelection()
 					lt->addDamage(player, 0.); // They fall, we earn. Cool.
 					lt->isTeleported = true;
 
-				} catch(...) {
-					perror ( "tank.cpp: Failed to allocate memory for teleport"
-							 " in TANK::activateCurrentSelection()");
+				} catch(std::exception &e) {
+					std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
 				}
 				lt->getNext(&lt);
 			}
@@ -443,9 +439,8 @@ void TANK::applyDamage ()
 							200, false);
 					if (global.stage < STAGE_SCOREBOARD)
 						global.updateMenu = true;
-				} catch (...) {
-					perror ( "tank.cpp: Failed allocating memory for money text"
-							 " in applyDamage().");
+				} catch (std::exception &e) {
+					std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 				}
 			}
 			creditTo->money += ( (team_hit || self_hit) ? -1 : 1) * award;
@@ -464,9 +459,8 @@ void TANK::applyDamage ()
 				              creditTo->tank->x, creditTo->tank->y - 30,
 				              .0, -.4, creditTo->color, CENTRE, TS_NO_SWAY,
 				              200, false);
-			} catch (...) {
-				perror ( "tank.cpp: Failed to allocate memory for"
-						 " gloating text in applyDamage().");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 			}
 		} // End of spawning gloating text
 
@@ -476,9 +470,8 @@ void TANK::applyDamage ()
 				new FLOATTEXT(player->selectSuicidePhrase(),
 				              x, y - 30, .0, -.4, player->color,
 				              CENTRE, TS_NO_SWAY, 300, false);
-			} catch (...) {
-				perror ( "tank.cpp: Failed allocate memory for suicide"
-						 " text in applyDamage().");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 			}
 		}
 	} // End of handling damager texts and awards
@@ -531,9 +524,8 @@ void TANK::applyDamage ()
 				new FLOATTEXT(buf, x, y - 30, .0, -.3, RED, CENTRE,
 				              env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY,
 				              300, false);
-			} catch (...) {
-				perror ( "tank.cpp: Failed to allocate memory for damage"
-						 " text in applyDamage().");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 			}
 		}
 
@@ -835,9 +827,8 @@ void TANK::explode (bool allow_vengeance)
 
 	try {
 		new EXPLOSION (player, x, y, 0., env.screenHeight / 10., MED_MIS, false);
-	} catch (...) {
-		perror ( "tank.cpp: Failed to allocate memory for explosion"
-		         " in TANK::explode()");
+	} catch (std::exception &e) {
+		std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
 	}
 
 	play_explosion_sound(MED_MIS, x, 255, 1000);
@@ -1531,9 +1522,8 @@ void TANK::repair()
 				snprintf(buf, 9, "+%d", l - old_life);
 				new FLOATTEXT(buf, x, y - 30, .0, -.8, GREEN, CENTRE,
 				              TS_NO_SWAY, 120, false);
-			} catch (...) {
-				perror("tank.cpp: Failed to allocate memory for healing"
-					   " text in repair().");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 			}
 		}
 	}

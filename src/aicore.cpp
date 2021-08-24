@@ -5279,9 +5279,8 @@ void AICore::operator()()
 							new FLOATTEXT(text,x, y - 30, .0, -.4, player->color,
 							              CENTRE, TS_NO_SWAY, 150, false);
 						}
-					} catch (...) {
-						perror ( "aicore.cpp: Failed to allocate memory for"
-								 " panic text in operator().");
+					} catch (std::exception &e) {
+						std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 					}
 					if (text)
 						free(const_cast<char*>(text));
@@ -5636,9 +5635,8 @@ void AICore::operator()()
 					new FLOATTEXT(text,x, y - 30, .0, -.4, player->color,
 					              CENTRE, TS_NO_SWAY, 150, false);
 				}
-			} catch (...) {
-				perror ( "aicore.cpp: Failed to allocate memory for"
-						 " retaliation text in operator().");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 			}
 			if (text)
 				free(const_cast<char*>(text));
@@ -5660,9 +5658,8 @@ void AICore::operator()()
 				new FLOATTEXT (player->selectKamikazePhrase(),
 				               x, y - 30, .0, -.4,
 				               player->color, CENTRE, TS_NO_SWAY, 300, false);
-			} catch (...) {
-				perror ( "aicore.cpp: Failed allocating memory for"
-				         " kamikazeText in operator().");
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 			}
 		}
 

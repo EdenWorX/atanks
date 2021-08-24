@@ -262,7 +262,7 @@ void game ()
 
 	// Check whether the AI Core is in any state to do work:
 	if (!aicore.can_work()) {
-		perror("The AI core could not be initialized");
+		std::cerr << "The AI core could not be initialized" << std::endl;
 		global.set_command(GLOBAL_COMMAND_QUIT);
 		return;
 	}

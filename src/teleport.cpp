@@ -105,7 +105,6 @@ TELEPORT::TELEPORT (VIRTUAL_OBJECT *targetObj,
 		remote = new TELEPORT (this, destinationX, destinationY);
 	} catch(std::bad_alloc &e) {
 		std::cerr << "Error creating TELEPORT: " << e.what() << std::endl;
-		perror ( "teleport.cc: Failed allocating memory for remote in TELEPORT::TELEPORT");
 	}
 
 	play_fire_sound(ITEM_TELEPORT + WEAPONS, x, 255, 1000);

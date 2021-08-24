@@ -184,7 +184,9 @@ void EXPLOSION::applyPhysics ()
 			try {
 				new DECOR (x, y, 0, -2. * env.gravity * env.FPS_mod,
 							radius / 2, DECOR_SMOKE, 0);
-			} catch (std::exception) { /* No reason to fuss, its just smoke. */ }
+			} catch (std::exception &e) {
+				std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
+			}
 		}
 
 		// Instead of the radius, the current blob size is used
@@ -631,9 +633,8 @@ void EXPLOSION::explode ()
 								              200, false);
 								if (global.stage < STAGE_SCOREBOARD)
 									global.updateMenu = true;
-							} catch (...) {
-								perror("tank.cpp: Failed allocating memory for"
-								       "money text in explode().");
+							} catch (std::exception &e) {
+								std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
 							}
 						}
 
