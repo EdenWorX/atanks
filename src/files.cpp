@@ -29,7 +29,7 @@ ITEM    item[ITEMS];
  * and a lot more secure.
  * - Sven
  */
-char path_buf[PATH_MAX + 1];
+char path_buf[PATH_MAX + 1] = { 0x0 };
 // Note: Any consumer of this buffer has to include files.h or
 //       to define an extern for it.
 
@@ -41,7 +41,8 @@ char path_buf[PATH_MAX + 1];
 **/
 bool Save_Game()
 {
-	snprintf(path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name);
+	if ( 0 > snprintf(path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name) )
+		abort();
 
 	FILE* game_file = fopen(path_buf, "w");
 	if (!game_file)
@@ -97,8 +98,8 @@ bool Save_Game()
 	 * but if an old one is laying around, we should delete our
 	 * own garbage:
 	 */
-	snprintf(path_buf, PATH_MAX, "%s/%s.txt",
-	         env.configDir, env.game_name);
+	if ( 0 > snprintf(path_buf, PATH_MAX, "%s/%s.txt", env.configDir, env.game_name) )
+		abort();
 	if (!access(path_buf, F_OK) && !access(path_buf, W_OK))
 		unlink(path_buf);
 
@@ -134,7 +135,8 @@ bool Load_Game()
 	env.campaign_rounds   = -1.;
 
 	// Open game file
-	snprintf(path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name);
+	if ( 0 > snprintf(path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name) )
+		abort();
 	FILE* game_file = fopen(path_buf, "r");
 	if (!game_file)
 		return false;
@@ -319,7 +321,8 @@ Check to see if a saved game exists with the given name.
 */
 bool Check_For_Saved_Game()
 {
-	snprintf(path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name);
+	if ( 0 > snprintf(path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name) )
+		abort();
 
 	if (!access(path_buf, R_OK))
 		return true;
@@ -347,7 +350,8 @@ bool Copy_Config_File()
 	char  buffer[PATH_MAX + 1]      = { 0 };
 
 	// check to see if the config file has already been copied
-	snprintf(dest_path, PATH_MAX, "%s/atanks-config.txt", env.configDir);
+	if ( 0 > snprintf(dest_path, PATH_MAX, "%s/atanks-config.txt", env.configDir) )
+		abort();
 	if (!access(dest_path, R_OK | W_OK))
 		return true;
 
@@ -404,7 +408,8 @@ bool Copy_Config_File()
 **/
 bool Create_Music_Folder()
 {
-	snprintf(path_buf, PATH_MAX, "%s/music", env.configDir);
+	if ( 0 > snprintf(path_buf, PATH_MAX, "%s/music", env.configDir) )
+		abort();
 	DIR* music_folder = opendir(path_buf);
 
 	if (! music_folder) {
@@ -519,22 +524,25 @@ bool Load_Weapons_Text()
 	const char* cur_lc_numeric = setlocale(LC_NUMERIC, "C");
 
 	// get path name
+	int r = 0;
 	if (env.language == EL_ENGLISH)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons.txt", env.dataDir);
 	else if (env.language == EL_PORTUGUESE)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons.pt_BR.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons.pt_BR.txt", env.dataDir);
 	else if (env.language == EL_FRENCH)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons_fr.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons_fr.txt", env.dataDir);
 	else if (env.language == EL_GERMAN)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons_de.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons_de.txt", env.dataDir);
 	else if (env.language == EL_SLOVAK)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons_sk.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons_sk.txt", env.dataDir);
 	else if (env.language == EL_RUSSIAN)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons_ru.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons_ru.txt", env.dataDir);
 	else if (env.language == EL_SPANISH)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons_ES.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons_ES.txt", env.dataDir);
 	else if (env.language == EL_ITALIAN)
-		snprintf(path_buf, PATH_MAX, "%s/text/weapons_it.txt", env.dataDir);
+		r = snprintf(path_buf, PATH_MAX, "%s/text/weapons_it.txt", env.dataDir);
+	if ( r < 0 )
+		abort();
 
 	// open file
 	FILE* wfile = fopen(path_buf, "r");

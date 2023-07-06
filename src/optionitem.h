@@ -504,7 +504,7 @@ private:
 	void activateValue(int32_t val)
 	{
 		// A few short-cuts that make reading the following a lot easier:
-		tgt_T t_val = static_cast<tgt_T>(val * decinc);
+		tgt_T t_val = static_cast<tgt_T>( (decinc * val) );
 		tgt_T t_max = static_cast<tgt_T>(maxVal);
 		tgt_T t_min = static_cast<tgt_T>(minVal);
 

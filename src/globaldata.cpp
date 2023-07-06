@@ -223,16 +223,16 @@ void GLOBALDATA::destroy()
 		debris_pool = nullptr;
 	}
 
-	if (canvas)  destroy_bitmap(canvas);     canvas       = nullptr;
-	if (terrain) destroy_bitmap(terrain);    terrain      = nullptr;
-	if (done)         delete [] done;        done         = nullptr;
-	if (fp)           delete [] fp;          fp           = nullptr;
-	if (surface)      delete [] surface;     surface      = nullptr;
-	if (dropTo)       delete [] dropTo;      dropTo       = nullptr;
-	if (velocity)     delete [] velocity;    velocity     = nullptr;
-	if (dropIncr)     delete [] dropIncr;    dropIncr     = nullptr;
-	if (updates)      delete [] updates;     updates      = nullptr;
-	if (lastUpdates)  delete [] lastUpdates; lastUpdates  = nullptr;
+	if (canvas)  { destroy_bitmap(canvas);    } canvas       = nullptr;
+	if (terrain) { destroy_bitmap(terrain);   } terrain      = nullptr;
+	if (done)        { delete [] done;        } done         = nullptr;
+	if (fp)          { delete [] fp;          } fp           = nullptr;
+	if (surface)     { delete [] surface;     } surface      = nullptr;
+	if (dropTo)      { delete [] dropTo;      } dropTo       = nullptr;
+	if (velocity)    { delete [] velocity;    } velocity     = nullptr;
+	if (dropIncr)    { delete [] dropIncr;    } dropIncr     = nullptr;
+	if (updates)     { delete [] updates;     } updates      = nullptr;
+	if (lastUpdates) { delete [] lastUpdates; } lastUpdates  = nullptr;
 }
 
 
@@ -253,7 +253,7 @@ void GLOBALDATA::do_updates ()
 	release_bitmap(screen);
 	if (!isBgUpdNeeded) {
 		lastUpdatesCount = updateCount;
-		memcpy (lastUpdates, updates, sizeof (BOX) * updateCount);
+		lastUpdates      = updates;
 	}
 	updateCount = 0;
 }

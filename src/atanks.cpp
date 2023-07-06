@@ -149,7 +149,8 @@ static void close_button_handler(void)
 /// @brief Show the credits file in a text box
 static void credits ()
 {
-	snprintf (path_buf, PATH_MAX, "%s/credits.txt", env.dataDir);
+	if ( 0 > snprintf (path_buf, PATH_MAX, "%s/credits.txt", env.dataDir) )
+		abort();
 
 	TEXTBLOCK my_text(path_buf);
 	scrollTextList (&my_text);
@@ -733,7 +734,8 @@ static bool loadConfig()
 	bool result = false;
 
 	if (load_config_file) {
-		snprintf(fullPath, PATH_MAX, "%s/atanks-config.txt", env.configDir);
+		if ( 0 > snprintf(fullPath, PATH_MAX, "%s/atanks-config.txt", env.configDir) )
+			abort();
 
 		FILE* old_config_file = fopen(fullPath, "r");
 
@@ -1317,9 +1319,10 @@ static void play_local()
 			char        buffer[512] = { 0 };
 			const char* winner      = do_winner();
 
-			if (winner)
-				snprintf(buffer, 255, "GAMEEND The game went to %s.", winner);
-			else
+			if (winner) {
+				if ( 0 > snprintf(buffer, 255, "GAMEEND The game went to %s.", winner) )
+					abort();
+			} else
 				strncpy(buffer, "GAMEEND", 255);
 
 			env.sendToClients(buffer);

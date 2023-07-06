@@ -21,49 +21,12 @@ BOX::BOX(int32_t x_, int32_t y_, int32_t w_, int32_t h_) :
 	h(h_)
 { /* nothing to do here */ }
 
-/// @brief normal assignment operator
-BOX &BOX::operator= (const BOX &src)
-{
-	if (&src != this) {
-		x = src.x;
-		y = src.y;
-		w = src.w;
-		h = src.h;
-	}
-	return *this;
-}
-
-/// @brief rvalue reference assignment operator
-BOX &BOX::operator= (const BOX &&src)
-{
-	x = src.x;
-	y = src.y;
-	w = src.w;
-	h = src.h;
-	return *this;
-}
-
 void BOX::set(int32_t x_, int32_t y_, int32_t w_, int32_t h_)
 {
 	x = x_;
 	y = y_;
 	w = w_;
 	h = h_;
-}
-
-
-POINT_t::POINT_t(int32_t x_, int32_t y_) :
-	x(x_),
-	y(y_)
-{ /* nothing to do here */ }
-
-POINT_t &POINT_t::operator=( const POINT_t& src )
-{
-	if (&src != this) {
-		x = src.x;
-		y = src.y;
-	}
-	return *this;
 }
 
 

@@ -704,7 +704,7 @@ void ENVIRONMENT::load_from_file (FILE *file)
 			} else if (!strcasecmp(field, "checkupdates")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				check_for_updates = val > 0 ? true : false;
+				check_for_updates = val > 0;
 			} else if (!strcasecmp(field, "colourtheme") ) {
 				sscanf(value, "%d", &colourTheme);
 				if (colourTheme < CT_REGULAR) colourTheme = CT_REGULAR;
@@ -714,27 +714,27 @@ void ENVIRONMENT::load_from_file (FILE *file)
 			else if (!strcasecmp(field, "detailedland")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				detailedLandscape = val > 0 ? true : false;
+				detailedLandscape = val > 0;
 			} else if (!strcasecmp(field, "detailedsky")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				detailedSky = val > 0 ? true : false;
+				detailedSky = val > 0;
 			} else if (!strcasecmp(field, "dither")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				ditherGradients = val > 0 ? true : false;
+				ditherGradients = val > 0;
 			} else if (!strcasecmp(field, "dividemoney") ) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				divide_money = val > 0 ? true : false;
+				divide_money = val > 0;
 			} else if (!strcasecmp(field, "doboxwrap") ) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				do_box_wrap = val > 0 ? true : false;
+				do_box_wrap = val > 0;
 			} else if (!strcasecmp(field, "dynamicmenubg") ) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				dynamicMenuBg = val > 0 ? true : false;
+				dynamicMenuBg = val > 0;
 			} else if (!strcasecmp(field, "frames") ) {
 				int32_t new_fps = 0;
 				sscanf(value, "%d", &new_fps);
@@ -752,7 +752,7 @@ void ENVIRONMENT::load_from_file (FILE *file)
 			else if (!strcasecmp(field, "networking")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				network_enabled = val > 0 ? true : false;
+				network_enabled = val > 0;
 			} else if (!strcasecmp(field, "networkport"))
 				sscanf(value, "%d", &network_port);
 			else if (!strcasecmp(field, "numpermanentplayers"))
@@ -760,17 +760,17 @@ void ENVIRONMENT::load_from_file (FILE *file)
 			else if (!strcasecmp(field, "osmouse")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				osMouse = val > 0 ? true : false;
+				osMouse = val > 0;
 			} else if (!strcasecmp(field, "playmusic")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				play_music = val > 0 ? true : false;
+				play_music = val > 0;
 			} else if (!strcasecmp(field, "rounds") )
 				sscanf(value, "%u", &rounds);
 			else if (!strcasecmp(field, "scoreboard")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				global.showScoreBoard = val > 0 ? true : false;
+				global.showScoreBoard = val > 0;
 			} else if (!strcasecmp(field, "scorehitunit"))
 				sscanf(value, "%d", &scoreHitUnit);
 			else if (!strcasecmp(field, "scoreroundwinbonus"))
@@ -794,15 +794,15 @@ void ENVIRONMENT::load_from_file (FILE *file)
 			else if ( !strcasecmp(field, "showaifeedback") ) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				showAIFeedback = val > 0 ? true : false;
+				showAIFeedback = val > 0;
 			} else if ( !strcasecmp(field, "showfps") ) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				showFPS = val > 0 ? true : false;
+				showFPS = val > 0;
 			} else if (!strcasecmp(field, "soundenabled")) {
 				int32_t val = 0;
 				sscanf(value, "%d", &val);
-				sound_enabled = val > 0 ? true : false;
+				sound_enabled = val > 0;
 			} else if (!strcasecmp(field, "sounddriver"))
 				sscanf(value, "%d", &sound_driver);
 			else if (!strcasecmp(field, "startmoney"))
@@ -849,15 +849,15 @@ void ENVIRONMENT::load_from_file (FILE *file)
 			else if (!strcasecmp(field, "textfade")) {
 				int32_t res = 0;
 				sscanf(value, "%d", &res);
-				fadingText = res ? true : false;
+				fadingText = res != 0;
 			} else if (!strcasecmp(field, "textshadow")) {
 				int32_t res = 0;
 				sscanf(value, "%d", &res);
-				shadowedText = res ? true : false;
+				shadowedText = res != 0;
 			} else if (!strcasecmp(field, "textsway")) {
 				int32_t res = 0;
 				sscanf(value, "%d", &res);
-				swayingText = res ? true : false;
+				swayingText = res != 0;
 			} else if (!strcasecmp(field, "landslidedelay"))
 				sscanf(value, "%d", &landSlideDelay);
 			else if (!strcasecmp(field, "fallingdirtballs") ) {
@@ -919,9 +919,8 @@ void ENVIRONMENT::load_from_file (FILE *file)
 #define LOAD_TEXT_BLOCK(var, file) try { \
 	snprintf(path_buf, PATH_MAX, "%s/text/%s%s", dataDir, file, suffix); \
 	TEXTBLOCK* new_##var = new TEXTBLOCK(path_buf); \
-	if (var) \
-		delete var; \
-	var = new_##var; \
+	delete (var); \
+	(var) = new_##var; \
 } catch (...) { }
 
 /** @brief load text files according to set language
@@ -932,47 +931,50 @@ void ENVIRONMENT::load_from_file (FILE *file)
 void ENVIRONMENT::load_text_files()
 {
 	char suffix[12] = { 0 };
+	int r = 0;
 
 	switch (language) {
 		case EL_FRENCH:
 			strncpy(suffix, "_fr.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
 			break;
 		case EL_GERMAN:
 			strncpy(suffix, "_de.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
 			break;
 		case EL_ITALIAN:
 			strncpy(suffix, "_it.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes_it.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes_it.txt", dataDir);
 			break;
 		case EL_PORTUGUESE:
 			strncpy(suffix, ".pt_BR.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
 			break;
 		case EL_RUSSIAN:
 			strncpy(suffix, "_ru.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes_ru.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes_ru.txt", dataDir);
 			break;
 		case EL_SLOVAK:
 			strncpy(suffix, "_sk.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
 			break;
 		case EL_SPANISH:
 			strncpy(suffix, "_ES.txt", 11);
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes_ES.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes_ES.txt", dataDir);
 			break;
 		case EL_ENGLISH:
 		default:
 			strncpy(suffix, ".txt", 11);       // default to english
-			snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
+			r = snprintf(path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir);
 			break;
 	}
+	
+	if ( r < 0 )
+		abort();
 
 	try {
-		TEXTBLOCK* new_war_quotes = new TEXTBLOCK(path_buf);
-		if (war_quotes)
-			delete war_quotes;
+		auto new_war_quotes = new TEXTBLOCK(path_buf);
+		delete war_quotes;
 		war_quotes = new_war_quotes;
 	} catch (...) { /* can't do anything helpful here anyway */ }
 

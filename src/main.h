@@ -201,11 +201,11 @@ using std::string;
 **/
 #define SHOW_MOUSE(where) { \
 	if (!env.osMouse) { \
-		if (where != nullptr) unscare_mouse(); \
+		if ((where) != nullptr) unscare_mouse(); \
 		else scare_mouse(); \
 		show_mouse(where); \
 		/* Make the neccessary updates */ \
-		if (where != nullptr) { \
+		if ((where) != nullptr) { \
 			global.make_update (mouse_x, mouse_y, env.misc[0]->w, env.misc[0]->h); \
 			global.make_update (lx, ly, env.misc[0]->w, env.misc[0]->h); \
 			lx = mouse_x; \
@@ -227,23 +227,29 @@ using std::string;
 #define ITEMS 24
 #define THINGS (WEAPONS + ITEMS)
 #define	NATURALS 6
-#define DIRT_FRAGMENT -1
+#define DIRT_FRAGMENT (-1)
+#if 0 /// REMOVEME: Nowhere used
 #define RADII 6
 #define MAXRADIUS 200
 #define BUTTONFRAMES 2
+#endif // 0
 
 #define MENUBUTTONS 7
 #define INGAMEBUTTONS 4
 #define SPREAD 10
 #define NAME_LEN 24
+#if 0 /// REMOVEME: Nowhere used
 #define ADDRESS_LENGTH 16
+#endif // 0
 
 #define WAIT_AT_END_OF_ROUND 1 // second (enough with the new live score board)
 
 #define MAX_ITEM_NAME_LEN 127
 #define MAX_ITEM_DESC_LEN 511
 #define MAX_ITEMS_IN_STOCK 999999
+#if 0 /// REMOVEME: Nowhere used
 #define MAX_MONEY_IN_WALLET 1000000000
+#endif // 0
 
 // to make the theft bomb base steal easier to change, here
 // is a useful define. Maybe, one day, we'll add it to the options?
@@ -271,9 +277,7 @@ struct POINT_t
 	int32_t y = 0;
 
 	explicit
-	POINT_t() { }
-	POINT_t(int32_t x_, int32_t y_);
-	POINT_t &operator=( const POINT_t &src );
+	POINT_t() = default;
 };
 
 
@@ -284,12 +288,8 @@ struct BOX
 	int32_t w = 0;
 	int32_t h = 0;
 
-	explicit
-	BOX () { }
+	BOX() = default;
 	BOX (int32_t x_, int32_t y_, int32_t w_, int32_t h_);
-	BOX &operator=(const BOX  &src);
-	BOX &operator=(const BOX &&src);
-
 	void set(int32_t x_, int32_t y_, int32_t w_, int32_t h_);
 };
 
@@ -373,8 +373,8 @@ private:
 	 * -----------------------------------
 	 */
 
-	char desc[MAX_ITEM_DESC_LEN + 1];
-	char name[MAX_ITEM_NAME_LEN + 1];
+	char desc[MAX_ITEM_DESC_LEN + 1] = { 0x0 };
+	char name[MAX_ITEM_NAME_LEN + 1] = { 0x0 };
 };
 
 #define	MAX_ITEMVALS	10
@@ -515,7 +515,7 @@ enum weaponType
 
 #define LAST_EXPLOSIVE DRILLER
 
-#define ITEM_NO_SHIELD   -1
+#define ITEM_NO_SHIELD   (-1)
 enum itemType
 {
 	ITEM_TELEPORT             =  0, // 56 (weap_idx - WEAPONS)
@@ -544,20 +544,22 @@ enum itemType
 	ITEM_SDI                  = 23  // 79 (Last item)
 };
 
+#if 0 /// REMOVEME: Nowhere used
 #define SHIELD_COUNT		6
+#endif // 0
 
 //signals
-#define	SIG_QUIT_GAME         -1
-#define SIG_OK                 0
-#define GLOBAL_COMMAND_QUIT   -1
-#define GLOBAL_COMMAND_MENU    0
-#define GLOBAL_COMMAND_OPTIONS 1
-#define GLOBAL_COMMAND_PLAYERS 2
-#define GLOBAL_COMMAND_CREDITS 3
-#define	GLOBAL_COMMAND_HELP    4
-#define GLOBAL_COMMAND_PLAY    5
-#define GLOBAL_COMMAND_DEMO    6
-#define GLOBAL_COMMAND_NETWORK 7
+#define	SIG_QUIT_GAME         (-1)
+#define SIG_OK                  0
+#define GLOBAL_COMMAND_QUIT   (-1)
+#define GLOBAL_COMMAND_MENU     0
+#define GLOBAL_COMMAND_OPTIONS  1
+#define GLOBAL_COMMAND_PLAYERS  2
+#define GLOBAL_COMMAND_CREDITS  3
+#define	GLOBAL_COMMAND_HELP     4
+#define GLOBAL_COMMAND_PLAY     5
+#define GLOBAL_COMMAND_DEMO     6
+#define GLOBAL_COMMAND_NETWORK  7
 
 
 /** @enum eClasses
@@ -598,4 +600,3 @@ void   quickChange       (bool clearerror);
 #include "externs.h"
 
 #endif
-
