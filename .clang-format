@@ -1,0 +1,212 @@
+# Please use clang-format version 14 or later
+# Newest on Debian 12 "Bookworm" is clang-format-14/stable
+
+Standard: Latest
+Language: Cpp
+DisableFormat: false
+
+ColumnLimit: 168                           # Modern displays really do not need low-low limits anymore. Even TTYs have 120+ columns
+# LineEnding:  LF                          # Needs clang-format version 16
+IndentWidth: 8
+TabWidth: 8
+UseCRLF: false                         # Deprecated in clang-format 16, see LineEnding: LF
+UseTab: AlignWithSpaces
+
+AccessModifierOffset: -8
+ConstructorInitializerIndentWidth: 8
+ContinuationIndentWidth: 8
+
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCompound: true
+  PadOperators: true
+AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
+AlignConsecutiveDeclarations: AcrossEmptyLinesAndComments
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignEscapedNewlines: Left
+AlignOperands: AlignAfterOperator
+AlignTrailingComments: true         # Deprecated in clang-format 16, then switched to the following options
+#  Kind:           Always                  # Added in clang-format 16
+#  OverEmptyLines: 2                       # Added in clang-format 16
+
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLambdasOnASingleLine: Inline
+AllowShortLoopsOnASingleLine: true
+
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+AlwaysBreakTemplateDeclarations: MultiLine
+
+BinPackArguments: false
+BinPackParameters: false
+
+BitFieldColonSpacing: After
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+# BracedInitializerIndentWidth:   2             # Needs clang-format version 17
+# BreakAfterAttributes:           Leave         # Needs clang-format version 16
+# BreakArrays:                    false         # Needs clang-format version 16 (Currently only for JSON)
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeConceptDeclarations: Allowed
+# BreakBeforeInlineASMColon:      OnlyMultiline # Needs clang-format version 16
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+BreakStringLiterals: true
+
+CompactNamespaces: false
+Cpp11BracedListStyle: false
+DerivePointerAlignment: true # Let's respect the authors preference
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: Always
+FixNamespaceComments: true
+
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^(("|<)havilib/)'
+    Priority: 3
+    CaseSensitive: true
+  - Regex: '^([<](jbig|jpe?g|pdf|png|tiff?))'
+    Priority: 4
+    CaseSensitive: false
+  - Regex: '^(("|<)(gtest|gmock|isl|json)/)'
+    Priority: 5
+    CaseSensitive: true
+  - Regex: '<[[:alnum:].]+>'
+    Priority: 6
+  - Regex: '.*'
+    Priority: 2
+    SortPriority: 0
+SortIncludes: CaseSensitive
+
+IndentAccessModifiers: false
+IndentCaseBlocks: true
+IndentCaseLabels: true
+IndentExternBlock: NoIndent
+IndentGotoLabels: false
+IndentPPDirectives: AfterHash
+PPIndentWidth: 2
+IndentRequires: true  # Name in clang-format 12, 13 and 14
+# IndentRequiresClause:       true  # Since clang-format 15
+IndentWrappedFunctionNames: true
+
+# InsertBraces: true          # Needs clang-format version 15
+# InsertNewlineAtEOF: true    # Needs clang-format version 16
+# IntegerLiteralSeparator:    # Needs clang-format version 16
+#   Binary:           4       # Needs clang-format version 16
+#   BinaryMinDigits:  8       # Needs clang-format version 16
+#   Decimal:          3       # Needs clang-format version 16
+#   DecimalMinDigits: 4       # Needs clang-format version 16
+#   Hex:             -1       # Needs clang-format version 16
+
+KeepEmptyLinesAtTheStartOfBlocks: true
+LambdaBodyIndentation: Signature
+MaxEmptyLinesToKeep: 2        # Set to 2 so implementations can be kept apart with better visibility
+NamespaceIndentation: Inner   # If you have to nest namespaces, re-think your design.
+
+AllowAllConstructorInitializersOnNextLine: true  # Deprecated in clang-format 15, See PackConstructorInitializers!
+ConstructorInitializerAllOnOneLineOrOnePerLine: true  # Deprecated in clang-format 15, See PackConstructorInitializers!
+PackConstructorInitializers: NextLine                 # Needs clang-format version 14
+
+PenaltyBreakAssignment: 10
+PenaltyBreakBeforeFirstCallParameter: 30
+PenaltyBreakComment: 10
+PenaltyBreakFirstLessLess: 0
+PenaltyBreakOpenParenthesis: 10
+PenaltyBreakString: 10
+PenaltyBreakTemplateDeclaration: 20
+PenaltyExcessCharacter: 100
+PenaltyIndentedWhitespace: 40
+PenaltyReturnTypeOnItsOwnLine: 60
+
+PointerAlignment: Left
+QualifierAlignment: Left                    # Needs clang-format version 14
+ReferenceAlignment: Right
+ReflowComments: true
+RemoveBracesLLVM: false                     # Needs clang-format version 14
+# RemoveSemicolon: true                     # Needs clang-format version 16
+# RequiresClausePosition: WithFollowing     # Needs clang-format version 15
+# RequiresExpressionIndentation: OuterScope # Needs clang-format version 16
+SeparateDefinitionBlocks: Always            # Needs clang-format version 14
+ShortNamespaceLines: 8
+SortJavaStaticImport: Before
+SortUsingDeclarations: true                 # Re-Implemented in clang-format version 17. Switch to "Lexicographic" then
+
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+
+SpaceAroundPointerQualifiers: Before
+
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+# SpaceBeforeJsonColon:              false  # Needs clang-format version 17
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterForeachMacros: false
+  AfterFunctionDeclarationName: false
+  AfterFunctionDefinitionName: false
+  AfterIfMacros: false
+  AfterOverloadedOperator: true
+  AfterRequiresInClause: true
+  AfterRequiresInExpression: true
+  BeforeNonEmptyParentheses: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: Always
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: true
+SpacesInContainerLiterals: true
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: -1
+SpacesInParentheses: true
+SpacesInSquareBrackets: true
+
+ForEachMacros: [ 'RANGES_FOR', 'FOREACH' ]
+IfMacros: [ 'PDF_TRY','PDF_CATCH' ]
+MacroBlockBegin: '^\s*PDF_TRY'
+MacroBlockEnd: '^\s*PDF_CATCH'
+# Macros:                       (List of Strings)   # Needs clang-format version 17
+StatementAttributeLikeMacros: [ 'emit','_alloc_','_hidden_','_malloc_','_public_','_unlikely_' ]
+StatementMacros: [ 'Q_UNUSED','DECLARATIONS_BEGIN','DECLARATIONS_END','PDF_CATCH_AND_FINISH','PDF_CATCH_AND_LOG','PDF_CATCH_AND_RETURN','PDF_CATCH_AND_FAIL' ]
+TypenameMacros: [ 'STACK_OF', 'LIST' ]
