@@ -20,38 +20,30 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "externs.h"
 #include "main.h"
 #include "physobj.h"
 
-
 /** @enum eBeamType
-  * @brief Determines what kind of beam is generated
-**/
-enum eBeamType
-{
+ * @brief Determines what kind of beam is generated
+ **/
+enum eBeamType {
 	BT_WEAPON = 0, //!< Normal weapon, nothing special
 	BT_SDI,        //!< Not a weapon but an SDI laser
 	BT_NATURAL,    //!< Fired by natural disaster, like lightning.
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
-
-class BEAM: public PHYSICAL_OBJECT
-{
+class BEAM : public PHYSICAL_OBJECT {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit BEAM ( PLAYER* player_, double x_, double y_,
-					int32_t fireAngle, int32_t weaponType,
-					eBeamType beam_type);
-	BEAM          ( PLAYER* player_, double x_, double y_,
-					double tx, double ty, int32_t weaponType,
-					bool is_burnt_out);
-	~BEAM ();
+	explicit BEAM ( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
+	BEAM ( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
+	~BEAM();
 
 
 	/* ----------------------
@@ -59,24 +51,23 @@ public:
 	 * ----------------------
 	 */
 
-	void	 applyPhysics();
-    void	 draw        ();
-    void     getEndPoint (int32_t &x, int32_t &y); // For mind shots to fetch
-	void     moveStart   (double x_, double y_);   // For the satellite
+	void     applyPhysics();
+	void     draw();
+	void     getEndPoint ( int32_t& x, int32_t& y ); // For mind shots to fetch
+	void     moveStart ( double x_, double y_ );     // For the satellite
 
 	eClasses getClass() { return CLASS_BEAM; }
 
 
 private:
-
 	/* -----------------------
 	 * --- Private methods ---
 	 * -----------------------
 	 */
 
-	void createBeamPath();
-	void makeLightningPath();
-	void traceBeamPath ();
+	void      createBeamPath();
+	void      makeLightningPath();
+	void      traceBeamPath();
 
 
 	/* -----------------------
@@ -97,4 +88,3 @@ private:
 };
 
 #endif
-

@@ -3,28 +3,21 @@
 
 #include "main.h"
 
-class BUTTON
-{
+class BUTTON {
 public:
-
 	/* --------------------
 	 * --- constructors ---
 	 * --------------------
 	 */
 
 	// Minimum ctor without text
-	explicit
-	BUTTON (int32_t left_, int32_t top_,
-	        BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_);
+	explicit BUTTON ( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
 	// ctor for using a bitmap.
-	BUTTON (const char* text_, bool text_only_,
-	        int32_t left_, int32_t top_,
-	        BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_);
+	BUTTON ( const char* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
 	// ctor for drawing a manual box.
-	BUTTON (const char* text_, bool text_only_,
-	        int32_t left_, int32_t top_, int32_t width_, int32_t height_);
+	BUTTON ( const char* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 
 
 	/* ----------------------
@@ -32,22 +25,21 @@ public:
 	 * ----------------------
 	 */
 
-	void draw ();
-	void getLocation(int32_t &x,int32_t &y,int32_t &w,int32_t &h);
-	bool isMouseOver ();
-	bool isPressed ();
-	void setText(const char* text_);
+	void draw();
+	void getLocation ( int32_t& x, int32_t& y, int32_t& w, int32_t& h );
+	bool isMouseOver();
+	bool isPressed();
+	void setText ( const char* text_ );
 
 private:
-
 	/* -----------------------
 	 * --- Private members ---
 	 * -----------------------
 	 */
 
-	BITMAP*     bmp        = nullptr;
-	BITMAP*     depressed  = nullptr;
-	BITMAP*     hover      = nullptr;
+	BITMAP*     bmp       = nullptr;
+	BITMAP*     depressed = nullptr;
+	BITMAP*     hover     = nullptr;
 	BOX         location;               //!< is {0, 0, 0, 0} by default
 	const char* text       = nullptr;
 	bool        text_only  = false;     //!< If set to true, only the title is displayed.
@@ -56,4 +48,3 @@ private:
 };
 
 #endif
-

@@ -23,19 +23,15 @@
 #include "globaltypes.h"
 #include "virtobj.h"
 
-class TELEPORT: public VIRTUAL_OBJECT
-{
-  public:
-
+class TELEPORT : public VIRTUAL_OBJECT {
+public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 	// Source constructor
-	TELEPORT (VIRTUAL_OBJECT *targetObj,
-	          int32_t destinationX, int32_t destinationY,
-	          int32_t objRadius, int32_t duration, int32_t type);
-	virtual ~TELEPORT ();
+	TELEPORT ( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t destinationY, int32_t objRadius, int32_t duration, int32_t type );
+	virtual ~TELEPORT();
 
 
 	/* ----------------------
@@ -43,21 +39,20 @@ class TELEPORT: public VIRTUAL_OBJECT
 	 * ----------------------
 	 */
 
-	void    applyPhysics ();
-	void    draw ();
+	void     applyPhysics();
+	void     draw();
 
-    eClasses getClass() { return CLASS_TELEPORT; }
+	eClasses getClass() { return CLASS_TELEPORT; }
 
 
 private:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
 	// Target constructor
-	TELEPORT (TELEPORT *remoteEnd, int32_t destX, int32_t destY);
+	TELEPORT ( TELEPORT* remoteEnd, int32_t destX, int32_t destY );
 
 
 	/* -----------------------

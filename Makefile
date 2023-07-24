@@ -28,8 +28,12 @@ SANITIZE_ADDRESS ?= NO
 SANITIZE_LEAK    ?= NO
 SANITIZE_THREAD  ?= NO
 
-# The following is only used on gcc-4.9+ and only without debugging enabled.
-USE_LTO ?= NO
+# The following is only used without debugging enabled.
+USE_LTO     ?= NO
+
+# Set to one if wanting to use linker plugins. Requires USE_LOT to be YES
+GCCUSESGOLD ?= NO
+
 
 # ------------------------------------
 # Install and target directories
@@ -109,32 +113,11 @@ endif
 LD := $(CXX)
 
 # --------------------------------------------------------------------------
-# Determine proper C++11 standard flag, and if and how stack protector works
+# C++17 is the minimum standard to use. Older compilers are a security risk.
 # --------------------------------------------------------------------------
-GCCVERSGTEQ47 := 0
-GCCVERSGTEQ49 := 0
-GCCUSESGOLD   := 0
-GCC_STACKPROT :=
-GCC_CXXSTD    := 0x
-PEDANDIC_FLAG := -pedantic
-
-# Note: It has to be evaluated which versions of clang and mingw
-#       start using c++11 instead of c++0x.
-ifneq (,$(findstring /g++,$(CXX)))
-  GCCVERSGTEQ47 := $(shell expr `$(CXX) -dumpversion | cut -f1,2 -d. | tr -d '.'` \>= 47)
-  GCCVERSGTEQ49 := $(shell expr `$(CXX) -dumpversion | cut -f1,2 -d. | tr -d '.'` \>= 49)
-endif
-
-ifeq "$(GCCVERSGTEQ47)" "1"
-  GCC_CXXSTD    := 11
-  PEDANDIC_FLAG := -Wpedantic
-  ifeq "$(GCCVERSGTEQ49)" "1"
-    GCC_STACKPROT := -fstack-protector-strong
-    GCCUSESGOLD   := $(shell ld --version | head -n 1 | grep -c "GNU gold")
-  else
-    GCC_STACKPROT := -fstack-protector
-  endif
-endif
+GCC_STACKPROT := -fstack-protector-strong
+GCC_CXXSTD    := 17
+PEDANDIC_FLAG := -Wpedantic
 
 
 # ------------------------------------
@@ -237,10 +220,8 @@ endif
 
 # Potentially enable LTO if this is gcc-4.9 and greater
 ifeq (YES,$(USE_LTO))
-  ifeq "$(GCCVERSGTEQ49)" "1"
-    CXXFLAGS := ${CXXFLAGS} -flto
-  endif
-  ifeq "$(GCCUSESGOLD)" "1"
+  CXXFLAGS := ${CXXFLAGS} -flto
+  ifeq (YES,$(GCCUSESGOLD))
     CXXFLAGS := ${CXXFLAGS} -fuse-linker-plugin
   endif
 endif

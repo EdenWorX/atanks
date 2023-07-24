@@ -24,23 +24,18 @@
 #include "main.h"
 #include "physobj.h"
 
-class EXPLOSION: public PHYSICAL_OBJECT
-{
+class EXPLOSION : public PHYSICAL_OBJECT {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
 	// default ctor for all non-BEAM explosions
-	explicit
-	EXPLOSION (PLAYER* player_, double x_, double y_, double xv_, double yv_,
-	           int32_t type, bool is_weapon);
+	explicit EXPLOSION ( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
 	// Special ctor for BEAM:
-	EXPLOSION (PLAYER* player_, double x_, double y_, double xv_, double yv_,
-	           int32_t type, double damage_, bool is_weapon);
-	~EXPLOSION ();
+	EXPLOSION ( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
+	~EXPLOSION();
 
 
 	/* ----------------------
@@ -48,25 +43,22 @@ public:
 	 * ----------------------
 	 */
 
-	void	 applyPhysics();
-    void	 draw        ();
-	void     explode     ();
+	void     applyPhysics();
+	void     draw();
+	void     explode();
 
 	eClasses getClass() { return CLASS_EXPLOSION; }
 
 
 private:
-
 	/* -----------------------
 	 * --- Private methods ---
 	 * -----------------------
 	 */
 
-	void do_clear();
-	void do_throw();
-	void drawFracture (int32_t x, int32_t y, int32_t frac_angle, int32_t width,
-	                   int32_t segmentLength, int32_t maxRecurse,
-	                   int32_t recurseDepth);
+	void    do_clear();
+	void    do_throw();
+	void    drawFracture ( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse, int32_t recurseDepth );
 
 
 	/* -----------------------
@@ -98,11 +90,8 @@ private:
 	float   scale        = 0.;
 };
 
-
 // Global helpers:
-void   draw_Napalm_Blob(VIRTUAL_OBJECT* blob, int32_t x, int32_t y,
-                        int32_t radius, int32_t frame);
-double get_hit_damage  (TANK* tank, weaponType type, int32_t hit_x,
-                        int32_t hit_y);
+void   draw_Napalm_Blob ( VIRTUAL_OBJECT* blob, int32_t x, int32_t y, int32_t radius, int32_t frame );
+double get_hit_damage ( TANK* tank, weaponType type, int32_t hit_x, int32_t hit_y );
 
 #endif

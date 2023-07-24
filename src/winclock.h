@@ -1,6 +1,6 @@
 #pragma once
 #ifndef ATANKS_SRC_WINCLOCK_H_INCLUDED
-#define ATANKS_SRC_WINCLOCK_H_INCLUDED
+#  define ATANKS_SRC_WINCLOCK_H_INCLUDED
 
 /* Workaround for the buggy <chrono> implementation of VS12.
  *
@@ -21,85 +21,72 @@
  * https://connect.microsoft.com/VisualStudio/feedback/details/753115/
  */
 
-#if defined(ATANKS_IS_MSVC)
-#include "main.h"
+#  if defined( ATANKS_IS_MSVC )
+#    include "main.h"
 
-#ifdef USE_MUTEX_INSTEAD_OF_SPINLOCK
-#  include <mutex>
-#  define CSpinLock std::mutex
-#endif // USE_MUTEX_INSTEAD_OF_SPINLOCK
+#    ifdef USE_MUTEX_INSTEAD_OF_SPINLOCK
+#      include <mutex>
+#      define CSpinLock std::mutex
+#    endif // USE_MUTEX_INSTEAD_OF_SPINLOCK
 
 // timer variable and locker
-bool       has_win_clock  = false;
-CSpinLock  win_clock_lock;
-volatile
-int32_t    win_clock      = 0;
+bool             has_win_clock = false;
+CSpinLock        win_clock_lock;
+volatile int32_t win_clock = 0;
 
 // additional functions:
-void win_clock_add()
-{
-	++win_clock;
+void             win_clock_add() {
+        ++win_clock;
 }
-END_OF_FUNCTION(win_clock_add)
+END_OF_FUNCTION ( win_clock_add )
 
-void win_clock_deinit()
-{
+void win_clock_deinit() {
 	if ( has_win_clock ) {
-		remove_int(win_clock_add);
+		remove_int ( win_clock_add );
 		has_win_clock = false;
 	}
 	win_clock = 0;
 }
 
-inline int32_t win_clock_get()
-{
+inline int32_t win_clock_get() {
 	win_clock_lock.lock();
 	int32_t result = win_clock;
-	win_clock = 0;
+	win_clock      = 0;
 	win_clock_lock.unlock();
 	return result;
 }
 
-void win_clock_init()
-{
+void win_clock_init() {
 	win_clock = 0;
 	if ( !has_win_clock ) {
-		LOCK_VARIABLE(win_clock)
-		LOCK_FUNCTION(win_clock_add)
-		install_int_ex(win_clock_add, MSEC_TO_TIMER(1));
+		LOCK_VARIABLE ( win_clock )
+		LOCK_FUNCTION ( win_clock_add )
+		install_int_ex ( win_clock_add, MSEC_TO_TIMER ( 1 ) );
 		has_win_clock = true;
 	}
 }
 
 // Re-implement the millisecond sensitive functions:
-int32_t game_us_get()
-{
+int32_t game_us_get() {
 	return win_clock_get() * 1000;
 }
 
-
-void game_us_reset()
-{
+void game_us_reset() {
 	win_clock_lock.lock();
 	win_clock = 0;
 	win_clock_lock.unlock();
 }
 
-
-int32_t menu_ms_get()
-{
+int32_t menu_ms_get() {
 	return win_clock_get();
 }
 
-
-void menu_ms_reset()
-{
+void menu_ms_reset() {
 	win_clock_lock.lock();
 	win_clock = 0;
 	win_clock_lock.unlock();
 }
 
-#endif // defined(ATANKS_IS_MSVC)
+#  endif // defined(ATANKS_IS_MSVC)
 
-#endif // ATANKS_SRC_WINCLOCK_H_INCLUDED
-
+#endif   // ATANKS_SRC_WINCLOCK_H_INCLUDED

@@ -12,10 +12,8 @@
 class BEAM;
 #endif // BEAM_DEFINE
 
-class SATELLITE
-{
+class SATELLITE {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
@@ -35,7 +33,6 @@ public:
 
 
 private:
-
 	/* -----------------------
 	 * --- Private members ---
 	 * -----------------------
@@ -46,8 +43,6 @@ private:
 	int32_t y      = MENUHEIGHT + 5;
 	int32_t xv     = -2;
 	int32_t prev_x = 0;
-
 };
 
 #endif
-

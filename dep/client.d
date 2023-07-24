@@ -1,6 +1,6 @@
-obj/client.o dep/client.d : src/client.cpp src/button.h src/main.h src/debug.h \
- src/globaltypes.h src/externs.h src/globaldata.h src/text.h \
- src/environment.h src/network.h src/gfxData.h src/files.h \
- src/satellite.h src/update.h src/client.h src/beam.h src/physobj.h \
- src/virtobj.h src/explosion.h src/missile.h src/teleport.h \
- src/floattext.h src/player.h src/player_types.h src/tank.h src/sky.h
+obj/client.o dep/client.d : src/client.cpp src/client.h src/beam.h src/externs.h \
+ src/globaldata.h src/main.h src/debug.h src/globaltypes.h \
+ src/environment.h src/gfxData.h src/bitmap.h src/network.h src/text.h \
+ src/physobj.h src/virtobj.h src/button.h src/explosion.h src/files.h \
+ src/floattext.h src/missile.h src/player.h src/player_types.h \
+ src/satellite.h src/sky.h src/tank.h src/teleport.h src/update.h
