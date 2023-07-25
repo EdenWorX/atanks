@@ -27,6 +27,7 @@
 #  include "optionitemplayer.h"
 
 #  include <new> // for bad_alloc exception
+#  include <string>
 
 /** @file menu.h
  * @brief Declare Menu class for self managing menus

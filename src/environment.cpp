@@ -33,7 +33,6 @@
 using std::string;
 
 ENVIRONMENT::ENVIRONMENT() {
-	memset ( game_name, 0, sizeof ( char ) * GAMENAMELEN );
 	memset ( playerOrder, 0, sizeof ( PLAYER* ) * MAXPLAYERS );
 	memset ( server_name, 0, sizeof ( char ) * 129 );
 	memset ( server_port, 0, sizeof ( char ) * 129 );

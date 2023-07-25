@@ -334,11 +334,12 @@ int32_t selectPlayers() {
 
 	// "Rounds"
 	menu.addValue ( &env.rounds, idx++, BLACK, 1, MAX_ROUNDS, 1, "%u", menuMid - ( itemWidth / 2 ), itemY, itemWidth, itemHeight, itemPadding );
-	itemY += itemFullHeight + 2;
+	itemY                                 += itemFullHeight + 2;
 
 	// "New Game Name"
-	strncpy ( env.game_name, "New Game", GAMENAMELEN );
-	menu.addText ( env.game_name, idx++, GAMENAMELEN, BLACK, "%s", menuMid - ( itemWidth / 2 ), itemY, itemWidth, itemHeight, itemPadding );
+	char new_game_name[ GAMENAMELEN + 1 ]  = { 0x0 };
+	strncpy ( new_game_name, "New Game", GAMENAMELEN );
+	menu.addText ( new_game_name, idx++, GAMENAMELEN, BLACK, "%s", menuMid - ( itemWidth / 2 ), itemY, itemWidth, itemHeight, itemPadding );
 	itemY            += itemFullHeight + 2;
 
 	// find saved games
@@ -446,7 +447,7 @@ int32_t selectPlayers() {
 		if ( env.loadGame ) {
 			if ( env.saved_game_list && ( env.saved_gameindex < env.saved_game_list_size ) && env.saved_game_list[ env.saved_gameindex ][ 0 ] ) {
 
-				strncpy ( env.game_name, env.saved_game_list[ env.saved_gameindex ], GAMENAMELEN );
+				env.game_name.assign ( env.saved_game_list[ env.saved_gameindex ] );
 			}
 		}
 
@@ -509,6 +510,8 @@ int32_t selectPlayers() {
 		}
 		free ( saved_game_names );
 	}
+
+	env.game_name.assign ( new_game_name );
 
 	return optionsRetVal;
 }

@@ -1129,7 +1129,9 @@ static void play_local() {
 	if ( selectPlayers() != MRC_Esc_Menu ) {
 
 		// make sure the game has a name
-		if ( !env.game_name[ 0 ] ) strncpy ( env.game_name, env.ingame->Get_Line ( 53 ), GAMENAMELEN );
+		if ( env.game_name.empty() ) {
+			env.game_name.assign ( env.ingame->Get_Line ( 53 ) );
+		}
 
 		newgame();
 
@@ -1318,8 +1320,8 @@ int32_t main ( int32_t argc, char** argv ) {
 	// Load game files
 	if ( !env.loadGameFiles() ) return EXIT_FAILURE; // message already out
 
-		// new networking area
-#ifdef NETWORK
+
+#ifdef NETWORK /// new networking area
 	SEND_RECEIVE_TYPE* send_receive   = nullptr;
 	std::thread*       network_thread = nullptr;
 

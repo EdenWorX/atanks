@@ -156,7 +156,7 @@ bool Load_Game() {
 						stdout,
 						"Game \"%s\" needs to be upgraded"
 						" from version %2.1f to version %2.1f\n",
-						env.game_name,
+						env.game_name.c_str(),
 						static_cast< float > ( file_version ) / 10.0,
 						static_cast< float > ( game_version ) / 10.0
 					);

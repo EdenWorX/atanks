@@ -1329,7 +1329,7 @@ void TANK::newRound ( int32_t pos_x, int32_t pos_y ) {
 	l           = maxLife;
 
 	// (re)-init health text
-	snprintf ( buf, 11, "%d", l );
+	snprintf ( buf, 12, "%d", l );
 	healthText.set_text ( buf );
 	healthText.set_color ( player->color );
 

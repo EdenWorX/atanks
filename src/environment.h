@@ -162,7 +162,7 @@ public:
 	double       FPS_mod            = 0.; // Pre-calculated, used in many places.
 	int32_t      frames_per_second  = 0;
 	int32_t      full_screen        = FULL_SCREEN_FALSE;
-	char         game_name[ GAMENAMELEN + 1 ];
+	string       game_name;
 	sGfxData     gfxData;
 	double       gravity             = 0.15;
 	int32_t      halfHeight          = DEFAULT_SCREEN_HEIGHT / 2;
