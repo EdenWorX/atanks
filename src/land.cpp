@@ -80,9 +80,12 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 		// This is why the array is called surface (again) and not (no longer)
 		// height.
 
-		if ( land_type != LAND_NONE )
-			surface = ( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, 0, lambda, octaves ) ) / 2. * land_height;
-		global.surface[ x ].store( surface );
+		if ( land_type != LAND_NONE ) {
+			surface = ROUND(
+				( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, 0, lambda, octaves ) ) / 2. * land_height
+			);
+		}
+		global.surface[ x ].store( surface > 1 ? surface : 1 );
 	} // End of generating surface array
 
 	// If this is a wrapped landcape, smooth out both sides towards their
@@ -130,7 +133,12 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 					( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, depth, lambda, octaves )
 				        ) / 2. * land_height
 					- ( env.screenHeight - depth );
-				if ( depthStrip[ 1 ][ depth ] > surface ) depthStrip[ 1 ][ depth ] = surface;
+				if ( depthStrip[ 1 ][ depth ] > surface ) {
+					depthStrip[ 1 ][ depth ] = surface;
+				}
+				if ( depthStrip[ 1 ][ depth ] < 1. ) {
+					depthStrip[ 1 ][ depth ] = 1.;
+				}
 			}
 			depthStrip[ 1 ][ 0 ] = 0;
 			depth                = 1;
@@ -142,22 +150,28 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			lcr->yield();
 
 			double  offset = 0;
-			int32_t color  = BLACK;
-			double  shade  = 0;
+			int32_t color;
+			double  shade = 0;
 
 			if ( env.detailedLandscape ) {
-				while ( ( depth < env.screenHeight ) && ( depthStrip[ 1 ][ depth ] <= y ) ) ++depth;
+				while ( ( depth < env.screenHeight ) && ( depthStrip[ 1 ][ depth ] <= y ) ) {
+					++depth;
+				}
 
-				double bot    = ( depthStrip[ 0 ][ depth - 1 ] + depthStrip[ 1 ][ depth - 1 ] ) / 2;
-				double minBot = std::min( depthStrip[ 0 ][ depth - 1 ], depthStrip[ 1 ][ depth - 1 ] );
-				double maxTop = std::max( depthStrip[ 0 ][ depth ], depthStrip[ 1 ][ depth ] );
-				double btdiff = maxTop - minBot;
-				double i      = ( y - bot ) / ( ( btdiff > 1.0 ) ? btdiff : 1.0 );
-				double a1 = RAD2DEG( atan2( depthStrip[ 0 ][ depth - 1 ] - depthStrip[ 1 ][ depth - 1 ], 1.0 ) )
-				          + 180.;
-				double a2 = RAD2DEG( atan2( depthStrip[ 0 ][ depth ] - depthStrip[ 1 ][ depth ], 1.0 ) ) + 180.;
-				double angle = interpolate( a1, a2, i );
-				shade        = env.slope[ (int)angle ][ 0 ];
+				double under_l = depthStrip[ 0 ][ depth - 1 ];
+				double under_r = depthStrip[ 1 ][ depth - 1 ];
+				double surf_l  = depthStrip[ 0 ][ depth ];
+				double surf_r  = depthStrip[ 1 ][ depth ];
+
+				double bot     = ( under_l + under_r ) / 2;
+				double minBot  = std::min( under_l, under_r );
+				double maxTop  = std::max( surf_l, surf_r );
+				double btdiff  = std::max( maxTop, minBot ) - std::min( maxTop, minBot );
+				double i       = ( y - bot ) / ( btdiff > 0.001 ? btdiff : 0.001 );
+				double a1      = RAD2DEG( atan2( under_l - under_r, 1.0 ) ) + 180.;
+				double a2      = RAD2DEG( atan2( surf_l - surf_r, 1.0 ) ) + 180.;
+				double angle   = interpolate( a1, a2, i );
+				shade          = env.slope[ (int)angle ][ 0 ];
 			}
 
 			if ( env.ditherGradients ) offset += get_rand() % 10 - 5;
@@ -178,10 +192,11 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 
 				shade += (double)( get_rand() % 1000 - 500 ) * ( 1.0 / 10000 );
 
-				if ( shade < 0 )
-					v += v * shade * 0.5;
-				else
-					v += ( 1 - v ) * shade * 0.5;
+				if ( shade < 0 ) {
+					v += static_cast< float >( v * shade * 0.5 );
+				} else {
+					v += static_cast< float >( ( 1 - v ) * shade * 0.5 );
+				}
 
 				hsv_to_rgb( h, s, v, &r, &g, &b );
 				color = makecol( r, g, b );
@@ -191,7 +206,7 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 				global.lockLand();
 				solid_mode();
 				putpixel( temp_land, x, env.screenHeight - y, color );
-				drawing_mode( global.current_drawing_mode, NULL, 0, 0 );
+				drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
 				global.unlockLand();
 			}
 		} // End of looping y coordinate
