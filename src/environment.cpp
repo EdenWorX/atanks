@@ -33,9 +33,6 @@
 using std::string;
 
 ENVIRONMENT::ENVIRONMENT() {
-	// Unfortunately Visual C++ can not initialize arrays using an initialization list
-	// although it is part of C++11. Gcc and clang do it fine btw...
-	memset ( availableItems, 0, sizeof ( int32_t ) * THINGS );
 	memset ( game_name, 0, sizeof ( char ) * GAMENAMELEN );
 	memset ( playerOrder, 0, sizeof ( PLAYER* ) * MAXPLAYERS );
 	memset ( server_name, 0, sizeof ( char ) * 129 );

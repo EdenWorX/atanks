@@ -133,7 +133,7 @@ public:
 	 */
 
 	PLAYER**     allPlayers = nullptr;
-	int32_t      availableItems[ THINGS ];
+	int32_t      availableItems[ THINGS ] = { 0x0 };
 	SAMPLE*      background_music  = nullptr;
 	char**       bitmap_filenames  = nullptr;
 	int32_t      boxedMode         = BM_OFF;
