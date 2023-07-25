@@ -47,14 +47,8 @@
 #  include "player_types.h"
 #  include <condition_variable>
 
-// A few often needed randomization shortcuts
-#  define RAND_AI_0P          ( rand() % ai_level )
-#  define RAND_AI_0N          ( 0 == ( rand() % ai_level ) )
-#  define RAND_AI_1P          ( rand() % ( ai_level + 1 ) )
-#  define RAND_AI_1N          ( 0 == ( rand() % ( ai_level + 1 ) ) )
-
 // Init and check for round scores
-#  define NEUTRAL_ROUND_SCORE -1000000
+#  define NEUTRAL_ROUND_SCORE ( -1000000 )
 
 #  ifndef HAS_PLAYER
 class PLAYER;
@@ -765,8 +759,8 @@ public:
 	~AICore();
 
 	// No copying, no assignment
-	AICore( const AICore& )             = delete;
-	AICore& operator= ( const AICore& ) = delete;
+	AICore( AICore const& )             = delete;
+	AICore& operator= ( AICore const& ) = delete;
 
 
 	/* ----------------------
@@ -774,18 +768,22 @@ public:
 	 * ----------------------
 	 */
 
-	PLAYER* active_player() const;
-	void    allowText();
-	bool    can_work() const;
-	void    forbidText();
-	bool    hasExited() const;
-	void    hasMoved( int32_t direction );
-	bool    start( PLAYER* player_ );
-	bool    status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
-	void    stop();
-	void    weapon_fired();
+	// Getters
+	[[nodiscard]] PLAYER* active_player() const;
+	[[nodiscard]] bool    can_work() const;
+	[[nodiscard]] bool    hasExited() const;
 
-	void    operator() ();
+	// Setters
+	void allowText();
+	void forbidText();
+	void hasMoved( int32_t direction );
+	bool start( PLAYER* player_ );
+	bool status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
+	void stop();
+	void weapon_fired();
+
+	// Operators
+	void operator() ();
 
 
 	/* ----------------------
@@ -809,53 +807,52 @@ private:
 	 * -----------------------
 	 */
 
-	bool                                aim( bool is_last, bool can_move );
-	bool                                calcAttack( int32_t attempt );
-	bool                                calcBoxed( bool is_last );
-	void        calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType );
-	int32_t     calcHitScore( bool is_last );
-	bool        calcKamikaze( bool is_last );
-	bool        calcLaser( bool is_last );
-	bool        calcOffset( bool is_last );
-	bool        calcStandard( bool is_last, bool allow_flip_shot );
-	bool        calcUnbury( bool is_last );
-	void        checkItemMem();
-	void        checkOppMem();
-	void        checkWeapMem();
-	void        destroy();
-	void        flattenCurrAng();
-	void        fixCrashed( int32_t& ang_mod, int32_t& pow_mod );
-	void        fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score );
-	void        fixUnfinished( int32_t& ang_mod, int32_t& pow_mod );
-	const char* getLevelName( int32_t level ) const;
-	bool        getMemory();
-	bool        initialize();
-	bool        moveTank();
-	void        sanitizeCurr();
-	bool        selectItem( bool is_last );
-	bool        selectTarget( bool is_last );
-	bool        setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
-	void        showFeedback( const char* const feedback, int32_t col, double yv, eTextSway text_sway, int32_t dur );
-	void traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
-	bool traceShot(
-		int32_t  trace_angle,
-		int32_t  delay_idx,
-		bool&    finished,
-		bool&    top_wrapped,
-		int32_t& reached_x_,
-		int32_t& reached_y_,
-		double&  end_xv,
-		double&  end_yv
-	);
-	void          traceWeapon( int32_t& has_crashed, int32_t& has_finished );
-	void          updateItemScore( itEntry_t* pItem );
-	void          updateOppScore( opEntry_t* pOpp );
-	void          updateWeapScore( weEntry_t* pWeap );
-	bool          useFreeingTool( bool free_tank, bool is_last );
-	bool          useItem( itemType item_type );
-	bool          useItem( int32_t item_index );
-	bool          useWeapon( weaponType weap_type );
-	bool          useWeapon( int32_t weap_index );
+	bool    aim( bool is_last, bool can_move );
+	bool    calcAttack( int32_t attempt );
+	bool    calcBoxed( bool is_last );
+	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType );
+	int32_t calcHitScore( bool is_last );
+	bool    calcKamikaze( bool is_last );
+	bool    calcLaser( bool is_last );
+	bool    calcOffset( bool is_last );
+	bool    calcStandard( bool is_last, bool allow_flip_shot );
+	bool    calcUnbury( bool is_last );
+	void    checkItemMem();
+	void    checkOppMem();
+	void    checkWeapMem();
+	void    destroy();
+	void    flattenCurrAng();
+	void    fixCrashed( int32_t& ang_mod, int32_t& pow_mod );
+	void    fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score );
+	void    fixUnfinished( int32_t& ang_mod, int32_t& pow_mod );
+	bool    getMemory();
+	bool    initialize();
+	bool    moveTank();
+	void    sanitizeCurr();
+	bool    selectItem( bool is_last );
+	bool    selectTarget( bool is_last );
+	bool    setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
+	void    showFeedback( char const* feedback, int32_t col, double yv, eTextSway text_sway, int32_t dur );
+	void    traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
+	bool    traceShot(
+		   int32_t  trace_angle,
+		   int32_t  delay_idx,
+		   bool&    finished,
+		   bool&    top_wrapped,
+		   int32_t& reached_x_,
+		   int32_t& reached_y_,
+		   double&  end_xv,
+		   double&  end_yv
+	   );
+	void traceWeapon( int32_t& has_crashed, int32_t& has_finished );
+	void updateItemScore( itEntry_t* pItem );
+	void updateOppScore( opEntry_t* pOpp );
+	void updateWeapScore( weEntry_t* pWeap );
+	bool useFreeingTool( bool free_tank, bool is_last );
+	bool useItem( itemType item_type );
+	bool useItem( int32_t item_index );
+	bool useWeapon( weaponType weap_type );
+	bool useWeapon( int32_t weap_index );
 
 
 	/* -----------------------
@@ -864,102 +861,102 @@ private:
 	 */
 
 	// Internal values
-	mutex_t       actionMutex;
-	condv_t       actionCondition;
-	playerType    bestType = USELESS_PLAYER; // What the AI considers humans to be.
-	abool_t       canMove;
-	volatile bool canWork          = true;
-	int32_t       curr_angle       = 90;    //!< The angle that is currently tested
-	int32_t       curr_overshoot   = 0;     //!< Current calculated distance of hit versus opponent
-	int32_t       curr_power       = 0;     //!< The power that is currently tested
-	bool          curr_prime_hit   = false; //!< Whether the primary target was hit.
-	double        errorMultiplier  = 0.;    //!< Default error reduction according to AI level
-	int32_t       findOppAttempts  = 0;     //!< Number of attempts to select a suitable opponent
-	int32_t       findRngAttempts  = 0;     //!< Number of attempts to aim the current selection
-	int32_t       findTgtAttempts  = 0;     //!< Number of attempts to come up with an attack plan
-	int32_t       findWeapAttempts = 0;     //!< Number of attempts to find a suitable item/weapon
-	double        focusRate        = 0.;    //!< How good a bot can focus on a specific task
-	bool          isBlocked        = false; //!< Set to true if a shot can't get through
-	volatile bool isFinished       = false; //!< Set to true when operator() ends
-	ai32_t        isMovedBy;
-	bool          isShocked   = false;
-	volatile bool isStopped   = false;
-	volatile bool isWorking   = false;
-	int32_t       maxBounce   = 0;     //!< How many wall bounces/wraps can be calculated
-	bool          needAim     = false; //!< true if this is a standard shot
-	bool          needSuccess = true;  //!< true unless a best score is achieved
-	int32_t       offset_x    = 0;
-	int32_t       offset_y    = 0;
-	plStage_t     plStage     = PS_AI_IS_IDLE;
-	sOpponent*    revengee    = nullptr; //!< If set, it is tried first as a target
-	sOpponent*    shocker     = nullptr; //!< The current fear shock winner
-	abool_t       textAllowed;           //!< Is new FLOATTEXT allowed?
-	int32_t       weap_idx             = SML_MIS;
+	mutex_t    actionMutex;
+	condv_t    actionCondition;
+	playerType bestType      = USELESS_PLAYER; // What the AI considers humans to be.
+	abool_t    canMove       = ATOMIC_VAR_INIT( true );
+	bool volatile canWork    = true;
+	int32_t curr_angle       = 90;    //!< The angle that is currently tested
+	int32_t curr_overshoot   = 0;     //!< Current calculated distance of hit versus opponent
+	int32_t curr_power       = 0;     //!< The power that is currently tested
+	bool    curr_prime_hit   = false; //!< Whether the primary target was hit.
+	double  errorMultiplier  = 0.;    //!< Default error reduction according to AI level
+	int32_t findOppAttempts  = 0;     //!< Number of attempts to select a suitable opponent
+	int32_t findRngAttempts  = 0;     //!< Number of attempts to aim the current selection
+	int32_t findTgtAttempts  = 0;     //!< Number of attempts to come up with an attack plan
+	int32_t findWeapAttempts = 0;     //!< Number of attempts to find a suitable item/weapon
+	double  focusRate        = 0.;    //!< How good a bot can focus on a specific task
+	bool    isBlocked        = false; //!< Set to true if a shot can't get through
+	bool volatile isFinished = false; //!< Set to true when operator() ends
+	ai32_t isMovedBy         = ATOMIC_VAR_INIT( 0 );
+	bool   isShocked         = false;
+	bool volatile isStopped  = false;
+	bool volatile isWorking  = false;
+	int32_t    maxBounce     = 0;     //!< How many wall bounces/wraps can be calculated
+	bool       needAim       = false; //!< true if this is a standard shot
+	bool       needSuccess   = true;  //!< true unless a best score is achieved
+	int32_t    offset_x      = 0;
+	int32_t    offset_y      = 0;
+	plStage_t  plStage       = PS_AI_IS_IDLE;
+	sOpponent* revengee      = nullptr;                 //!< If set, it is tried first as a target
+	sOpponent* shocker       = nullptr;                 //!< The current fear shock winner
+	abool_t    textAllowed   = ATOMIC_VAR_INIT( true ); //!< Is new FLOATTEXT allowed?
+	int32_t    weap_idx      = SML_MIS;
 
 	// Values taken from the player and their tank
-	int32_t       ai_level             = 0;       //!< To not having to cast from player type.
-	double        ai_level_d           = 0.;      //!< To not having to cast from ai_level.
-	double        ai_over_mod          = 0.;      //!< modifier for overkills and similar
-	double        ai_type_mod          = 0.;      //!< modifier for important decisions
-	int32_t       angle                = 90;      //!< The currently determined best angle
-	double        blast_min            = 0.;      //!< Damage done by small missile
-	double        blast_med            = 0.;      //!< Damage done by medium or large missile
-	double        blast_big            = 0.;      //!< Damage done by small nuke or nuke
-	double        blast_max            = 0.;      //!< Damage done by death head
-	int32_t       buried               = 0;       //!< Full buried level
-	int32_t       buried_l             = 0;       //!< left side buried level
-	int32_t       buried_r             = 0;       //!< right side buried level
-	double        currLife             = 0.;
-	bool          hasFlipped           = false;   //!< Used by calcStandard() and aim() to check for flipping errors.
-	itEntry_t*    item_curr            = nullptr; //!< Currently selected entry
-	itEntry_t*    item_head            = nullptr; //!< Last selected entry
-	itEntry_t*    item_last            = nullptr; //!< Entry with highest score
-	int32_t       last_ang             = 0;       //!< Angle used in last round
-	sOpponent*    last_opp             = nullptr; //!< The opponent attacked in the last round
-	int32_t       last_pow             = 0;       //!< Power used in last round
-	int32_t       last_weap            = 0;       //!< weapon used in the last round
-	int32_t       maxLife              = 100;
-	opEntry_t*    mem_curr             = nullptr; //!< Currently selected entry
-	opEntry_t*    mem_head             = nullptr; //!< Last selected entry
-	opEntry_t*    mem_last             = nullptr; //!< Entry with highest score
-	bool          needMoney            = false;   //!< Might alter some decisions
-	PLAYER*       player               = nullptr;
-	int32_t       power                = 0;       //!< The currently determined best power
-	TANK*         tank                 = nullptr;
-	double        type_mod             = 1.;
-	weEntry_t*    weap_curr            = nullptr; //!< Currently selected entry
-	weEntry_t*    weap_head            = nullptr; //!< Last selected entry
-	weEntry_t*    weap_last            = nullptr; //!< Entry with highest score
-	double        x                    = 0.;
-	double        y                    = 0.;
+	int32_t    ai_level    = 0;       //!< To not having to cast from player type.
+	double     ai_level_d  = 0.;      //!< To not having to cast from ai_level.
+	double     ai_over_mod = 0.;      //!< modifier for overkills and similar
+	double     ai_type_mod = 0.;      //!< modifier for important decisions
+	int32_t    angle       = 90;      //!< The currently determined best angle
+	double     blast_min   = 0.;      //!< Damage done by small missile
+	double     blast_med   = 0.;      //!< Damage done by medium or large missile
+	double     blast_big   = 0.;      //!< Damage done by small nuke or nuke
+	double     blast_max   = 0.;      //!< Damage done by death head
+	int32_t    buried      = 0;       //!< Full buried level
+	int32_t    buried_l    = 0;       //!< left side buried level
+	int32_t    buried_r    = 0;       //!< right side buried level
+	double     currLife    = 0.;
+	bool       hasFlipped  = false;   //!< Used by calcStandard() and aim() to check for flipping errors.
+	itEntry_t* item_curr   = nullptr; //!< Currently selected entry
+	itEntry_t* item_head   = nullptr; //!< Last selected entry
+	itEntry_t* item_last   = nullptr; //!< Entry with highest score
+	int32_t    last_ang    = 0;       //!< Angle used in last round
+	sOpponent* last_opp    = nullptr; //!< The opponent attacked in the last round
+	int32_t    last_pow    = 0;       //!< Power used in last round
+	int32_t    last_weap   = 0;       //!< weapon used in the last round
+	int32_t    maxLife     = 100;
+	opEntry_t* mem_curr    = nullptr; //!< Currently selected entry
+	opEntry_t* mem_head    = nullptr; //!< Last selected entry
+	opEntry_t* mem_last    = nullptr; //!< Entry with highest score
+	bool       needMoney   = false;   //!< Might alter some decisions
+	PLAYER*    player      = nullptr;
+	int32_t    power       = 0;       //!< The currently determined best power
+	TANK*      tank        = nullptr;
+	double     type_mod    = 1.;
+	weEntry_t* weap_curr   = nullptr; //!< Currently selected entry
+	weEntry_t* weap_head   = nullptr; //!< Last selected entry
+	weEntry_t* weap_last   = nullptr; //!< Entry with highest score
+	double     x           = 0.;
+	double     y           = 0.;
 
 	// Values to remember settings and situations over aiming rounds
-	int32_t       best_angle           = 0;
-	int32_t       best_overshoot       = MAX_OVERSHOOT; //!< Overshoot value of currently best angle and power
-	int32_t       best_power           = 0;
-	bool          best_prime_hit       = false;         //!< Whether the bes aiming round values hit the primary target.
-	int32_t       best_score           = NEUTRAL_ROUND_SCORE;
-	bool          hill_detected        = false;
-	int32_t       last_ang_mod         = 0;
-	int32_t       last_overshoot       = MAX_OVERSHOOT;
-	int32_t       last_pow_mod         = 0;
-	bool          last_reverted        = false;
-	int32_t       last_score           = 0;
-	bool          last_was_better      = false;
-	int32_t       reached_x            = x;
-	int32_t       reached_y            = y;
+	int32_t best_angle      = 0;
+	int32_t best_overshoot  = MAX_OVERSHOOT; //!< Overshoot value of currently best angle and power
+	int32_t best_power      = 0;
+	bool    best_prime_hit  = false;         //!< Whether the bes aiming round values hit the primary target.
+	int32_t best_score      = NEUTRAL_ROUND_SCORE;
+	bool    hill_detected   = false;
+	int32_t last_ang_mod    = 0;
+	int32_t last_overshoot  = MAX_OVERSHOOT;
+	int32_t last_pow_mod    = 0;
+	bool    last_reverted   = false;
+	int32_t last_score      = 0;
+	bool    last_was_better = false;
+	int32_t reached_x       = 0;
+	int32_t reached_y       = 0;
 
 	// Values used to memorize the best setup in a round
-	int32_t       best_round_score     = NEUTRAL_ROUND_SCORE;
-	int32_t       best_setup_angle     = 0;
-	int32_t       best_setup_damage    = 0;
-	itEntry_t*    best_setup_item      = nullptr;
-	opEntry_t*    best_setup_mem       = nullptr;
-	int32_t       best_setup_overshoot = MAX_OVERSHOOT;
-	int32_t       best_setup_power     = 0;
-	bool          best_setup_prime     = false;
-	int32_t       best_setup_score     = 0;
-	weEntry_t*    best_setup_weap      = nullptr;
+	int32_t    best_round_score     = NEUTRAL_ROUND_SCORE;
+	int32_t    best_setup_angle     = 0;
+	int32_t    best_setup_damage    = 0;
+	itEntry_t* best_setup_item      = nullptr;
+	opEntry_t* best_setup_mem       = nullptr;
+	int32_t    best_setup_overshoot = MAX_OVERSHOOT;
+	int32_t    best_setup_power     = 0;
+	bool       best_setup_prime     = false;
+	int32_t    best_setup_score     = 0;
+	weEntry_t* best_setup_weap      = nullptr;
 };
 
 #endif // ATANKS_SRC_AICORE_H_INCLUDED

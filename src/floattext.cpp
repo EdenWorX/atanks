@@ -1,7 +1,9 @@
 #include "floattext.h"
 
+#include "random.h"
+
 FLOATTEXT::FLOATTEXT(
-	const char* text_,
+	char const* text_,
 	int32_t     xpos,
 	int32_t     ypos,
 	double      xv_,
@@ -274,15 +276,15 @@ void FLOATTEXT::push_down( int32_t ydiff, bool is_new ) {
 		                   : ydiff < -1 ? -1
 		                                : ydiff );
 
-		pos_y = dim_cur.y = y  = y + push_by;
+		pos_y = dim_cur.y = y = y + push_by;
 
 		// Whenever a text is pushed up, raise its speed by 1% / 3%.
 		// And when it is pushed down, lower its speed by 1% / 3%.
 		// Otherwise speedy texts keep bumping into the same
 		// over and over again.
-		yv                    *= 1.00 + ( -0.01 * push_by );
+		yv        *= 1.00 + ( -0.01 * push_by );
 
-		is_pushed              = true;
+		is_pushed  = true;
 	}
 }
 
@@ -293,7 +295,7 @@ void FLOATTEXT::reset_sway() {
 	pos_x = x;
 	pos_y = y;
 	if ( TS_HORIZONTAL == sway ) {
-		pos_x = x + ( ( 1 + ( rand() % ( sway / 2 ) ) ) * ( rand() % 2 ? -1 : 1 ) );
+		pos_x = x + ( ( 1 + ( get_rand() % ( sway / 2 ) ) ) * ( get_rand() % 2 ? -1 : 1 ) );
 		xv    = SIGNd( pos_x - x );
 	} else if ( TS_VERTICAL == sway ) {
 		pos_y = y;
@@ -333,7 +335,7 @@ void FLOATTEXT::set_speed( double xv_, double yv_ ) {
 	if ( TS_VERTICAL != sway ) {
 		if ( yv_ < 0. ) {
 			// avoid over-lapping text
-			double mix_it_up = ( ( rand() % 6 ) - 3. ) / 10.; // [-.3;+.2]
+			double mix_it_up = ( ( get_rand() % 6 ) - 3. ) / 10.; // [-.3;+.2]
 
 			yv               = yv_ + mix_it_up;
 
@@ -351,7 +353,7 @@ void FLOATTEXT::set_sway_type( eTextSway sway_type ) {
 	}
 }
 
-void FLOATTEXT::set_text( const char* text_ ) {
+void FLOATTEXT::set_text( char const* text_ ) {
 	if ( text && text_ && !strcmp( text, text_ ) ) return;
 
 	size_t new_len = text_ ? strlen( text_ ) : 0;

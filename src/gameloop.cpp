@@ -12,6 +12,7 @@
 #include "missile.h"
 #include "network.h"
 #include "player.h"
+#include "random.h"
 #include "satellite.h"
 #include "shop.h"
 #include "sky.h"
@@ -29,31 +30,31 @@
 class ObjectUpdater;
 
 /// === Helper functions ===
-static inline bool      advance_tank();
-static inline void      change_wind_strength();
-static inline void      check_fps( ObjectUpdater* upd );
-static inline void      check_overtime( AICore& aicore );
-static inline void      check_skiptime();
-static inline void      clear_voices();
-static inline void      check_winner();
-static inline double    colorDistance( int32_t col1, int32_t col2 );
-static inline void      delete_destroyed( AICore& aicore );
-static inline void      do_naturals();
-static inline void      draw_FPS_Counter();
-static inline void      draw_objects( AICore& aicore );
-static inline void      draw_eor_scoreboard();  // The [e]nd-[o]f-[r]ound score board
-static inline void      draw_mini_scoreboard(); // The ingame mini score board
-void                    draw_top_bar();
-static inline bool      explode_tanks();
-static inline void      fire_weapon();
-static inline void      graph_bar( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
-static inline void      graph_bar_center( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
-static inline void      init_new_round();
-static inline bool      manage_input( AICore& aicore );
-static inline void      set_level_settings( LevelCreator* lcr );
-static inline void      set_tank_settings();
-static inline void      update_display();
-static inline void      update_objects( ObjectUpdater* upd );
+static inline bool   advance_tank();
+static inline void   change_wind_strength();
+static inline void   check_fps( ObjectUpdater* upd );
+static inline void   check_overtime( AICore& aicore );
+static inline void   check_skiptime();
+static inline void   clear_voices();
+static inline void   check_winner();
+static inline double colorDistance( int32_t col1, int32_t col2 );
+static inline void   delete_destroyed( AICore& aicore );
+static inline void   do_naturals();
+static inline void   draw_FPS_Counter();
+static inline void   draw_objects( AICore& aicore );
+static inline void   draw_eor_scoreboard();  // The [e]nd-[o]f-[r]ound score board
+static inline void   draw_mini_scoreboard(); // The ingame mini score board
+void                 draw_top_bar();
+static inline bool   explode_tanks();
+static inline void   fire_weapon();
+static inline void   graph_bar( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
+static inline void   graph_bar_center( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
+static inline void   init_new_round();
+static inline bool   manage_input( AICore& aicore );
+static inline void   set_level_settings( LevelCreator* lcr );
+static inline void   set_tank_settings();
+static inline void   update_display();
+static inline void   update_objects( ObjectUpdater* upd );
 
 
 /// === Static helper values ===
@@ -231,7 +232,7 @@ public:
 
 /// The main game loop. Everything happens here.
 void game() {
-	volatile bool    done             = false;
+	bool volatile done                = false;
 	volatile int32_t round_end_count  = 0;
 	SATELLITE*       satellite        = nullptr;
 	const int32_t    EndOfRoundFrames = env.frames_per_second * WAIT_AT_END_OF_ROUND;
@@ -255,7 +256,7 @@ void game() {
 	set_tank_settings();
 
 	// Create the AI Core thread
-	std::thread   aithread( std::ref( aicore ) );
+	std::thread aithread( std::ref( aicore ) );
 
 	// Create one updater thread per object class:
 	ObjectUpdater updater[ CLASS_COUNT ];
@@ -585,7 +586,7 @@ static inline void change_wind_strength() {
 	if ( !env.windvariation || !env.windstrength )
 		return;
 	else {
-		global.wind = global.lastwind + static_cast< double >( rand() % ( env.windvariation * 100 ) ) / 100
+		global.wind = global.lastwind + static_cast< double >( get_rand() % ( env.windvariation * 100 ) ) / 100
 		            - static_cast< double >( env.windvariation ) / 2.;
 		if ( global.wind > ( env.windstrength / 2 ) )
 			global.wind = static_cast< double >( env.windstrength ) / 2.;
@@ -840,14 +841,14 @@ void do_naturals() {
 	if ( env.lightning ) {
 		int32_t chance = ( 600 / env.lightning ) + 100;
 
-		if ( !( rand() % chance ) ) {
+		if ( !( get_rand() % chance ) ) {
 			try {
 				new BEAM(
 					nullptr,
-					1 + ( rand() % ( env.screenWidth - 2 ) ),
+					1 + ( get_rand() % ( env.screenWidth - 2 ) ),
 					MENUHEIGHT + ( env.isBoxed ? 1 : 0 ),
-					( ( rand() % 160 ) + ( 360 - 80 ) ) % 360,
-					SML_LIGHTNING + ( rand() % env.lightning ),
+					( ( get_rand() % 160 ) + ( 360 - 80 ) ) % 360,
+					SML_LIGHTNING + ( get_rand() % env.lightning ),
 					BT_NATURAL
 				);
 				global.naturals_activated++;
@@ -863,19 +864,19 @@ void do_naturals() {
 	if ( env.meteors ) {
 		int32_t chance = ( 600 / env.meteors ) + 100;
 
-		if ( !( rand() % chance ) ) {
-			int32_t ca  = ( ( rand() % 160 ) + ( 360 - 80 ) ) % 360;
+		if ( !( get_rand() % chance ) ) {
+			int32_t ca  = ( ( get_rand() % 160 ) + ( 360 - 80 ) ) % 360;
 			double  mxv = env.slope[ ca ][ 0 ] * 5;
 			double  myv = env.slope[ ca ][ 1 ] * 5;
 
 			try {
 				new MISSILE(
 					nullptr,
-					1 + ( rand() % ( env.screenWidth - 2 ) ),
+					1 + ( get_rand() % ( env.screenWidth - 2 ) ),
 					MENUHEIGHT + ( env.isBoxed ? 1 : 0 ),
 					mxv,
 					myv,
-					SML_METEOR + ( rand() % env.meteors ),
+					SML_METEOR + ( get_rand() % env.meteors ),
 					MT_NATURAL,
 					1,
 					0
@@ -890,19 +891,19 @@ void do_naturals() {
 	if ( env.falling_dirt_balls ) {
 		int32_t chance = ( 600 / env.falling_dirt_balls ) + 100;
 
-		if ( !( rand() % chance ) ) {
-			int    ca  = ( ( rand() % 100 ) + ( 360 - 80 ) ) % 360;
+		if ( !( get_rand() % chance ) ) {
+			int    ca  = ( ( get_rand() % 100 ) + ( 360 - 80 ) ) % 360;
 			double mxv = env.slope[ ca ][ 0 ] * 5;
 			double myv = env.slope[ ca ][ 1 ] * 5;
 
 			try {
 				new MISSILE(
 					nullptr,
-					1 + ( rand() % ( env.screenWidth - 2 ) ),
+					1 + ( get_rand() % ( env.screenWidth - 2 ) ),
 					MENUHEIGHT + ( env.isBoxed ? 1 : 0 ),
 					mxv,
 					myv,
-					DIRT_BALL + ( rand() % env.falling_dirt_balls ),
+					DIRT_BALL + ( get_rand() % env.falling_dirt_balls ),
 					MT_NATURAL,
 					1,
 					0
@@ -981,9 +982,9 @@ static inline void draw_mini_scoreboard() {
 
 		if ( player ) {
 			int32_t     color = player->color;
-			const char* money = Add_Comma( player->money );
-			const char* name  = player->getName();
-			const char* team  = player->getTeamName();
+			char const* money = Add_Comma( player->money );
+			char const* name  = player->getName();
+			char const* team  = player->getTeamName();
 			int32_t     mid_y = line + ( env.fontHeight / 2 ) + 1;
 
 			// Strike through dead players (BLACK background *before* the name)
@@ -1024,8 +1025,8 @@ static inline void draw_mini_scoreboard() {
 void draw_top_bar() {
 	TANK*          tank          = global.get_curr_tank();
 	PLAYER*        player        = tank ? tank->player : nullptr;
-	const char*    name          = player ? player->getName() : nullptr;
-	const char*    team_name     = player ? player->getTeamName() : nullptr;
+	char const*    name          = player ? player->getName() : nullptr;
+	char const*    team_name     = player ? player->getTeamName() : nullptr;
 	int32_t        color         = player ? player->color : BLACK;
 	int32_t        time_to_fire  = player ? player->time_left_to_fire : 0;
 	int32_t        y1            = 0;
@@ -1034,7 +1035,7 @@ void draw_top_bar() {
 	static int32_t change_colour = RED;
 
 	// Copy empty top bar background
-	global.updateMenu            = false;
+	global.updateMenu = false;
 
 	// copy backdrop:
 	set_clip_rect( global.canvas, 0, 0, env.screenWidth - 1, MENUHEIGHT - 1 );
@@ -1162,18 +1163,18 @@ static inline bool explode_tanks() {
 	// return if something is exploding already
 	if ( has_explosion.load( ATOMIC_READ ) ) return true; // true, because an explosion is present.
 
-	TANK* tank           = nullptr;
-	TANK* tmp            = nullptr;
-	bool  res            = false;
-	bool  tanks_left     = false;
+	TANK* tank       = nullptr;
+	TANK* tmp        = nullptr;
+	bool  res        = false;
+	bool  tanks_left = false;
 
 	// Check how many tanks are still alive and whether they are from
 	// different teams
-	bool  all_jedi       = true;
-	bool  all_sith       = true;
-	bool  all_jedi_alive = true;
-	bool  all_sith_alive = true;
-	bool  do_explode     = false;
+	bool all_jedi       = true;
+	bool all_sith       = true;
+	bool all_jedi_alive = true;
+	bool all_sith_alive = true;
+	bool do_explode     = false;
 
 	global.getHeadOfClass( CLASS_TANK, &tank );
 
@@ -1301,7 +1302,6 @@ static inline void graph_bar_center( int32_t x, int32_t y, int32_t col, int32_t 
 // do new round preparations
 static inline void init_new_round() {
 	// First env,
-	srand( time( NULL ) );
 	env.newRound();
 
 	// then the players in case the campaign mode rise kicks in
@@ -1351,10 +1351,10 @@ static inline void init_new_round() {
 
 	// set wind
 	if ( env.windstrength )
-		global.wind = ( rand() % env.windstrength ) - ( env.windstrength / 2 );
+		global.wind = ( get_rand() % env.windstrength ) - ( env.windstrength / 2 );
 	else
 		global.wind = 0;
-	global.lastwind   = global.wind;
+	global.lastwind = global.wind;
 
 	// finalize preparation
 	fi                = 1;
@@ -1398,12 +1398,6 @@ static inline bool manage_input( AICore& aicore ) {
  * lock the land, do the drawing and unlock it again.
  **/
 static inline void set_level_settings( LevelCreator* lcr ) {
-#if defined( ATANKS_IS_WINDOWS )
-	// Here srand() is thread local according to MSDN.
-	// This affects cygwin/mingw builds, too.
-	// Thanks to billy Buerger for pointing this out!
-	srand( time( nullptr ) );
-#endif // Microsoft Windows Build
 
 	//  -------------------------
 	// ===  Choosing colours   ===
@@ -1414,7 +1408,7 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 
 	// First the land:
 	if ( lcr->can_work() ) {
-		global.curland = ( rand() % LANDS ) + ( CT_CRISPY == env.colourTheme ? LANDS : 0 );
+		global.curland = ( get_rand() % LANDS ) + ( CT_CRISPY == env.colourTheme ? LANDS : 0 );
 		if ( !env.gfxData.land_gradient_strips[ global.curland ] ) {
 
 			global.lockLand();
@@ -1428,7 +1422,7 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 
 	// Then the sky
 	if ( lcr->can_work() ) {
-		global.cursky = ( rand() % SKIES ) + ( CT_CRISPY == env.colourTheme ? SKIES : 0 );
+		global.cursky = ( get_rand() % SKIES ) + ( CT_CRISPY == env.colourTheme ? SKIES : 0 );
 
 		if ( !env.gfxData.sky_gradient_strips[ global.cursky ] ) {
 			global.lockLand();
@@ -1445,7 +1439,7 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 	// === Rendering Landscape ===
 	//=============================
 	lcr->working_on( 2 );
-	if ( lcr->can_work() ) generate_land( lcr, rand() % env.screenWidth, env.screenHeight );
+	if ( lcr->can_work() ) generate_land( lcr, get_rand() % env.screenWidth, env.screenHeight );
 
 
 	//  -------------------------
@@ -1478,7 +1472,7 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 
 			if ( !has_colours && lcr->can_work() ) {
 				// Create new strip:
-				global.cursky = ( rand() % SKIES ) + ( CT_CRISPY == env.colourTheme ? SKIES : 0 );
+				global.cursky = ( get_rand() % SKIES ) + ( CT_CRISPY == env.colourTheme ? SKIES : 0 );
 
 				if ( !env.gfxData.sky_gradient_strips[ global.cursky ] ) {
 					global.lockLand();
@@ -1519,7 +1513,7 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 		if ( env.custom_background && env.bitmap_filenames ) {
 			global.lockLand();
 			if ( env.sky ) destroy_bitmap( env.sky );
-			env.sky = load_bitmap( env.bitmap_filenames[ rand() % env.number_of_bitmaps ], nullptr );
+			env.sky = load_bitmap( env.bitmap_filenames[ get_rand() % env.number_of_bitmaps ], nullptr );
 			global.unlockLand();
 		}
 
@@ -1554,11 +1548,11 @@ static inline void set_tank_settings() {
 
 	global.getHeadOfClass( CLASS_TANK, &curr_tank );
 	while ( curr_tank ) {
-		int32_t x = rand() % global.numTanks;
+		int32_t x = get_rand() % global.numTanks;
 		while ( taken[ x ] ) {
 			bool go_up = x < middle ? true : false;
 			while ( taken[ x ] && ( x > 0 ) && ( x < ( global.numTanks - 1 ) ) ) x += go_up ? 1 : -1;
-			if ( taken[ x ] ) x = rand() % global.numTanks;
+			if ( taken[ x ] ) x = get_rand() % global.numTanks;
 		}
 
 		/* Note: this is a lot faster than the previous approach, because
@@ -1588,7 +1582,7 @@ static inline void set_tank_settings() {
 	env.maxNumTanks = global.numTanks;
 
 	// Distribute tanks in the order array
-	int32_t place   = 0;
+	int32_t place = 0;
 	global.getHeadOfClass( CLASS_TANK, &curr_tank );
 	while ( curr_tank ) {
 		global.order[ place++ ] = curr_tank;
@@ -1599,7 +1593,7 @@ static inline void set_tank_settings() {
 	if ( ( env.turntype == TURN_RANDOM ) || ( env.turntype == TURN_SIMUL ) ) {
 		for ( int32_t index = 0; index < env.maxNumTanks; ++index ) {
 			for ( int32_t round = 0; round < middle; ++round ) {
-				int32_t target = rand() % global.numTanks;
+				int32_t target = get_rand() % global.numTanks;
 				if ( target != index ) {
 					TANK* tmp_tank         = global.order[ index ];
 					global.order[ index ]  = global.order[ target ];
@@ -1661,7 +1655,7 @@ static inline void set_tank_settings() {
 	score_money_pos = score_name_pos + ( 2 * env.fontHeight ) + max_name_len;
 
 	// FPS is shown on the right top corner:
-	FPS_pos         = env.screenWidth - text_length( font, "XXXX FPS " );
+	FPS_pos = env.screenWidth - text_length( font, "XXXX FPS " );
 }
 
 /// @brief the [e]nd [o]f [r]ound score board
@@ -1686,13 +1680,13 @@ static inline void draw_eor_scoreboard() {
 		}
 
 		// Now the scores can be displayed
-		int32_t lh               = 14; // The line height. If you need to change it, do it here.
-		int32_t pd               = 10; // Padding. How much space to the board border.
+		int32_t lh = 14; // The line height. If you need to change it, do it here.
+		int32_t pd = 10; // Padding. How much space to the board border.
 
 		// Find out longest player name and score length do determine the
 		// score board size and score entry positions
-		char    head_name[ 5 ]   = "Name";
-		char    head_score[ 30 ] = { 0 };
+		char head_name[ 5 ]   = "Name";
+		char head_score[ 30 ] = { 0 };
 		snprintf( head_score, 29, " %6s %6s %6s %6s", "Kills", "Killed", "Diff", "Won" );
 
 		int32_t namLen = text_length( font, head_name );
@@ -1766,11 +1760,11 @@ static inline void draw_eor_scoreboard() {
 
 		// to make the following easier, skip the three used lines
 		// (two titles, one blank)
-		y                += 3 * lh;
+		y += 3 * lh;
 
 		// Third title line, the score board header
-		int32_t scoStart  = x + namLen;
-		int32_t scoWidth  = scoLen / 4;
+		int32_t scoStart = x + namLen;
+		int32_t scoWidth = scoLen / 4;
 
 		textout_ex( global.canvas, font, "Name", x, y, WHITE, -1 );
 		textprintf_right_ex( global.canvas, font, scoStart + ( 1 * scoWidth ), y, GREEN, -1, " %6s", "Kills" );
@@ -1784,7 +1778,7 @@ static inline void draw_eor_scoreboard() {
 		sScore* score_array = sort_scores();
 
 		// And get the head entry:
-		sScore* score       = score_array;
+		sScore* score = score_array;
 		while ( score->prev ) score = score->prev;
 
 

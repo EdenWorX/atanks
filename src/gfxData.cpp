@@ -1,6 +1,7 @@
 #include "gfxData.h"
 
 #include "main.h"
+#include "random.h"
 
 /** @brief explicit constructor, because Visual C++ needs one.
  **/
@@ -148,7 +149,7 @@ void sGfxData::first_init() {
 				float adjY   = ( 100.0 / MENUHEIGHT ) * y;
 				int   offset = 0;
 
-				if ( ( adjY > 1 ) && ( adjY < 99 ) ) offset = rand() % 4 - 2;
+				if ( ( adjY > 1 ) && ( adjY < 99 ) ) offset = get_rand() % 4 - 2;
 
 				int32_t col = getpixel( topbar_gradient_strip, 0, adjY + offset );
 
@@ -221,7 +222,7 @@ void sGfxData::first_init() {
 
 // === Helper Functions ===
 // ========================
-BITMAP *create_gradient_strip( const gradient *grad, int32_t len ) {
+BITMAP *create_gradient_strip( gradient const *grad, int32_t len ) {
 	BITMAP *strip = create_bitmap( 1, len );
 	if ( !strip ) return nullptr;
 
@@ -235,7 +236,7 @@ BITMAP *create_gradient_strip( const gradient *grad, int32_t len ) {
 	return strip;
 }
 
-int32_t gradientColorPoint( const gradient *grad, double len, double line ) {
+int32_t gradientColorPoint( gradient const *grad, double len, double line ) {
 	int32_t pointCount = 0;
 	double  point      = line / len;
 	int32_t color      = BLACK;

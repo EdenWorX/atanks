@@ -25,6 +25,7 @@
 #include "main.h"
 #include "missile.h"
 #include "player.h"
+#include "random.h"
 #include "sound.h"
 #include "tank.h"
 
@@ -77,7 +78,7 @@ void ENVIRONMENT::addGamePlayer( PLAYER* player_ ) {
 }
 
 /// @brief create a new player or return nullptr if an error occurred
-PLAYER* ENVIRONMENT::createNewPlayer( const char* player_name ) {
+PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
 	PLAYER** reallocatedPlayers = nullptr;
 	PLAYER*  player             = nullptr;
 
@@ -417,7 +418,7 @@ void ENVIRONMENT::genItemsList() {
 }
 
 /// @brief return the index of the player with @a player_name or -1 if not found
-int32_t ENVIRONMENT::getPlayerByName( const char* player_name ) {
+int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) {
 	int32_t result = -1;
 
 	assert( player_name && "ERROR: player_name is nullptr!" );
@@ -440,7 +441,7 @@ int32_t ENVIRONMENT::ingamemenu() {
 	bool        need_draw = true;
 	int32_t     button[ INGAMEBUTTONS ];
 	bool        updatew[ INGAMEBUTTONS ];
-	const char* buttext[ INGAMEBUTTONS ] = {
+	char const* buttext[ INGAMEBUTTONS ] = {
 		ingame->Get_Line( 69 ),
 		ingame->Get_Line( 70 ),
 		ingame->Get_Line( 71 ),
@@ -448,29 +449,29 @@ int32_t ENVIRONMENT::ingamemenu() {
 	};
 
 	// Set/calculate button size and positions
-	int32_t b_width     = 150;
-	int32_t b_height    = 20;
-	int32_t b_space     = 5;
-	int32_t b_half_w    = b_width / 2;
-	int32_t b_left      = halfWidth - b_half_w;
-	int32_t b_right     = halfWidth + b_half_w - 1;
+	int32_t b_width  = 150;
+	int32_t b_height = 20;
+	int32_t b_space  = 5;
+	int32_t b_half_w = b_width / 2;
+	int32_t b_left   = halfWidth - b_half_w;
+	int32_t b_right  = halfWidth + b_half_w - 1;
 
-	int32_t d_width     = 200;
-	int32_t d_height    = ( ( INGAMEBUTTONS + 2 ) * b_height ) + ( ( INGAMEBUTTONS + 1 ) * b_space );
-	int32_t d_half_w    = d_width / 2;
-	int32_t d_half_h    = d_height / 2;
+	int32_t d_width  = 200;
+	int32_t d_height = ( ( INGAMEBUTTONS + 2 ) * b_height ) + ( ( INGAMEBUTTONS + 1 ) * b_space );
+	int32_t d_half_w = d_width / 2;
+	int32_t d_half_h = d_height / 2;
 
-	int32_t d_left      = halfWidth - d_half_w;
-	int32_t d_right     = halfWidth + d_half_w - 1;
-	int32_t d_top       = halfHeight - d_half_h;
-	int32_t d_bottom    = halfHeight + d_half_h - 1;
+	int32_t d_left   = halfWidth - d_half_w;
+	int32_t d_right  = halfWidth + d_half_w - 1;
+	int32_t d_top    = halfHeight - d_half_h;
+	int32_t d_bottom = halfHeight + d_half_h - 1;
 
 	// store last mouse coordinates for movement detection
 	int32_t lastMouse_x = 0;
 	int32_t lastMouse_y = 0;
 
 	// Calculate button y values and set all button status to 0
-	int32_t y           = -d_half_h + b_height + b_space;
+	int32_t y = -d_half_h + b_height + b_space;
 
 	for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
 		updatew[ i ]  = false;
@@ -1062,7 +1063,7 @@ bool ENVIRONMENT::loadBitmaps() {
 				int32_t bottom = newbitmap->h;
 
 				// Find real left edge
-				bool    hasPix = false;
+				bool hasPix = false;
 				while ( !hasPix && ( left < right ) ) {
 					for ( int32_t y = top; !hasPix && ( y < bottom ); ++y ) {
 						if ( PINK != getpixel( newbitmap, left, y ) ) hasPix = true;
@@ -1225,7 +1226,7 @@ bool ENVIRONMENT::loadSounds() {
 	SAMPLE* temp_sample = nullptr;
 
 	// allocate space for sound samples
-	sounds              = (SAMPLE**)calloc( SND_COUNT, sizeof( SAMPLE* ) );
+	sounds = (SAMPLE**)calloc( SND_COUNT, sizeof( SAMPLE* ) );
 	if ( !sounds ) {
 		printf( "Unable to create sound array.\n" );
 		return false;
@@ -1252,15 +1253,15 @@ bool ENVIRONMENT::loadSounds() {
 void ENVIRONMENT::newRound() {
 	// set wall type
 	if ( wallType == WALL_RANDOM )
-		current_wallType = rand() % 4;
+		current_wallType = get_rand() % 4;
 	else
 		current_wallType = wallType;
 
-	time_to_fall = ( rand() & landSlideDelay ) + 1;
+	time_to_fall = ( get_rand() & landSlideDelay ) + 1;
 
 	// Set boxed mode
 	if ( BM_RANDOM == boxedMode ) {
-		if ( rand() % 2 )
+		if ( get_rand() % 2 )
 			isBoxed = true;
 		else
 			isBoxed = false;
@@ -1455,7 +1456,7 @@ bool ENVIRONMENT::save_to_file( FILE* file ) {
 
 /// @brief This function sends a message to all connected game clients.
 /// @return true on success or false if the message could not be sent
-bool ENVIRONMENT::sendToClients( const char* message ) {
+bool ENVIRONMENT::sendToClients( char const* message ) {
 	if ( !message ) return false;
 
 #ifdef NETWORK

@@ -1,6 +1,7 @@
 #include "text.h"
 
 #include "main.h"
+#include "random.h"
 
 #include <algorithm>
 #include <cassert>
@@ -130,7 +131,7 @@ const char* TEXTBLOCK::Get_Line( int32_t index ) const {
 
 // Find a random line and return it
 const char* TEXTBLOCK::Get_Random_Line() const {
-	return complete_text[ rand() % total_lines ];
+	return complete_text[ get_rand() % total_lines ];
 }
 
 // This function does most of the work. It loads an entire text

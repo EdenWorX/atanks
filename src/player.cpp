@@ -28,6 +28,7 @@
 #include "menu.h"
 #include "missile.h"
 #include "network.h"
+#include "random.h"
 #include "tank.h"
 
 #include <cassert>
@@ -51,7 +52,7 @@ PLAYER::PLAYER() : sdi_has_fired( ATOMIC_VAR_INIT( false ) ) {
 	strncpy( name, "New Player", NAME_LEN );
 
 	// 25% of time set to perplay weapon preferences
-	preftype = ( rand() % 4 ) ? ALWAYS_PREF : PERPLAY_PREF;
+	preftype = ( get_rand() % 4 ) ? ALWAYS_PREF : PERPLAY_PREF;
 
 	/* Generate a set of preferences now. The reason is:
 	 * If the player is a PERPLAY_PREF type player, no preferences
@@ -62,19 +63,19 @@ PLAYER::PLAYER() : sdi_has_fired( ATOMIC_VAR_INIT( false ) ) {
 	 */
 	generatePreferences();
 
-	switch ( rand() % 4 ) {
+	switch ( get_rand() % 4 ) {
 		case 0: // === red type ===
-			color = makecol( 200 + ( rand() % 56 ), rand() % 25, rand() % 25 );
+			color = makecol( 200 + ( get_rand() % 56 ), get_rand() % 25, get_rand() % 25 );
 			break;
 		case 1: // === green type ===
-			color = makecol( rand() % 25, 200 + ( rand() % 56 ), rand() % 25 );
+			color = makecol( get_rand() % 25, 200 + ( get_rand() % 56 ), get_rand() % 25 );
 			break;
 		case 2: // === blue type ===
-			color = makecol( rand() % 25, rand() % 25, 200 + ( rand() % 56 ) );
+			color = makecol( get_rand() % 25, get_rand() % 25, 200 + ( get_rand() % 56 ) );
 			break;
 		case 3:
 		default: // === violet type ===
-			color = makecol( 200 + ( rand() % 56 ), rand() % 25, 200 + ( rand() % 56 ) );
+			color = makecol( 200 + ( get_rand() % 56 ), get_rand() % 25, 200 + ( get_rand() % 56 ) );
 			break;
 	}
 }
@@ -321,7 +322,7 @@ int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 		// Note: The more items there are already, the more amtMod
 		// will go down near 1.0, from a maximum of 2.0.
 
-		int32_t chance  = ROUNDu( amtMod * ( static_cast< double >( ai_level ) - .5 ) );
+		int32_t chance = ROUNDu( amtMod * ( static_cast< double >( ai_level ) - .5 ) );
 		/* Results:
 		 * Useless : 1 * (1 - 0.5) = 1 * (0.5) = 0.5 => 50% (rounded to 1)
 		 * Useless : 2 * (1 - 0.5) = 2 * (0.5) = 1   => 50%
@@ -337,8 +338,8 @@ int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 		 * b) It has equal or more than the weapons amount times its level and
 		 *    a negative (low) chance against its ai_level is taken.
 		 */
-		if ( ( ( ( currAmt < maxAmt ) && ( rand() % ( chance + 1 ) ) ) /* Scenario a) */
-		       || ( ( currAmt >= maxAmt ) && RAND_AI_0N ) )            /* Scenario b) */
+		if ( ( ( ( currAmt < maxAmt ) && ( get_rand() % ( chance + 1 ) ) ) /* Scenario a) */
+		       || ( ( currAmt >= maxAmt ) && RAND_AI_0N ) )                /* Scenario b) */
 		     && buy_item( currItem, max_boost ) ) {
 
 			// Advance index to not buy the same item over and over again
@@ -495,7 +496,7 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	int32_t max_level = static_cast< int32_t >( DEADLY_PLAYER );
 	int32_t ai_level  = static_cast< int32_t >( type );
-	double  mood = 1. + defensive + ( ( static_cast< double >( rand() ) / ( static_cast< double >( RAND_MAX ) / 2. ) ) );
+	double mood = 1. + defensive + ( ( static_cast< double >( get_rand() ) / ( static_cast< double >( RAND_MAX ) / 2. ) ) );
 	// mood is 0.0 <= x <= 4.0
 
 	/*	Prior buying anything else, a 5 step system takes place:
@@ -1117,8 +1118,8 @@ void PLAYER::exitShop() {
 	if ( tmpDM > 0 ) damageMultiplier += std::pow( tmpDM, 0.6 );
 
 	// All players need small missiles:
-	if ( nm[ SML_MIS ] < 100 ) nm[ SML_MIS ] += 100 + ( rand() % 100 ); // + [100;199]
-	if ( nm[ SML_MIS ] < 250 ) nm[ SML_MIS ] += 50 + ( rand() % 50 );   // + [ 50; 99]
+	if ( nm[ SML_MIS ] < 100 ) nm[ SML_MIS ] += 100 + ( get_rand() % 100 ); // + [100;199]
+	if ( nm[ SML_MIS ] < 250 ) nm[ SML_MIS ] += 50 + ( get_rand() % 50 );   // + [ 50; 99]
 }
 
 /// @brief fill the list of desired items and return the number of damaging weapons
@@ -1160,18 +1161,18 @@ void PLAYER::generatePreferences() {
 	 * --- Generate basic characteristics ---
 	 * --------------------------------------
 	 */
-	defensive           = ( static_cast< double >( rand() % 10001 ) / 5000. ) - 1.; // [-1;+1]
-	vengeful            = 1 + ( rand() % 100 );                                     // [1;100]
-	vengeanceThreshold  = 0.05 + ( static_cast< double >( rand() % 901 ) / 1000. ); // [0.05;0.95]
-	selfPreservation    = static_cast< double >( rand() % 3001 ) / 1000;            // [0;3]
-	painSensitivity     = static_cast< double >( rand() % 3001 ) / 1000;            // [0;3]
+	defensive          = ( static_cast< double >( get_rand() % 10001 ) / 5000. ) - 1.; // [-1;+1]
+	vengeful           = 1 + ( get_rand() % 100 );                                     // [1;100]
+	vengeanceThreshold = 0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
+	selfPreservation   = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
+	painSensitivity    = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
 
 	// Now 'defensive' can be modified by team:
 	if ( team == TEAM_JEDI ) {
-		defensive += static_cast< double >( rand() % 501 ) / 1000.;
+		defensive += static_cast< double >( get_rand() % 501 ) / 1000.;
 		if ( defensive > 1.25 ) defensive = 1.25; // + 1.25 is Super Defensive
 	} else if ( team == TEAM_SITH ) {
-		defensive -= static_cast< double >( rand() % 501 ) / 1000.;
+		defensive -= static_cast< double >( get_rand() % 501 ) / 1000.;
 		if ( defensive < -1.25 ) defensive = -1.25; // - 1.25 is Super Aggressive
 	}
 
@@ -1208,7 +1209,7 @@ void PLAYER::generatePreferences() {
 					warheads = weapon[ currItem ].numSubmunitions;
 
 					// Use the total damage for clusters
-					worth    = weapon[ weapon[ currItem ].submunition ].damage * warheads;
+					worth = weapon[ weapon[ currItem ].submunition ].damage * warheads;
 
 					if ( ( ( currItem >= SML_NAPALM ) && ( currItem <= LRG_NAPALM ) )
 					     || ( ( currItem >= FUNKY_BOMB ) && ( currItem <= FUNKY_DEATH ) ) )
@@ -1387,7 +1388,7 @@ void PLAYER::generatePreferences() {
 			worth = MAX_WEAP_PROBABILITY / 25.0; // Which is very very little...
 		if ( worth < ( MAX_WEAP_PROBABILITY / 8 ) )
 			// allow to double (more or less)
-			worth += static_cast< double >( rand() % static_cast< int32_t >( std::abs( worth ) ) );
+			worth += static_cast< double >( get_rand() % static_cast< int32_t >( std::abs( worth ) ) );
 
 		// But don't overdo either:
 		if ( worth > MAX_WEAP_PROBABILITY ) worth = MAX_WEAP_PROBABILITY;
@@ -1562,7 +1563,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 
 		// The average money to save modified by the player type
 		// is the result:
-		moneyToSave  = ( moneyToSave / wanted ) * ( 1. + ( static_cast< double >( LAST_PLAYER_TYPE - type ) / 10. ) );
+		moneyToSave = ( moneyToSave / wanted ) * ( 1. + ( static_cast< double >( LAST_PLAYER_TYPE - type ) / 10. ) );
 	}
 
 	/* Results for Armageddon only @ 100k credits:
@@ -1581,7 +1582,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 }
 
 // return the player name
-const char* PLAYER::getName() const {
+char const* PLAYER::getName() const {
 	return name;
 }
 
@@ -1627,7 +1628,7 @@ sOpponent* PLAYER::getOppMem( int32_t idx ) {
 }
 
 // returns a static string to the player's team name
-const char* PLAYER::getTeamName() const {
+char const* PLAYER::getTeamName() const {
 	static char team_name[ 9 ] = { 0 };
 
 	switch ( team ) {
@@ -1910,12 +1911,12 @@ bool PLAYER::load_from_file( FILE* file ) {
 				// fix old configs
 				if ( vengeanceThreshold < 0.05 )
 					vengeanceThreshold =
-						0.05 + ( static_cast< double >( rand() % 901 ) / 1000. ); // [0.05;0.95]
+						0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
 				if ( vengeanceThreshold > 0.95 ) vengeanceThreshold = 0.95;
 			} else if ( !strcasecmp( field, "VENGEFUL" ) ) {
 				sscanf( value, "%d", &vengeful );
 				// fix old configs
-				if ( vengeful < 1 ) vengeful = 1 + ( rand() % 100 ); // [1;100]
+				if ( vengeful < 1 ) vengeful = 1 + ( get_rand() % 100 ); // [1;100]
 				if ( vengeful > 100 ) vengeful = 100;
 			} else if ( !strcasecmp( field, "WON" ) )
 				sscanf( value, "%u", &won );
@@ -2018,12 +2019,12 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 				// fix old configs
 				if ( vengeanceThreshold < 0.05 )
 					vengeanceThreshold =
-						0.05 + ( static_cast< double >( rand() % 901 ) / 1000. ); // [0.05;0.95]
+						0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
 				if ( vengeanceThreshold > 0.95 ) vengeanceThreshold = 0.95;
 			} else if ( !strcasecmp( field, "VENGEFUL" ) ) {
 				sscanf( value, "%d", &vengeful );
 				// fix old configs
-				if ( vengeful < 1 ) vengeful = 1 + ( rand() % 100 ); // [1;100]
+				if ( vengeful < 1 ) vengeful = 1 + ( get_rand() % 100 ); // [1;100]
 				if ( vengeful > 100 ) vengeful = 100;
 			}
 
@@ -2420,15 +2421,15 @@ void PLAYER::save_to_file( FILE* file ) {
 	fprintf( file, "***\n" );
 }
 
-const char* PLAYER::selectGloatPhrase() {
+char const* PLAYER::selectGloatPhrase() {
 	return env.gloat->Get_Random_Line();
 }
 
 /// @return a constructed panic phrase which must be freed!
-const char* PLAYER::selectPanicPhrase( PLAYER* shocker ) {
+char const* PLAYER::selectPanicPhrase( PLAYER* shocker ) {
 	if ( !shocker ) return nullptr;
 
-	const char* line  = env.panic->Get_Random_Line();
+	char const* line  = env.panic->Get_Random_Line();
 	size_t      tLen  = strlen( shocker->getName() ) + strlen( line );
 	char*       pText = (char*)calloc( tLen + 1, sizeof( char ) );
 
@@ -2439,16 +2440,16 @@ const char* PLAYER::selectPanicPhrase( PLAYER* shocker ) {
 	return pText;
 }
 
-const char* PLAYER::selectKamikazePhrase() {
+char const* PLAYER::selectKamikazePhrase() {
 	return env.kamikaze->Get_Random_Line();
 }
 
 /// @return a constructed retaliation phrase which must be freed!
-const char* PLAYER::selectRetaliationPhrase() {
+char const* PLAYER::selectRetaliationPhrase() {
 	if ( !revenge ) return nullptr;
 
-	const char* line  = env.retaliation->Get_Random_Line();
-	const char* rname = revenge->getName();
+	char const* line  = env.retaliation->Get_Random_Line();
+	char const* rname = revenge->getName();
 	size_t      tLen  = strlen( rname ) + 4 + strlen( line );
 	char*       pText = (char*)calloc( tLen + 1, sizeof( char ) );
 
@@ -2457,11 +2458,11 @@ const char* PLAYER::selectRetaliationPhrase() {
 	return pText;
 }
 
-const char* PLAYER::selectRevengePhrase() {
+char const* PLAYER::selectRevengePhrase() {
 	return env.revenge->Get_Random_Line();
 }
 
-const char* PLAYER::selectSuicidePhrase() {
+char const* PLAYER::selectSuicidePhrase() {
 	return env.suicide->Get_Random_Line();
 }
 
@@ -2470,7 +2471,7 @@ void PLAYER::setLastOpponent( sOpponent* last_opp ) {
 	last_opponent = last_opp;
 }
 
-void PLAYER::setName( const char* name_ ) {
+void PLAYER::setName( char const* name_ ) {
 	if ( !name_ || strncmp( name, name_, NAME_LEN - 1 ) ) {
 		memset( name, 0, NAME_LEN );
 		if ( name_ ) strncpy( name, name_, NAME_LEN - 1 );
@@ -2485,9 +2486,9 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 	int32_t ai_level         = static_cast< int32_t >( type );
 
 	// 2.: Amplify wish list by current boost and score situation
-	needAmp                  = false;
-	needArmour               = false;
-	needDamage               = false;
+	needAmp    = false;
+	needArmour = false;
+	needDamage = false;
 
 	// Check whether boosting armour / amps is wanted:
 	if ( getBoostValue() < ( max_boost / ai_level ) ) {
@@ -2594,14 +2595,14 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 
 	if ( !target || !( *target ) ) return -1;
 
-	int32_t     menuMid        = 300;
-	int32_t     itemLeft       = menuMid - 75;
-	int32_t     itemHeight     = env.fontHeight + 2;
-	int32_t     itemPadding    = 2;
-	int32_t     itemFullHeight = itemHeight + itemPadding;
-	int32_t     itemY          = itemFullHeight * 3;
-	int32_t     btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t     menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuMid        = 300;
+	int32_t itemLeft       = menuMid - 75;
+	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemPadding    = 2;
+	int32_t itemFullHeight = itemHeight + itemPadding;
+	int32_t itemY          = itemFullHeight * 3;
+	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
+	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
 
 
 	// Use "Mini-Player" struct to be able to cancel player editing
@@ -2771,153 +2772,153 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 static PLAYER_mini player_new; //!< Used by new_player to keep previous settings
 
 /// @brief action function to display the edit player screen
-int32_t            new_player( PLAYER** target, int32_t ) {
-        int32_t result = 0;
+int32_t new_player( PLAYER** target, int32_t ) {
+	int32_t result = 0;
 
-        assert( target && "ERROR: target must be set" );
-        assert( ( nullptr == *target ) && "ERROR: *target must nullptr!" );
+	assert( target && "ERROR: target must be set" );
+	assert( ( nullptr == *target ) && "ERROR: *target must nullptr!" );
 
-        if ( !target || *target ) return -1;
+	if ( !target || *target ) return -1;
 
-        int32_t menuMid        = 300;
-        int32_t itemLeft       = menuMid - 75;
-        int32_t itemHeight     = env.fontHeight + 2;
-        int32_t itemPadding    = 2;
-        int32_t itemFullHeight = itemHeight + itemPadding;
-        int32_t itemY          = itemFullHeight * 3;
-        int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-        int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuMid        = 300;
+	int32_t itemLeft       = menuMid - 75;
+	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemPadding    = 2;
+	int32_t itemFullHeight = itemHeight + itemPadding;
+	int32_t itemY          = itemFullHeight * 3;
+	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
+	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
 
-        // The menu, with title from the menu class
-        Menu    menu( MC_PLAYER, env.halfWidth - menuMid, env.menuBeginY );
+	// The menu, with title from the menu class
+	Menu menu( MC_PLAYER, env.halfWidth - menuMid, env.menuBeginY );
 
-        // "Name"
-        menu.addText( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
-        itemY += itemFullHeight;
+	// "Name"
+	menu.addText( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
+	itemY += itemFullHeight;
 
-        // "Colour"
-        menu.addColor( &player_new.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
-        itemY += 50 + itemPadding;
+	// "Colour"
+	menu.addColor( &player_new.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
+	itemY += 50 + itemPadding;
 
-        // "Type"
-        menu.addValue(
-                &player_new.type,
-                3,
-                nullptr,
-                BLACK,
-                TC_PLAYERTYPE,
-                static_cast< int32_t >( DEADLY_PLAYER ),
-                itemLeft,
-                itemY,
-                150,
-                itemHeight,
-                itemPadding
-        );
-        itemY += itemFullHeight;
+	// "Type"
+	menu.addValue(
+		&player_new.type,
+		3,
+		nullptr,
+		BLACK,
+		TC_PLAYERTYPE,
+		static_cast< int32_t >( DEADLY_PLAYER ),
+		itemLeft,
+		itemY,
+		150,
+		itemHeight,
+		itemPadding
+	);
+	itemY += itemFullHeight;
 
-        // "Team"
-        menu.addValue(
-                &player_new.team,
-                4,
-                nullptr,
-                BLACK,
-                TC_PLAYERTEAM,
-                static_cast< int32_t >( TEAM_JEDI ),
-                itemLeft,
-                itemY,
-                150,
-                itemHeight,
-                itemPadding
-        );
-        itemY += itemFullHeight;
+	// "Team"
+	menu.addValue(
+		&player_new.team,
+		4,
+		nullptr,
+		BLACK,
+		TC_PLAYERTEAM,
+		static_cast< int32_t >( TEAM_JEDI ),
+		itemLeft,
+		itemY,
+		150,
+		itemHeight,
+		itemPadding
+	);
+	itemY += itemFullHeight;
 
-        // "Generate Pref"
-        menu.addValue(
-                &player_new.preftype,
-                5,
-                nullptr,
-                BLACK,
-                TC_PLAYERPREF,
-                static_cast< int32_t >( ALWAYS_PREF ),
-                itemLeft,
-                itemY,
-                150,
-                itemHeight,
-                itemPadding
-        );
-        itemY += itemFullHeight;
+	// "Generate Pref"
+	menu.addValue(
+		&player_new.preftype,
+		5,
+		nullptr,
+		BLACK,
+		TC_PLAYERPREF,
+		static_cast< int32_t >( ALWAYS_PREF ),
+		itemLeft,
+		itemY,
+		150,
+		itemHeight,
+		itemPadding
+	);
+	itemY += itemFullHeight;
 
-        // "Played" and "Won" do not make sense here
+	// "Played" and "Won" do not make sense here
 
-        // "Tank Type"
-        menu.addValue(
-                &player_new.tankbitmap,
-                8,
-                nullptr,
-                BLACK,
-                TC_TANKTYPE,
-                static_cast< int32_t >( TT_MINI ),
-                itemLeft,
-                itemY,
-                150,
-                35,
-                itemPadding,
-                display_tank_desc
-        );
-        itemY += 35 + itemPadding;
+	// "Tank Type"
+	menu.addValue(
+		&player_new.tankbitmap,
+		8,
+		nullptr,
+		BLACK,
+		TC_TANKTYPE,
+		static_cast< int32_t >( TT_MINI ),
+		itemLeft,
+		itemY,
+		150,
+		35,
+		itemPadding,
+		display_tank_desc
+	);
+	itemY += 35 + itemPadding;
 
-        // "Delete This Player" is surely not needed
+	// "Delete This Player" is surely not needed
 
-        // "Okay" and "Back"
-        menu.addButton(
-                10,
-                nullptr,
-                PE_CONFIRM_NEW,
-                env.misc[ 7 ],
-                nullptr,
-                env.misc[ 8 ],
-                false,
-                menuMid + 50,
-                menuHeight - btnHeight - 6,
-                0,
-                0,
-                itemPadding
-        );
-        menu.addButton(
-                11,
-                nullptr,
-                PE_BACK,
-                env.misc[ 7 ],
-                nullptr,
-                env.misc[ 8 ],
-                false,
-                menuMid - env.misc[ 7 ]->w - 50,
-                menuHeight - btnHeight - 6,
-                0,
-                0,
-                itemPadding
-        );
+	// "Okay" and "Back"
+	menu.addButton(
+		10,
+		nullptr,
+		PE_CONFIRM_NEW,
+		env.misc[ 7 ],
+		nullptr,
+		env.misc[ 8 ],
+		false,
+		menuMid + 50,
+		menuHeight - btnHeight - 6,
+		0,
+		0,
+		itemPadding
+	);
+	menu.addButton(
+		11,
+		nullptr,
+		PE_BACK,
+		env.misc[ 7 ],
+		nullptr,
+		env.misc[ 8 ],
+		false,
+		menuMid - env.misc[ 7 ]->w - 50,
+		menuHeight - btnHeight - 6,
+		0,
+		0,
+		itemPadding
+	);
 
-        while ( !result ) {
-                char existsMessage[ 200 ];
-                result = menu();
+	while ( !result ) {
+		char existsMessage[ 200 ];
+		result = menu();
 
-                // If the player is to be created, two things must happen.
-                // First, ensure that the name is unique
-                // Second, create the real player
-                if ( PE_CONFIRM_NEW & result ) {
-                        if ( -1 == env.getPlayerByName( player_new.name ) ) {
-                                *target = env.createNewPlayer( player_new.name );
-                                if ( *target ) player_new.write_back( *target );
-                        } else {
-                                snprintf( existsMessage, 199, "The player \"%s\" already exists!", player_new.name );
-                                errorMessage = existsMessage;
-                                errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
-                                errorY       = env.menuBeginY + itemFullHeight;
-                                result       = 0;
-                        }
-                }
-        } // End of !result
+		// If the player is to be created, two things must happen.
+		// First, ensure that the name is unique
+		// Second, create the real player
+		if ( PE_CONFIRM_NEW & result ) {
+			if ( -1 == env.getPlayerByName( player_new.name ) ) {
+				*target = env.createNewPlayer( player_new.name );
+				if ( *target ) player_new.write_back( *target );
+			} else {
+				snprintf( existsMessage, 199, "The player \"%s\" already exists!", player_new.name );
+				errorMessage = existsMessage;
+				errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
+				errorY       = env.menuBeginY + itemFullHeight;
+				result       = 0;
+			}
+		}
+	} // End of !result
 
-        return result;
+	return result;
 }

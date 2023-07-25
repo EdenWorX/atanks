@@ -26,6 +26,7 @@
 #include "globals.h"
 #include "optionscreens.h"
 #include "player.h"
+#include "random.h"
 #include "tank.h"
 #include "update.h"
 
@@ -64,9 +65,9 @@ static int32_t client_socket = -1;
 /*************************
 *** External variables ***
 *************************/
-extern WEAPON      weapon[ WEAPONS ];    // from files.cpp
-extern WEAPON      naturals[ NATURALS ]; // from files.cpp
-extern ITEM        item[ ITEMS ];        // from files.cpp
+extern WEAPON weapon[ WEAPONS ];    // from files.cpp
+extern WEAPON naturals[ NATURALS ]; // from files.cpp
+extern ITEM   item[ ITEMS ];        // from files.cpp
 
 
 /*****************************
@@ -76,7 +77,7 @@ static void        Change_Settings( bool old_sound, int32_t old_itech, int32_t o
 static void        close_button_handler( void );
 static void        createConfig();
 static void        credits();
-static const char* do_winner();
+static char const* do_winner();
 static void        endgame_cleanup();
 void               init_mouse_cursor();
 static void        init_game_settings();
@@ -91,7 +92,7 @@ static void        play_local();
 static void        play_networked();
 static void        print_text_help();
 static void        print_text_initmsg();
-static bool        Save_Game_Settings( const char* path );
+static bool        Save_Game_Settings( char const* path );
 static void        show_options();
 static void        title();
 
@@ -99,8 +100,8 @@ static void        title();
 /*****************************
 *** external functions     ***
 *****************************/
-void               draw_simple_bg( bool drawImage ); // from shop.cpp
-void               quickChange( bool clearerror );   // from shop.cpp
+void draw_simple_bg( bool drawImage ); // from shop.cpp
+void quickChange( bool clearerror );   // from shop.cpp
 
 /*******************************
 *** Function implementations ***
@@ -111,21 +112,21 @@ void               quickChange( bool clearerror );   // from shop.cpp
  * This function detects changes to some environment settings and, if a
  * change has happened, makes the required changes to the game environment.
  **/
-static void        Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech ) {
-        // first, check for a change in the sound settings
-        if ( old_sound != env.sound_enabled ) {
-                if ( env.sound_enabled ) {
-                        if ( detect_digi_driver( DIGI_AUTODETECT ) ) {
-                                if ( install_sound( DIGI_AUTODETECT, MIDI_NONE, NULL ) < 0 )
-                                        fprintf( stderr, "install_sound: failed turning on sound\n" );
-                        } else
-                                fprintf( stderr, "detect_digi_driver found no sound device\n" );
-                } else
-                        remove_sound();
-        } // End of sound checking
+static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech ) {
+	// first, check for a change in the sound settings
+	if ( old_sound != env.sound_enabled ) {
+		if ( env.sound_enabled ) {
+			if ( detect_digi_driver( DIGI_AUTODETECT ) ) {
+				if ( install_sound( DIGI_AUTODETECT, MIDI_NONE, NULL ) < 0 )
+					fprintf( stderr, "install_sound: failed turning on sound\n" );
+			} else
+				fprintf( stderr, "detect_digi_driver found no sound device\n" );
+		} else
+			remove_sound();
+	} // End of sound checking
 
-        // Check for tech level changes
-        if ( ( old_itech != env.itemtechLevel ) || ( old_wtech != env.weapontechLevel ) ) env.genItemsList();
+	// Check for tech level changes
+	if ( ( old_itech != env.itemtechLevel ) || ( old_wtech != env.weapontechLevel ) ) env.genItemsList();
 }
 
 /** @brief Close Button Handler
@@ -195,13 +196,13 @@ static void createConfig() {
 	} // End of force-creating a human player
 
 	// Default AI player names
-	const char* const defaultNames[] = {
+	char const* const defaultNames[] = {
 		"Caesar", "Alex", "Hatshepsut", "Patton", "Napoleon", "Attila", "Catherine", "Hannibal", "Stalin", "Mao"
 	};
 
 	for ( int32_t i = 0; i < 10; ++i ) {
 		tempPlayer       = env.createNewPlayer( defaultNames[ i ] );
-		tempPlayer->type = static_cast< playerType >( rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
+		tempPlayer->type = static_cast< playerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
 		tempPlayer->generatePreferences();
 	}
 }
@@ -209,23 +210,23 @@ static void createConfig() {
 /// @brief Draw the endgame screen and return the winner name
 /// or nullptr if no winner was found. The returned text is static
 /// and must *NOT* be freed.
-static const char* do_winner() {
+static char const* do_winner() {
 	static char return_string[ 257 ] = { 0 };
 
 	// Get the dimensions of the score board and the texts right:
-	int32_t     lh                   = env.fontHeight + 3; // The line height.
-	int32_t     pd                   = 10;                 // Padding. How much space to the board border.
+	int32_t lh = env.fontHeight + 3; // The line height.
+	int32_t pd = 10;                 // Padding. How much space to the board border.
 
 	// Find out longest player name and score length do determine the
 	// score board size and score entry positions
-	char        head_name[ 5 ]       = "Name";
-	char        head_value[ 6 ]      = "Value";
-	char        head_score[ 30 ]     = { 0 };
+	char head_name[ 5 ]   = "Name";
+	char head_value[ 6 ]  = "Value";
+	char head_score[ 30 ] = { 0 };
 	snprintf( head_score, 29, " %6s %6s %6s %6s", "Kills", "Killed", "Diff", "Won" );
 
-	int32_t  namLen                 = text_length( font, head_name );
-	int32_t  valLen                 = text_length( font, head_value );
-	int32_t  scoLen                 = text_length( font, head_score );
+	int32_t namLen = text_length( font, head_name );
+	int32_t valLen = text_length( font, head_value );
+	int32_t scoLen = text_length( font, head_score );
 
 	// While checking for the winner, determine the real lengths needed
 	int32_t  idx_jedi               = -1; // Jedi Player with the highest score
@@ -355,12 +356,12 @@ static const char* do_winner() {
 
 	// to make the following easier, skip the two used lines
 	// (The title and one blank)
-	y                += 2 * lh;
+	y += 2 * lh;
 
 	// Second title line, the score board header
-	int32_t valStart  = x + namLen;
-	int32_t scoStart  = valStart + valLen;
-	int32_t scoWidth  = scoLen / 4;
+	int32_t valStart = x + namLen;
+	int32_t scoStart = valStart + valLen;
+	int32_t scoWidth = scoLen / 4;
 
 	textout_ex( global.canvas, font, "Name", x, y, WHITE, -1 );
 	textprintf_right_ex( global.canvas, font, valStart + valLen, y, WHITE, -1, " %14s", "$ Value" );
@@ -373,7 +374,7 @@ static const char* do_winner() {
 	sScore* score_array = sort_scores();
 
 	// And get the head entry:
-	sScore* score       = score_array;
+	sScore* score = score_array;
 	while ( score->prev ) score = score->prev;
 
 
@@ -412,7 +413,7 @@ static const char* do_winner() {
 	global.do_updates();
 
 	// Add a war quote:
-	const char* quote = env.war_quotes->Get_Random_Line();
+	char const* quote = env.war_quotes->Get_Random_Line();
 	if ( quote ) draw_text_in_box( &qarea, quote, false );
 
 	// Clean up
@@ -475,7 +476,7 @@ static void init_game_settings() {
 	}
 
 	// Be sure no vsync is used:
-	const char* no_vsync = get_config_string( "graphics", "disable_vsync", "no" );
+	char const* no_vsync = get_config_string( "graphics", "disable_vsync", "no" );
 	if ( strcasecmp( "yes", no_vsync ) ) set_config_string( "graphics", "disable_vsync", "yes" );
 
 	set_window_title( "Atomic Tanks V" VERSION );
@@ -836,7 +837,7 @@ static int32_t menu() {
 
 	// Clear key buffer and erase mouse button presses
 	while ( keypressed() ) readkey();
-	mouse_b        = 0;
+	mouse_b = 0;
 
 	// Enable first background drawing:
 	bool need_draw = true;
@@ -1167,8 +1168,8 @@ static void play_demo() {
 	env.loadGame        = false;
 	env.play_music      = false;
 
-	env.rounds          = ( rand() % 101 ) + ( rand() % 101 ) + 50;
-	global.currentround = env.rounds - ( rand() % env.rounds );
+	env.rounds          = ( get_rand() % 101 ) + ( get_rand() % 101 ) + 50;
+	global.currentround = env.rounds - ( get_rand() % env.rounds );
 
 	// Be sure to have at least 10 rounds left
 	if ( global.currentround < 10 ) global.currentround = 10;
@@ -1179,8 +1180,8 @@ static void play_demo() {
 	env.skipComputerPlay = SKIP_NONE;
 
 	// set up a bunch of players (non-human, less than 10)
-	int32_t playerCount  = 0;
-	env.numGamePlayers   = 0;
+	int32_t playerCount = 0;
+	env.numGamePlayers  = 0;
 	for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
 		if ( ( env.allPlayers[ i ]->type > HUMAN_PLAYER ) && ( i < MAXPLAYERS ) ) {
 			env.addGamePlayer( env.allPlayers[ i ] );
@@ -1251,7 +1252,7 @@ static void play_local() {
 		// round by exiting or quitting
 		if ( ( global.currentround == 0 ) && ( global.get_command() == GLOBAL_COMMAND_PLAY ) ) {
 			char        buffer[ 512 ] = { 0 };
-			const char* winner        = do_winner();
+			char const* winner        = do_winner();
 
 			if ( winner ) {
 				if ( 0 > snprintf( buffer, 255, "GAMEEND The game went to %s.", winner ) ) abort();
@@ -1332,7 +1333,7 @@ the config file name.
 The function returns TRUE on success and FALSE on failure.
 -- Jesse
 */
-static bool Save_Game_Settings( const char* path ) {
+static bool Save_Game_Settings( char const* path ) {
 	FILE* file = fopen( path, "w" );
 	if ( !file ) {
 		perror( "Error trying to open text file for writing.\n" );
@@ -1391,9 +1392,6 @@ int32_t main( int32_t argc, char** argv ) {
 		return EXIT_FAILURE;
 	}
 
-	// Initialize random number generation
-	srand( time( nullptr ) );
-
 	// Set the game version global
 #ifdef VERSION
 	{
@@ -1418,9 +1416,9 @@ int32_t main( int32_t argc, char** argv ) {
 	std::thread*       network_thread = nullptr;
 
 	// Create the update checker thread:
-	update_data        updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
+	update_data updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
 
-	std::thread        updateThread( std::ref( updateData ) );
+	std::thread updateThread( std::ref( updateData ) );
 	if ( env.check_for_updates ) global.update_string = updateData.update_string;
 
 	// Initialize network if allowed and wanted
@@ -1434,7 +1432,7 @@ int32_t main( int32_t argc, char** argv ) {
 		send_receive->listening_port = env.network_port;
 
 		// quit option already cleared by calloc call
-		network_thread               = new std::thread( Send_And_Receive, send_receive );
+		network_thread = new std::thread( Send_And_Receive, send_receive );
 	}
 #endif // NETWORK
 

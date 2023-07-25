@@ -7,6 +7,7 @@
 
 #include "files.h"
 #include "player.h"
+#include "random.h"
 #include "text.h"
 
 #include <cassert>
@@ -28,68 +29,68 @@ ITEM   item[ ITEMS ];
  * All data is saved in a text file for flexibility.
  * @return true on success and false on failure.
  **/
-bool   Save_Game() {
-        string save_path{ env.configDir + string( "/" ).append( env.game_name ).append( ".sav" ) };
+bool Save_Game() {
+	string save_path{ env.configDir + string( "/" ).append( env.game_name ).append( ".sav" ) };
 
-        FILE*  game_file = fopen( save_path.c_str(), "w" );
-        if ( !game_file ) return false;
+	FILE*  game_file = fopen( save_path.c_str(), "w" );
+	if ( !game_file ) return false;
 
-        // write file version information
-        fprintf( game_file, "VERSION\n" );
-        fprintf( game_file, "FILE_VERSION=%d\n", game_version );
-        fprintf( game_file, "***\n" );
+	// write file version information
+	fprintf( game_file, "VERSION\n" );
+	fprintf( game_file, "FILE_VERSION=%d\n", game_version );
+	fprintf( game_file, "***\n" );
 
-        // write global data
-        fprintf( game_file, "GLOBAL\n" );
-        fprintf( game_file, "CURRENTROUND=%d\n", global.currentround + 1 );
-        // Note: When the game is saved, the round already has been decreased. Thus,
-        // to not loose rounds when saving a game, returning to main and load it
-        // again, this has to be increased here.
-        fprintf( game_file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
-        fprintf( game_file, "***\n" );
+	// write global data
+	fprintf( game_file, "GLOBAL\n" );
+	fprintf( game_file, "CURRENTROUND=%d\n", global.currentround + 1 );
+	// Note: When the game is saved, the round already has been decreased. Thus,
+	// to not loose rounds when saving a game, returning to main and load it
+	// again, this has to be increased here.
+	fprintf( game_file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
+	fprintf( game_file, "***\n" );
 
-        // write environment data
-        fprintf( game_file, "ENVIRONMENT\n" );
-        fprintf( game_file, "CAMPAIGNMODE=%d\n", env.campaign_mode ? 1 : 0 );
-        fprintf( game_file, "CAMPAIGNROUNDS=%lf\n", env.campaign_rounds );
-        fprintf( game_file, "NEXTCAMPROUND=%lf\n", env.nextCampaignRound );
-        fprintf( game_file, "ROUNDS=%u\n", env.rounds );
-        fprintf( game_file, "***\n" );
+	// write environment data
+	fprintf( game_file, "ENVIRONMENT\n" );
+	fprintf( game_file, "CAMPAIGNMODE=%d\n", env.campaign_mode ? 1 : 0 );
+	fprintf( game_file, "CAMPAIGNROUNDS=%lf\n", env.campaign_rounds );
+	fprintf( game_file, "NEXTCAMPROUND=%lf\n", env.nextCampaignRound );
+	fprintf( game_file, "ROUNDS=%u\n", env.rounds );
+	fprintf( game_file, "***\n" );
 
-        // write player data
-        fprintf( game_file, "PLAYERS\n" );
-        for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
-                PLAYER* my_player = env.players[ i ];
+	// write player data
+	fprintf( game_file, "PLAYERS\n" );
+	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
+		PLAYER* my_player = env.players[ i ];
 
-                if ( my_player->index > -1 ) {
-                        // Note: This line is needed to know which player to load
-                        fprintf( game_file, "PLAYERNUMBER=%d\n", my_player->index );
-                        my_player->save_game_data( game_file );
-                }
-        }
+		if ( my_player->index > -1 ) {
+			// Note: This line is needed to know which player to load
+			fprintf( game_file, "PLAYERNUMBER=%d\n", my_player->index );
+			my_player->save_game_data( game_file );
+		}
+	}
 
-        fprintf( game_file, "***EOF***\n" );
+	fprintf( game_file, "***EOF***\n" );
 
-        fclose( game_file );
+	fclose( game_file );
 
-        /* atanks always saved the current configuration in a file
-         * alongside the save game, but this environment file was
-         * never read. It makes no sense anyway, as it would change
-         * the current settings without re-loading the main config
-         * file.
-         * However, I find this very good for testing reasons, and
-         * if a game becomes boring, why not allow the player to
-         * enable some weather effects before loading a game?
-         * So it won't be added that the environment file is loaded,
-         * but if an old one is laying around, we should delete our
-         * own garbage:
-         */
-        save_path.replace( save_path.size() - 3, 3, "txt" );
-        if ( !access( save_path.c_str(), F_OK ) && !access( save_path.c_str(), W_OK ) ) {
-                unlink( save_path.c_str() );
-        }
+	/* atanks always saved the current configuration in a file
+	 * alongside the save game, but this environment file was
+	 * never read. It makes no sense anyway, as it would change
+	 * the current settings without re-loading the main config
+	 * file.
+	 * However, I find this very good for testing reasons, and
+	 * if a game becomes boring, why not allow the player to
+	 * enable some weather effects before loading a game?
+	 * So it won't be added that the environment file is loaded,
+	 * but if an old one is laying around, we should delete our
+	 * own garbage:
+	 */
+	save_path.replace( save_path.size() - 3, 3, "txt" );
+	if ( !access( save_path.c_str(), F_OK ) && !access( save_path.c_str(), W_OK ) ) {
+		unlink( save_path.c_str() );
+	}
 
-        return true;
+	return true;
 }
 
 /*
@@ -100,22 +101,22 @@ FALSE if an error occurs.
 -- Jesse
 */
 bool Load_Game() {
-	char        line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char        field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char        value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char*       result                       = nullptr;
-	int32_t     player_count                 = 0;
-	int32_t     line_num                     = 0;
-	int32_t     player_idx                   = -1;
-	bool        done                         = false;
-	int32_t     file_version                 = 0;
+	char    line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
+	char    field[ MAX_CONFIG_LINE + 1 ] = { 0 };
+	char    value[ MAX_CONFIG_LINE + 1 ] = { 0 };
+	char*   result                       = nullptr;
+	int32_t player_count                 = 0;
+	int32_t line_num                     = 0;
+	int32_t player_idx                   = -1;
+	bool    done                         = false;
+	int32_t file_version                 = 0;
 
 	// Be sure that numbers are understood right:
-	const char* cur_lc_numeric               = setlocale( LC_NUMERIC, "C" );
+	char const* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
 
 	// Ensure backward compatibility:
-	env.nextCampaignRound                    = -1.;
-	env.campaign_rounds                      = -1.;
+	env.nextCampaignRound = -1.;
+	env.campaign_rounds   = -1.;
 
 	// Open game file
 	string save_path{ env.configDir + string( "/" ).append( env.game_name ).append( ".sav" ) };
@@ -315,7 +316,7 @@ bool Copy_Config_File() {
 	char        buffer[ PATH_MAX + 1 ] = { 0 };
 
 	// check to see if the config file has already been copied
-	string      dest_path{ env.configDir + string( "/atanks-config.txt" ) };
+	string dest_path{ env.configDir + string( "/atanks-config.txt" ) };
 	if ( !access( dest_path.c_str(), R_OK | W_OK ) ) return true;
 
 	char* my_home_folder = getenv( HOME_DIR );
@@ -388,14 +389,14 @@ Scroll text in a box
 */
 void scrollTextList( TEXTBLOCK* lines ) {
 	int32_t          spacing  = 2;
-	int32_t          tOffset  = ( RAND_MAX / 4 ) + ( rand() % ( RAND_MAX / 4 ) );
-	int32_t          numItems = ( rand() % 100 ) + 20;
+	int32_t          tOffset  = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
+	int32_t          numItems = ( get_rand() % 100 ) + 20;
 	int32_t          key      = 0;
 	bool             done     = false;
 	bool             moving   = true;
 
 	eBackgroundTypes bgType =
-		env.dynamicMenuBg ? static_cast< eBackgroundTypes >( rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+		env.dynamicMenuBg ? static_cast< eBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 
 	drawMenuBackground( bgType, tOffset, numItems );
 	quickChange( true );
@@ -468,7 +469,7 @@ void flush_inputs() {
 // Returns TRUE on success and FALSE on failure
 bool Load_Weapons_Text() {
 	// Be sure that numbers are understood right:
-	const char* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
+	char const* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
 	string      weap_file{ env.dataDir };
 
 	// get path name

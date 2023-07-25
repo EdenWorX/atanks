@@ -25,6 +25,7 @@
 #include "globaldata.h"
 #include "physobj.h"
 #include "player.h"
+#include "random.h"
 #include "sound.h"
 #include "tank.h"
 
@@ -36,8 +37,8 @@ static int32_t beamRadius = 1;
 static int32_t beamSeed   = 0;
 
 // Helper methods for the drawing methods
-static void    lazerPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t color );
-static void    lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
+static void lazerPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t color );
+static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
 
 /// @brief BEAM constructor
 BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type )
@@ -68,7 +69,7 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 		weap = &( weapon[ weapType ] );
 	else
 		weap = &( naturals[ weapType - WEAPONS ] );
-	radius               = weap->radius;
+	radius = weap->radius;
 
 	/* All beams should have the same age, no matter what the FPS settings
 	 * are.
@@ -88,7 +89,7 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 	int32_t weap_size    = 0;                          // aka "small"
 
 	if ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) {
-		numPoints = 4 + ( rand() % 9 ); // 4 - 12
+		numPoints = 4 + ( get_rand() % 9 ); // 4 - 12
 		weap_size = weapType - SML_LIGHTNING;
 	} else if ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) {
 		base_age     *= 2;
@@ -106,7 +107,7 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 	damage = static_cast< double >( weap->damage ) / static_cast< double >( maxAge );
 
 	// Set an offset seed
-	seed   = rand() % std::max( env.screenWidth, env.screenHeight );
+	seed = get_rand() % std::max( env.screenWidth, env.screenHeight );
 
 	createBeamPath();
 
@@ -174,13 +175,13 @@ void BEAM::applyPhysics() {
 	}
 
 	if ( BT_MIND_SHOT != beamType ) {
-		if ( !global.skippingComputerPlay && !( rand() % ( env.frames_per_second / 5 ) ) ) {
+		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 5 ) ) ) {
 			try {
 				new DECOR(
 					points[ numPoints - 1 ].x,
 					points[ numPoints - 1 ].y,
-					( rand() % 7 ) - 3,
-					1 - ( rand() % 6 ),
+					( get_rand() % 7 ) - 3,
+					1 - ( get_rand() % 6 ),
 					radius,
 					DECOR_SMOKE,
 					0

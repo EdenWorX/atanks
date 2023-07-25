@@ -22,6 +22,7 @@
 #include "debris_pool.h"
 #include "files.h"
 #include "player.h"
+#include "random.h"
 #include "sound.h"
 #include "tank.h"
 
@@ -335,18 +336,18 @@ int32_t GLOBALDATA::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t
 	bool    mv_down  = mvy > 0;
 
 	// Boundaries
-	int32_t min_x    = 1;
-	int32_t max_x    = env.screenWidth - 2;
-	int32_t min_y    = env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT;
-	int32_t max_y    = env.screenHeight - 2;
+	int32_t min_x = 1;
+	int32_t max_x = env.screenWidth - 2;
+	int32_t min_y = env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT;
+	int32_t max_y = env.screenHeight - 2;
 
 	// Coordinates
-	int32_t left     = std::max( std::min( x1, x2 ), min_x );
-	int32_t right    = std::min( std::max( x1, x2 ), max_x );
-	int32_t centre   = ( x1 + x2 ) / 2;
-	int32_t top      = std::max( std::min( y1, y2 ), min_y );
-	int32_t bottom   = std::min( std::max( y1, y2 ), max_y );
-	int32_t middle   = ( y1 + y2 ) / 2;
+	int32_t left   = std::max( std::min( x1, x2 ), min_x );
+	int32_t right  = std::min( std::max( x1, x2 ), max_x );
+	int32_t centre = ( x1 + x2 ) / 2;
+	int32_t top    = std::max( std::min( y1, y2 ), min_y );
+	int32_t bottom = std::min( std::max( y1, y2 ), max_y );
+	int32_t middle = ( y1 + y2 ) / 2;
 
 
 	// Colors:
@@ -504,7 +505,7 @@ TANK* GLOBALDATA::get_next_tank( bool* wrapped_around ) {
 			++index;
 	}
 
-	tankindex       = index;
+	tankindex = index;
 
 	// If this tank is valid, the currently selected weapon must be checked
 	// first and changed if depleted
@@ -519,7 +520,7 @@ TANK* GLOBALDATA::get_next_tank( bool* wrapped_around ) {
 
 /// @brief randomly return one active tank
 TANK* GLOBALDATA::get_random_tank() {
-	int32_t idx      = rand() % MAXPLAYERS;
+	int32_t idx      = get_rand() % MAXPLAYERS;
 	int32_t attempts = 2;
 	while ( ( !order[ idx ] || order[ idx ]->destroy ) && ( idx < MAXPLAYERS ) && attempts ) {
 		if ( ++idx >= MAXPLAYERS ) {
@@ -787,7 +788,7 @@ void GLOBALDATA::newRound() {
 	combineUpdates     = true;
 
 	// clean all but texts and tanks
-	int32_t class_     = 0;
+	int32_t class_ = 0;
 	while ( class_ < CLASS_COUNT ) {
 		if ( ( CLASS_FLOATTEXT != class_ ) && ( CLASS_TANK != class_ ) ) {
 			while ( tails[ class_ ] ) delete tails[ class_ ];
@@ -930,7 +931,7 @@ void GLOBALDATA::slideLand() {
 			// Calc the top and bottom of the column to slide
 
 			// Find top-most non-PINK pixel
-			int32_t row   = MENUHEIGHT + ( env.isBoxed ? 1 : 0 );
+			int32_t row = MENUHEIGHT + ( env.isBoxed ? 1 : 0 );
 
 			for ( ; ( row < dropTo[ col ] ) && ( PINK == getpixel( terrain, col, row ) ); ++row )
 				;

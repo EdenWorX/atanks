@@ -22,6 +22,7 @@
 
 #include "environment.h"
 #include "globaldata.h"
+#include "random.h"
 
 PHYSICAL_OBJECT::PHYSICAL_OBJECT( bool is_weapon ) : VIRTUAL_OBJECT(), isWeaponFire( is_weapon ) { /* nothing to do here */
 }
@@ -101,12 +102,12 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	// Special handling for Napalm Jellies if this is wrap or steel
 	// ceiling. They sort of 'glide off' of the ceiling instead of
 	// getting glued to it.
-	bool    jelly =
-                ( NAPALM_JELLY == weapType )
-                                && ( ( WALL_STEEL == env.current_wallType )
-                                     || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) )
-			   ? true
-			   : false;
+	bool jelly =
+		( NAPALM_JELLY == weapType )
+				&& ( ( WALL_STEEL == env.current_wallType )
+	                             || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) )
+			? true
+			: false;
 
 	// Easiest way is a loop that traces the path step-wise
 	while ( isMoving && !hitSomething ) {
@@ -166,8 +167,8 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				hitWall = false; // not reached
 				if ( jelly && hitTop ) {
 					nextY += 1.0;
-					yv     = static_cast< double >( ( rand() % 10 ) + 1 ) / 25.00; // 0.04 - 0.40
-					xv    /= static_cast< double >( ( rand() % 4 ) + 2 ) / 1.66;   // 1.20 - 3.01
+					yv     = static_cast< double >( ( get_rand() % 10 ) + 1 ) / 25.00; // 0.04 - 0.40
+					xv    /= static_cast< double >( ( get_rand() % 4 ) + 2 ) / 1.66;   // 1.20 - 3.01
 				}
 			}
 			xv_cur -= deltaX;
@@ -203,10 +204,10 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				double vel_rest = FABSDISTANCE2( xv_cur, yv_cur, 0., 0. ) / FABSDISTANCE2( xv, yv, 0., 0. );
 
 				// Now apply what is left:
-				xv_cur          = rxv * vel_rest;
-				yv_cur          = ryv * vel_rest;
-				xv              = rxv;
-				yv              = ryv;
+				xv_cur = rxv * vel_rest;
+				yv_cur = ryv * vel_rest;
+				xv     = rxv;
+				yv     = ryv;
 			} else {
 				hitSomething = true;
 				isMoving     = false;
@@ -306,7 +307,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 			     || std::isinf( yv ) ) {
 				// apply *some* velocity, as the thing is killed on its way
 				// (unless the current veocity is infinite of course
-				double velMod = 1.0 + ( (double)( rand() % 40 ) / 10.0 );
+				double velMod = 1.0 + ( (double)( get_rand() % 40 ) / 10.0 );
 				// This produces something between 1.0 and 5.0
 				if ( !std::isinf( xv_cur ) ) nextX = x + ( xv_cur / velMod );
 				if ( !std::isinf( yv_cur ) ) nextY = y + ( yv_cur / velMod );
@@ -361,10 +362,10 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 		return false;
 	}
 
-	bool   result   = false;
-	double xDist    = endX - *startX;
-	double yDist    = endY - *startY;
-	double length   = FABSDISTANCE2( xDist, yDist, 0, 0 );
+	bool   result = false;
+	double xDist  = endX - *startX;
+	double yDist  = endY - *startY;
+	double length = FABSDISTANCE2( xDist, yDist, 0, 0 );
 
 	// Shortcuts:
 	bool   hasDelay = has_delayed && ( can_delay > *has_delayed );

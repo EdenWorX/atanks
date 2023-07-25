@@ -2,6 +2,7 @@
 
 #include "beam.h"
 #include "environment.h"
+#include "random.h"
 
 SATELLITE::SATELLITE() : x( env.screenWidth / 2 ) {
 	prev_x = x;
@@ -35,14 +36,14 @@ void SATELLITE::shoot() {
 	if ( ( SL_NONE != env.satellite ) && ( global.naturals_activated < 4 )
 	     && ( nullptr == beam )
 	     // 1% chance to fire
-	     && ( !( rand() % 100 ) ) ) {
+	     && ( !( get_rand() % 100 ) ) ) {
 		try {
 			beam = new BEAM(
 				nullptr,
 				xv < 0 ? x + 10 : x + 40,
 				y + 20,
-				rand() % 35 + ( xv < 0 ? 320 : 5 ),
-				SML_LAZER + ( rand() % env.satellite ),
+				get_rand() % 35 + ( xv < 0 ? 320 : 5 ),
+				SML_LAZER + ( get_rand() % env.satellite ),
 				BT_NATURAL
 			);
 			global.naturals_activated++;

@@ -25,6 +25,7 @@
 #include "decor.h"
 #include "explosion.h"
 #include "player.h"
+#include "random.h"
 #include "sound.h"
 #include "tank.h"
 
@@ -59,10 +60,10 @@ MISSILE::MISSILE(
 #endif
 
 	// Set position and movement
-	x        = xpos;
-	y        = ypos;
-	xv       = xvel;
-	yv       = yvel;
+	x  = xpos;
+	y  = ypos;
+	xv = xvel;
+	yv = yvel;
 
 	// Get and set weapon/item data
 	weapType = weapon_type;
@@ -80,7 +81,7 @@ MISSILE::MISSILE(
 
 	// The maxVel value results in a small missile being able to be accelerated
 	// by 25% over MAX_POWER, while a large Napalm Bomb can go up to 220%.
-	maxVel   = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	maxVel = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 	DEBUG_LOG_PHY( "PHYSICAL_OBJECT", "env.maxVel: %5.2lf, mass: %5.2lf, obj.maxVel: %5.2lf", env.maxVelocity, mass, maxVel )
 
 	// Meteors and dirt balls are "volatile" and can not be accelerated
@@ -90,8 +91,8 @@ MISSILE::MISSILE(
 		maxVel = std::min( maxVel, static_cast< double >( MAX_POWER ) );
 
 	if ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) ) {
-		angle  = rand() % 360;
-		spin   = ( rand() % 20 ) - 10;
+		angle  = get_rand() % 360;
+		spin   = ( get_rand() % 20 ) - 10;
 		maxAge = MAX_METEOR_AGE;
 	} else if ( weapType == NAPALM_JELLY ) {
 		// Napalm grows, others do not:
@@ -101,10 +102,10 @@ MISSILE::MISSILE(
 		allowDirtyWrap = false;
 	} else {
 		growRadius = weap->radius;
-		if ( FUNKY_BOMBLET == weapType ) maxAge = ( MAX_MISSILE_AGE / 7 ) + ( rand() % ( MAX_MISSILE_AGE / 4 ) );
+		if ( FUNKY_BOMBLET == weapType ) maxAge = ( MAX_MISSILE_AGE / 7 ) + ( get_rand() % ( MAX_MISSILE_AGE / 4 ) );
 		// With MMA 15 seconds, this is 2 + [0;3] = [2;5] seconds
 		else if ( FUNKY_DEATHLET == weapType )
-			maxAge = ( MAX_MISSILE_AGE / 5 ) + ( rand() % ( MAX_MISSILE_AGE / 3 ) );
+			maxAge = ( MAX_MISSILE_AGE / 5 ) + ( get_rand() % ( MAX_MISSILE_AGE / 3 ) );
 		// With MMA 15 seconds, this is 3 + [0;4] = [3;7] seconds
 		else
 			maxAge = MAX_MISSILE_AGE;
@@ -116,7 +117,7 @@ MISSILE::MISSILE(
 	// Set funky colour of the funky bomblets/deathlets and add some maxAge
 	// variation so they do not detonate in groups.
 	if ( ( weapType == FUNKY_BOMBLET ) || ( weapType == FUNKY_DEATHLET ) ) {
-		int32_t temp_number = rand() % 5;
+		int32_t temp_number = get_rand() % 5;
 		switch ( temp_number ) {
 			case 0:
 				funky_colour = makecol( 200, 0, 0 );
@@ -136,7 +137,7 @@ MISSILE::MISSILE(
 		}
 
 		// Variation +/- 1 Second in frames:
-		maxAge += ( rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second;
+		maxAge += ( get_rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second;
 	}
 
 	// Some weapons must not wrap through dirt ceilings if the bottom
@@ -239,7 +240,7 @@ void MISSILE::applyPhysics() {
 
 		// Unless something is hit, smoke might be produced:
 		if ( !hitSomething && !global.skippingComputerPlay && ( MT_MIND_SHOT != missileType )
-		     && !( rand() % ( env.frames_per_second / 10 ) ) ) {
+		     && !( get_rand() % ( env.frames_per_second / 10 ) ) ) {
 			try {
 				new DECOR(
 					x,
@@ -326,9 +327,9 @@ void MISSILE::applyPhysics() {
 	else if ( PT_FUNKY_FLOAT == physType ) {
 
 		// Funky Floats have a 0.75% chance to randomly change their direction
-		if ( 0 == ( rand() % 150 ) ) {
+		if ( 0 == ( get_rand() % 150 ) ) {
 
-			int32_t floatee_action = rand() % 4;
+			int32_t floatee_action = get_rand() % 4;
 
 			// Three possibilities:
 			// A) 25% chance to reverse x movement
@@ -352,7 +353,7 @@ void MISSILE::applyPhysics() {
 						( launchWeap->launchSpeed
 					          + ROUND( ( launchWeap ? launchWeap->speedVariation : 0.0 )
 					                   * ( launchWeap ? launchWeap->launchSpeed : 0.0 )
-					                   * Noise( rand() % 1000000 ) ) )
+					                   * Noise( get_rand() % 1000000 ) ) )
 						* env.FPS_mod;
 					double fdiff = ABSDISTANCE2( floatee_tgt->x, floatee_tgt->y, x, y );
 					xv           = ( floatee_tgt->x - x ) / fdiff * speed;
@@ -526,8 +527,8 @@ void MISSILE::draw() {
 			int32_t scorches = 3 + ( 3 * ABSDISTANCE2( x, y, x + xv, y + yv ) );
 
 			for ( int32_t i = 0; i < scorches; ++i ) {
-				int32_t sx = x + ( ( rand() % 5 ) - 2 ); // [-2;2]
-				int32_t sy = y + ( ( rand() % 5 ) - 2 ); // [-2;2]
+				int32_t sx = x + ( ( get_rand() % 5 ) - 2 ); // [-2;2]
+				int32_t sy = y + ( ( get_rand() % 5 ) - 2 ); // [-2;2]
 
 				if ( ( sx > 1 ) && ( sx < env.screenWidth ) && ( sy > MENUHEIGHT )
 				     && ( sy < env.screenHeight ) ) {
@@ -599,7 +600,7 @@ void MISSILE::Check_SDI() {
 	if ( ( PT_DIGGING == physType ) || ( weapType == NAPALM_JELLY ) || ( weap->submunition > 0 ) ) return;
 
 	// Funky Floats are "invisible" with a chance of 50%
-	if ( ( PT_FUNKY_FLOAT == physType ) && ( rand() % 2 ) ) return;
+	if ( ( PT_FUNKY_FLOAT == physType ) && ( get_rand() % 2 ) ) return;
 
 	// Reset SDI list:
 	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) sdi[ i ].next = nullptr;
@@ -670,7 +671,7 @@ void MISSILE::Check_SDI() {
 	// can shoot this one down.
 	while ( !shotDown && pSDI ) {
 		// 20% base chance with +1% per SDI over one.
-		if ( ( rand() % 100 ) < ( 19 + pSDI->am ) ) {
+		if ( ( get_rand() % 100 ) < ( 19 + pSDI->am ) ) {
 			// Try to predict the coordinates where the missile will go down:
 			MISSILE mind_shot( player, x, y, xv, yv, weapType, MT_MIND_SHOT, SDI_PREDICTOR, 0 );
 
@@ -731,14 +732,14 @@ void MISSILE::Check_SDI() {
 
 				// The actual shooting is only done if this is no mind shot
 				if ( MT_MIND_SHOT != missileType ) {
-					lt             = pSDI->tank;
+					lt = pSDI->tank;
 
 					// The player has a 1% chance per SDI (with 50% max)
 					// that one of the lasers burns out.
 					// The chance can become this high to prevent players with
 					// few missiles to shoot down to buy hundreds of SDI units.
 					int32_t chance = pSDI->am > 50 ? 50 : pSDI->am;
-					bool    burnt  = ( rand() % 100 ) < chance ? true : false;
+					bool    burnt  = ( get_rand() % 100 ) < chance ? true : false;
 
 					try {
 						new BEAM(
@@ -928,14 +929,14 @@ void MISSILE::triggerTest() {
 		if ( ( weapType >= SML_ROLLER ) && ( weapType <= DTH_ROLLER ) && ( PT_NORMAL == physType ) ) {
 
 			if ( age > 1 ) {
-				quell     = true; // No detonation, just switch to rolling
-				physType  = PT_ROLLING;
-				age       = 0;
+				quell    = true; // No detonation, just switch to rolling
+				physType = PT_ROLLING;
+				age      = 0;
 
 				// Set rolling start position and initial movement
-				y        -= 5;
-				xv        = 0;
-				yv        = 0;
+				y  -= 5;
+				xv  = 0;
+				yv  = 0;
 
 				// Possibly fix x
 				if ( x <= 1 ) {
@@ -974,7 +975,7 @@ void MISSILE::triggerTest() {
 						xv = 1;
 					else
 						// nothing worked, both paths are blocked.
-						xv = rand() % 2 ? -1 : 1;
+						xv = get_rand() % 2 ? -1 : 1;
 				}
 
 				// If the roller is hammered into a wall, detonate it
@@ -1016,7 +1017,7 @@ void MISSILE::triggerTest() {
 					static_cast< double >( weap->divergence )
 					/ static_cast< double >( weap->numSubmunitions - 1 );
 				int32_t   startPoint      = divergenceStep < 0. ? 0 : 180;
-				int32_t   randStart       = rand() % 1000000;
+				int32_t   randStart       = get_rand() % 1000000;
 				ePhysType submunitionPhys = PT_NORMAL;
 				double    inheritedXV     = weap->impartVelocity * xv;
 				double    inheritedYV     = weap->impartVelocity * yv;
@@ -1035,7 +1036,7 @@ void MISSILE::triggerTest() {
 				          || ( WALL_STEEL == env.current_wallType ) ) ) { // This always blasts
 					ceiling_crash = true;
 					// If the weapon is fired into a ceiling, adapt starting y
-					startY        = MENUHEIGHT + 20;
+					startY = MENUHEIGHT + 20;
 				}
 
 				// if napalm is going off, play its burn out sound
@@ -1051,14 +1052,14 @@ void MISSILE::triggerTest() {
 				if ( ( WALL_STEEL == env.current_wallType ) && !ceiling_crash ) {
 					if ( ( CLUSTER <= weapType ) && ( SUP_CLUSTER >= weapType ) ) {
 						if ( x < 2 )
-							startPoint -= weap->divergence + 1 + ( rand() % 10 );
+							startPoint -= weap->divergence + 1 + ( get_rand() % 10 );
 						else if ( x > ( env.screenWidth - 3 ) )
-							startPoint += weap->divergence + 1 + ( rand() % 10 );
+							startPoint += weap->divergence + 1 + ( get_rand() % 10 );
 					} else if ( ( SML_NAPALM <= weapType ) && ( LRG_NAPALM >= weapType ) ) {
 						if ( x < 2 )
-							startPoint -= 10 + rand() % 21;
+							startPoint -= 10 + get_rand() % 21;
 						else if ( x > ( env.screenWidth - 3 ) )
-							startPoint += 10 + rand() % 21;
+							startPoint += 10 + get_rand() % 21;
 					}
 				}
 

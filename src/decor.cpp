@@ -1,5 +1,6 @@
 #include "decor.h"
 
+#include "random.h"
 #include "sound.h"
 #include "tank.h"
 
@@ -22,45 +23,45 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 
 	if ( DECOR_DIRT == type ) {
 		// The core data is taken from the meteors.
-		weapType    = SML_METEOR + ( maxRadius / 2 ); // results in (0, 1, 1, 2, 2) for radius [1;5]
-		mass        = naturals[ weapType - WEAPONS ].mass;
-		drag        = naturals[ weapType - WEAPONS ].drag / 5.;
+		weapType = SML_METEOR + ( maxRadius / 2 ); // results in (0, 1, 1, 2, 2) for radius [1;5]
+		mass     = naturals[ weapType - WEAPONS ].mass;
+		drag     = naturals[ weapType - WEAPONS ].drag / 5.;
 
 		// Special physics for dirt debris:
-		physType    = PT_DIRTBOUNCE;
+		physType = PT_DIRTBOUNCE;
 
 		// Only keep dirt alive while it is really moving,
 		// if it becomes too slow, only keep it for 2 seconds
-		maxAge      = 2 * env.frames_per_second;
+		maxAge = 2 * env.frames_per_second;
 
 		// The diameter is just used so it does not have to
 		// be calculated each time updateDirt() is called.
-		diameter    = radius * 2;
+		diameter = radius * 2;
 
 		// Calculate how many pixels are needed per call to updateDirt()
 		grabPerCall = ( ( diameter + 1 ) * ( diameter + 1 ) ) / ( delay > 1 ? delay : 1 );
 	} else if ( DECOR_SMOKE == type ) {
-		int32_t tempCol = 128 + ( rand() % 64 );
+		int32_t tempCol = 128 + ( get_rand() % 64 );
 
 		if ( maxRadius <= 3 )
 			radius = 3;
 		else
-			radius = 3 + ( rand() % ( maxRadius - 2 ) );
+			radius = 3 + ( get_rand() % ( maxRadius - 2 ) );
 
-		color     = makecol( tempCol, tempCol, tempCol );
-		mass      = 1.0 + ( static_cast< double >( rand() % 5 ) / 10. );
-		drag      = 0.9 + ( static_cast< double >( rand() % 90 ) / 100. );
+		color = makecol( tempCol, tempCol, tempCol );
+		mass  = 1.0 + ( static_cast< double >( get_rand() % 5 ) / 10. );
+		drag  = 0.9 + ( static_cast< double >( get_rand() % 90 ) / 100. );
 
 		// maximum age depends on the maximum radius and the real radius,
 		// plus 0 to 2 extra seconds.
-		maxAge    = ( ( maxRadius - ( maxRadius - radius ) ) / 3 ) + ( rand() % 3 );
-		maxAge   *= env.frames_per_second;
+		maxAge  = ( ( maxRadius - ( maxRadius - radius ) ) / 3 ) + ( get_rand() % 3 );
+		maxAge *= env.frames_per_second;
 
 		// Special physics for smoke, only for repulsion
-		physType  = PT_SMOKE;
+		physType = PT_SMOKE;
 
 		// Smoke does not need the dirt grabber
-		ready     = true;
+		ready = true;
 	} else
 		destroy = true;
 
@@ -186,7 +187,7 @@ void DECOR::applyPhysics() {
 
 	} else if ( DECOR_SMOKE == type ) {
 		// Apply wind first
-		int32_t ageMod  = ROUND( std::abs( curWind / ( maxWind / 2.0 ) ) ) + 1;
+		int32_t ageMod = ROUND( std::abs( curWind / ( maxWind / 2.0 ) ) ) + 1;
 
 		/* This produces: (with max wind = 8)
 		 * wind = 0 : round(0 / (8 / 2)) + 1 = round(0 / 4) + 1 = 0 + 1 = 1 <-- normal aging
@@ -195,16 +196,16 @@ void DECOR::applyPhysics() {
 		 * wind = 6 : round(6 / (8 / 2)) + 1 = round(6 / 4) + 1 = 2 + 1 = 3 <-- fast aging
 		 * wind = 8 : round(8 / (8 / 2)) + 1 = round(8 / 4) + 1 = 2 + 1 = 3 <-- fast aging
 		 */
-		age            += ageMod;
+		age += ageMod;
 
 		// Set further values
 		// Try to reach half distance to the maximum values per second
-		double xaccel   = ( ( xv + maxWindAccel ) / 2 ) / static_cast< double >( env.frames_per_second );
-		double yaccel   = ( ( yv + maxGravAccel ) / 2 ) / static_cast< double >( env.frames_per_second / 10. );
+		double xaccel = ( ( xv + maxWindAccel ) / 2 ) / static_cast< double >( env.frames_per_second );
+		double yaccel = ( ( yv + maxGravAccel ) / 2 ) / static_cast< double >( env.frames_per_second / 10. );
 
 		// Apply current acceleration
-		xv             += xaccel;
-		yv             += yaccel;
+		xv += xaccel;
+		yv += yaccel;
 
 		// Add repulsion:
 		repulseDecor();
@@ -227,11 +228,11 @@ void DECOR::applyPhysics() {
 			yv /= 2.;
 
 		// Now the velocity can be applied.
-		x                  += xv;
-		y                  += yv;
+		x += xv;
+		y += yv;
 
 		// Destroy the smoke if it goes off-screen or is diffused
-		int32_t calcRadius  = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
+		int32_t calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
 
 		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screenWidth + calcRadius ) )
 		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > maxAge ) )
@@ -311,10 +312,10 @@ bool DECOR::isOnFloor() {
 		round_x = scr_r;
 
 	// rounded boundaries, clipped to the screen:
-	int32_t left      = std::max( 1, round_x - radius );
-	int32_t top       = std::max( MENUHEIGHT, round_y - radius );
-	int32_t right     = std::min( scr_r, round_x + radius );
-	int32_t bottom    = std::min( scr_b, round_y + radius );
+	int32_t left   = std::max( 1, round_x - radius );
+	int32_t top    = std::max( MENUHEIGHT, round_y - radius );
+	int32_t right  = std::min( scr_r, round_x + radius );
+	int32_t bottom = std::min( scr_b, round_y + radius );
 
 	// Go from left to right and check whether the surface is above the bottom.
 	int32_t surf_hits = 0;

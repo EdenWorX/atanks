@@ -8,6 +8,7 @@
 #include "missile.h"
 #include "network.h"
 #include "player.h"
+#include "random.h"
 #include "satellite.h"
 #include "sky.h"
 #include "tank.h"
@@ -23,270 +24,270 @@ void draw_top_bar();
 // Here we try to match the buffer with an action. We then attempt to
 // perform the action. Remember, this is a command from the server, so
 // it is either giving us some info or telling us to create something.
-int  Parse_Client_Data( char *buffer ) {
-        char args[ CLIENT_ARGS ][ BUFFER_SIZE ];
-        char letter;
-        int  dest_string;
-        int  line_length = strlen( buffer );
-        int  sourceindex = 0, destindex = 0;
+int Parse_Client_Data( char *buffer ) {
+	char args[ CLIENT_ARGS ][ BUFFER_SIZE ];
+	char letter;
+	int  dest_string;
+	int  line_length = strlen( buffer );
+	int  sourceindex = 0, destindex = 0;
 
-        // clear buffers
-        for ( dest_string = 0; dest_string < CLIENT_ARGS; dest_string++ ) memset( args[ dest_string ], '\0', BUFFER_SIZE );
+	// clear buffers
+	for ( dest_string = 0; dest_string < CLIENT_ARGS; dest_string++ ) memset( args[ dest_string ], '\0', BUFFER_SIZE );
 
-        dest_string = 0;
-        // copy buffer into cmd and argument variables
-        while ( ( sourceindex < line_length ) && ( dest_string < CLIENT_ARGS ) ) {
-                letter = buffer[ sourceindex ];
-                if ( letter == ' ' ) {
-                        letter                           = '\0';
-                        args[ dest_string ][ destindex ] = letter;
-                        destindex                        = 0;
-                        dest_string++;
-                } else {
-                        args[ dest_string ][ destindex ] = letter;
-                        destindex++;
-                }
-                sourceindex++;
-        }
+	dest_string = 0;
+	// copy buffer into cmd and argument variables
+	while ( ( sourceindex < line_length ) && ( dest_string < CLIENT_ARGS ) ) {
+		letter = buffer[ sourceindex ];
+		if ( letter == ' ' ) {
+			letter                           = '\0';
+			args[ dest_string ][ destindex ] = letter;
+			destindex                        = 0;
+			dest_string++;
+		} else {
+			args[ dest_string ][ destindex ] = letter;
+			destindex++;
+		}
+		sourceindex++;
+	}
 
-        // let us see what we have
-        if ( !strcmp( args[ 0 ], "SERVERVERSION" ) ) {
-                if ( !strcmp( args[ 1 ], VERSION ) )
-                        printf( "Server version matchs us. OK.\n" );
-                else
-                        printf( "Server version is %s, we are %s. This is likely to cause problems.\n", args[ 1 ], VERSION );
-                return TRUE;
-        } else if ( !strcmp( args[ 0 ], "CURRENTPOSITION" ) ) {
-                if ( ( global.client_player ) && ( global.client_player->tank ) ) {
-                        sscanf( args[ 1 ], "%lf", &( global.client_player->tank->x ) );
-                        sscanf( args[ 2 ], "%lf", &( global.client_player->tank->y ) );
-                }
-        } else if ( !strcmp( args[ 0 ], "BEAM" ) ) {
-                double my_x, my_y;
-                int    my_angle, my_type;
-                sscanf( args[ 1 ], "%lf", &my_x );
-                sscanf( args[ 2 ], "%lf", &my_y );
-                sscanf( args[ 3 ], "%d", &my_angle );
-                sscanf( args[ 4 ], "%d", &my_type );
-                new BEAM( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
-        } else if ( !strcmp( args[ 0 ], "BOXED" ) ) {
-                int got_box;
-                sscanf( args[ 1 ], "%d", &got_box );
-                if ( got_box )
-                        env.isBoxed = true;
-                else
-                        env.isBoxed = false;
-                return TRUE;
-        } else if ( !strcmp( args[ 0 ], "EXPLOSION" ) ) {
-                double my_x, my_y;
-                int    my_type;
-                sscanf( args[ 1 ], "%lf", &my_x );
-                sscanf( args[ 2 ], "%lf", &my_y );
-                sscanf( args[ 3 ], "%d", &my_type );
-                new EXPLOSION( nullptr, my_x, my_y, 0., 0., my_type, true );
-                return FALSE;
-        } else if ( !strcmp( args[ 0 ], "ITEM" ) ) {
-                int itemindex, amount;
-                sscanf( args[ 1 ], "%d", &itemindex );
-                sscanf( args[ 2 ], "%d", &amount );
-                if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
-                        global.client_player->ni[ itemindex ] = amount;
-                }
-                if ( itemindex == ( ITEMS - 1 ) ) return TRUE;
-        } else if ( !strcmp( args[ 0 ], "HEALTH" ) ) {
-                int  tankindex;
-                int  health, shield, shield_type;
-                char some_text[ 32 ];
+	// let us see what we have
+	if ( !strcmp( args[ 0 ], "SERVERVERSION" ) ) {
+		if ( !strcmp( args[ 1 ], VERSION ) )
+			printf( "Server version matchs us. OK.\n" );
+		else
+			printf( "Server version is %s, we are %s. This is likely to cause problems.\n", args[ 1 ], VERSION );
+		return TRUE;
+	} else if ( !strcmp( args[ 0 ], "CURRENTPOSITION" ) ) {
+		if ( ( global.client_player ) && ( global.client_player->tank ) ) {
+			sscanf( args[ 1 ], "%lf", &( global.client_player->tank->x ) );
+			sscanf( args[ 2 ], "%lf", &( global.client_player->tank->y ) );
+		}
+	} else if ( !strcmp( args[ 0 ], "BEAM" ) ) {
+		double my_x, my_y;
+		int    my_angle, my_type;
+		sscanf( args[ 1 ], "%lf", &my_x );
+		sscanf( args[ 2 ], "%lf", &my_y );
+		sscanf( args[ 3 ], "%d", &my_angle );
+		sscanf( args[ 4 ], "%d", &my_type );
+		new BEAM( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
+	} else if ( !strcmp( args[ 0 ], "BOXED" ) ) {
+		int got_box;
+		sscanf( args[ 1 ], "%d", &got_box );
+		if ( got_box )
+			env.isBoxed = true;
+		else
+			env.isBoxed = false;
+		return TRUE;
+	} else if ( !strcmp( args[ 0 ], "EXPLOSION" ) ) {
+		double my_x, my_y;
+		int    my_type;
+		sscanf( args[ 1 ], "%lf", &my_x );
+		sscanf( args[ 2 ], "%lf", &my_y );
+		sscanf( args[ 3 ], "%d", &my_type );
+		new EXPLOSION( nullptr, my_x, my_y, 0., 0., my_type, true );
+		return FALSE;
+	} else if ( !strcmp( args[ 0 ], "ITEM" ) ) {
+		int itemindex, amount;
+		sscanf( args[ 1 ], "%d", &itemindex );
+		sscanf( args[ 2 ], "%d", &amount );
+		if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
+			global.client_player->ni[ itemindex ] = amount;
+		}
+		if ( itemindex == ( ITEMS - 1 ) ) return TRUE;
+	} else if ( !strcmp( args[ 0 ], "HEALTH" ) ) {
+		int  tankindex;
+		int  health, shield, shield_type;
+		char some_text[ 32 ];
 
-                sscanf( args[ 1 ], "%d", &tankindex );
-                if ( tankindex >= 0 ) {
-                        sscanf( args[ 2 ], "%d", &health );
-                        sscanf( args[ 3 ], "%d", &shield );
-                        sscanf( args[ 4 ], "%d", &shield_type );
-                        env.players[ tankindex ]->tank->l   = health;
-                        env.players[ tankindex ]->tank->sh  = shield;
-                        env.players[ tankindex ]->tank->sht = shield_type;
-                        // set the text over the tank
-                        sprintf( some_text, "%d", health );
-                        env.players[ tankindex ]->tank->healthText.set_text( some_text );
-                        env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
-                        sprintf( some_text, "%d", shield );
-                        env.players[ tankindex ]->tank->shieldText.set_text( some_text );
-                        env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
-                }
-                if ( tankindex == ( env.numGamePlayers - 1 ) )
-                        return TRUE;
-                else
-                        return FALSE;
-        } else if ( !strcmp( args[ 0 ], "WIND" ) ) {
-                sscanf( args[ 1 ], "%lf", &( global.wind ) );
-                return TRUE;
-        } else if ( !strcmp( args[ 0 ], "MISSILE" ) ) {
-                int      my_type;
-                double   my_x, my_y, delta_x, delta_y;
-                MISSILE *missile;
-                sscanf( args[ 1 ], "%lf", &my_x );
-                sscanf( args[ 2 ], "%lf", &my_y );
-                sscanf( args[ 3 ], "%lf", &delta_x );
-                sscanf( args[ 4 ], "%lf", &delta_y );
-                sscanf( args[ 5 ], "%d", &my_type );
-                missile = new MISSILE( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
-                if ( !missile ) printf( "Attempted to create missile failed in client code.\n" );
-                return FALSE;
-        } else if ( !strcmp( args[ 0 ], "NUMPLAYERS" ) ) {
-                int counter;
-                sscanf( args[ 1 ], "%d", &( env.numGamePlayers ) );
-                // create the players in question
-                for ( counter = 0; counter < env.numGamePlayers; counter++ ) {
-                        env.players[ counter ]               = new PLAYER();
-                        env.players[ counter ]->tank         = new TANK();
-                        env.players[ counter ]->tank->player = env.players[ counter ];
-                        env.players[ counter ]->tank->nameText.set_text( nullptr );
-                }
-                return TRUE;
-        }
-        // ping is a special case where we do not do anything it is just
-        // making sure we are still here because we are not talking
-        else if ( !strcmp( args[ 0 ], "PING" ) ) {
-                return FALSE;
-        } else if ( !strcmp( args[ 0 ], "PLAYERNAME" ) ) {
-                int number;
-                sscanf( args[ 1 ], "%d", &number );
-                if ( ( number < env.numGamePlayers ) && ( number >= 0 ) ) env.players[ number ]->setName( args[ 2 ] );
-                if ( number == ( env.numGamePlayers - 1 ) ) return TRUE;
-        } else if ( !strcmp( args[ 0 ], "REMOVETANK" ) ) {
-                int index;
-                sscanf( args[ 1 ], "%d", &index );
-                if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
-                        // make sure this tank exists before we get rid of it
-                        if ( env.players[ index ]->tank ) {
-                                delete env.players[ index ]->tank;
-                                env.players[ index ]->tank = NULL;
-                        }
-                }
-        } else if ( !strcmp( args[ 0 ], "ROUNDS" ) ) {
-                sscanf( args[ 1 ], "%u", &env.rounds );
-                sscanf( args[ 2 ], "%u", &global.currentround );
-                return TRUE;
-        } else if ( !strcmp( args[ 0 ], "SURFACE" ) ) {
-                int x, y;
-                int index;
-                int colour_change = 0;
-                int green         = 150;
-                int my_height;
+		sscanf( args[ 1 ], "%d", &tankindex );
+		if ( tankindex >= 0 ) {
+			sscanf( args[ 2 ], "%d", &health );
+			sscanf( args[ 3 ], "%d", &shield );
+			sscanf( args[ 4 ], "%d", &shield_type );
+			env.players[ tankindex ]->tank->l   = health;
+			env.players[ tankindex ]->tank->sh  = shield;
+			env.players[ tankindex ]->tank->sht = shield_type;
+			// set the text over the tank
+			sprintf( some_text, "%d", health );
+			env.players[ tankindex ]->tank->healthText.set_text( some_text );
+			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
+			sprintf( some_text, "%d", shield );
+			env.players[ tankindex ]->tank->shieldText.set_text( some_text );
+			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
+		}
+		if ( tankindex == ( env.numGamePlayers - 1 ) )
+			return TRUE;
+		else
+			return FALSE;
+	} else if ( !strcmp( args[ 0 ], "WIND" ) ) {
+		sscanf( args[ 1 ], "%lf", &( global.wind ) );
+		return TRUE;
+	} else if ( !strcmp( args[ 0 ], "MISSILE" ) ) {
+		int      my_type;
+		double   my_x, my_y, delta_x, delta_y;
+		MISSILE *missile;
+		sscanf( args[ 1 ], "%lf", &my_x );
+		sscanf( args[ 2 ], "%lf", &my_y );
+		sscanf( args[ 3 ], "%lf", &delta_x );
+		sscanf( args[ 4 ], "%lf", &delta_y );
+		sscanf( args[ 5 ], "%d", &my_type );
+		missile = new MISSILE( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
+		if ( !missile ) printf( "Attempted to create missile failed in client code.\n" );
+		return FALSE;
+	} else if ( !strcmp( args[ 0 ], "NUMPLAYERS" ) ) {
+		int counter;
+		sscanf( args[ 1 ], "%d", &( env.numGamePlayers ) );
+		// create the players in question
+		for ( counter = 0; counter < env.numGamePlayers; counter++ ) {
+			env.players[ counter ]               = new PLAYER();
+			env.players[ counter ]->tank         = new TANK();
+			env.players[ counter ]->tank->player = env.players[ counter ];
+			env.players[ counter ]->tank->nameText.set_text( nullptr );
+		}
+		return TRUE;
+	}
+	// ping is a special case where we do not do anything it is just
+	// making sure we are still here because we are not talking
+	else if ( !strcmp( args[ 0 ], "PING" ) ) {
+		return FALSE;
+	} else if ( !strcmp( args[ 0 ], "PLAYERNAME" ) ) {
+		int number;
+		sscanf( args[ 1 ], "%d", &number );
+		if ( ( number < env.numGamePlayers ) && ( number >= 0 ) ) env.players[ number ]->setName( args[ 2 ] );
+		if ( number == ( env.numGamePlayers - 1 ) ) return TRUE;
+	} else if ( !strcmp( args[ 0 ], "REMOVETANK" ) ) {
+		int index;
+		sscanf( args[ 1 ], "%d", &index );
+		if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
+			// make sure this tank exists before we get rid of it
+			if ( env.players[ index ]->tank ) {
+				delete env.players[ index ]->tank;
+				env.players[ index ]->tank = NULL;
+			}
+		}
+	} else if ( !strcmp( args[ 0 ], "ROUNDS" ) ) {
+		sscanf( args[ 1 ], "%u", &env.rounds );
+		sscanf( args[ 2 ], "%u", &global.currentround );
+		return TRUE;
+	} else if ( !strcmp( args[ 0 ], "SURFACE" ) ) {
+		int x, y;
+		int index;
+		int colour_change = 0;
+		int green         = 150;
+		int my_height;
 
-                sscanf( args[ 1 ], "%d", &x );
-                sscanf( args[ 2 ], "%d", &y );
-                global.surface[ x ].store( y );
-                my_height = env.screenHeight - y;
-                my_height = my_height / 50; // ratio of change
-                // fill in terrain...
-                for ( index = y; index < env.screenHeight; index++ ) {
-                        putpixel( global.terrain, x, index, makecol( 0, green, 0 ) );
-                        colour_change++;
-                        if ( colour_change >= my_height ) {
-                                colour_change = 0;
-                                green--;
-                        }
-                }
-                if ( x >= ( env.screenWidth - 1 ) ) return TRUE;
-        } else if ( !strcmp( args[ 0 ], "SCREEN" ) ) {
-                int width, height;
+		sscanf( args[ 1 ], "%d", &x );
+		sscanf( args[ 2 ], "%d", &y );
+		global.surface[ x ].store( y );
+		my_height = env.screenHeight - y;
+		my_height = my_height / 50; // ratio of change
+		// fill in terrain...
+		for ( index = y; index < env.screenHeight; index++ ) {
+			putpixel( global.terrain, x, index, makecol( 0, green, 0 ) );
+			colour_change++;
+			if ( colour_change >= my_height ) {
+				colour_change = 0;
+				green--;
+			}
+		}
+		if ( x >= ( env.screenWidth - 1 ) ) return TRUE;
+	} else if ( !strcmp( args[ 0 ], "SCREEN" ) ) {
+		int width, height;
 
-                sscanf( args[ 1 ], "%d", &width );
-                sscanf( args[ 2 ], "%d", &height );
-                if ( ( width == env.screenWidth ) && ( height == env.screenHeight ) )
-                        printf( "Host's screen resolution matches ours.\n" );
-                else {
-                        printf( "Host's screen resolution is %d by %d.\n", width, height );
-                        printf( "Ours is %d by %d. This is going to cause problems!\n", env.screenWidth, env.screenHeight );
-                }
-                return TRUE;
-        } else if ( !strcmp( args[ 0 ], "TANKPOSITION" ) ) {
-                int     player_number, x, y;
-                PLAYER *my_player;
+		sscanf( args[ 1 ], "%d", &width );
+		sscanf( args[ 2 ], "%d", &height );
+		if ( ( width == env.screenWidth ) && ( height == env.screenHeight ) )
+			printf( "Host's screen resolution matches ours.\n" );
+		else {
+			printf( "Host's screen resolution is %d by %d.\n", width, height );
+			printf( "Ours is %d by %d. This is going to cause problems!\n", env.screenWidth, env.screenHeight );
+		}
+		return TRUE;
+	} else if ( !strcmp( args[ 0 ], "TANKPOSITION" ) ) {
+		int     player_number, x, y;
+		PLAYER *my_player;
 
-                sscanf( args[ 1 ], "%d", &player_number );
-                my_player = env.players[ player_number ];
-                if ( ( my_player ) && ( my_player->tank ) ) {
-                        sscanf( args[ 2 ], "%d", &x );
-                        sscanf( args[ 3 ], "%d", &y );
-                        my_player->tank->x = x;
-                        my_player->tank->y = y;
-                }
-                if ( player_number == ( env.numGamePlayers - 1 ) ) return TRUE;
-        } else if ( !strcmp( args[ 0 ], "TEAM" ) ) {
-                int32_t player_number = 0;
-                int32_t colour        = BLACK;
-                int     the_team;
-                sscanf( args[ 1 ], "%d", &player_number );
-                sscanf( args[ 2 ], "%d", &the_team );
-                if ( ( the_team < env.numGamePlayers ) && ( the_team >= 0 ) ) {
-                        env.players[ player_number ]->team = static_cast< eTeamTypes >( the_team );
-                        if ( the_team == TEAM_JEDI )
-                                colour = makecol( 0, 255, 0 );
-                        else if ( the_team == TEAM_SITH )
-                                colour = makecol( 255, 0, 255 );
-                        else if ( the_team == TEAM_NEUTRAL )
-                                colour = makecol( 0, 0, 255 );
-                        if ( env.players[ player_number ] == global.client_player ) colour = makecol( 255, 0, 0 );
-                        env.players[ player_number ]->color = colour;
-                }
-                if ( player_number == ( env.numGamePlayers - 1 ) ) return TRUE;
-        } else if ( !strcmp( args[ 0 ], "TELEPORT" ) ) {
-                int player_num;
-                int new_x, new_y;
+		sscanf( args[ 1 ], "%d", &player_number );
+		my_player = env.players[ player_number ];
+		if ( ( my_player ) && ( my_player->tank ) ) {
+			sscanf( args[ 2 ], "%d", &x );
+			sscanf( args[ 3 ], "%d", &y );
+			my_player->tank->x = x;
+			my_player->tank->y = y;
+		}
+		if ( player_number == ( env.numGamePlayers - 1 ) ) return TRUE;
+	} else if ( !strcmp( args[ 0 ], "TEAM" ) ) {
+		int32_t player_number = 0;
+		int32_t colour        = BLACK;
+		int     the_team;
+		sscanf( args[ 1 ], "%d", &player_number );
+		sscanf( args[ 2 ], "%d", &the_team );
+		if ( ( the_team < env.numGamePlayers ) && ( the_team >= 0 ) ) {
+			env.players[ player_number ]->team = static_cast< eTeamTypes >( the_team );
+			if ( the_team == TEAM_JEDI )
+				colour = makecol( 0, 255, 0 );
+			else if ( the_team == TEAM_SITH )
+				colour = makecol( 255, 0, 255 );
+			else if ( the_team == TEAM_NEUTRAL )
+				colour = makecol( 0, 0, 255 );
+			if ( env.players[ player_number ] == global.client_player ) colour = makecol( 255, 0, 0 );
+			env.players[ player_number ]->color = colour;
+		}
+		if ( player_number == ( env.numGamePlayers - 1 ) ) return TRUE;
+	} else if ( !strcmp( args[ 0 ], "TELEPORT" ) ) {
+		int player_num;
+		int new_x, new_y;
 
-                sscanf( args[ 1 ], "%d", &player_num );
-                sscanf( args[ 2 ], "%d", &new_x );
-                sscanf( args[ 3 ], "%d", &new_y );
-                if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
-                        TANK *lt = env.players[ player_num ]->tank;
-                        new TELEPORT( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
-                }
+		sscanf( args[ 1 ], "%d", &player_num );
+		sscanf( args[ 2 ], "%d", &new_x );
+		sscanf( args[ 3 ], "%d", &new_y );
+		if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
+			TANK *lt = env.players[ player_num ]->tank;
+			new TELEPORT( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
+		}
 
-        } else if ( !strcmp( args[ 0 ], "WALLTYPE" ) ) {
-                sscanf( args[ 1 ], "%d", &( env.current_wallType ) );
-                switch ( env.current_wallType ) {
-                        case WALL_RUBBER:
-                                env.wallColour = makecol( 0, 255, 0 ); // GREEN;
-                                break;
-                        case WALL_STEEL:
-                                env.wallColour = makecol( 255, 0, 0 ); // RED;
-                                break;
-                        case WALL_SPRING:
-                                env.wallColour = makecol( 0, 0, 255 ); // BLUE;
-                                break;
-                        case WALL_WRAP:
-                                env.wallColour = makecol( 255, 255, 0 ); // YELLOW;
-                                break;
-                }
-                return TRUE;
-        } else if ( !strcmp( args[ 0 ], "WEAPON" ) ) {
-                int weaponindex, amount;
-                sscanf( args[ 1 ], "%d", &weaponindex );
-                sscanf( args[ 2 ], "%d", &amount );
-                if ( ( weaponindex >= 0 ) && ( weaponindex < WEAPONS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
-                        global.client_player->nm[ weaponindex ] = amount;
-                }
-                if ( weaponindex == ( WEAPONS - 1 ) ) return TRUE;
-        } else if ( !strcmp( args[ 0 ], "YOUARE" ) ) {
-                int index;
-                sscanf( args[ 1 ], "%d", &index );
-                if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
-                        global.client_player = env.players[ index ];
-                        global.set_curr_tank( global.client_player->tank );
-                }
-                return TRUE;
-        }
+	} else if ( !strcmp( args[ 0 ], "WALLTYPE" ) ) {
+		sscanf( args[ 1 ], "%d", &( env.current_wallType ) );
+		switch ( env.current_wallType ) {
+			case WALL_RUBBER:
+				env.wallColour = makecol( 0, 255, 0 ); // GREEN;
+				break;
+			case WALL_STEEL:
+				env.wallColour = makecol( 255, 0, 0 ); // RED;
+				break;
+			case WALL_SPRING:
+				env.wallColour = makecol( 0, 0, 255 ); // BLUE;
+				break;
+			case WALL_WRAP:
+				env.wallColour = makecol( 255, 255, 0 ); // YELLOW;
+				break;
+		}
+		return TRUE;
+	} else if ( !strcmp( args[ 0 ], "WEAPON" ) ) {
+		int weaponindex, amount;
+		sscanf( args[ 1 ], "%d", &weaponindex );
+		sscanf( args[ 2 ], "%d", &amount );
+		if ( ( weaponindex >= 0 ) && ( weaponindex < WEAPONS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
+			global.client_player->nm[ weaponindex ] = amount;
+		}
+		if ( weaponindex == ( WEAPONS - 1 ) ) return TRUE;
+	} else if ( !strcmp( args[ 0 ], "YOUARE" ) ) {
+		int index;
+		sscanf( args[ 1 ], "%d", &index );
+		if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
+			global.client_player = env.players[ index ];
+			global.set_curr_tank( global.client_player->tank );
+		}
+		return TRUE;
+	}
 
-        return FALSE;
+	return FALSE;
 }
 
 void Create_Sky() {
 	if ( env.custom_background && env.bitmap_filenames ) {
 		if ( env.sky ) destroy_bitmap( env.sky );
-		env.sky = load_bitmap( env.bitmap_filenames[ rand() % env.number_of_bitmaps ], nullptr );
+		env.sky = load_bitmap( env.bitmap_filenames[ get_rand() % env.number_of_bitmaps ], nullptr );
 	}
 
 	if ( !env.custom_background || !env.sky ) {
@@ -375,7 +376,7 @@ int Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
 // On success, a pointer to char is returned.
 // On failure, a NULL is returned.
 // The returned pointer does NOT need to be freed.
-const char *Explain_Error( int32_t error_code ) {
+char const *Explain_Error( int32_t error_code ) {
 	switch ( error_code ) {
 		case CLIENT_ERROR_VERSION:
 			return env.ingame->Get_Line( 77 );

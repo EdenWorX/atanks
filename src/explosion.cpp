@@ -25,6 +25,7 @@
 #include "main.h"
 #include "missile.h"
 #include "player.h"
+#include "random.h"
 #include "tank.h"
 
 #include <cassert>
@@ -73,7 +74,7 @@ EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double 
 		flame_w = static_cast< float >( radius ) * 2.f;
 		flame_h = static_cast< float >( radius ) * 2.f;
 	}
-	scale                 = static_cast< float >( radius ) / centre_x;
+	scale = static_cast< float >( radius ) / centre_x;
 
 	// make sure dirt appears on the screen, not above the playing area,
 	// and all other explosions at least reach into the area:
@@ -127,7 +128,7 @@ EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double 
 
 	// Napalm Jellies need a bit more variation:
 	if ( NAPALM_JELLY == weapType )
-		curFrame = ( ( rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second ) / etime;
+		curFrame = ( ( get_rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second ) / etime;
 
 	// Unless this is a napalm jelly, that does not clear away any dirt,
 	// lock our field of devastation so no sliding into the explosion occurs
@@ -157,7 +158,7 @@ EXPLOSION::~EXPLOSION() {
 /// @brief Physics for the Napalm Jelly, the only explosion that can 'move'
 void EXPLOSION::applyPhysics() {
 	if ( NAPALM_JELLY == weapType ) {
-		if ( !global.skippingComputerPlay && !( rand() % ( env.frames_per_second / 2 ) ) ) {
+		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 2 ) ) ) {
 			try {
 				new DECOR( x, y, 0, -2. * env.gravity * env.FPS_mod, radius / 2, DECOR_SMOKE, 0 );
 			} catch ( std::exception& e ) {
@@ -207,7 +208,7 @@ void EXPLOSION::applyPhysics() {
 
 		// Enable next round checking, because dirt can fall
 		// away so the jelly might follow.
-		hitSomething      = false;
+		hitSomething = false;
 
 		// Napalm keeps burning, check all tanks
 		double in_rate_x  = 0.;
@@ -706,9 +707,9 @@ void EXPLOSION::do_throw() {
 	//       is no problem here.
 
 	// The radius is not always the radius, so use shortcuts:
-	int32_t rad         = ( radius * maxFrame ) / EXPLODEFRAMES;
-	int32_t xrad        = DRILLER == weapType ? rad / 20 : rad;
-	int32_t yrad        = ( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) ? rad / 20 : rad;
+	int32_t rad  = ( radius * maxFrame ) / EXPLODEFRAMES;
+	int32_t xrad = DRILLER == weapType ? rad / 20 : rad;
+	int32_t yrad = ( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) ? rad / 20 : rad;
 
 	// A minimum radius of 1 is needed for the debris seek to make sense:
 	if ( rad < 1 ) return;
@@ -719,12 +720,12 @@ void EXPLOSION::do_throw() {
 	int32_t max_rounds = 3 * env.debris_level;
 
 	// Initial velocity is modified by damage:
-	double  damage_mod = 1. + ( static_cast< double >( damage ) / static_cast< double >( weapon[ DTH_HEAD ].damage ) / 2. );
+	double damage_mod = 1. + ( static_cast< double >( damage ) / static_cast< double >( weapon[ DTH_HEAD ].damage ) / 2. );
 
 	// If this is a meteor, the damage mod is tweaked or the debris more
 	// looks like a collapsing rock than anything thrown.
-	bool    isMeteor   = ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) );
-	BITMAP* meteor     = nullptr;
+	bool    isMeteor = ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) );
+	BITMAP* meteor   = nullptr;
 	if ( isMeteor ) {
 		meteor      = env.missile[ naturals[ weapType - WEAPONS ].picpoint ];
 		damage_mod *= 2. * static_cast< double >( weapType - SML_METEOR + 1 );
@@ -742,7 +743,7 @@ void EXPLOSION::do_throw() {
 	double  max_x_vel, max_y_vel, mod_x_vel, mod_y_vel;
 
 	do {
-		deb_rad   = 1 + ( rad > 1 ? ( rand() % std::min( 5, rad ) ) : 0 );
+		deb_rad   = 1 + ( rad > 1 ? ( get_rand() % std::min( 5, rad ) ) : 0 );
 		diameter  = 2 * deb_rad;
 		max_x_vel = 16. - ( static_cast< double >( deb_rad ) * 2.0 );
 		max_y_vel = -17. + ( static_cast< double >( deb_rad ) * 1.5 );
@@ -765,7 +766,7 @@ void EXPLOSION::do_throw() {
 		                                    : x    // right
 		                   : x - ( xrad / 2 )      // centre
 		       )
-		     + ( rand() % xrad );
+		     + ( get_rand() % xrad );
 
 		/* Circle Coordinates:
 		 * X = cos(alpha) * radius (xrad)
@@ -778,8 +779,8 @@ void EXPLOSION::do_throw() {
 		alpha = std::acos( ( xpos - x ) / xrad );
 		// Note: This results in radians, but that is okay,
 		//       as sin() needs radians anyway.
-		ypos  = y - ROUND( std::sin( alpha ) * yrad );
-		maxY  = std::min( y + ( y - ypos ), bottom - deb_rad );
+		ypos = y - ROUND( std::sin( alpha ) * yrad );
+		maxY = std::min( y + ( y - ypos ), bottom - deb_rad );
 
 		// find first earth pixel:
 		if ( ( ypos < y ) && ( maxY > ypos ) && checkPixelsBetweenTwoPoints( &xpos, &ypos, xpos, maxY, 0.0, nullptr ) ) {
@@ -794,11 +795,11 @@ void EXPLOSION::do_throw() {
 			}
 
 			// Try to get another free item if this is a meteor
-			sDebrisItem* met_item  = isMeteor ? global.get_debris_item( deb_rad ) : nullptr;
+			sDebrisItem* met_item = isMeteor ? global.get_debris_item( deb_rad ) : nullptr;
 			// Note: It is not a problem if a meteor got no met_item.
 
 			// Move down a bit...
-			ypos                  += 1 + ( rand() % deb_rad );
+			ypos += 1 + ( get_rand() % deb_rad );
 			// ... but do not end up below maxY
 			if ( ypos > maxY ) ypos = maxY;
 
@@ -830,8 +831,8 @@ void EXPLOSION::do_throw() {
 			assert( ( dyv < 0. ) && "Check it: Dirt shall be thrown down?" );
 
 			// Modify x and y velocity a bit randomly for more variance
-			dxv *= 1. + ( static_cast< double >( ( rand() % 9 ) - 4 ) / 10. );
-			dyv *= 1. + ( static_cast< double >( ( rand() % 7 ) - 3 ) / 10. );
+			dxv *= 1. + ( static_cast< double >( ( get_rand() % 9 ) - 4 ) / 10. );
+			dyv *= 1. + ( static_cast< double >( ( get_rand() % 7 ) - 3 ) / 10. );
 
 			// Apply impact velocity
 			dxv -= impact_xv / ( ( std::abs( dxv ) * .75 ) + 1.5 );

@@ -37,6 +37,7 @@ TODO
 #include "gameloop.h"
 #include "gfxData.h"
 #include "main.h"
+#include "random.h"
 
 #include <vector>
 
@@ -75,16 +76,16 @@ struct moon {
 
 	// Simple ctor:
 	explicit moon( int32_t scrnw, int32_t scrnh )
-		: col1( makecol( rand() % 255, rand() % 255, rand() % 255 ) )
-		, col2( makecol( rand() % 255, rand() % 255, rand() % 255 ) )
-		, lambda( ( ( rand() % 60 ) + 30 ) / 100. )
-		, octaves( ( rand() % 4 ) + 6 )
+		: col1( makecol( get_rand() % 255, get_rand() % 255, get_rand() % 255 ) )
+		, col2( makecol( get_rand() % 255, get_rand() % 255, get_rand() % 255 ) )
+		, lambda( ( ( get_rand() % 60 ) + 30 ) / 100. )
+		, octaves( ( get_rand() % 4 ) + 6 )
 		, radius( static_cast< int32_t >( central_rand( scrnw / 8 ) + .5 ) )
-		, smoothness( ( rand() % 20 ) + 3 )
-		, x( rand() % scrnw )
-		, xoffset( rand() )
-		, y( rand() % scrnh )
-		, yoffset( rand() ) {
+		, smoothness( ( get_rand() % 20 ) + 3 )
+		, x( get_rand() % scrnw )
+		, xoffset( get_rand() )
+		, y( get_rand() % scrnh )
+		, yoffset( get_rand() ) {
 		bitmap = create_bitmap( radius * 2, radius * 2 );
 	}
 
@@ -104,7 +105,7 @@ class ZBuffer {
 public:
 	// No copies:
 	ZBuffer()                             = delete;
-	ZBuffer& operator= ( const ZBuffer& ) = delete;
+	ZBuffer& operator= ( ZBuffer const& ) = delete;
 
 	/*************************************************************************
 	ctor
@@ -158,8 +159,8 @@ private:
 Static function prototypes that need either moon or ZBuffer
 *****************************************************************************/
 static void
-	draw_amoon( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer );
-static void   paint_moonpix( int32_t x, int32_t y, const moon& mn, double xval, double yval, double blend );
+	draw_amoon( LevelCreator* lcr, moon const& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer );
+static void paint_moonpix( int32_t x, int32_t y, moon const& mn, double xval, double yval, double blend );
 
 /*****************************************************************************
 central_rand
@@ -170,7 +171,7 @@ are preferred.
 Basic on a simple cubic function.
 *****************************************************************************/
 static double central_rand( double u ) {
-	const double x = static_cast< double >( rand() ) / static_cast< double >( RAND_MAX ) - 0.5; // [-.5,+.5]
+	double const x = static_cast< double >( get_rand() ) / static_cast< double >( RAND_MAX ) - 0.5; // [-.5,+.5]
 	return u * ( 0.5 - ( x * x * x ) * 4.0 );
 }
 
@@ -207,7 +208,7 @@ The current implementation of this function is begging for some
 simplifications.  And again, what about those [xy]offset variables?
 *****************************************************************************/
 static void
-	draw_amoon( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer ) {
+	draw_amoon( LevelCreator* lcr, moon const& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer ) {
 	int32_t startX = std::min( x0, x1 );
 	int32_t endX   = std::max( x0, x1 );
 	int32_t startY = std::min( y0, y1 );
@@ -224,11 +225,11 @@ static void
 			if ( zbuffer.test( x, y ) ) continue;
 
 			/* Find distance from this moon */
-			int32_t      xdist     = mn.x - x;
-			int32_t      ydist     = mn.y - y;
+			int32_t xdist = mn.x - x;
+			int32_t ydist = mn.y - y;
 
 			/* Compute some other nice circle values */
-			const double radius    = mn.radius;
+			double const radius    = mn.radius;
 			double       xval      = static_cast< double >( xdist ) / radius;
 			double       yval      = static_cast< double >( ydist ) / radius;
 			double       distance2 = ( xdist * xdist ) + ( ydist * ydist );
@@ -242,7 +243,7 @@ static void
 			}
 
 			/* Edges use lighter blending */
-			const double edgeval = coverage( distance, radius );
+			double const edgeval = coverage( distance, radius );
 
 			/* Now, should we paint this side of the moon? */
 			if ( xval && ( ( xval < 0 ) == darkside ) ) {
@@ -280,14 +281,14 @@ Parameters:
         values cause stronger painting.  Used for anti-aliasing.
 
 *****************************************************************************/
-static void paint_moonpix( int32_t x, int32_t y, const moon& mn, double xval, double yval, double blend ) {
-	const double thetax = RAD2DEG( asin( xval ) );
-	const double thetay = RAD2DEG( acos( yval ) );
-	const double offset =
+static void paint_moonpix( int32_t x, int32_t y, moon const& mn, double xval, double yval, double blend ) {
+	double const thetax = RAD2DEG( asin( xval ) );
+	double const thetay = RAD2DEG( acos( yval ) );
+	double const offset =
 		( perlin2DPoint( 1., mn.smoothness, mn.xoffset + mn.x + thetax, mn.yoffset + mn.y + thetay, mn.lambda, mn.octaves )
 	          + 1. )
 		/ 2.;
-	const double percVal =
+	double const percVal =
 		( perlin2DPoint(
 			  1.0,
 			  mn.smoothness,
@@ -314,7 +315,7 @@ Renders a set of moons over a given bitmap.  The bitmap to draw of and the
 appropriate dimensions must be given.
 *****************************************************************************/
 static void draw_moons( LevelCreator* lcr, int32_t width, int32_t height ) {
-	const bool darkside = rand() > ( RAND_MAX / 2 + 1 );
+	bool const darkside = get_rand() > ( RAND_MAX / 2 + 1 );
 	ZBuffer    zbuffer( width, height );
 
 	for ( int32_t numMoons = central_rand( 14.0 ); numMoons; --numMoons ) {
@@ -322,10 +323,10 @@ static void draw_moons( LevelCreator* lcr, int32_t width, int32_t height ) {
 		const moon mn( width, height );
 
 		/* Where is it? */
-		int32_t    x0 = clamped_int( mn.x - mn.radius, 0, width );
-		int32_t    y0 = clamped_int( mn.y - mn.radius, 0, height );
-		int32_t    x1 = clamped_int( mn.x + mn.radius, 0, width );
-		int32_t    y1 = clamped_int( mn.y + mn.radius, 0, height );
+		int32_t x0 = clamped_int( mn.x - mn.radius, 0, width );
+		int32_t y0 = clamped_int( mn.y - mn.radius, 0, height );
+		int32_t x1 = clamped_int( mn.x + mn.radius, 0, width );
+		int32_t y1 = clamped_int( mn.y + mn.radius, 0, height );
 
 		/* Draw it */
 		draw_amoon( lcr, mn, x0, y0, x1, y1, darkside, zbuffer );
@@ -337,10 +338,10 @@ generate_sky
 
 Given some input parameters, renders a sky (with moons) onto a bitmap.
 *****************************************************************************/
-void generate_sky( LevelCreator* lcr, const gradient* grad, int32_t flags ) {
-	double    messiness = ( static_cast< double >( rand() % 100 ) / 1000.0 + 0.05 );
-	const int xoffset   = rand() % env.screenWidth;  // For perlin, random starting x
-	const int yoffset   = rand() % env.screenHeight; // For perlin, random starting y
+void generate_sky( LevelCreator* lcr, gradient const* grad, int32_t flags ) {
+	double    messiness = ( static_cast< double >( get_rand() % 100 ) / 1000.0 + 0.05 );
+	int const xoffset   = get_rand() % env.screenWidth;  // For perlin, random starting x
+	int const yoffset   = get_rand() % env.screenHeight; // For perlin, random starting y
 
 	temp_sky            = create_bitmap( env.sky->w, env.sky->h );
 	clear_to_color( temp_sky, BLACK );
@@ -357,7 +358,7 @@ void generate_sky( LevelCreator* lcr, const gradient* grad, int32_t flags ) {
 				offset += perlin2DPoint( 1., 200, xoffset + x, yoffset + y, .3, 6 )
 				        * ( static_cast< double >( env.screenHeight - MENUHEIGHT ) * messiness );
 
-			if ( flags & GENSKY_DITHERGRAD ) offset += ( rand() % 10 ) - 5;
+			if ( flags & GENSKY_DITHERGRAD ) offset += ( get_rand() % 10 ) - 5;
 
 			while ( ( ( y + offset ) < 0 ) || ( ( y + offset + 1 ) > ( env.screenHeight - MENUHEIGHT ) ) )
 				offset /= 2;

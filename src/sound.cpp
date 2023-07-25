@@ -1,7 +1,9 @@
 #include "sound.h"
 
+#include "random.h"
+
 // max volume factor: means that the interval 0% -> 100% is split in 5
-int32_t     MAX_VOLUME_FACTOR = 5;
+int32_t MAX_VOLUME_FACTOR = 5;
 
 // General helper that unifies the playing
 static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq );
@@ -15,16 +17,16 @@ static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq );
  * @param[in] vol The volume (0 - 255)
  * @param[in] freq Frequency, 1000 is normal, 500 is half, 2000 is double and so on.
  **/
-void        play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
-        int32_t sndNum = -1;
+void play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
+	int32_t sndNum = -1;
 
-        if ( type >= WEAPONS ) {
-                if ( item[ type - WEAPONS ].sound > -1 ) sndNum = item[ type - WEAPONS ].sound;
-        } else {
-                if ( weapon[ type ].sound > -1 ) sndNum = weapon[ type ].sound;
-        }
+	if ( type >= WEAPONS ) {
+		if ( item[ type - WEAPONS ].sound > -1 ) sndNum = item[ type - WEAPONS ].sound;
+	} else {
+		if ( weapon[ type ].sound > -1 ) sndNum = weapon[ type ].sound;
+	}
 
-        if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
 }
 
 /** @brief play a weapon or item explosion sample according to @a type, panned using @a x.
@@ -51,8 +53,8 @@ void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) 
 		freq   += 333 * ( LRG_NAPALM - type );
 	} else if ( NAPALM_JELLY == type ) {
 		sndNum  = SND_EXPL_NAPALM_BURN;
-		freq   += ( rand() % 200 ) - 100;
-		vol    -= rand() % 64;
+		freq   += ( get_rand() % 200 ) - 100;
+		vol    -= get_rand() % 64;
 	} else if ( PERCENT_BOMB == type )
 		sndNum = SND_EXPL_PER_CENT_BOMB;
 	else if ( REDUCER == type )
@@ -89,31 +91,31 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 
 	if ( SML_METEOR == type ) {
 		sndNum  = naturals[ SML_METEOR - WEAPONS ].sound;
-		vol    -= rand() % 128;
-		freq   += 100 + ( rand() % 100 );
+		vol    -= get_rand() % 128;
+		freq   += 100 + ( get_rand() % 100 );
 	} else if ( MED_METEOR == type ) {
 		sndNum  = naturals[ MED_METEOR - WEAPONS ].sound;
-		vol    -= rand() % 64;
-		freq   += rand() % 100;
+		vol    -= get_rand() % 64;
+		freq   += get_rand() % 100;
 	} else if ( LRG_METEOR == type ) {
 		sndNum  = naturals[ LRG_METEOR - WEAPONS ].sound;
-		vol    -= rand() % 64;
-		freq   += rand() % 250;
+		vol    -= get_rand() % 64;
+		freq   += get_rand() % 250;
 	} else if ( SML_LIGHTNING == type ) {
 		sndNum  = naturals[ SML_LIGHTNING - WEAPONS ].sound;
-		vol    -= rand() % 128;
-		freq   += 100 + ( rand() % 100 );
+		vol    -= get_rand() % 128;
+		freq   += 100 + ( get_rand() % 100 );
 	} else if ( MED_LIGHTNING == type ) {
 		sndNum  = naturals[ MED_LIGHTNING - WEAPONS ].sound;
-		vol    -= rand() % 64;
-		freq   += rand() % 100;
+		vol    -= get_rand() % 64;
+		freq   += get_rand() % 100;
 	} else if ( LRG_LIGHTNING == type ) {
 		sndNum  = naturals[ LRG_LIGHTNING - WEAPONS ].sound;
-		vol    -= rand() % 64;
-		freq   += rand() % 250;
+		vol    -= get_rand() % 64;
+		freq   += get_rand() % 250;
 	} else if ( DIRT_FRAGMENT == type ) {
 		sndNum  = SND_NATU_DIRT_FALL;
-		vol    -= rand() % 64;
+		vol    -= get_rand() % 64;
 		// freq is manipulated by the call
 	}
 

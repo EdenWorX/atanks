@@ -25,6 +25,7 @@
 #include "floattext.h"
 #include "missile.h"
 #include "player.h"
+#include "random.h"
 #include "sound.h"
 #include "teleport.h"
 
@@ -43,7 +44,7 @@ TANK::TANK()
 
 	drag  = 0.5;
 	mass  = 3000;
-	a    += rand() % 180;
+	a    += get_rand() % 180;
 
 	// Add to the chain:
 	global.addObject( this );
@@ -95,7 +96,7 @@ void TANK::activateCurrentSelection() {
 	global.tank_status[ 0 ] = 0;
 
 	// reduce time to fall, but reset if already done
-	if ( --env.time_to_fall < 0 ) env.time_to_fall = ( rand() % env.landSlideDelay ) + 1;
+	if ( --env.time_to_fall < 0 ) env.time_to_fall = ( get_rand() % env.landSlideDelay ) + 1;
 
 	/** ==============================
 	 * === Case 1 : Fire a weapon ===
@@ -190,8 +191,8 @@ void TANK::activateCurrentSelection() {
 		if ( ITEM_TELEPORT == ci ) {
 			int32_t right  = env.screenWidth - ( tank_dia * 2 );
 			int32_t bottom = env.screenHeight - ( tank_dia * 2 ) - MENUHEIGHT;
-			int32_t new_x  = ( rand() % right ) + tank_dia;
-			int32_t new_y  = ( rand() % bottom ) + tank_dia + MENUHEIGHT;
+			int32_t new_x  = ( get_rand() % right ) + tank_dia;
+			int32_t new_y  = ( get_rand() % bottom ) + tank_dia + MENUHEIGHT;
 
 			// Be sure the tank does not end up too high in the sky
 			// or too deeply buried.
@@ -223,7 +224,7 @@ void TANK::activateCurrentSelection() {
 					if ( other == this ) other->getNext( &other );
 				} else {
 					// Otherwise select one by random
-					int32_t rtn = rand() % ( global.numTanks - 1 );
+					int32_t rtn = get_rand() % ( global.numTanks - 1 );
 					while ( rtn-- ) other->getNext( &other );
 
 					// If the selection ended up with this tank, chose the next one
@@ -260,8 +261,8 @@ void TANK::activateCurrentSelection() {
 
 			global.getHeadOfClass( CLASS_TANK, &lt );
 			while ( lt ) {
-				int32_t new_x  = ( rand() % right ) + tank_dia;
-				int32_t new_y  = ( rand() % bottom ) + tank_dia + MENUHEIGHT;
+				int32_t new_x = ( get_rand() % right ) + tank_dia;
+				int32_t new_y = ( get_rand() % bottom ) + tank_dia + MENUHEIGHT;
 
 				// Like with the normal teleport, ensure a sane y value.
 				int32_t surf_y = global.surface[ new_x ].load( ATOMIC_READ );
@@ -335,7 +336,7 @@ void TANK::addDamage( PLAYER *damageFrom, double damage_ ) {
 	// Clear pending damage if the 'deliverer' changes
 	if ( damageFrom != creditTo ) {
 		applyDamage();
-		damage     = 0.;
+		damage = 0.;
 
 		// Update creditTo first
 		creditTo   = damageFrom;
@@ -725,9 +726,9 @@ void TANK::draw() {
 		if ( !shld_thickness ) shld_thickness = item[ sht ].vals[ SHIELD_THICKNESS ];
 
 		// Adapt shield phase:
-		double str_mod  = static_cast< double >( sh ) / item[ sht ].vals[ SHIELD_ENERGY ];
+		double str_mod = static_cast< double >( sh ) / item[ sht ].vals[ SHIELD_ENERGY ];
 		// The weaker the shield, the faster the phase
-		shld_phase     += shld_delta / str_mod;
+		shld_phase += shld_delta / str_mod;
 		// Don't overdo
 		while ( shld_phase > 360. ) shld_phase -= 360.;
 
@@ -851,7 +852,7 @@ void TANK::explode( bool allow_vengeance ) {
 	// already have something better.
 	// But only if it is not the first 3 rounds.
 	if ( env.violent_death && ( ( env.rounds - global.currentround ) > 3 ) ) {
-		int32_t ri = rand() % VIOLENT_CHANCE;
+		int32_t ri = get_rand() % VIOLENT_CHANCE;
 
 		// Limit ri to the value of violent_death.
 		// This makes it less probable to trigger anything on lower settings.
@@ -947,8 +948,8 @@ void TANK::explode( bool allow_vengeance ) {
 		int32_t cur_stage = global.stage;
 		global.stage      = STAGE_FIRE;
 		for ( int32_t i = numLaunch; i > 0; --i ) {
-			a = 180 - ( start_a + ( rand() % mod_a ) - 90 );
-			p = min_power + ( rand() % del_power );
+			a = 180 - ( start_a + ( get_rand() % mod_a ) - 90 );
+			p = min_power + ( get_rand() % del_power );
 			activateCurrentSelection();
 		}
 		global.stage = cur_stage;
@@ -1056,8 +1057,8 @@ bool TANK::isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
  * @param[out] in_rate_y The rate [0.;1.] of the tank y axis being in the ellipse.
  **/
 bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_rate_x, double &in_rate_y ) {
-	in_rate_x        = 0.;
-	in_rate_y        = 0.;
+	in_rate_x = 0.;
+	in_rate_y = 0.;
 
 	// The real gun tip height:
 	double gun_y_off = env.slope[ a ][ 1 ] * turr_off_y;
@@ -1367,7 +1368,7 @@ bool TANK::moveTank( int32_t direction ) {
 	if ( ( nextX < 1 ) || ( nextX >= env.screenWidth ) || ( env.landType == LAND_NONE ) ) return false;
 
 	// select the next pixel on the left/right that is not terrain
-	float   nextY  = global.surface[ nextX ].load( ATOMIC_READ ) - 1;
+	float nextY = global.surface[ nextX ].load( ATOMIC_READ ) - 1;
 
 	// If there is more terrain to climb, the pixel after the next must
 	// be taken into account, too
@@ -1404,16 +1405,16 @@ void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
 	player->reclaimShield();
 
 	// Reset all values
-	cw          = 0;
-	damage      = 0.;
-	para        = 0;
-	creditTo    = nullptr;
-	p           = MAX_POWER / 2;
-	a           = ( rand() % 150 ) + 105;
-	sh          = 0;
-	sht         = ITEM_NO_SHIELD;
-	repulsion   = 0;
-	delay_fall  = env.landSlideDelay * 100;
+	cw         = 0;
+	damage     = 0.;
+	para       = 0;
+	creditTo   = nullptr;
+	p          = MAX_POWER / 2;
+	a          = ( get_rand() % 150 ) + 105;
+	sh         = 0;
+	sht        = ITEM_NO_SHIELD;
+	repulsion  = 0;
+	delay_fall = env.landSlideDelay * 100;
 
 	// Re-calculate max life
 	double tmpL = ( player->ni[ ITEM_ARMOUR ] * item[ ITEM_ARMOUR ].vals[ 0 ] )
@@ -1444,10 +1445,10 @@ void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
 	fire_another_shot = 0;
 
 	// Set used bitmaps, determine offsets and place tank
-	x                 = pos_x;
-	y                 = pos_y;
-	use_tankbitmap    = -1;
-	use_turretbitmap  = -1;
+	x                = pos_x;
+	y                = pos_y;
+	use_tankbitmap   = -1;
+	use_turretbitmap = -1;
 	setBitmap();
 }
 
@@ -1493,10 +1494,10 @@ void TANK::reactivate_shield() {
 /// @brief do tank repairs
 void TANK::repair() {
 	if ( ( repair_rate > 0 ) && ( l < maxLife ) ) {
-		int32_t old_life  = l;
+		int32_t old_life = l;
 
 		// Apply repair
-		l                += repair_rate;
+		l += repair_rate;
 		if ( l > maxLife ) l = maxLife;
 
 		// update text

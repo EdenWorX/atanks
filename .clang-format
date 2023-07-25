@@ -21,12 +21,12 @@ AlignArrayOfStructures: Left
 AlignConsecutiveAssignments:
   Enabled: true
   AcrossEmptyLines: true
-  AcrossComments: true
+  AcrossComments: false
   AlignCompound: true
   PadOperators: true
-AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
-AlignConsecutiveDeclarations: AcrossEmptyLinesAndComments
-AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignConsecutiveBitFields: AcrossEmptyLines
+AlignConsecutiveDeclarations: AcrossEmptyLines
+AlignConsecutiveMacros: AcrossEmptyLines
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
 AlignTrailingComments: true         # Deprecated in clang-format 16, then switched to the following options
@@ -139,7 +139,7 @@ PenaltyIndentedWhitespace: 40
 PenaltyReturnTypeOnItsOwnLine: 60
 
 PointerAlignment: Left
-QualifierAlignment: Left                    # Needs clang-format version 14
+QualifierAlignment: Right                    # Needs clang-format version 14
 ReferenceAlignment: Right
 ReflowComments: true
 RemoveBracesLLVM: false                     # Needs clang-format version 14

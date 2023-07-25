@@ -7,6 +7,7 @@
 #include "optioncontent.h"
 #include "optionitemcolour.h"
 #include "player.h"
+#include "random.h"
 
 #include <cassert>
 #include <exception>
@@ -35,9 +36,9 @@ Menu::Menu( eMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( clas
 	title_x   = menu_x + text_length( font, "W" ) + 2;
 
 	// Set background style
-	bgType    = env.dynamicMenuBg ? static_cast< eBackgroundTypes >( rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
-	bgOffset  = ( RAND_MAX / 4 ) + ( rand() % ( RAND_MAX / 4 ) );
-	bgItems   = ( rand() % 100 ) + 20;
+	bgType   = env.dynamicMenuBg ? static_cast< eBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
+	bgItems  = ( get_rand() % 100 ) + 20;
 }
 
 Menu::~Menu() {
@@ -85,7 +86,7 @@ Menu::~Menu() {
  **/
 int32_t Menu::addButton(
 	int32_t     title_idx,
-	const char* title_,
+	char const* title_,
 	int         key_code,
 	BITMAP*     bmp,
 	BITMAP*     hover,
@@ -336,7 +337,7 @@ int32_t Menu::addText(
 	int32_t     title_idx,
 	uint32_t    max_len,
 	int32_t     color,
-	const char* format,
+	char const* format,
 	int         left,
 	int         top,
 	int         width,
@@ -438,7 +439,7 @@ int32_t Menu::addToggle( bool* target, int32_t title_idx, int32_t color, int lef
  * @param[in] height Height of the display area.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addToggle( bool* target, const char* title_, int32_t color, int left, int top, int width, int height, int padding ) {
+int32_t Menu::addToggle( bool* target, char const* title_, int32_t color, int left, int top, int width, int height, int padding ) {
 	OptionItemBase* curr = nullptr;
 
 	assert( title_ && "ERROR: title_ must be set but is nullptr" );
@@ -582,12 +583,12 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 	}
 
 	// The width must be increased, as items might get selected:
-	item_width     += select_text_len;
+	item_width += select_text_len;
 
 	// Set base values
-	int32_t rows    = list_height / item_height;
-	int32_t cols    = ( item_count / rows ) + ( item_count % rows ? 1 : 0 );
-	int32_t colOff  = ( list_width / 2 ) - ( cols * ( item_width / 2 ) );
+	int32_t rows   = list_height / item_height;
+	int32_t cols   = ( item_count / rows ) + ( item_count % rows ? 1 : 0 );
+	int32_t colOff = ( list_width / 2 ) - ( cols * ( item_width / 2 ) );
 
 	for ( int32_t idx = first_idx; idx <= last_idx; ++idx ) {
 		OptionItemBase* curr = this->operator[] ( idx );
@@ -608,7 +609,7 @@ OptionItemBase* Menu::getSelected() {
 }
 
 /// @brief return a const pointer to the menu title
-const char* Menu::getTitle() const {
+char const* Menu::getTitle() const {
 	return title;
 }
 
@@ -686,7 +687,7 @@ void Menu::setLanguage( bool autorefresh ) {
 		if ( !title_set ) title = MenuTitleText[ menu_class ][ menu_lang ][ 0 ];
 
 		OptionItemBase*    curr   = root;
-		const char* const* titles = MenuTitleText[ menu_class ][ menu_lang ];
+		char const* const* titles = MenuTitleText[ menu_class ][ menu_lang ];
 
 		while ( curr ) {
 			int32_t title_idx = curr->getTitleIdx();
@@ -696,8 +697,8 @@ void Menu::setLanguage( bool autorefresh ) {
 
 			// 2: Set new text array if based on a pre-set
 			if ( curr->needs_text() ) {
-				const char* const* texts = OptionClassText[ curr->getTextClass() ][ menu_lang ];
-				curr->setTexts( const_cast< const char** >( texts ) );
+				char const* const* texts = OptionClassText[ curr->getTextClass() ][ menu_lang ];
+				curr->setTexts( const_cast< char const** >( texts ) );
 			}
 
 			// 3: If this is a sub-menu, call an update dispatcher
@@ -710,7 +711,7 @@ void Menu::setLanguage( bool autorefresh ) {
 	}
 }
 
-void Menu::setTitle( const char* new_title, bool autorefresh ) {
+void Menu::setTitle( char const* new_title, bool autorefresh ) {
 	if ( new_title ) {
 		// Delete old title if it was set already
 		if ( title_set && title ) free( const_cast< char* >( title ) );
@@ -773,9 +774,9 @@ int32_t Menu::operator() () {
 	menu_ms_reset();
 
 	// Set background style
-	bgType   = env.dynamicMenuBg ? static_cast< eBackgroundTypes >( rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
-	bgOffset = ( RAND_MAX / 4 ) + ( rand() % ( RAND_MAX / 4 ) );
-	bgItems  = ( rand() % 100 ) + 20;
+	bgType   = env.dynamicMenuBg ? static_cast< eBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
+	bgItems  = ( get_rand() % 100 ) + 20;
 
 	// Initial display:
 	redrawAll( true );
@@ -819,8 +820,8 @@ int32_t Menu::operator() () {
 		/// --- B) Handle mouse button events  ---
 		/// --------------------------------------
 
-		mlb_x          = mouse_x;
-		mlb_y          = mouse_y;
+		mlb_x = mouse_x;
+		mlb_y = mouse_y;
 
 		// Set mouse button status anew
 		mlb_is_pressed = mouse_b & 1 ? true : false;
@@ -999,7 +1000,7 @@ int32_t Menu::insert_option( OptionItemBase* new_opt ) {
 }
 
 /// @brief simple singly list insert with title setting
-int32_t Menu::insert_option( OptionItemBase* new_opt, int32_t title_idx, const char* title_ ) {
+int32_t Menu::insert_option( OptionItemBase* new_opt, int32_t title_idx, char const* title_ ) {
 	if ( new_opt ) {
 		if ( title_ )
 			new_opt->setTitle( title_ );
@@ -1013,7 +1014,7 @@ int32_t Menu::insert_option( OptionItemBase* new_opt, int32_t title_idx, const c
 /// @brief return true if @a title_idx is lower than the first 0x0 entry
 bool Menu::is_title_idx_valid( int32_t title_idx ) {
 	int32_t            curr_idx = 0;
-	const char* const* titles   = MenuTitleText[ menu_class ][ menu_lang ];
+	char const* const* titles   = MenuTitleText[ menu_class ][ menu_lang ];
 
 	while ( ( curr_idx < title_idx ) && titles[ curr_idx ] ) ++curr_idx;
 
@@ -1121,7 +1122,7 @@ void Menu::selectPrev() {
 }
 
 /// @brief little helper to be able to add options from inside the header
-void Menu::setTexts( OptionItemBase* item, const char** texts, eTextClass text_class ) {
+void Menu::setTexts( OptionItemBase* item, char const** texts, eTextClass text_class ) {
 	assert( item && ( texts || ( TC_FREETEXT != text_class ) ) && ( TC_NONE != text_class )
 	        && "ERROR: This does not fit at all!" );
 	if ( item ) {
@@ -1130,7 +1131,7 @@ void Menu::setTexts( OptionItemBase* item, const char** texts, eTextClass text_c
 			item->setTexts( texts );
 		} else if ( TC_NONE != TC_FREETEXT ) {
 			item->setTextClass( text_class );
-			item->setTexts( const_cast< const char** >( OptionClassText[ text_class ][ menu_lang ] ) );
+			item->setTexts( const_cast< char const** >( OptionClassText[ text_class ][ menu_lang ] ) );
 		}
 	}
 }
@@ -1167,7 +1168,7 @@ bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y ) {
 	int32_t     tank_y     = y + turr_off_y + 1;
 	int32_t     text_y     = tank_y + ( tank_off_y / 2 ) - ( env.fontHeight / 2 );
 	int32_t     text_x     = tank_x + tank_off_x + 5;
-	const char* tank_text  = OptionClassText[ TC_TANKTYPE ][ env.language ][ *tanknum ];
+	char const* tank_text  = OptionClassText[ TC_TANKTYPE ][ env.language ][ *tanknum ];
 
 	draw_sprite( global.canvas, tank_bmp, tank_x - tank_off_x, tank_y );
 	rotate_sprite( global.canvas, turr_bmp, tank_x - turr_off_x, tank_y - turr_off_y, itofix( 224 ) );
