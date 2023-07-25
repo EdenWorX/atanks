@@ -33,12 +33,6 @@
 using std::string;
 
 ENVIRONMENT::ENVIRONMENT() {
-	memset( playerOrder, 0, sizeof( PLAYER* ) * MAXPLAYERS );
-	memset( server_name, 0, sizeof( char ) * 129 );
-	memset( server_port, 0, sizeof( char ) * 129 );
-	memset( slope, 0, sizeof( double ) * 720 );
-
-
 	set_fps( 60 );   // rock solid default.
 
 	fontHeight = 10; // Initial value
