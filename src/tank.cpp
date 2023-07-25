@@ -1622,7 +1622,7 @@ void TANK::setTextPositions( bool renew_colour ) {
 	}
 }
 
-bool TANK::shootClearance( int32_t targetAngle, int32_t minimumClearance, bool &crashed ) {
+bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &crashed ) {
 	int32_t clearance = 2;
 	double  xmov      = env.slope[ targetAngle ][ 0 ];
 	double  ymov      = env.slope[ targetAngle ][ 1 ];

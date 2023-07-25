@@ -39,9 +39,9 @@
 
 // Use atomic types for thread safety where locks are a bad idea
 #  include <atomic>
-typedef std::atomic_bool         abool_t;
-typedef std::atomic_flag         aflag_t;
-typedef std::atomic_int_fast32_t ai32_t;
+typedef std::atomic_bool    abool_t;
+typedef std::atomic_flag    aflag_t;
+typedef std::atomic_int32_t ai32_t;
 
 /** @file globaltypes.h
  * @brief Definitions of types relevant to global data.
@@ -183,14 +183,14 @@ enum eSoundDriver {
  **/
 enum eSounds {
 	// === FIRE a weapon / an item ===
-	SND_FIRE_MISS_SML       = 0,
-	SND_FIRE_MISS_MED       = 1,
-	SND_FIRE_MISS_LRG       = 2,
-	SND_FIRE_NUKE           = 3,
-	SND_FIRE_DEATHEAD       = 4,
-	SND_FIRE_LASER          = 5,
-	SND_FIRE_TELEPORT       = 6,
-	SND_FIRE_WIND_FAN       = 7,
+	SND_FIRE_MISS_SML = 0,
+	SND_FIRE_MISS_MED = 1,
+	SND_FIRE_MISS_LRG = 2,
+	SND_FIRE_NUKE     = 3,
+	SND_FIRE_DEATHEAD = 4,
+	SND_FIRE_LASER    = 5,
+	SND_FIRE_TELEPORT = 6,
+	SND_FIRE_WIND_FAN = 7,
 
 	// === EXPLosion of a weapon / an item ===
 	SND_EXPL_MISS_SML       = 10,
@@ -213,10 +213,10 @@ enum eSounds {
 	SND_NATU_DIRT_FALL      = 32,
 
 	// === INTErface sounds ===
-	SND_INTE_BUTTON_CLICK   = 40,
+	SND_INTE_BUTTON_CLICK = 40,
 
 	// Play BackGround MUSIC
-	SND_BG_MUSIC            = 50,
+	SND_BG_MUSIC = 50,
 	SND_COUNT
 
 };

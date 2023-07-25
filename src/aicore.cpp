@@ -589,8 +589,8 @@ bool AICore::aim( bool is_last, bool can_move ) {
 			// AI settings:
 			// ----------------------------------------------------------
 			double power_diff =
-				( std::abs( curr_overshoot ) - std::abs( pow_mod ) )
-				/ ( std::abs( ang_mod ) ? std::abs( ang_mod ) : 1 );
+				static_cast< double >( std::abs( curr_overshoot ) - std::abs( pow_mod ) )
+				/ static_cast< double >( std::abs( ang_mod ) ? std::abs( ang_mod ) : 1 );
 
 			if ( ( curr_overshoot < MAX_OVERSHOOT ) && ( power_diff > std::abs( pow_mod ) ) && ( hit_score < 1 ) ) {
 				DEBUG_LOG_AIM(
@@ -602,7 +602,7 @@ bool AICore::aim( bool is_last, bool can_move ) {
 					ROUND( pow_mod )
 				)
 
-				pow_mod += power_diff * focusRate / 2. * SIGNd( pow_mod );
+				pow_mod += ROUND( power_diff * focusRate / 2. * SIGNd( pow_mod ) );
 
 				if ( std::abs( pow_mod ) > max_pow_mod ) pow_mod = max_pow_mod * SIGN( pow_mod );
 
@@ -626,9 +626,9 @@ bool AICore::aim( bool is_last, bool can_move ) {
 					ang_mod = 90 - curr_angle;
 				else
 					// Pull up to try again from a very different view
-					ang_mod = ROUNDu( 60. * focusRate ) // + [10;60]
-					        - ( RAND_AI_0P * 5 );       // - [ 5;25]
-			}                                                   // End of sanitizing angle right
+					ang_mod = ROUND( 60. * focusRate ) // + [10;60]
+					        - ( RAND_AI_0P * 5 );      // - [ 5;25]
+			}                                                  // End of sanitizing angle right
 
 			// Test angle to the left
 			else if ( ( curr_angle + ang_mod ) > 270 ) {
@@ -637,9 +637,9 @@ bool AICore::aim( bool is_last, bool can_move ) {
 					ang_mod = 270 - curr_angle;
 				else
 					// Pull up to try again from a very different view
-					ang_mod = ( -60. * focusRate ) // - [10;60]
-					        + ( RAND_AI_0P * 5 );  // + [ 0;25]
-			}                                              // End of sanitizing angle left
+					ang_mod = ROUND( -60. * focusRate ) // - [10;60]
+					        + ( RAND_AI_0P * 5 );       // + [ 0;25]
+			}                                                   // End of sanitizing angle left
 
 
 			// Test bottom power range
@@ -649,8 +649,8 @@ bool AICore::aim( bool is_last, bool can_move ) {
 					pow_mod = MIN_POWER - curr_power;
 				else
 					// Give more power to go somewhere else
-					pow_mod = ( 900. * focusRate ) // + [150;900]
-					        - ( RAND_AI_0P * 50 ); // - [  0;250]
+					pow_mod = ROUND( 900. * focusRate ) // + [150;900]
+					        - ( RAND_AI_0P * 50 );      // - [  0;250]
 			}
 
 			// Test upper power range
@@ -660,8 +660,8 @@ bool AICore::aim( bool is_last, bool can_move ) {
 					pow_mod = MAX_POWER - curr_power;
 				else
 					// Give more power to go somewhere else
-					pow_mod = ( -900. * focusRate ) // - [150;900]
-					        + ( RAND_AI_0P * 50 );  // + [  0;250]
+					pow_mod = ROUND( -900. * focusRate ) // - [150;900]
+					        + ( RAND_AI_0P * 50 );       // + [  0;250]
 			}
 
 
@@ -690,7 +690,7 @@ bool AICore::aim( bool is_last, bool can_move ) {
 		is_last && needSuccess ? " (is_last forced!)" : ""
 	)
 
-	// If this was the last try and it did not reach the target having
+	// If this was the last try, and it did not reach the target having
 	// a negative best score, assume that the path is blocked.
 	// However, if a best setup is already known, revert to that.
 	if ( ( weap_idx < WEAPONS ) && is_last && needSuccess && ( best_setup_score < 0 ) && ( best_round_score < 0 )
@@ -884,16 +884,16 @@ bool AICore::calcBoxed( bool is_last ) {
 		// With this even the useless bot has only a ~33% chance to forget...
 		return true;
 
-	bool    crashed   = true; // Assume the shot crashed in the ceiling
-	bool    finished  = false;
-	int32_t local_x   = x;
-	int32_t local_y   = y;
-	double  end_xv    = 0.;
-	double  end_yv    = 0.;
-	bool    can_mod_a = true;
-	bool    can_mod_p = true;
-	bool    top_wrap  = false; // Whether the shot wrapped through a wrap ceiling
-	bool    can_dig   = ( weap_idx >= BURROWER ) && ( weap_idx <= PENETRATOR );
+	bool   crashed   = true; // Assume the shot crashed in the ceiling
+	bool   finished  = false;
+	auto   local_x   = ROUND( x );
+	auto   local_y   = ROUND( y );
+	double end_xv    = 0.;
+	double end_yv    = 0.;
+	bool   can_mod_a = true;
+	bool   can_mod_p = true;
+	bool   top_wrap  = false; // Whether the shot wrapped through a wrap ceiling
+	bool   can_dig   = ( weap_idx >= BURROWER ) && ( weap_idx <= PENETRATOR );
 
 	// Cycle until the ceiling isn't hit any more.
 	while ( canWork && !isStopped && crashed && ( can_mod_a || can_mod_p )
@@ -1008,7 +1008,7 @@ int32_t AICore::calcHitScore( bool is_last ) {
 	bool       can_overkill = true;
 	eTeamTypes target_team  = mem_curr ? mem_curr->entry->opponent->team : TEAM_NEUTRAL;
 	bool       tgt_team_hit = false;
-	weaponType weapType     = static_cast< weaponType >( weap_curr->type );
+	auto       weapType     = static_cast< weaponType >( weap_curr->type );
 
 
 	// Dirt weapons and the reducer can not overkill
@@ -1030,8 +1030,8 @@ int32_t AICore::calcHitScore( bool is_last ) {
 
 			// 1: Determine whether the opponent was killed.
 			if ( can_overkill && ( opp->dmgDone >= opp->opLife ) ) {
-				overkill     = opp->dmgDone - opp->opLife;
-				opp->dmgDone = opp->opLife;
+				overkill     = ROUND( opp->dmgDone - opp->opLife );
+				opp->dmgDone = ROUND( opp->opLife );
 				is_killed    = true;
 			}
 
@@ -1046,15 +1046,17 @@ int32_t AICore::calcHitScore( bool is_last ) {
 
 
 			// 2: Add the simple damage to the score:
-			hit_score += static_cast< double >( opp->dmgDone ) * opp->team_mod * self_mod
-			           * ( shock_hit ? ai_over_mod : 1. );
+			hit_score += ROUND(
+				static_cast< double >( opp->dmgDone ) * opp->team_mod * self_mod
+				* ( shock_hit ? ai_over_mod : 1. )
+			);
 
 
 			// 3: Raise the score a bit if it is collateral damage on
 			//    non-neutral team members of our target, but not our team.
 			if ( ( TEAM_NEUTRAL != target_team ) && ( player->team != target_team )
 			     && ( opp->entry->opponent->team == target_team ) ) {
-				hit_score    *= 1. + ( ( player->defensive + 2.5 ) / 10. );
+				hit_score    *= ROUND( 1. + ( ( player->defensive + 2.5 ) / 10. ) );
 				tgt_team_hit  = true;
 			}
 
@@ -1069,7 +1071,7 @@ int32_t AICore::calcHitScore( bool is_last ) {
 				// Add some more for killing the shocker:
 				if ( shock_hit ) kill_bonus += kill_bonus / ai_over_mod;
 
-				hit_score += kill_bonus * opp->team_mod * self_mod;
+				hit_score += ROUND( kill_bonus * opp->team_mod * self_mod );
 			}
 
 
@@ -1092,7 +1094,7 @@ int32_t AICore::calcHitScore( bool is_last ) {
 				if ( !opp->onSameTeam ) over_score /= ( player->defensive - 2. ) * -1.;
 
 				// Add a fraction of the overkill score
-				hit_score += over_score / ( 10. - ai_level_d );
+				hit_score += ROUND( over_score / ( 10. - ai_level_d ) );
 			} // End of overkill score
 		}         // end of having damage done
 		opp = opp->next;
@@ -1104,7 +1106,7 @@ int32_t AICore::calcHitScore( bool is_last ) {
 	// reduced according to whether the bot needs money or not.
 	if ( !curr_prime_hit && !is_last && ( hit_score > 0. ) ) {
 		if ( tgt_team_hit )
-			hit_score /= ( ai_type_mod + ai_level_d ) / ( player->defensive + ( needMoney ? 2.5 : 4.0 ) );
+			hit_score /= ROUND( ( ai_type_mod + ai_level_d ) / ( player->defensive + ( needMoney ? 2.5 : 4.0 ) ) );
 		else
 			hit_score = -1 * std::abs( hit_score );
 	}
@@ -1232,12 +1234,13 @@ bool AICore::calcKamikaze( bool is_last ) {
 				// With a power of 150, the weapon can be hurled ~45 pixels.
 				// So check that place plus some pixels around according
 				// to ai_level.
-				int32_t to_go  = 1 + ai_level + ( RAND_AI_1P );
-				int32_t dist   = 45 - ( to_go / 2 );
-				int32_t diff_l = 0;
-				int32_t diff_r = 0;
-				int32_t xl     = x - dist;
-				int32_t xr     = x + dist;
+				int32_t to_go   = 1 + ai_level + ( RAND_AI_1P );
+				int32_t dist    = 45 - ( to_go / 2 );
+				int32_t diff_l  = 0;
+				int32_t diff_r  = 0;
+				auto    round_x = ROUND( x );
+				int32_t xl      = round_x - dist;
+				int32_t xr      = round_x + dist;
 
 				for ( int32_t i = 0; i < to_go; ++i ) {
 					--xl;
@@ -1251,7 +1254,8 @@ bool AICore::calcKamikaze( bool is_last ) {
 						else
 							diff_l += env.screenHeight;
 					} else
-						diff_l += std::abs( global.surface[ xl ].load() - bottom );
+						diff_l += std::abs( static_cast< int32_t >( global.surface[ xl ].load() - bottom )
+						);
 
 					// b - check right side
 					if ( xr > ( env.screenWidth - 2 ) ) {
@@ -1260,7 +1264,8 @@ bool AICore::calcKamikaze( bool is_last ) {
 						else
 							diff_r += env.screenHeight;
 					} else
-						diff_r += std::abs( global.surface[ xr ].load() - bottom );
+						diff_r += std::abs( static_cast< int32_t >( global.surface[ xr ].load() - bottom )
+						);
 				} // End of looping distance to_go
 
 				// The average distance is taken. This ignores sudden peaks
@@ -1293,7 +1298,7 @@ bool AICore::calcKamikaze( bool is_last ) {
 			} else if ( ( SML_NAPALM <= weap_idx ) && ( LRG_NAPALM >= weap_idx ) ) {
 
 				// Adapt according to the wind:
-				int32_t wind     = ROUND( global.wind );
+				auto    wind     = ROUND( global.wind );
 				int32_t wind_mod = 10 + ( std::abs( wind ) * ( 1 + RAND_AI_0P ) );
 
 				if ( wind > 0 )
@@ -1387,7 +1392,7 @@ bool AICore::calcLaser( bool is_last ) {
 	// Power doesn't matter, but the values must be sane nonetheless:
 	sanitizeCurr();
 
-	// Lets see where the laser ends:
+	// Let's see where the laser ends:
 	double start_x = 0;
 	double start_y = 0;
 	player->tank->getGuntop( curr_angle, start_x, start_y );
@@ -1497,12 +1502,12 @@ bool AICore::calcOffset( bool is_last ) {
 	 * is needed than when the area is below the target tank.
 	 */
 	if ( ( weap_idx >= SML_NAPALM ) && ( weap_idx <= LRG_NAPALM ) ) {
-		offset_x = global.wind * ( ai_level + RAND_AI_1P ) * ( -1. - focusRate );
+		offset_x = ROUND( global.wind * ( ai_level + RAND_AI_1P ) * ( -1. - focusRate ) );
 
 		// The farther away the opponent is, the more power is needed to
 		// bring the package to the target. More impact power means a higher
 		// initial velocity of the blobs, so the offset must be tweaked a bit.
-		offset_x      *= 1. + ( mem_curr->distance / static_cast< double >( env.screenWidth ) * focusRate );
+		offset_x      *= ROUND( 1. + ( mem_curr->distance / static_cast< double >( env.screenWidth ) * focusRate ) );
 
 
 		int32_t pos_x  = ROUND( mem_curr->opX ) + offset_x;
@@ -1564,8 +1569,8 @@ bool AICore::calcOffset( bool is_last ) {
 			}
 
 			// adapt offset_x and offset_y now:
-			offset_x = pos_x - mem_curr->opX;
-			offset_y = global.surface[ pos_x ].load() - mem_curr->opY;
+			offset_x = ROUND( pos_x - mem_curr->opX );
+			offset_y = ROUND( global.surface[ pos_x ].load() - mem_curr->opY );
 		}
 	} // End of handling napalm
 
@@ -1585,9 +1590,9 @@ bool AICore::calcOffset( bool is_last ) {
 		int32_t max_dist =
 			RAND_AI_0P ? ( dist_x * 2 ) + RAND_AI_1P        // normal shot
 				   : weapon[ weap_idx ].radius * 2 / 3; // trick shot
-		int32_t seek_y  = ( mem_curr->opY + mem_curr->entry->opponent->tank->getBottom() ) / 2;
-		int32_t left_x  = mem_curr->opX - dist_x;
-		int32_t right_x = mem_curr->opX + dist_x;
+		auto    seek_y  = ROUND( ( mem_curr->opY + mem_curr->entry->opponent->tank->getBottom() ) / 2. );
+		auto    left_x  = ROUND( mem_curr->opX - dist_x );
+		auto    right_x = ROUND( mem_curr->opX + dist_x );
 		int32_t left_y  = left_x > 2 ? std::abs( global.surface[ left_x ].load() ) : 0;
 		int32_t right_y = right_x < ( env.screenWidth - 2 ) ? std::abs( global.surface[ right_x ].load() ) : 0;
 		bool    go_left = ( mem_curr->opX > x ); // Which side to prefer
@@ -1595,8 +1600,8 @@ bool AICore::calcOffset( bool is_last ) {
 		bool    found_r = false;
 
 		for ( ; !found_l && !found_r && ( dist_x < max_dist ); ++dist_x ) {
-			left_x  = mem_curr->opX - dist_x;
-			right_x = mem_curr->opX + dist_x;
+			left_x  = ROUND( mem_curr->opX - dist_x );
+			right_x = ROUND( mem_curr->opX + dist_x );
 			left_y  = left_x > 2 ? std::abs( global.surface[ left_x ].load() ) : 0;
 			right_y = right_x < ( env.screenWidth - 2 ) ? std::abs( global.surface[ right_x ].load() ) : 0;
 
@@ -1619,11 +1624,11 @@ bool AICore::calcOffset( bool is_last ) {
 				if ( ( go_left && ( ( mem_curr->opX - rad_y - 1 ) > 1 ) )
 				     || ( ( mem_curr->opX + rad_y + 1 ) > ( env.screenWidth - 2 ) ) ) {
 					found_l = true;
-					left_x  = mem_curr->opX - rad_y - 1;
+					left_x  = ROUND( mem_curr->opX - rad_y - 1 );
 					left_y  = global.surface[ left_x ].load();
 				} else {
 					found_r = true;
-					right_x = mem_curr->opX + rad_y + 1;
+					right_x = ROUND( mem_curr->opX + rad_y + 1 );
 					right_y = global.surface[ right_x ].load();
 				}
 			} else
@@ -1632,11 +1637,11 @@ bool AICore::calcOffset( bool is_last ) {
 
 		// If something is found, set the real offsets
 		if ( found_l ) {
-			offset_x = left_x - mem_curr->opX;
-			offset_y = left_y - mem_curr->opY;
+			offset_x = ROUND( left_x - mem_curr->opX );
+			offset_y = ROUND( left_y - mem_curr->opY );
 		} else if ( found_r ) {
-			offset_x = right_x - mem_curr->opX;
-			offset_y = right_y - mem_curr->opY;
+			offset_x = ROUND( right_x - mem_curr->opX );
+			offset_y = ROUND( right_y - mem_curr->opY );
 		}
 	} // End of handling shaped charges
 
@@ -1648,24 +1653,25 @@ bool AICore::calcOffset( bool is_last ) {
 	 */
 	else if ( DRILLER == weap_idx ) {
 		int32_t rad_x    = weapon[ weap_idx ].radius / 20;
-		int32_t pos_x    = ROUND( mem_curr->opX );
+		auto    pos_x    = ROUND( mem_curr->opX );
 		int32_t pos_y    = global.surface[ pos_x ].load();
 		int32_t max_dist = rad_x * 2 / 3;
-		int32_t min_y    = mem_curr->opY - rad_x;
+		auto    min_y    = ROUND( mem_curr->opY - rad_x );
 		int32_t max_y    = mem_curr->entry->opponent->tank->getBottom() + rad_x;
 		bool    found_l  = false;
 		bool    found_r  = false;
 
 		// If the direct coordinates are already in order, do not search
-		// further. Otherwise try to shift left and right.
+		// further. Otherwise, try to shift left and right.
 		if ( ( pos_y > min_y ) && ( pos_y < max_y ) ) {
 			for ( int32_t off_x = 1; !found_l && !found_r && ( off_x < max_dist ); ++off_x ) {
 
 				int32_t left_x  = pos_x - off_x;
 				int32_t right_x = pos_x + off_x;
-				int32_t left_y  = left_x > 1 ? global.surface[ left_x ].load() : mem_curr->opY;
-				int32_t right_y =
-					right_x < ( env.screenWidth - 1 ) ? global.surface[ right_x ].load() : mem_curr->opY;
+				auto    left_y  = ROUND( left_x > 1 ? global.surface[ left_x ].load() : mem_curr->opY );
+				auto    right_y = ROUND(
+                                        right_x < ( env.screenWidth - 1 ) ? global.surface[ right_x ].load() : mem_curr->opY
+				);
 				if ( ( left_y < min_y ) || ( left_y > max_y ) ) {
 					found_l = true;
 					pos_x   = left_x;
@@ -1682,8 +1688,8 @@ bool AICore::calcOffset( bool is_last ) {
 			// coordinates.
 			if ( !found_l && !found_r ) {
 				if ( is_last || ( RAND_AI_0N ) ) {
-					pos_x = mem_curr->opX;
-					pos_y = mem_curr->opY;
+					pos_x = ROUND( mem_curr->opX );
+					pos_y = ROUND( mem_curr->opY );
 				} else
 					result = false;
 			}
@@ -1691,8 +1697,8 @@ bool AICore::calcOffset( bool is_last ) {
 
 		// Set offsets if all is well
 		if ( result ) {
-			offset_x = pos_x - mem_curr->opX;
-			offset_y = pos_y - mem_curr->opY;
+			offset_x = ROUND( pos_x - mem_curr->opX );
+			offset_y = ROUND( pos_y - mem_curr->opY );
 		}
 	} // End of handling drillers
 
@@ -1729,7 +1735,7 @@ bool AICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 	// 60° and 75°. If it is below, limit angle between 20° and 35° and
 	// limit the angle between 40° and 55° if ~equal.
 	int32_t new_angle = GET_SAFE_ANGLE( dist_x, dist_y, 0 );
-	int32_t ang_limit = ( focusRate * static_cast< double >( get_rand() % 16 ) );
+	auto    ang_limit = ROUND( focusRate * static_cast< double >( get_rand() % 16 ) );
 
 	if ( dist_y < -100 )     /* above */
 		ang_limit += 60;
@@ -1755,7 +1761,7 @@ bool AICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 	) {
 		angle_mod /= 2.;
 	}
-	new_angle += angle_mod;
+	new_angle += ROUND( angle_mod );
 
 
 	// --- 3) If this is a wrap wall, check whether shooting ---
@@ -1767,7 +1773,7 @@ bool AICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 	// --- wrapped again.                                    ---
 	// ---------------------------------------------------------
 	if ( ( WALL_WRAP == env.current_wallType ) && RAND_AI_0P ) {
-		int32_t wrapDist = opX > x ? x + scrWidth - 3 - opX : ( scrWidth - x - 3 + opX ) * -1;
+		auto wrapDist = ROUND( opX > x ? x + scrWidth - 3 - opX : ( scrWidth - x - 3 + opX ) * -1 );
 
 		if ( std::abs( wrapDist ) < std::abs( dist_x ) ) {
 			wrapped    = true;
@@ -1818,7 +1824,7 @@ bool AICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 	// --- the next wall or half the distance to the    ---
 	// --- selected opponent.                           ---
 	// ----------------------------------------------------
-	int32_t clearance = std::abs( dist_x / 2 );
+	double  clearance = std::abs( dist_x / 2. );
 	int32_t old_angle = new_angle;
 	int32_t max_drift = ( ai_level + 1 ) / 2; // [1;3]
 	bool    crashed   = false;
@@ -1904,9 +1910,9 @@ bool AICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 		);
 
 		// Power modification according to the bots focus rate
-		// This helps having slightly different starting powers to
+		// This helps to have slightly different starting powers to
 		// begin aiming with.
-		curr_power += focusRate * static_cast< double >( get_rand() % 51 ) * ( get_rand() % 2 ? -1. : 1. );
+		curr_power += ROUND( focusRate * static_cast< double >( get_rand() % 51 ) * ( get_rand() % 2 ? -1. : 1. ) );
 		// With a focus rate of [0.166;1] this results in a modification
 		// between [-8.3;8.3] and [-50;50].
 
@@ -1990,9 +1996,9 @@ bool AICore::calcUnbury( bool is_last ) {
 		}
 
 		// find a good starting angle where the obstacle begins:
-		int32_t dist    = ai_level * ( player->defensive + 3. ) * 2;
-		bool    crashed = false;
-		curr_angle      = 180;
+		double dist    = ai_level * ( player->defensive + 3. ) * 2;
+		bool   crashed = false;
+		curr_angle     = 180;
 
 		if ( go_left ) {
 			while ( ( curr_angle < 250 ) && ( tank->shootClearance( curr_angle, dist, crashed ) || !crashed ) )
@@ -2255,7 +2261,7 @@ bool AICore::getMemory() {
 		if ( -1 < ( pref = player->getItemPref( idx ) ) ) {
 			item_curr->amount     = player->ni[ idx ];
 			item_curr->preference = pref;
-			item_curr->selectable = item[ idx ].selectable ? true : false;
+			item_curr->selectable = item[ idx ].selectable != 0;
 			item_curr->type       = idx;
 
 			// The kamikaze value is only pre-set to true for vengeance
@@ -2307,7 +2313,7 @@ bool AICore::getMemory() {
 			// The other values depend on whether an active tank was found:
 			if ( oppTank ) {
 				mem_curr->is_buried =
-					oppTank->howBuried( &mem_curr->buried_l, &mem_curr->buried_r ) > BURIED_LEVEL ? true : false;
+					oppTank->howBuried( &mem_curr->buried_l, &mem_curr->buried_r ) > BURIED_LEVEL;
 				mem_curr->hasRepulse = oppTank->hasRepulsorActivated();
 				mem_curr->opLife     = oppTank->l + oppTank->sh;
 				mem_curr->opX        = oppTank->x;
@@ -2530,7 +2536,7 @@ void AICore::fixCrashed( int32_t& ang_mod, int32_t& pow_mod ) {
 	ang_mod *= curr_angle > 180 ? -1 : 1;
 
 	// The power must be reduced if it is greater than the x distance.
-	int32_t pow_diff = curr_power - std::abs( mem_curr->opX - x );
+	auto pow_diff = ROUND( curr_power - std::abs( mem_curr->opX - x ) );
 	if ( pow_diff > 0 ) {
 		pow_mod = std::abs( pow_mod ) * -1;
 		// And strengthen the power reduction more if
@@ -2602,8 +2608,7 @@ void AICore::fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score
 
 		// 2) Assume a hill in the path
 		pow_mod = ( std::abs( pow_mod ) + std::abs( last_pow_mod ) ) / 2; // raise it
-		ang_mod = static_cast< double >( std::abs( last_ang_mod ) + std::abs( ang_mod ) ) * ai_over_mod
-		        * SIGNd( last_ang_mod ) * -1.;
+		ang_mod = ROUND( ( std::abs( last_ang_mod ) + std::abs( ang_mod ) ) * ai_over_mod * SIGNd( last_ang_mod ) * -1. );
 		// Note: This accumulates the last and the current angle modification,
 		//       strengthens depending on AI level and ensures it has the
 		//       opposite direction from the last modification.
@@ -2663,8 +2668,8 @@ void AICore::fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score
 		DEBUG_LOG_AIM( player->getName(), "=> Same score %d, overshoot %d", hit_score, curr_overshoot )
 
 		// Put in some limits for the angle according to where the opponent is
-		int32_t ang_limit = ( focusRate * static_cast< double >( get_rand() % 16 ) );
-		int32_t dist_y    = mem_curr->opY - y;
+		auto ang_limit = ROUND( focusRate * static_cast< double >( get_rand() % 16 ) );
+		auto dist_y    = ROUND( mem_curr->opY - y );
 		if ( dist_y < -100 )     /* above */
 			ang_limit += 60;
 		else if ( dist_y > 100 ) /* below */
@@ -2690,8 +2695,8 @@ void AICore::fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score
 /// finish.
 void AICore::fixUnfinished( int32_t& ang_mod, int32_t& pow_mod ) {
 	// Put in some limits for the angle according to where the opponent is
-	int32_t ang_limit = ( focusRate * static_cast< double >( get_rand() % 16 ) );
-	int32_t dist_y    = mem_curr->opY - y;
+	auto ang_limit = ROUND( focusRate * static_cast< double >( get_rand() % 16 ) );
+	auto dist_y    = ROUND( mem_curr->opY - y );
 	if ( dist_y < -100 )     /* above */
 		ang_limit += 60;
 	else if ( dist_y > 100 ) /* below */
@@ -2717,7 +2722,7 @@ void AICore::fixUnfinished( int32_t& ang_mod, int32_t& pow_mod ) {
 	// x distance, but raised if less than the simple x distance.
 	// If the power is too low, shots can quickly end up with too
 	// many bounces if the wall is rubber or spring.
-	int32_t dist_x = std::abs( mem_curr->opX - x );
+	auto dist_x = ROUND( std::abs( mem_curr->opX - x ) );
 	if ( curr_power > ( 2 * dist_x ) )
 		pow_mod *= -1;
 	else if ( curr_power > dist_x )
@@ -2876,8 +2881,8 @@ void AICore::showFeedback( char const* const feedback, int32_t col, double yv, e
 		// Wait for the AI to be allowed to create texts
 		while ( !textAllowed.load( ATOMIC_READ ) ) std::this_thread::yield();
 
-		int32_t y_pos = y - ( 50 + ( get_rand() % 21 ) );
-		new FLOATTEXT( feedback, x, y_pos, .0, yv, col, CENTRE, text_sway, dur, false );
+		auto y_pos = ROUND( y - ( 50. + ( get_rand() % 21 ) ) );
+		new FLOATTEXT( feedback, ROUND( x ), y_pos, .0, yv, col, CENTRE, text_sway, dur, false );
 		MSLEEP( ( dur / 10 ) + 1 )
 	}
 }
@@ -3413,7 +3418,7 @@ void AICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int
 	double    spreadVar     = weapon[ weap_curr->type ].spreadVariation;
 	WEAPON*   sub_weap      = &weapon[ subType ];
 	double    divStep       = static_cast< double >( divergence ) / static_cast< double >( subCount - 1 );
-	int32_t   startPoint    = divStep < 0. ? 0 : 180;
+	double    startPoint    = divStep < 0. ? 0. : 180.;
 	int32_t   randStart     = get_rand() % 1000000;
 	ePhysType subPhys       = PT_NORMAL;
 	int32_t   startY        = sub_y - 20;
@@ -3458,10 +3463,7 @@ void AICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int
 	for ( int32_t sc = 0; sc < subCount; ++sc ) {
 		double  speed        = weapon[ weap_curr->type ].launchSpeed;
 		int32_t newMissCount = sub_weap->countdown;
-		int32_t newMissAngle = ROUND(
-			( divStep * static_cast< double >( sc ) ) + static_cast< double >( startPoint )
-			- ( static_cast< double >( divergence ) / 2. )
-		);
+		auto    newMissAngle = ROUND( ( divStep * sc ) + startPoint - ( divergence / 2. ) );
 
 		// trace hard, but yield per sub mun
 		if ( !global.skippingComputerPlay ) std::this_thread::yield();
@@ -3531,7 +3533,13 @@ void AICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int
 			if ( std::abs( curr_overshoot ) < std::abs( cl_overshoot ) ) cl_overshoot = curr_overshoot;
 
 			// eventually add the score:
-			calcHitDamage( mind_shot.x, mind_shot.y, radius, sub_dmg, static_cast< weaponType >( subType ) );
+			calcHitDamage(
+				ROUND( mind_shot.x ),
+				ROUND( mind_shot.y ),
+				radius,
+				sub_dmg,
+				static_cast< weaponType >( subType )
+			);
 		}
 	} // End of looping submunitions
 
@@ -3622,8 +3630,8 @@ bool AICore::traceShot(
 	if ( mind_shot.destroy ) {
 		mind_shot.getVelocity( end_xv, end_yv );
 		finished   = true;
-		reached_x_ = mind_shot.x;
-		reached_y_ = mind_shot.y;
+		reached_x_ = ROUND( mind_shot.x );
+		reached_y_ = ROUND( mind_shot.y );
 
 		// The distance from the target must take both the direction
 		// of the last movement of the mind shot and the positions of
@@ -3691,8 +3699,8 @@ void AICore::traceWeapon( int32_t& has_crashed, int32_t& has_finished ) {
 		int32_t tr_a     = curr_angle + ( ( SPREAD * i ) - ( SPREAD * ( weap_curr->spread - 1 ) / 2 ) );
 		bool    finished = false;
 		bool    top_wrap = false;
-		reached_x        = x;
-		reached_y        = y;
+		reached_x        = ROUND( x );
+		reached_y        = ROUND( y );
 
 		// Loop again by delay, weapons that have no delay default to 1 here.
 		for ( int32_t j = 0; canWork && !isStopped && ( j < weap_curr->delay ); ++j ) {
@@ -3854,7 +3862,7 @@ void AICore::updateItemScore( itEntry_t* pItem ) {
 		}
 
 		// Now look whether there is a mountain in between:
-		int32_t check_x   = ROUND( mem_curr->opX );
+		auto    check_x   = ROUND( mem_curr->opX );
 		int32_t checked   = 0;
 		int32_t direction = SIGN( global.wind ) * -1;
 		int32_t range_x   = 10 * ( ai_level + RAND_AI_0P );
@@ -3884,7 +3892,7 @@ void AICore::updateItemScore( itEntry_t* pItem ) {
 				"=> Reducing fan score %6.2lf to %62lf (no repeat)",
 				fan_score,
 				std::abs( fan_score * ai_level ) * -1.
-			);
+			)
 			fan_score = std::abs( fan_score * ai_level ) * -1.;
 		}
 	} // End of calculating a fan score
@@ -3895,7 +3903,7 @@ void AICore::updateItemScore( itEntry_t* pItem ) {
 	 * ------------------------------------------------------------- */
 	double selfde_score = 0.;
 	if ( ( mem_curr->opLife > ( currLife * 10. ) ) || ( isShocked && ( mem_curr->opLife > ( currLife * 5. ) ) ) ) {
-		if ( ( ITEM_VENGEANCE >= pItem->type ) && ( ITEM_FATAL_FURY <= pItem->type ) ) {
+		if ( ( ITEM_VENGEANCE <= pItem->type ) && ( ITEM_FATAL_FURY >= pItem->type ) ) {
 			selfde_score = static_cast< double >( pItem->type - ITEM_VENGEANCE + 1 ) * mem_curr->diffLife
 			             / ( player->selfPreservation + .5 );
 		}
@@ -3906,8 +3914,9 @@ void AICore::updateItemScore( itEntry_t* pItem ) {
 	 * --- 4) The "useless" score, for not usable items          ---
 	 * ------------------------------------------------------------- */
 	double useless_score = 0.;
-	if ( ( ITEM_FATAL_FURY < pItem->type ) && ( ITEM_ROCKET != pItem->type ) ) useless_score = -50000.;
-	/// @todo : FUEL should be made available to the AI somehow.
+	if ( ( ITEM_FATAL_FURY < pItem->type ) && ( ITEM_ROCKET != pItem->type ) ) {
+		useless_score = -50000.;
+	}
 
 
 	/* -------------------------------------------------------------
@@ -4022,7 +4031,7 @@ void AICore::updateOppScore( opEntry_t* pOpp ) {
 		if ( !pOpp->revengeDone ) {
 			DEBUG_LOG_EMO( player->getName(), "Current anger damage from %s: %d", opponent->getName(), entry->revenge_dmg )
 
-			entry->revenge_dmg /= 4.5 - ai_type_mod;
+			entry->revenge_dmg = ROUND( static_cast< double >( entry->revenge_dmg ) / ( 4.5 - ai_type_mod ) );
 
 			DEBUG_LOG_EMO( player->getName(), " --> Anger cooled down to   : %d", entry->revenge_dmg )
 
@@ -4163,13 +4172,13 @@ void AICore::updateOppScore( opEntry_t* pOpp ) {
 	 * ------------------------------------------------------------- */
 	double damage_score = entry->damage_from - entry->damage_to;
 	double kill_score   = ( entry->killed_me - entry->killed_them ) * maxLife;
-	double last_score   = entry->damage_last * type_mod;
+	double prev_score   = entry->damage_last * type_mod;
 
 	DEBUG_LOG_EMO( player->getName(), "  team_mod     : %6.2lf", pOpp->team_mod )
 	DEBUG_LOG_EMO( player->getName(), "  type_mod     : %6.2lf", type_mod )
 	DEBUG_LOG_EMO( player->getName(), "  damage_score : %6.2lf", damage_score )
 	DEBUG_LOG_EMO( player->getName(), "  kill_score   : %6.2lf", kill_score )
-	DEBUG_LOG_EMO( player->getName(), "  last_score   : %6.2lf", last_score )
+	DEBUG_LOG_EMO( player->getName(), "  prev_score   : %6.2lf", prev_score )
 	DEBUG_LOG_EMO( player->getName(), "  fear_damage  : %6.2lf", fear_damage )
 	DEBUG_LOG_EMO( player->getName(), "  revenge_score: %6.2lf", revenge_score )
 	DEBUG_LOG_EMO( player->getName(), "  life_score   : %6.2lf", life_score )
@@ -4180,7 +4189,7 @@ void AICore::updateOppScore( opEntry_t* pOpp ) {
 
 	double xScore =
 		( damage_score > 0. ? pOpp->team_mod * damage_score : 0. )
-		+ ( kill_score > 0. ? pOpp->team_mod * kill_score : 0. ) + ( last_score > 0. ? pOpp->team_mod * last_score : 0. )
+		+ ( kill_score > 0. ? pOpp->team_mod * kill_score : 0. ) + ( prev_score > 0. ? pOpp->team_mod * prev_score : 0. )
 		+ ( fear_damage > 0. ? pOpp->team_mod * fear_damage : 0. ) + ( fear_shock > 0. ? fear_shock * fear_damage : 0. )
 		+ ( revenge_score > 0. ? pOpp->team_mod * revenge_score : 0. )
 		+ ( life_score > 0. ? pOpp->team_mod * life_score : 0. ) + ( vict_score > 0. ? pOpp->team_mod * vict_score : 0. )
@@ -4264,7 +4273,7 @@ void AICore::updateWeapScore( weEntry_t* pWeap ) {
 	}
 
 	// === And the theft bomb ===
-	int32_t theft_size = static_cast< int32_t >( player->damageMultiplier * THEFT_AMOUNT );
+	auto theft_size = static_cast< int32_t >( player->damageMultiplier * THEFT_AMOUNT );
 	if ( THEFT_BOMB == wType ) {
 		double steal_amount = std::min( mem_curr->entry->opponent->money, theft_size );
 		pWeap->dmgCluster   = 0.;
@@ -4332,21 +4341,22 @@ void AICore::updateWeapScore( weEntry_t* pWeap ) {
 	double unbury_score = 0.;
 	if ( buried > BURIED_LEVEL ) {
 		// Shaped charges refer to the y coordinate
-		if ( ( SHAPED_CHARGE <= wType ) && ( CUTTER >= wType )
-		     && ( std::abs( mem_curr->opY - y ) < ( weapon[ wType ].radius / 20 ) )
-		     && ( mem_curr->distance < weapon[ wType ].radius ) )
+		if ( ( ( SHAPED_CHARGE <= wType ) && ( CUTTER >= wType )
+		       && ( ROUND( std::abs( mem_curr->opY - y ) ) < ( weapon[ wType ].radius / 20 ) )
+		       && ( mem_curr->distance < weapon[ wType ].radius ) )
+		     || ( /* The driller is only usable in a vertical way: */
+		          ( DRILLER == wType ) && ( ROUND( std::abs( mem_curr->opX - x ) ) < ( weapon[ wType ].radius / 20 ) )
+		          && ( mem_curr->distance < weapon[ wType ].radius )
+		     ) ) {
 			// This one is usable.
 			unbury_score = pWeap->dmgSingle * ai_over_mod;
-
-		// The driller is only usable in a vertical way:
-		else if ( ( DRILLER == wType ) && ( std::abs( mem_curr->opX - x ) < ( weapon[ wType ].radius / 20 ) ) && ( mem_curr->distance < weapon[ wType ].radius ) )
-			unbury_score = pWeap->dmgSingle * ai_over_mod;
+		}
 
 		// Riot bombs and charges are the ultimate tools, of course
-		else if ( ( ( RIOT_CHARGE <= wType ) && ( RIOT_BLAST >= wType ) ) || ( ( RIOT_BOMB <= wType ) && ( HVY_RIOT_BOMB >= wType ) ) )
+		else if ( ( ( RIOT_CHARGE <= wType ) && ( RIOT_BLAST >= wType ) ) || ( ( RIOT_BOMB <= wType ) && ( HVY_RIOT_BOMB >= wType ) ) ) {
 			unbury_score = ai_type_mod * static_cast< double >( weapon[ wType ].radius )
 			             * static_cast< double >( buried - BURIED_LEVEL + ai_level );
-
+		}
 		// Everything else is (mostly) useless
 		else {
 			if ( pWeap->dmgCluster > 1. )
@@ -4365,8 +4375,9 @@ void AICore::updateWeapScore( weEntry_t* pWeap ) {
 	} // End of unbury score.
 
 	// If not buried, riot weapons are useless:
-	else if ( ( ( RIOT_CHARGE <= wType ) && ( RIOT_BLAST >= wType ) ) || ( ( RIOT_BOMB <= wType ) && ( HVY_RIOT_BOMB >= wType ) ) )
+	else if ( ( ( RIOT_CHARGE <= wType ) && ( RIOT_BLAST >= wType ) ) || ( ( RIOT_BOMB <= wType ) && ( HVY_RIOT_BOMB >= wType ) ) ) {
 		unbury_score = -50000.;
+	}
 
 
 	/* -------------------------------------------------------------
@@ -4487,7 +4498,7 @@ void AICore::updateWeapScore( weEntry_t* pWeap ) {
 				// Do not overdo positive scores
 				if ( score >= 0 )
 					// Note: That is [1.1;4.8]
-					score /= ai_over_mod * static_cast< double >( ( ai_level + 1 ) / 2 );
+					score /= ai_over_mod * static_cast< double >( ( ai_level + 1 ) / 2. );
 
 				splash_score += score;
 
@@ -4690,44 +4701,30 @@ void AICore::updateWeapScore( weEntry_t* pWeap ) {
  * @return true if the selection succeeded, false otherwise.
  **/
 bool AICore::useFreeingTool( bool free_tank, bool is_last ) {
-	// If the current weapon is already used to blast out
-	// an opponent, no other tool is needed.
-	if ( !free_tank && weap_curr && weap_curr->blastOut ) return true;
-
-	if ( ( free_tank && ( useWeapon( RIOT_BLAST ) || useWeapon( RIOT_CHARGE ) ) ) || useWeapon( HVY_RIOT_BOMB )
-	     || useWeapon( RIOT_BOMB )
+	if ( /* If the current weapon is already used to blast out an opponent, no other tool is needed. */
+	     ( !free_tank && weap_curr && weap_curr->blastOut )
+	     /* Standard freeing tools in buried situation */
+	     || ( free_tank && ( useWeapon( RIOT_BLAST )
+	            || useWeapon( RIOT_CHARGE )
+	            || ( !mem_curr->is_buried && useItem( ITEM_SWAPPER ) )
+	            /* Note: No mass teleport here! */
+	            || useItem( ITEM_TELEPORT ) ) )
+	     || useWeapon( HVY_RIOT_BOMB ) || useWeapon( RIOT_BOMB )
+	     /* non-freeing tools that can be used to blast free an opponent. */
 	     || ( !free_tank && ( useWeapon( CHAIN_GUN ) || useWeapon( DRILLER ) || useWeapon( CHAIN_MISSILE ) ) )
-	     || ( free_tank
-	          && ( useItem( ITEM_TELEPORT ) // Note: No mass teleport here!
-	               || ( !mem_curr->is_buried && useItem( ITEM_SWAPPER ) ) ) ) ) {
+	     /* If the "normal" selection is not possible (out of stock) but this is the last
+	      * try, the bot has to revert to standard missiles. Expensive, but should work. */
+	     ||  ( is_last && ( ( !free_tank && ( useWeapon(SML_NUKE) || useWeapon(LRG_MIS) || useWeapon(MED_MIS) ) )
+	         || useItem(ITEM_TELEPORT)
+	         || ( useItem(ITEM_SWAPPER) && !mem_curr->is_buried )
+	         || useItem(ITEM_MASS_TELEPORT) // As a last resort this is okay.
+		 || useWeapon(SML_MIS) ) )
+	     ) {
 
 		DEBUG_LOG_AIM(
 			player->getName(),
-			"Selected %s to %s",
-			weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName(),
-			free_tank ? "free my tank" : "clear firing path"
-		)
-
-		return true;
-	}
-
-	// If the "normal" selection is not possible (out of stock)
-	// but this is the last try, the bot has to revert to standard
-	// missiles. Expensive, but should work.
-	else if ( is_last
-	  && ( ( !free_tank
-		  && ( useWeapon(SML_NUKE)
-			|| useWeapon(LRG_MIS)
-			|| useWeapon(MED_MIS) ) )
-	    || useItem(ITEM_TELEPORT)
-	    || ( useItem(ITEM_SWAPPER)
-	      && !mem_curr->is_buried )
-	    || useItem(ITEM_MASS_TELEPORT) // As a last resort this is okay.
-		|| useWeapon(SML_MIS) ) ) {
-
-		DEBUG_LOG_AIM(
-			player->getName(),
-			"(LAST) Selected %s to %s",
+			"%sSelected %s to %s",
+			is_last ? "(LAST) " : "",
 			weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName(),
 			free_tank ? "free my tank" : "clear firing path"
 		)
@@ -4827,7 +4824,7 @@ bool AICore::moveTank() {
 	if ( mem_curr->distance < min_dist ) {
 		// The first case: we are too near and want to move away
 		want_dir  = mem_curr->opX > x ? DIR_LEFT : DIR_RIGHT;
-		want_dist = want_dir * ( min_dist - mem_curr->distance + RAND_AI_1P );
+		want_dist = ROUND( want_dir * ( min_dist - mem_curr->distance + RAND_AI_1P ) );
 	} else if ( ( curr_angle <= 195 ) && ( curr_angle >= 165 ) ) {
 		// The second case, the angle is steep
 		want_dir  = mem_curr->opX > x ? DIR_LEFT : DIR_RIGHT;
@@ -4948,8 +4945,8 @@ void AICore::operator() () {
 							// Now create the instance
 							new FLOATTEXT(
 								text,
-								x,
-								y - 30,
+								ROUND( x ),
+								ROUND( y ) - 30,
 								.0,
 								-.4,
 								player->color,
@@ -5265,8 +5262,8 @@ void AICore::operator() () {
 		// --- 4 a) the target is not the revengee and           ---
 		// --- 4 b) the damage is at least 20% per AI level      ---
 		// ---------------------------------------------------------
-		int32_t min_rev_dmg = best_setup_mem ? best_setup_mem->opLife * ( ai_level - RAND_AI_0P ) / 10 : 0;
-		int32_t min_oth_dmg = best_setup_mem ? best_setup_mem->opLife * ( ai_level - RAND_AI_0P ) / 5 : 0;
+		int32_t min_rev_dmg = best_setup_mem ? ROUND( best_setup_mem->opLife * ( ai_level - RAND_AI_0P ) / 10. ) : 0;
+		int32_t min_oth_dmg = best_setup_mem ? ROUND( best_setup_mem->opLife * ( ai_level - RAND_AI_0P ) / 5. ) : 0;
 		if ( !isStopped && !global.skippingComputerPlay                       // allowed to issue texts
 		     && weap_curr && needAim && !needSuccess                          // (1) targeting was successful
 		     && best_setup_prime                                              // (2) primary target gets damage
@@ -5281,7 +5278,18 @@ void AICore::operator() () {
 					while ( !textAllowed.load( ATOMIC_READ ) ) std::this_thread::yield();
 
 					// Now create the instance
-					new FLOATTEXT( text, x, y - 30, .0, -.4, player->color, CENTRE, TS_NO_SWAY, 150, false );
+					new FLOATTEXT(
+						text,
+						ROUND( x ),
+						ROUND( y - 30. ),
+						.0,
+						-.4,
+						player->color,
+						CENTRE,
+						TS_NO_SWAY,
+						150,
+						false
+					);
 				}
 			} catch ( std::exception& e ) {
 				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
@@ -5301,8 +5309,8 @@ void AICore::operator() () {
 				// Now create it
 				new FLOATTEXT(
 					player->selectKamikazePhrase(),
-					x,
-					y - 30,
+					ROUND( x ),
+					ROUND( y ) - 30,
 					.0,
 					-.4,
 					player->color,
@@ -5331,12 +5339,12 @@ void AICore::operator() () {
 
 			// Angles always go 'up', but never over the top
 			if ( angle > ( 180. + ang_err ) )
-				curr_angle = angle - ang_err;
+				curr_angle = ROUND( angle - ang_err );
 			else if ( angle < ( 180. - ang_err ) )
-				curr_angle = angle + ang_err;
+				curr_angle = ROUND( angle + ang_err );
 
 			// Power error is always a raise
-			curr_power = power + pow_err;
+			curr_power = ROUND( power + pow_err );
 
 			sanitizeCurr();
 

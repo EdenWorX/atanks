@@ -1079,7 +1079,7 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 #  if defined( ATANKS_IS_BSD )
 			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() )
 #  else
-			SAFE_WRITE( server_socket, "SURFACE %d %ld", x, global.surface[ x ].load() )
+			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() )
 #  endif // BSD
 	} else if ( !strncmp( net_command, "SCREEN", 6 ) ) {
 		char buffer[ 64 ];

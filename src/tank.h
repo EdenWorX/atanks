@@ -74,7 +74,7 @@ public:
 	void      repair();
 	bool      repulse( double xpos, double ypos, double* xa, double* ya, ePhysType phys_type );
 	void      resetFlashDamage();
-	bool      shootClearance( int32_t targetAngle, int32_t minimumClearance, bool& crashed );
+	bool      shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );
 	void      simActivateCurrentSelection();
 
 	eClasses  getClass() { return CLASS_TANK; }

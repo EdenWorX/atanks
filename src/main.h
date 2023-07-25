@@ -80,6 +80,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -159,8 +160,8 @@ using std::string;
 // The nex few are some math helpers that shorten things dramatically.
 #define SIGN( x_arg )   ( ( x_arg ) < 0 ? -1 : 1 )
 #define SIGNd( x_arg )  ( ( x_arg ) < 0. ? -1. : 1. )
-#define ROUND( x_arg )  static_cast< int32_t >( ( x_arg ) + ( SIGNd( x_arg ) * .5 ) )
-#define ROUNDu( x_arg ) static_cast< uint32_t >( ( x_arg ) + .5 )
+#define ROUND( x_arg )  static_cast< int32_t >( std::lround( x_arg ) )
+#define ROUNDu( x_arg ) static_cast< uint32_t >( std::lround( x_arg ) )
 
 #define FABSDISTANCE2( x1, y1, x2, y2 )                                                     \
 	std::sqrt(                                                                          \
