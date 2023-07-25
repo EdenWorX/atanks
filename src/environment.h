@@ -146,7 +146,7 @@ public:
 	string       configDir;
 	int32_t      current_wallType  = 0;
 	int32_t      custom_background = 0;
-	char         dataDir[ PATH_MAX + 1 ];
+	string       dataDir;
 	int32_t      debris_level       = 1;
 	bool         detailedLandscape  = false;
 	bool         detailedSky        = false;

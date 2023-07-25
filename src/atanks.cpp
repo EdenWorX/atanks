@@ -138,7 +138,7 @@ static void close_button_handler ( void ) {
 
 /// @brief Show the credits file in a text box
 static void credits() {
-	string    credits_file{ string ( env.dataDir ) + ( "/credits.txt" ) };
+	string    credits_file{ env.dataDir + string ( "/credits.txt" ) };
 
 	TEXTBLOCK my_text ( credits_file.c_str() );
 	scrollTextList ( &my_text );
@@ -1026,7 +1026,7 @@ static int32_t parse_args ( int32_t argc, char** argv ) {
 				std::string next_arg ( argv[ ++c ] );
 
 				if ( next_arg.length() <= PATH_MAX )
-					strncpy ( env.dataDir, next_arg.c_str(), PATH_MAX );
+					env.dataDir = next_arg;
 				else {
 					cerr << "ERROR: Datadir path too long:\n"
 					     << "\"" << next_arg << "\"\n\n"
@@ -1318,7 +1318,7 @@ int32_t main ( int32_t argc, char** argv ) {
 	// Load game files
 	if ( !env.loadGameFiles() ) return EXIT_FAILURE; // message already out
 
-							 // new networking area
+		// new networking area
 #ifdef NETWORK
 	SEND_RECEIVE_TYPE* send_receive   = nullptr;
 	std::thread*       network_thread = nullptr;

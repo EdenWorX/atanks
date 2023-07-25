@@ -810,10 +810,10 @@ eControl PLAYER::controlTank ( AICore* aicore, bool allow_fire ) {
 
 
 	if ( key[ KEY_F1 ] ) {
-		static char shot_file[20] = { 0x0 };
-		int32_t nr = 0;
+		static char shot_file[ 26 ] = { 0x0 };
+		int32_t     nr              = 0;
 		do {
-			snprintf ( shot_file, 20, "screenshot_%04d.bmp", ++nr );
+			snprintf ( shot_file, 26, "screenshot_%04d.bmp", ++nr );
 		} while ( !access ( shot_file, F_OK ) );
 
 		if ( nr < 1000 ) {

@@ -36,7 +36,6 @@ ENVIRONMENT::ENVIRONMENT() {
 	// Unfortunately Visual C++ can not initialize arrays using an initialization list
 	// although it is part of C++11. Gcc and clang do it fine btw...
 	memset ( availableItems, 0, sizeof ( int32_t ) * THINGS );
-	memset ( dataDir, 0, sizeof ( char ) * ( PATH_MAX + 1 ) );
 	memset ( game_name, 0, sizeof ( char ) * GAMENAMELEN );
 	memset ( playerOrder, 0, sizeof ( PLAYER* ) * MAXPLAYERS );
 	memset ( server_name, 0, sizeof ( char ) * 129 );
@@ -361,34 +360,32 @@ void ENVIRONMENT::find_config_dir() {
 bool ENVIRONMENT::find_data_dir() {
 
 	// If the datadir set by command line options, try that first
-	if ( dataDir[ 0 ] ) {
-		if ( !access ( dataDir, R_OK ) )
+	if ( !dataDir.empty() ) {
+		if ( !access ( dataDir.c_str(), R_OK ) )
 			return true;
 		else {
 			cerr << "ERROR: The given datadir \"" << dataDir << "\""
 			     << " is invalid!" << endl;
-			memset ( dataDir, 0, sizeof ( char ) * ( PATH_MAX + 1 ) );
+			dataDir.clear();
 		}
 	}
 
 	// Try the set directory from the build
 	if ( !access ( DATA_DIR "/unicode.dat", R_OK ) )
-		strncpy ( dataDir, DATA_DIR, PATH_MAX );
+		dataDir.assign ( DATA_DIR );
 	else {
 		// This was not successful, try the current directory if not tried, yet.
 
 		if ( ( 0 == strncmp ( DATA_DIR, ".", 1 ) ) && ( 0 == strncmp ( DATA_DIR, "./", 2 ) ) ) {
 			// Try again and reset if unsuccessful
 			if ( !access ( "./unicode.dat", R_OK ) ) {
-				strncpy ( dataDir, ".", PATH_MAX );
+				dataDir.assign ( "." );
 			}
 		}
 	}
 
 	// If dataDir is set, now, this was a success.
-	if ( strlen ( dataDir ) ) return true;
-
-	return false;
+	return !dataDir.empty();
 }
 
 /// @brief Must be called before GLOBALDATA::first_init() is called!
@@ -951,7 +948,7 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 
 	// see if we have the music folder open
 	if ( !music_dir ) {
-		music_dir = opendir ( string(configDir + "/music").c_str() );
+		music_dir = opendir ( string ( configDir + "/music" ).c_str() );
 		if ( !music_dir ) {
 			return false;
 		}
@@ -961,12 +958,12 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 	// at this point we should have an open music folder
 	// the music folder is closed by global's deconstructor
 	// search for files ending in .wav
-	string music_path { configDir + "/music/" };
+	string music_path{ configDir + "/music/" };
 	folder_entry = readdir ( music_dir );
 	while ( folder_entry && !newStream ) {
 		// we have something, see if it is a wav file
 		if ( strstr ( folder_entry->d_name, ".wav" ) ) {
-			newStream = load_sample ( string(music_path + folder_entry->d_name).c_str() );
+			newStream = load_sample ( string ( music_path + folder_entry->d_name ).c_str() );
 		}
 		if ( !newStream ) folder_entry = readdir ( music_dir );
 	}
@@ -1009,13 +1006,13 @@ bool ENVIRONMENT::loadBackgroundMusic() {
  * false if an error occurs.
  */
 bool ENVIRONMENT::loadBitmaps() {
-	int32_t  file_group      = 0;
-	BITMAP*  newbitmap       = nullptr;
-	BITMAP** bitmap_array    = nullptr;
+	int32_t  file_group   = 0;
+	BITMAP*  newbitmap    = nullptr;
+	BITMAP** bitmap_array = nullptr;
 
 	while ( file_group < 7 ) {
 		// set the folder we're looking at
-		string folder{dataDir};
+		string folder{ dataDir };
 		switch ( file_group ) {
 			case 0:
 				folder += "/title/";
@@ -1051,7 +1048,7 @@ bool ENVIRONMENT::loadBitmaps() {
 
 		// search for files
 		int32_t file_count = 0;
-		string bitmap_path{folder + std::to_string(file_count) + ".bmp"};
+		string  bitmap_path{ folder + std::to_string ( file_count ) + ".bmp" };
 		while ( !access ( bitmap_path.c_str(), F_OK | R_OK ) && bitmap_array ) {
 			newbitmap = load_bitmap ( bitmap_path.c_str(), nullptr );
 			if ( !newbitmap ) {
@@ -1117,11 +1114,11 @@ bool ENVIRONMENT::loadBitmaps() {
 
 			// make sure array is large enough
 			if ( file_count >= array_size ) {
-				array_size   += 10;
-				auto new_array = (BITMAP**)realloc ( bitmap_array, sizeof ( BITMAP* ) * ( array_size + 1 ) );
+				array_size     += 10;
+				auto new_array  = (BITMAP**)realloc ( bitmap_array, sizeof ( BITMAP* ) * ( array_size + 1 ) );
 				if ( !new_array ) {
 					printf ( "Unable to increase array size while loading bitmaps.\n" );
-					free(bitmap_array);
+					free ( bitmap_array );
 					return false;
 				} else {
 					bitmap_array = new_array;
@@ -1130,7 +1127,7 @@ bool ENVIRONMENT::loadBitmaps() {
 			}
 
 			// get next file
-			bitmap_path.assign(folder + std::to_string(file_count) + ".bmp");
+			bitmap_path.assign ( folder + std::to_string ( file_count ) + ".bmp" );
 		}
 
 		// save the new array
@@ -1170,7 +1167,7 @@ bool ENVIRONMENT::loadBitmaps() {
 // success the function returns true. When an
 // error occurs, it returns false.
 bool ENVIRONMENT::loadFonts() {
-	string font_file{string(dataDir) + string("/unicode.dat")};
+	string font_file{ dataDir + string ( "/unicode.dat" ) };
 
 	main_font = load_font ( font_file.c_str(), nullptr, nullptr );
 
@@ -1236,10 +1233,10 @@ bool ENVIRONMENT::loadSounds() {
 	}
 
 	// read from directory
-	string sound_dir{string(dataDir) + string("/sound/")};
+	string sound_dir{ dataDir + string ( "/sound/" ) };
 	for ( int32_t i = 0; i < SND_COUNT; ++i ) {
-		string sound_file{sound_dir};
-		sound_file += (i < 10 ? "0" : "") + std::to_string(i) + string(".wav");
+		string sound_file{ sound_dir };
+		sound_file += ( i < 10 ? "0" : "" ) + std::to_string ( i ) + string ( ".wav" );
 		if ( !access ( sound_file.c_str(), R_OK ) ) {
 			temp_sample = load_sample ( sound_file.c_str() );
 			if ( temp_sample )

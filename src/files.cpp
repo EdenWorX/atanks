@@ -29,9 +29,9 @@ ITEM   item[ ITEMS ];
  * @return true on success and false on failure.
  **/
 bool   Save_Game() {
-        string save_path{ env.configDir + string("/").append(env.game_name).append(".sav")};
+        string save_path{ env.configDir + string ( "/" ).append ( env.game_name ).append ( ".sav" ) };
 
-        FILE* game_file = fopen ( save_path.c_str(), "w" );
+        FILE*  game_file = fopen ( save_path.c_str(), "w" );
         if ( !game_file ) return false;
 
         // write file version information
@@ -84,10 +84,10 @@ bool   Save_Game() {
          * but if an old one is laying around, we should delete our
          * own garbage:
          */
-	save_path.replace(save_path.size() -3, 3, "txt");
+        save_path.replace ( save_path.size() - 3, 3, "txt" );
         if ( !access ( save_path.c_str(), F_OK ) && !access ( save_path.c_str(), W_OK ) ) {
-		unlink ( save_path.c_str() );
-	}
+                unlink ( save_path.c_str() );
+        }
 
         return true;
 }
@@ -118,8 +118,8 @@ bool Load_Game() {
 	env.campaign_rounds                      = -1.;
 
 	// Open game file
-	string save_path{ env.configDir + string("/").append(env.game_name).append(".sav")};
-	FILE* game_file = fopen ( save_path.c_str(), "r" );
+	string save_path{ env.configDir + string ( "/" ).append ( env.game_name ).append ( ".sav" ) };
+	FILE*  game_file = fopen ( save_path.c_str(), "r" );
 	if ( !game_file ) return false;
 
 	// Now read until the file is finished loading
@@ -292,7 +292,7 @@ bool Load_Game() {
 Check to see if a saved game exists with the given name.
 */
 bool Check_For_Saved_Game() {
-	string save_path{ env.configDir + string("/").append(env.game_name).append(".sav")};
+	string save_path{ env.configDir + string ( "/" ).append ( env.game_name ).append ( ".sav" ) };
 
 	if ( !access ( save_path.c_str(), R_OK ) ) return true;
 
@@ -308,13 +308,13 @@ bool Check_For_Saved_Game() {
  * @return true on success, false otherwise
  */
 bool Copy_Config_File() {
-	static char xHere[ 2 ]                  = ".";
-	FILE*       source_file                 = nullptr;
-	FILE*       dest_file                   = nullptr;
-	char        buffer[ PATH_MAX + 1 ]      = { 0 };
+	static char xHere[ 2 ]             = ".";
+	FILE*       source_file            = nullptr;
+	FILE*       dest_file              = nullptr;
+	char        buffer[ PATH_MAX + 1 ] = { 0 };
 
 	// check to see if the config file has already been copied
-	string      dest_path{ env.configDir + string("/atanks-config.txt") };
+	string      dest_path{ env.configDir + string ( "/atanks-config.txt" ) };
 	if ( !access ( dest_path.c_str(), R_OK | W_OK ) ) return true;
 
 	char* my_home_folder = getenv ( HOME_DIR );
@@ -337,7 +337,7 @@ bool Copy_Config_File() {
 	}
 
 	// check to make sure we have a source file
-	string source_path{ string(my_home_folder) + string("/.atanks-config.txt") };
+	string source_path{ string ( my_home_folder ) + string ( "/.atanks-config.txt" ) };
 	source_file = fopen ( source_path.c_str(), "r" );
 	if ( !source_file ) return true;
 
@@ -365,8 +365,8 @@ bool Copy_Config_File() {
  * @return true on success or false if an error occures.
  **/
 bool Create_Music_Folder() {
-	string music_dir{env.configDir + string("/music")};
-	DIR* music_folder = opendir ( music_dir.c_str() );
+	string music_dir{ env.configDir + string ( "/music" ) };
+	DIR*   music_folder = opendir ( music_dir.c_str() );
 
 	if ( !music_folder ) {
 #ifdef ATANKS_IS_WINDOWS
@@ -467,7 +467,7 @@ void flush_inputs() {
 bool Load_Weapons_Text() {
 	// Be sure that numbers are understood right:
 	const char* cur_lc_numeric = setlocale ( LC_NUMERIC, "C" );
-	string weap_file{env.dataDir};
+	string      weap_file{ env.dataDir };
 
 	// get path name
 	if ( env.language == EL_ENGLISH )
@@ -510,7 +510,7 @@ bool Load_Weapons_Text() {
 		if ( strchr ( line, '\r' ) ) strchr ( line, '\r' )[ 0 ] = '\0';
 
 		// skip # and empty lines
-		if ( (line[ 0 ] != '#') && ( strlen ( line ) > 2 ) ) {
+		if ( ( line[ 0 ] != '#' ) && ( strlen ( line ) > 2 ) ) {
 
 			// check for header
 			if ( !strcasecmp ( line, "*WEAPONS*" ) ) {
