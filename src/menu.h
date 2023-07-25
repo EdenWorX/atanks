@@ -51,7 +51,7 @@ public:
 	 * -------------------------------------------
 	 */
 
-	explicit Menu ( eMenuClass class_, int32_t menuX, int32_t menuY );
+	explicit Menu( eMenuClass class_, int32_t menuX, int32_t menuY );
 	~Menu();
 
 
@@ -61,7 +61,7 @@ public:
 	 */
 
 	// Add a button without action function.
-	int32_t addButton (
+	int32_t addButton(
 		int32_t     title_idx,
 		const char* title_,
 		int32_t     key_code,
@@ -78,22 +78,56 @@ public:
 
 
 	// Add a color option
-	int32_t addColor ( int32_t* target, int32_t title_idx, int32_t left, int32_t top, int32_t width, int32_t height, int32_t show_size, int32_t padding );
+	int32_t addColor(
+		int32_t* target,
+		int32_t  title_idx,
+		int32_t  left,
+		int32_t  top,
+		int32_t  width,
+		int32_t  height,
+		int32_t  show_size,
+		int32_t  padding
+	);
 
 
 	// Add a sub menu option with Menu target
-	int32_t addMenu ( Menu* menu, int32_t title_idx, int32_t color, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
+	int32_t addMenu(
+		Menu*   menu,
+		int32_t title_idx,
+		int32_t color,
+		int32_t left,
+		int32_t top,
+		int32_t width,
+		int32_t height,
+		int32_t padding
+	);
 
 
 	// Add a sub menu option with PLAYER target (set title_idx to -1 to use player name)
-	int32_t addMenu (
-		PLAYER** player, int32_t ( *action_ ) ( PLAYER** player_, int32_t ), int32_t title_idx, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding
+	int32_t addMenu(
+		PLAYER** player,
+		int32_t ( *action_ )( PLAYER** player_, int32_t ),
+		int32_t title_idx,
+		int32_t left,
+		int32_t top,
+		int32_t width,
+		int32_t height,
+		int32_t padding
 	);
 
 
 	// Special minimum variant for editable text options
-	int32_t addText (
-		char* target, int32_t title_idx, uint32_t max_len, int32_t color, const char* format, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding
+	int32_t addText(
+		char*       target,
+		int32_t     title_idx,
+		uint32_t    max_len,
+		int32_t     color,
+		const char* format,
+		int32_t     left,
+		int32_t     top,
+		int32_t     width,
+		int32_t     height,
+		int32_t     padding
 	);
 
 	/** @brief This adds a text option with readonly text
@@ -115,18 +149,37 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 **/
 	template< typename tgt_T >
-	int32_t addText (
-		tgt_T* target, int32_t title_idx, int32_t color, const char* format, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding
+	int32_t addText(
+		tgt_T*      target,
+		int32_t     title_idx,
+		int32_t     color,
+		const char* format,
+		int32_t     left,
+		int32_t     top,
+		int32_t     width,
+		int32_t     height,
+		int32_t     padding
 	) {
 		OptionItemBase* curr        = nullptr;
-		bool            title_valid = is_title_idx_valid ( title_idx );
+		bool            title_valid = is_title_idx_valid( title_idx );
 
-		assert ( title_valid && "ERROR: The given title index is invalid" );
+		assert( title_valid && "ERROR: The given title index is invalid" );
 
 		if ( target && title_valid ) {
 			try {
-				curr = new OptionItem< tgt_T, int32_t > (
-					target, 0, color, ET_TEXT, "", title_idx, format, menu_y + top, menu_x + left, width, height, padding
+				curr = new OptionItem< tgt_T, int32_t >(
+					target,
+					0,
+					color,
+					ET_TEXT,
+					"",
+					title_idx,
+					format,
+					menu_y + top,
+					menu_x + left,
+					width,
+					height,
+					padding
 				);
 			} catch ( std::bad_alloc& e ) {
 				cerr << __FUNCTION__ << " : failed to allocate new TEXT OptionItem\n";
@@ -134,19 +187,37 @@ public:
 			}
 		}
 
-		return this->insert_option ( curr, title_idx, nullptr );
+		return this->insert_option( curr, title_idx, nullptr );
 	}
 
 	// Special minimum variant for toggle types feeding a bool with variable title
-	int32_t addToggle ( bool* target, int32_t title_idx, int32_t color, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
+	int32_t addToggle(
+		bool*   target,
+		int32_t title_idx,
+		int32_t color,
+		int32_t left,
+		int32_t top,
+		int32_t width,
+		int32_t height,
+		int32_t padding
+	);
 
 
 	// Special minimum variant for toggle types feeding a bool with fixed title
-	int32_t addToggle ( bool* target, const char* title_, int32_t color, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
+	int32_t addToggle(
+		bool*       target,
+		const char* title_,
+		int32_t     color,
+		int32_t     left,
+		int32_t     top,
+		int32_t     width,
+		int32_t     height,
+		int32_t     padding
+	);
 
 
 	// Special minimum variant for toggle types handling PLAYER::selected
-	int32_t addToggle ( PLAYER** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
+	int32_t addToggle( PLAYER** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
 
 	/** @brief Simple ET_VALUE option with direct value representation
 	 *
@@ -170,7 +241,7 @@ public:
 	 * @param[in] padding Distance between title, display and wheel buttons.
 	 **/
 	template< typename tgt_T, typename opt_T = int32_t >
-	int32_t addValue (
+	int32_t addValue(
 		tgt_T*      target,
 		int32_t     title_idx,
 		int32_t     color,
@@ -188,8 +259,23 @@ public:
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T > (
-					target, "", title_idx, nullptr, color, TC_NONE, minimum, maximum, increment, format, menu_y + top, menu_x + left, width, height, padding, nullptr
+				curr = new OptionItem< tgt_T, opt_T >(
+					target,
+					"",
+					title_idx,
+					nullptr,
+					color,
+					TC_NONE,
+					minimum,
+					maximum,
+					increment,
+					format,
+					menu_y + top,
+					menu_x + left,
+					width,
+					height,
+					padding,
+					nullptr
 				);
 			} catch ( std::bad_alloc& e ) {
 				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
@@ -197,7 +283,7 @@ public:
 			}
 		}
 
-		return this->insert_option ( curr, title_idx, nullptr );
+		return this->insert_option( curr, title_idx, nullptr );
 	}
 
 	/** @brief Simple option with text array representation
@@ -221,7 +307,7 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 **/
 	template< typename tgt_T, typename opt_T = int32_t >
-	int32_t addValue (
+	int32_t addValue(
 		tgt_T*       target,
 		int32_t      title_idx,
 		const char** texts,
@@ -238,17 +324,32 @@ public:
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T > (
-					target, "", title_idx, nullptr, color, TC_NONE, 0, maximum, 1, nullptr, menu_y + top, menu_x + left, width, height, padding, nullptr
+				curr = new OptionItem< tgt_T, opt_T >(
+					target,
+					"",
+					title_idx,
+					nullptr,
+					color,
+					TC_NONE,
+					0,
+					maximum,
+					1,
+					nullptr,
+					menu_y + top,
+					menu_x + left,
+					width,
+					height,
+					padding,
+					nullptr
 				);
-				this->setTexts ( curr, texts, text_class );
+				this->setTexts( curr, texts, text_class );
 			} catch ( std::bad_alloc& e ) {
 				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
 				cerr << " [" << e.what() << "]" << endl;
 			}
 		}
 
-		return this->insert_option ( curr, title_idx, nullptr );
+		return this->insert_option( curr, title_idx, nullptr );
 	}
 
 	/** @brief Value option with text array representation and display function
@@ -273,7 +374,7 @@ public:
 	 * @param[in] display_ optional display function to use.
 	 **/
 	template< typename tgt_T, typename opt_T = int32_t >
-	int32_t addValue (
+	int32_t addValue(
 		tgt_T*       target,
 		int32_t      title_idx,
 		const char** texts,
@@ -285,23 +386,38 @@ public:
 		int32_t      width,
 		int32_t      height,
 		int32_t      padding,
-		bool ( *display_ ) ( tgt_T* target, int32_t x, int32_t y )
+		bool ( *display_ )( tgt_T* target, int32_t x, int32_t y )
 	) {
 		OptionItemBase* curr = nullptr;
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T > (
-					target, "", title_idx, nullptr, color, TC_NONE, 0, maximum, 1, nullptr, menu_y + top, menu_x + left, width, height, padding, display_
+				curr = new OptionItem< tgt_T, opt_T >(
+					target,
+					"",
+					title_idx,
+					nullptr,
+					color,
+					TC_NONE,
+					0,
+					maximum,
+					1,
+					nullptr,
+					menu_y + top,
+					menu_x + left,
+					width,
+					height,
+					padding,
+					display_
 				);
-				this->setTexts ( curr, texts, text_class );
+				this->setTexts( curr, texts, text_class );
 			} catch ( std::bad_alloc& e ) {
 				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
 				cerr << " [" << e.what() << "]" << endl;
 			}
 		}
 
-		return this->insert_option ( curr, title_idx, nullptr );
+		return this->insert_option( curr, title_idx, nullptr );
 	}
 
 	/** @brief Value option with text array representation and action function
@@ -326,9 +442,9 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 **/
 	template< typename tgt_T, typename opt_T = int32_t >
-	int32_t addValue (
+	int32_t addValue(
 		tgt_T* target,
-		int32_t ( *action_ ) ( tgt_T* target, int32_t val ),
+		int32_t ( *action_ )( tgt_T* target, int32_t val ),
 		int32_t      title_idx,
 		const char** texts,
 		int32_t      color,
@@ -344,7 +460,7 @@ public:
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T > (
+				curr = new OptionItem< tgt_T, opt_T >(
 					target,
 					action_,
 					ET_VALUE,
@@ -364,28 +480,28 @@ public:
 					padding,
 					nullptr
 				);
-				this->setTexts ( curr, texts, text_class );
+				this->setTexts( curr, texts, text_class );
 			} catch ( std::bad_alloc& e ) {
 				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
 				cerr << " [" << e.what() << "]" << endl;
 			}
 		}
 
-		return this->insert_option ( curr, title_idx, nullptr );
+		return this->insert_option( curr, title_idx, nullptr );
 	}
 
-	void            clearAll ( bool full_clear );
-	int32_t         count();
-	int32_t         delete_entry ( int32_t index );
-	void            displayAll ( bool full_display );
-	void            distribute ( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update );
+	void    clearAll( bool full_clear );
+	int32_t count();
+	int32_t delete_entry( int32_t index );
+	void    displayAll( bool full_display );
+	void distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update );
 	OptionItemBase* getSelected();
 	const char*     getTitle() const;
-	void            move_entry ( int32_t from_idx, int32_t to_idx );
-	void            redraw ( int32_t index, bool update_full );
-	void            redrawAll ( bool full_redraw );
-	void            setLanguage ( bool autorefresh );
-	void            setTitle ( const char* new_title, bool autorefresh );
+	void            move_entry( int32_t from_idx, int32_t to_idx );
+	void            redraw( int32_t index, bool update_full );
+	void            redrawAll( bool full_redraw );
+	void            setLanguage( bool autorefresh );
+	void            setTitle( const char* new_title, bool autorefresh );
 
 
 	/* ------------------------
@@ -405,13 +521,13 @@ private:
 	 * -----------------------
 	 */
 
-	int32_t          insert_option ( OptionItemBase* new_opt );
-	int32_t          insert_option ( OptionItemBase* new_opt, int32_t title_idx, const char* title_ );
-	bool             is_title_idx_valid ( int32_t title_idx );
-	int32_t          selectClicked ( int32_t x, int32_t y );
+	int32_t          insert_option( OptionItemBase* new_opt );
+	int32_t          insert_option( OptionItemBase* new_opt, int32_t title_idx, const char* title_ );
+	bool             is_title_idx_valid( int32_t title_idx );
+	int32_t          selectClicked( int32_t x, int32_t y );
 	void             selectNext();
 	void             selectPrev();
-	void             setTexts ( OptionItemBase* item, const char** texts, eTextClass text_class );
+	void             setTexts( OptionItemBase* item, const char** texts, eTextClass text_class );
 	void             unselect();
 
 	/* -----------------------
@@ -442,7 +558,7 @@ private:
 // --- Helper functions for action/display usage that need optioncontent.h ---
 
 /// @brief display function to display the chosen tank at a specific location
-bool display_tank_desc ( int32_t* tanknum, int32_t x, int32_t y );
+bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y );
 
 
 #endif // ATANKS_SRC_MENU_H_INCLUDED

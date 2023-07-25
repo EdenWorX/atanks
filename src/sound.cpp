@@ -4,7 +4,7 @@
 int32_t     MAX_VOLUME_FACTOR = 5;
 
 // General helper that unifies the playing
-static void play_sound ( eSounds sound, int32_t x, int32_t vol, int32_t freq );
+static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq );
 
 /** @brief play a weapon or item fire sample according to @a type, panned using @a x.
  *
@@ -15,7 +15,7 @@ static void play_sound ( eSounds sound, int32_t x, int32_t vol, int32_t freq );
  * @param[in] vol The volume (0 - 255)
  * @param[in] freq Frequency, 1000 is normal, 500 is half, 2000 is double and so on.
  **/
-void        play_fire_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
+void        play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
         int32_t sndNum = -1;
 
         if ( type >= WEAPONS ) {
@@ -24,7 +24,7 @@ void        play_fire_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq
                 if ( weapon[ type ].sound > -1 ) sndNum = weapon[ type ].sound;
         }
 
-        if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound ( static_cast< eSounds > ( sndNum ), x, vol, freq );
+        if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
 }
 
 /** @brief play a weapon or item explosion sample according to @a type, panned using @a x.
@@ -37,7 +37,7 @@ void        play_fire_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq
  * @param[in] vol The volume (0 - 255)
  * @param[in] freq Frequency, 1000 is normal, 500 is half, 2000 is double and so on.
  **/
-void play_explosion_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
+void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 	int32_t sndNum = -1;
 
 	if ( SHAPED_CHARGE == type )
@@ -67,13 +67,13 @@ void play_explosion_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq )
 			sndNum = weapon[ type ].sound + SND_EXPL_MISS_SML;
 	}
 
-	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound ( static_cast< eSounds > ( sndNum ), x, vol, freq );
+	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
 }
 
 /** @brief plays the currently set background music modified by set volume factor
  **/
 void play_music() {
-	if ( env.loadBackgroundMusic() ) play_sound ( SND_BG_MUSIC, 128, 255, 1000 );
+	if ( env.loadBackgroundMusic() ) play_sound( SND_BG_MUSIC, 128, 255, 1000 );
 }
 
 /** @brief play a natural sample according to @a type, panned using @a x.
@@ -84,7 +84,7 @@ void play_music() {
  * @param[in] freq Frequency, 1000 is normal, 500 is half, 2000 is double and so on.
  **/
 
-void play_natural_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
+void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 	int32_t sndNum = -1;
 
 	if ( SML_METEOR == type ) {
@@ -117,8 +117,9 @@ void play_natural_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 		// freq is manipulated by the call
 	}
 
-	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) && ( ( SND_NATU_DIRT_FALL != sndNum ) || ( global.used_voices < ( env.voices - 8 ) ) ) )
-		play_sound ( static_cast< eSounds > ( sndNum ), x, vol, freq );
+	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT )
+	     && ( ( SND_NATU_DIRT_FALL != sndNum ) || ( global.used_voices < ( env.voices - 8 ) ) ) )
+		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
 }
 
 /** @brief play an interface sample according to @a sound.
@@ -126,19 +127,27 @@ void play_natural_sound ( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
  * @param[in] sound The sound to play.
  **/
 
-void play_interface_sound ( eSounds sound ) {
-	if ( SND_INTE_BUTTON_CLICK == sound ) play_sound ( sound, env.halfWidth, 128, 1000 );
+void play_interface_sound( eSounds sound ) {
+	if ( SND_INTE_BUTTON_CLICK == sound ) play_sound( sound, env.halfWidth, 128, 1000 );
 }
 
 // Global helpers implementation
-static void play_sound ( eSounds sound, int32_t x, int32_t vol, int32_t freq ) {
+static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq ) {
 	if ( global.used_voices < env.voices ) {
 		int32_t xVol = ( vol * env.volume_factor ) / MAX_VOLUME_FACTOR;
 
 		if ( ( sound < SND_BG_MUSIC ) && env.sounds[ sound ] && ( vol > 0 ) && ( freq > 0 ) ) {
-			play_sample ( env.sounds[ sound ], xVol, x <= 0 ? 31 : x >= env.screenWidth ? 192 : 31 + ( x * 191 / env.screenWidth ), freq, false );
+			play_sample(
+				env.sounds[ sound ],
+				xVol,
+				x <= 0                 ? 31
+				: x >= env.screenWidth ? 192
+						       : 31 + ( x * 191 / env.screenWidth ),
+				freq,
+				false
+			);
 		} else if ( SND_BG_MUSIC == sound )
-			play_sample ( env.background_music, xVol, x, freq, true );
+			play_sample( env.background_music, xVol, x, freq, true );
 
 		++global.used_voices;
 	}

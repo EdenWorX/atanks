@@ -11,13 +11,14 @@ public:
 	 */
 
 	// Minimum ctor without text
-	explicit BUTTON ( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
+	explicit BUTTON( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
 	// ctor for using a bitmap.
-	BUTTON ( const char* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
+	BUTTON( const char* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
+	);
 
 	// ctor for drawing a manual box.
-	BUTTON ( const char* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+	BUTTON( const char* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 
 
 	/* ----------------------
@@ -26,10 +27,10 @@ public:
 	 */
 
 	void draw();
-	void getLocation ( int32_t& x, int32_t& y, int32_t& w, int32_t& h );
+	void getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h );
 	bool isMouseOver();
 	bool isPressed();
-	void setText ( const char* text_ );
+	void setText( const char* text_ );
 
 private:
 	/* -----------------------

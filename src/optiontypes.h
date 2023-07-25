@@ -97,9 +97,9 @@ enum eEntryType { ET_NONE = 0, ET_ACTION, ET_BUTTON, ET_COLOR, ET_MENU, ET_OPTIO
 enum eResetOptions { RO_BACK = 667, RO_RESET = 1337 };
 
 // Some helper functions to get names for enum entries
-std::string getEntryTypeName ( eEntryType etype );
-std::string getMenuClassName ( eMenuClass mclass );
-std::string getTextClassName ( eTextClass tclass );
+std::string getEntryTypeName( eEntryType etype );
+std::string getMenuClassName( eMenuClass mclass );
+std::string getTextClassName( eTextClass tclass );
 
 
 #endif // ATANKS_SRC_OPTIONTYPES_H_INCLUDED

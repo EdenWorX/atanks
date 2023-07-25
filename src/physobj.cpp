@@ -23,7 +23,7 @@
 #include "environment.h"
 #include "globaldata.h"
 
-PHYSICAL_OBJECT::PHYSICAL_OBJECT ( bool is_weapon ) : VIRTUAL_OBJECT(), isWeaponFire ( is_weapon ) { /* nothing to do here */
+PHYSICAL_OBJECT::PHYSICAL_OBJECT( bool is_weapon ) : VIRTUAL_OBJECT(), isWeaponFire( is_weapon ) { /* nothing to do here */
 }
 
 void PHYSICAL_OBJECT::initialise() {
@@ -37,7 +37,7 @@ bool PHYSICAL_OBJECT::isWeapon() {
 }
 
 /// @brief get the current velocity. Only important for AICore to track clusters.
-void PHYSICAL_OBJECT::getVelocity ( double &xv_, double &yv_ ) {
+void PHYSICAL_OBJECT::getVelocity( double &xv_, double &yv_ ) {
 	xv_ = xv;
 	yv_ = yv;
 }
@@ -49,7 +49,7 @@ bool PHYSICAL_OBJECT::checkPixelsBetweenPrevAndNow() {
 	double startX = x - xv;
 	double startY = y - yv;
 
-	if ( checkPixelsBetweenTwoPoints ( &startX, &startY, x, y, mindDelay, &mindPassed ) ) {
+	if ( checkPixelsBetweenTwoPoints( &startX, &startY, x, y, mindDelay, &mindPassed ) ) {
 		x = startX;
 		y = startY;
 		return true;
@@ -75,7 +75,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	// Barrier test:
 	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) yv *= -1.0;
 
-	bool isMoving = ( std::abs ( xv ) + std::abs ( yv ) ) < 0.01 ? false : true;
+	bool isMoving = ( std::abs( xv ) + std::abs( yv ) ) < 0.01 ? false : true;
 
 	if ( !isMoving ) return; // early out
 
@@ -102,8 +102,9 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	// ceiling. They sort of 'glide off' of the ceiling instead of
 	// getting glued to it.
 	bool    jelly =
-                ( NAPALM_JELLY == weapType
-                ) && ( ( WALL_STEEL == env.current_wallType ) || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) )
+                ( NAPALM_JELLY == weapType )
+                                && ( ( WALL_STEEL == env.current_wallType )
+                                     || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) )
 			   ? true
 			   : false;
 
@@ -151,7 +152,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 			// === 2. Does it hit something else before reaching the wall? ===
 			// Note: This is just preparation, check 5 can do this once prepared.
 			// ===============================================================
-			if ( !hitFloor || ( hitWall && ( std::abs ( hitX ) <= std::abs ( hitY ) ) ) ) {
+			if ( !hitFloor || ( hitWall && ( std::abs( hitX ) <= std::abs( hitY ) ) ) ) {
 				// The X-movement hits a wall earlier or at the same time (corner).
 				nextX    = hitLeft ? left : right;
 				deltaY   = yv_cur * hitX;
@@ -165,8 +166,8 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				hitWall = false; // not reached
 				if ( jelly && hitTop ) {
 					nextY += 1.0;
-					yv     = static_cast< double > ( ( rand() % 10 ) + 1 ) / 25.00; // 0.04 - 0.40
-					xv    /= static_cast< double > ( ( rand() % 4 ) + 2 ) / 1.66;   // 1.20 - 3.01
+					yv     = static_cast< double >( ( rand() % 10 ) + 1 ) / 25.00; // 0.04 - 0.40
+					xv    /= static_cast< double >( ( rand() % 4 ) + 2 ) / 1.66;   // 1.20 - 3.01
 				}
 			}
 			xv_cur -= deltaX;
@@ -179,7 +180,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 		//       terminates the movement towards a wall. Only if the path
 		//       really is clear wall handling makes sense.
 		// =================================================================
-		if ( checkPixelsBetweenTwoPoints ( &currX, &currY, nextX, nextY, mindDelay, &mindPassed ) ) {
+		if ( checkPixelsBetweenTwoPoints( &currX, &currY, nextX, nextY, mindDelay, &mindPassed ) ) {
 			xv_cur = currX - nextX;
 			yv_cur = currY - nextY;
 			nextX  = currX;
@@ -187,10 +188,10 @@ void PHYSICAL_OBJECT::applyPhysics() {
 
 			if ( PT_DIRTBOUNCE == physType ) {
 				double rxv, ryv;
-				getDirtBounceReact ( nextX, nextY, xv, yv, rxv, ryv );
+				getDirtBounceReact( nextX, nextY, xv, yv, rxv, ryv );
 
 				// Modify rxv/ryv, this is no full bounce:
-				if ( std::abs ( rxv ) > std::abs ( ryv ) ) {
+				if ( std::abs( rxv ) > std::abs( ryv ) ) {
 					rxv *= 0.66;
 					if ( ryv < 0. ) ryv *= 0.5;
 				} else {
@@ -199,7 +200,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				}
 
 				// See how much of the current movement is left
-				double vel_rest = FABSDISTANCE2 ( xv_cur, yv_cur, 0., 0. ) / FABSDISTANCE2 ( xv, yv, 0., 0. );
+				double vel_rest = FABSDISTANCE2( xv_cur, yv_cur, 0., 0. ) / FABSDISTANCE2( xv, yv, 0., 0. );
 
 				// Now apply what is left:
 				xv_cur          = rxv * vel_rest;
@@ -272,8 +273,9 @@ void PHYSICAL_OBJECT::applyPhysics() {
 								// Some weapons do not warp through the
 								// ceiling if the bottom pixel is occupied
 								// and trigger instead:
-								int32_t bX         = ROUNDu ( nextX );
-								bool    floor_free = global.surface[ bX ].load ( ATOMIC_READ ) >= bottom;
+								int32_t bX = ROUNDu( nextX );
+								bool    floor_free =
+									global.surface[ bX ].load( ATOMIC_READ ) >= bottom;
 								if ( allowDirtyWrap || floor_free )
 									nextY = bottom;
 								else {
@@ -299,14 +301,15 @@ void PHYSICAL_OBJECT::applyPhysics() {
 		// ===    detonate if too fast. (depending on the mass)    ===
 		// ===========================================================
 		if ( !hitSomething ) {
-			double actVel = FABSDISTANCE2 ( xv_cur, yv_cur, 0, 0 ); // a²+b²=c² ... says Pythagoras :)
-			if ( ( actVel > maxVel ) || std::isinf ( xv_cur ) || std::isinf ( yv_cur ) || std::isinf ( xv ) || std::isinf ( yv ) ) {
+			double actVel = FABSDISTANCE2( xv_cur, yv_cur, 0, 0 ); // a²+b²=c² ... says Pythagoras :)
+			if ( ( actVel > maxVel ) || std::isinf( xv_cur ) || std::isinf( yv_cur ) || std::isinf( xv )
+			     || std::isinf( yv ) ) {
 				// apply *some* velocity, as the thing is killed on its way
 				// (unless the current veocity is infinite of course
 				double velMod = 1.0 + ( (double)( rand() % 40 ) / 10.0 );
 				// This produces something between 1.0 and 5.0
-				if ( !std::isinf ( xv_cur ) ) nextX = x + ( xv_cur / velMod );
-				if ( !std::isinf ( yv_cur ) ) nextY = y + ( yv_cur / velMod );
+				if ( !std::isinf( xv_cur ) ) nextX = x + ( xv_cur / velMod );
+				if ( !std::isinf( yv_cur ) ) nextY = y + ( yv_cur / velMod );
 				xv = 0.0;
 				yv = 0.0;
 				if ( nextY < top )
@@ -315,12 +318,12 @@ void PHYSICAL_OBJECT::applyPhysics() {
 					nextY = bottom;
 				if ( nextX < left ) {
 					if ( WALL_WRAP == env.current_wallType )
-						nextX = right - ( static_cast< int32_t > ( std::abs ( nextX ) ) % right );
+						nextX = right - ( static_cast< int32_t >( std::abs( nextX ) ) % right );
 					else
 						nextX = left;
 				} else if ( nextX > right ) {
 					if ( WALL_WRAP == env.current_wallType )
-						nextX = static_cast< int32_t > ( nextX ) % right;
+						nextX = static_cast< int32_t >( nextX ) % right;
 					else
 						nextX = right;
 				}
@@ -336,10 +339,10 @@ void PHYSICAL_OBJECT::applyPhysics() {
 		// === 4. If nothing is hit and if movement is left, check ===
 		// ===    remaining movement and prepare for 1. or exit    ===
 		// ===========================================================
-		if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs ( xv ) + std::abs ( yv ) ) < 0.8 ) )
+		if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) )
 			// If the movement has slowed down too much, take it as a hit
 			hitSomething = true;
-		else if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs ( xv_cur ) + std::abs ( yv_cur ) ) < 0.01 ) )
+		else if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv_cur ) + std::abs( yv_cur ) ) < 0.01 ) )
 			// Just stop, wall bouncing/wrapping didn't leave enough rest
 			isMoving = false;
 
@@ -350,9 +353,9 @@ void PHYSICAL_OBJECT::applyPhysics() {
 }
 
 /* --- global function --- */
-bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed ) {
+bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed ) {
 	// return at once if there can't be any dirt in the box.
-	if ( !global.isDirtInBox ( *startX, *startY, endX, endY ) ) {
+	if ( !global.isDirtInBox( *startX, *startY, endX, endY ) ) {
 		*startX = endX;
 		*startY = endY;
 		return false;
@@ -361,7 +364,7 @@ bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, 
 	bool   result   = false;
 	double xDist    = endX - *startX;
 	double yDist    = endY - *startY;
-	double length   = FABSDISTANCE2 ( xDist, yDist, 0, 0 );
+	double length   = FABSDISTANCE2( xDist, yDist, 0, 0 );
 
 	// Shortcuts:
 	bool   hasDelay = has_delayed && ( can_delay > *has_delayed );
@@ -379,7 +382,7 @@ bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, 
 			*startX = endX;
 			*startY = endY;
 
-			if ( PINK != getpixel ( global.terrain, endX, endY ) ) {
+			if ( PINK != getpixel( global.terrain, endX, endY ) ) {
 				result = true;
 
 				// For mind shot delays the distance is only added
@@ -399,7 +402,7 @@ bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, 
 	// Otherwise the path must be checked
 	double xInc  = xDist / length;
 	double yInc  = yDist / length;
-	double iDist = ABSDISTANCE2 ( 0.0, 0.0, xInc, yInc ); // [i]ncrease[Dist]ance
+	double iDist = ABSDISTANCE2( 0.0, 0.0, xInc, yInc ); // [i]ncrease[Dist]ance
 
 	// sanity check
 	if ( length > ( env.screenWidth + env.screenHeight ) ) length = env.screenWidth + env.screenHeight;
@@ -408,10 +411,10 @@ bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, 
 
 	// As xInc/yInc are known now, left, right, top and bottom can
 	// be corrected if the line would not leave the screen.
-	left   = std::min ( { *startX, left, *startX + ( length * xInc ) } );
-	top    = std::min ( { *startY, top, *startY + ( length * yInc ) } );
-	right  = std::max ( { *startX, right, *startX + ( length * xInc ) } );
-	bottom = std::max ( { *startY, bottom, *startY + ( length * yInc ) } );
+	left   = std::min( { *startX, left, *startX + ( length * xInc ) } );
+	top    = std::min( { *startY, top, *startY + ( length * yInc ) } );
+	right  = std::max( { *startX, right, *startX + ( length * xInc ) } );
+	bottom = std::max( { *startY, bottom, *startY + ( length * yInc ) } );
 
 	// Note: Start with 1 and increase startX/Y first, as
 	//       the starting pixel can be assumed to be clean.
@@ -421,7 +424,7 @@ bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, 
 
 		if ( ( *startX > left ) && ( *startX < right ) && ( *startY > top ) && ( *startY < bottom ) ) {
 
-			if ( PINK != getpixel ( global.terrain, *startX, *startY ) ) {
+			if ( PINK != getpixel( global.terrain, *startX, *startY ) ) {
 				result = true;
 				// Note: startX/startY now point to the hit pixel
 
@@ -451,9 +454,9 @@ bool checkPixelsBetweenTwoPoints ( double *startX, double *startY, double endX, 
  * a plane the vector @a xv / @a yv has an angle to and returns
  * appropriate reaction velocity values in @a rxv and @a ryv.
  **/
-void getDirtBounceReact ( int32_t x, int32_t y, double xv, double yv, double &rxv, double &ryv ) {
+void getDirtBounceReact( int32_t x, int32_t y, double xv, double yv, double &rxv, double &ryv ) {
 	int32_t from_x = xv < 0. ? 1 : -1;
-	double  vel    = FABSDISTANCE2 ( xv, yv, 0., 0. );
+	double  vel    = FABSDISTANCE2( xv, yv, 0., 0. );
 
 	// First find the heights around x/y:
 	int32_t y_map[ 5 ];
@@ -461,17 +464,20 @@ void getDirtBounceReact ( int32_t x, int32_t y, double xv, double yv, double &rx
 		int32_t xpos    = x + ( i - 2 );
 		int32_t min_y   = y - 2;
 		int32_t max_y   = y + 2;
-		int32_t start_y = std::max ( min_y, MENUHEIGHT );
-		int32_t stop_y  = std::min ( max_y + 1, env.screenHeight );
+		int32_t start_y = std::max( min_y, MENUHEIGHT );
+		int32_t stop_y  = std::min( max_y + 1, env.screenHeight );
 		y_map[ i ]      = -1;
 
-		if ( ( xpos > 0 ) && ( xpos < env.screenWidth ) && ( min_y < env.screenHeight ) && ( max_y > MENUHEIGHT ) && ( ( stop_y - start_y ) > 0 ) ) {
+		if ( ( xpos > 0 ) && ( xpos < env.screenWidth ) && ( min_y < env.screenHeight ) && ( max_y > MENUHEIGHT )
+		     && ( ( stop_y - start_y ) > 0 ) ) {
 			y_map[ i ] = 5;
 
 			for ( int32_t j = 4; ( j >= 0 ) && ( 5 == y_map[ i ] ); --j ) {
 				int32_t ypos = y + ( j - 2 );
 
-				if ( ( ypos < start_y ) || ( ypos >= stop_y ) || ( PINK != getpixel ( global.terrain, xpos, ypos ) ) ) y_map[ i ] = j;
+				if ( ( ypos < start_y ) || ( ypos >= stop_y )
+				     || ( PINK != getpixel( global.terrain, xpos, ypos ) ) )
+					y_map[ i ] = j;
 			}
 		}
 	} // End of generating height map.
@@ -519,7 +525,7 @@ void getDirtBounceReact ( int32_t x, int32_t y, double xv, double yv, double &rx
 	 */
 
 	// Find a plane with angle using the height map
-	int32_t MA = GET_ANGLE ( xv, yv );
+	int32_t MA = GET_ANGLE( xv, yv );
 	int32_t PA = 0, HA = 0, RA = 0;
 
 	// Look for the special case of a vertical wall first:
@@ -548,7 +554,8 @@ void getDirtBounceReact ( int32_t x, int32_t y, double xv, double yv, double &rx
 
 				// Must ly2 be considered?
 				if ( ly2 > -1 ) {
-					if ( ( ( ly1 <= y_map[ 2 ] ) && ( ly2 <= ly1 ) ) || ( ( ly1 >= y_map[ 2 ] ) && ( ly2 >= ly1 ) ) ) {
+					if ( ( ( ly1 <= y_map[ 2 ] ) && ( ly2 <= ly1 ) )
+					     || ( ( ly1 >= y_map[ 2 ] ) && ( ly2 >= ly1 ) ) ) {
 						x2 += 2. + ( -2. * from_x );
 						y2 += ly2;
 						p2 += 1.;
@@ -565,14 +572,16 @@ void getDirtBounceReact ( int32_t x, int32_t y, double xv, double yv, double &rx
 		int32_t ly1 = y_map[ 2 + from_x ];
 		int32_t ly2 = y_map[ 2 + ( 2 * from_x ) ];
 
-		if ( ( ly1 > -1 ) && ( ( ( ly1 >= y_map[ 2 ] ) && ( ly1 >= y2 ) ) || ( ( ly1 <= y_map[ 2 ] ) && ( ly1 <= y2 ) ) ) ) {
+		if ( ( ly1 > -1 )
+		     && ( ( ( ly1 >= y_map[ 2 ] ) && ( ly1 >= y2 ) ) || ( ( ly1 <= y_map[ 2 ] ) && ( ly1 <= y2 ) ) ) ) {
 			x1 += 2. + ( 1. * from_x );
 			y1 += ly1;
 			p1 += 1.;
 
 			// Only continue if useful.
 			if ( ly2 > -1 ) {
-				if ( ( ( ly1 <= y_map[ 2 ] ) && ( ly2 <= ly1 ) ) || ( ( ly1 >= y_map[ 2 ] ) && ( ly2 >= ly1 ) ) ) {
+				if ( ( ( ly1 <= y_map[ 2 ] ) && ( ly2 <= ly1 ) )
+				     || ( ( ly1 >= y_map[ 2 ] ) && ( ly2 >= ly1 ) ) ) {
 					x1 += 2. + ( 2. * from_x );
 					y1 += ly2;
 					p1 += 1.;
@@ -585,7 +594,7 @@ void getDirtBounceReact ( int32_t x, int32_t y, double xv, double yv, double &rx
 		} // End of having a non-wall ly1 without contra-slope.
 
 		// Set resulting angles:
-		PA = GET_ANGLE ( x2 - x1, y2 - y1 );
+		PA = GET_ANGLE( x2 - x1, y2 - y1 );
 		HA = PA - MA;
 		RA = PA + ( PA - HA );
 

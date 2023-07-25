@@ -16,10 +16,10 @@ eDataStage &operator++ ( eDataStage &ds ) {
 }
 
 eLanguages &operator+= ( eLanguages &lang, int32_t val ) {
-	int32_t cur = static_cast< int32_t > ( lang ) + val;
+	int32_t cur = static_cast< int32_t >( lang ) + val;
 	if ( cur > 0 ) cur %= EL_LANGUAGE_COUNT;
 	if ( cur < 0 ) cur = EL_LANGUAGE_COUNT - ( ( -1 * cur ) % EL_LANGUAGE_COUNT );
-	lang = static_cast< eLanguages > ( cur );
+	lang = static_cast< eLanguages >( cur );
 	return lang;
 }
 

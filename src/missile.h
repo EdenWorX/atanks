@@ -49,8 +49,16 @@ public:
 	 * -----------------------------------
 	 */
 
-	explicit MISSILE (
-		PLAYER* player_, double xpos, double ypos, double xvel, double yvel, int32_t weapon_type, eMissileType missile_type, int32_t ai_level_, int32_t delay_idx_
+	explicit MISSILE(
+		PLAYER*      player_,
+		double       xpos,
+		double       ypos,
+		double       xvel,
+		double       yvel,
+		int32_t      weapon_type,
+		eMissileType missile_type,
+		int32_t      ai_level_,
+		int32_t      delay_idx_
 	);
 	~MISSILE();
 
@@ -67,7 +75,7 @@ public:
 
 	eClasses getClass() { return CLASS_MISSILE; }
 
-	void     update_submun ( ePhysType p_type, int32_t cnt_down );
+	void     update_submun( ePhysType p_type, int32_t cnt_down );
 
 
 private:

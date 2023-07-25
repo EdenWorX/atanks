@@ -79,14 +79,14 @@ public:
 	 */
 
 	/// @brief If not nullptr, set @a prev_ to the predecessor of this.
-	template< typename obj_T > void getPrev ( obj_T** prev_ ) {
-		obj_T* prev_obj = static_cast< obj_T* > ( prev );
+	template< typename obj_T > void getPrev( obj_T** prev_ ) {
+		obj_T* prev_obj = static_cast< obj_T* >( prev );
 		if ( prev_ ) *prev_ = prev_obj;
 	}
 
 	/// @brief If not nullptr, set @a next_ to the successor of this.
-	template< typename obj_T > void getNext ( obj_T** next_ ) {
-		obj_T* next_obj = static_cast< obj_T* > ( next );
+	template< typename obj_T > void getNext( obj_T** next_ ) {
+		obj_T* next_obj = static_cast< obj_T* >( next );
 		if ( next_ ) *next_ = next_obj;
 	}
 

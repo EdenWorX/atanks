@@ -44,8 +44,16 @@ public:
 	 * -------------------------------------------
 	 */
 
-	explicit OptionItemColour (
-		int32_t* color_, const char* title_, int32_t titleIdx_, int32_t top_, int32_t left_, int32_t width_, int32_t height_, int32_t padding_, int32_t show_size_
+	explicit OptionItemColour(
+		int32_t*    color_,
+		const char* title_,
+		int32_t     titleIdx_,
+		int32_t     top_,
+		int32_t     left_,
+		int32_t     width_,
+		int32_t     height_,
+		int32_t     padding_,
+		int32_t     show_size_
 	);
 	virtual ~OptionItemColour();
 
@@ -54,10 +62,10 @@ public:
 	 * ----------------------
 	 */
 
-	virtual int32_t activate ( int32_t, int32_t, int32_t, int32_t );
+	virtual int32_t activate( int32_t, int32_t, int32_t, int32_t );
 	virtual bool    canGoDown();
 	virtual bool    canGoUp();
-	virtual void    display ( bool show_full );
+	virtual void    display( bool show_full );
 	virtual bool    isExitButton();
 	void            setLanguage();
 

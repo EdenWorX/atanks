@@ -30,7 +30,7 @@ VIRTUAL_OBJECT::~VIRTUAL_OBJECT() {
 	bitmap = nullptr;
 }
 
-void VIRTUAL_OBJECT::addUpdateArea ( int32_t left, int32_t top, int32_t width, int32_t height ) {
+void VIRTUAL_OBJECT::addUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height ) {
 	if ( left < dim_cur.x ) dim_cur.x = left;
 	if ( top < dim_cur.y ) dim_cur.y = top;
 	/* This is prone to the following error:
@@ -60,18 +60,18 @@ void VIRTUAL_OBJECT::applyPhysics() {
 }
 
 void VIRTUAL_OBJECT::draw() {
-	assert(bitmap && "ERROR: VIRTUAL_OBJECT::draw() called without bitmap!");
+	assert( bitmap && "ERROR: VIRTUAL_OBJECT::draw() called without bitmap!" );
 
 	if ( !destroy && bitmap ) {
 
-		rotate_sprite ( global.canvas, bitmap, x - ( width / 2 ), y - ( height / 2 ), itofix ( angle ) );
+		rotate_sprite( global.canvas, bitmap, x - ( width / 2 ), y - ( height / 2 ), itofix( angle ) );
 
 		// The update area depends on the rotation state (aka angle)
 		if ( angle ) {
-			int32_t length = std::max ( width, height ) + ( std::min ( width, height ) / 2 );
-			setUpdateArea ( x - ( length / 2 ), y - ( length / 2 ), length, length );
+			int32_t length = std::max( width, height ) + ( std::min( width, height ) / 2 );
+			setUpdateArea( x - ( length / 2 ), y - ( length / 2 ), length, length );
 		} else
-			setUpdateArea ( x - ( width / 2 ) - 1, y - ( height / 2 ) - 1, width + 2, height + 2 );
+			setUpdateArea( x - ( width / 2 ) - 1, y - ( height / 2 ) - 1, width + 2, height + 2 );
 		requireUpdate();
 	}
 }
@@ -88,7 +88,7 @@ void VIRTUAL_OBJECT::initialise() {
 }
 
 /// @brief Set a new bitmap and store width and height for easy drawing.
-void VIRTUAL_OBJECT::setBitmap ( BITMAP* bitmap_ ) {
+void VIRTUAL_OBJECT::setBitmap( BITMAP* bitmap_ ) {
 	if ( bitmap_ != bitmap ) {
 		bitmap = bitmap_;
 
@@ -102,7 +102,7 @@ void VIRTUAL_OBJECT::setBitmap ( BITMAP* bitmap_ ) {
 	}
 }
 
-void VIRTUAL_OBJECT::setUpdateArea ( int32_t left, int32_t top, int32_t width, int32_t height ) {
+void VIRTUAL_OBJECT::setUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height ) {
 	dim_cur.x = left;
 	dim_cur.y = top;
 	dim_cur.w = width;
@@ -115,29 +115,39 @@ void VIRTUAL_OBJECT::setUpdateArea ( int32_t left, int32_t top, int32_t width, i
  * dimensions and position of this object.
  */
 void VIRTUAL_OBJECT::update() {
-	if ( !needsUpdate.load ( ATOMIC_READ ) ) return;
+	if ( !needsUpdate.load( ATOMIC_READ ) ) return;
 
 	// Add update area for the current dimension
 	if ( dim_cur.w > 0 ) {
-		int32_t left   = LEFT == align ? dim_cur.x : RIGHT == align ? dim_cur.x - dim_cur.w : dim_cur.x - ( dim_cur.w / 2 );
-		int32_t top    = LEFT == align ? dim_cur.y : RIGHT == align ? dim_cur.y - dim_cur.h : dim_cur.y - ( dim_cur.h / 2 );
-		int32_t right  = std::min ( env.screenWidth, left + dim_cur.w + 2 );
-		int32_t bottom = std::min ( env.screenHeight, top + dim_cur.h + 2 );
+		int32_t left =
+			LEFT == align    ? dim_cur.x
+			: RIGHT == align ? dim_cur.x - dim_cur.w
+					 : dim_cur.x - ( dim_cur.w / 2 );
+		int32_t top    = LEFT == align  ? dim_cur.y
+		               : RIGHT == align ? dim_cur.y - dim_cur.h
+		                                : dim_cur.y - ( dim_cur.h / 2 );
+		int32_t right  = std::min( env.screenWidth, left + dim_cur.w + 2 );
+		int32_t bottom = std::min( env.screenHeight, top + dim_cur.h + 2 );
 
-		if ( ( right > left ) && ( bottom > top ) ) global.make_update ( left, top, right - left, bottom - top );
+		if ( ( right > left ) && ( bottom > top ) ) global.make_update( left, top, right - left, bottom - top );
 	} // End of updating current area
 
 	// If the dimensions changed, the old area needs an update, too
 	if ( ( dim_old.w > 0 ) && ( dim_old != dim_cur ) ) {
-		int32_t left   = LEFT == align ? dim_old.x : RIGHT == align ? dim_old.x - dim_old.w : dim_old.x - ( dim_old.w / 2 );
-		int32_t top    = LEFT == align ? dim_old.y : RIGHT == align ? dim_old.y - dim_old.h : dim_old.y - ( dim_old.h / 2 );
-		int32_t right  = std::min ( env.screenWidth, left + dim_old.w + 2 );
-		int32_t bottom = std::min ( env.screenHeight, top + dim_old.h + 2 );
+		int32_t left =
+			LEFT == align    ? dim_old.x
+			: RIGHT == align ? dim_old.x - dim_old.w
+					 : dim_old.x - ( dim_old.w / 2 );
+		int32_t top    = LEFT == align  ? dim_old.y
+		               : RIGHT == align ? dim_old.y - dim_old.h
+		                                : dim_old.y - ( dim_old.h / 2 );
+		int32_t right  = std::min( env.screenWidth, left + dim_old.w + 2 );
+		int32_t bottom = std::min( env.screenHeight, top + dim_old.h + 2 );
 
-		if ( ( right > left ) && ( bottom > top ) ) global.make_update ( left, top, right - left, bottom - top );
+		if ( ( right > left ) && ( bottom > top ) ) global.make_update( left, top, right - left, bottom - top );
 	} // End of updating old area
 
 	dim_old = dim_cur;
 
-	needsUpdate.store ( false, ATOMIC_WRITE );
+	needsUpdate.store( false, ATOMIC_WRITE );
 }

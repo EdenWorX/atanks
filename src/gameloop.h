@@ -23,7 +23,7 @@ public:
 	bool is_finished() const;
 	void print_state() const;
 	void work_alone();
-	void working_on ( int32_t what );
+	void working_on( int32_t what );
 	void yield();
 };
 

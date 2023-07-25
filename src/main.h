@@ -110,8 +110,8 @@
 // Some more workarounds to compile using visual studio:
 #if defined( ATANKS_IS_MSVC )
 #  define snprintf           atanks_snprintf
-#  define strncpy( d, s, c ) strncpy_s ( d, c + 1, s, c )
-#  define strncat( d, s, c ) strncat_s ( d, c + 1, s, c )
+#  define strncpy( d, s, c ) strncpy_s( d, c + 1, s, c )
+#  define strncat( d, s, c ) strncat_s( d, c + 1, s, c )
 #  define sscanf             sscanf_s
 #  define access             _access
 #  define F_OK               02
@@ -126,14 +126,14 @@
 // Note: See winclock.h why this is necessary
 /// REMOVE_VS12_WORKAROUND
 #if defined( ATANKS_IS_MSVC ) && !defined( ATANKS_IS_AT_LEAST_MSVC13 )
-#  define USLEEP( microseconds_ ) Sleep ( microseconds_ / 1000 );
-#  define MSLEEP( milliseconds_ ) Sleep ( milliseconds_ );
+#  define USLEEP( microseconds_ ) Sleep( microseconds_ / 1000 );
+#  define MSLEEP( milliseconds_ ) Sleep( milliseconds_ );
 #else
-#  define USLEEP( microseconds_ ) std::this_thread::sleep_for ( std::chrono::microseconds ( microseconds_ ) );
-#  define MSLEEP( milliseconds_ ) std::this_thread::sleep_for ( std::chrono::milliseconds ( milliseconds_ ) );
+#  define USLEEP( microseconds_ ) std::this_thread::sleep_for( std::chrono::microseconds( microseconds_ ) );
+#  define MSLEEP( milliseconds_ ) std::this_thread::sleep_for( std::chrono::milliseconds( milliseconds_ ) );
 #endif // VS12 workaround
-#define LINUX_SLEEP MSLEEP ( 10 )
-#define LINUX_REST  MSLEEP ( 40 )
+#define LINUX_SLEEP MSLEEP( 10 )
+#define LINUX_REST  MSLEEP( 40 )
 
 
 using std::cerr;
@@ -159,26 +159,26 @@ using std::string;
 // The nex few are some math helpers that shorten things dramatically.
 #define SIGN( x_arg )   ( ( x_arg ) < 0 ? -1 : 1 )
 #define SIGNd( x_arg )  ( ( x_arg ) < 0. ? -1. : 1. )
-#define ROUND( x_arg )  static_cast< int32_t > ( ( x_arg ) + ( SIGNd ( x_arg ) * .5 ) )
-#define ROUNDu( x_arg ) static_cast< uint32_t > ( ( x_arg ) + .5 )
+#define ROUND( x_arg )  static_cast< int32_t >( ( x_arg ) + ( SIGNd( x_arg ) * .5 ) )
+#define ROUNDu( x_arg ) static_cast< uint32_t >( ( x_arg ) + .5 )
 
-#define FABSDISTANCE2( x1, y1, x2, y2 )                                                        \
-	std::sqrt (                                                                            \
-		std::pow ( static_cast< double > ( x2 ) - static_cast< double > ( x1 ), 2. )   \
-		+ std::pow ( static_cast< double > ( y2 ) - static_cast< double > ( y1 ), 2. ) \
+#define FABSDISTANCE2( x1, y1, x2, y2 )                                                     \
+	std::sqrt(                                                                          \
+		std::pow( static_cast< double >( x2 ) - static_cast< double >( x1 ), 2. )   \
+		+ std::pow( static_cast< double >( y2 ) - static_cast< double >( y1 ), 2. ) \
 	)
-#define FABSDISTANCE3( x1, y1, z1, x2, y2, z2 )                                                \
-	std::sqrt (                                                                            \
-		std::pow ( static_cast< double > ( x2 ) - static_cast< double > ( x1 ), 2. )   \
-		+ std::pow ( static_cast< double > ( y2 ) - static_cast< double > ( y1 ), 2. ) \
-		+ std::pow ( static_cast< double > ( z2 ) - static_cast< double > ( z1 ), 2. ) \
+#define FABSDISTANCE3( x1, y1, z1, x2, y2, z2 )                                             \
+	std::sqrt(                                                                          \
+		std::pow( static_cast< double >( x2 ) - static_cast< double >( x1 ), 2. )   \
+		+ std::pow( static_cast< double >( y2 ) - static_cast< double >( y1 ), 2. ) \
+		+ std::pow( static_cast< double >( z2 ) - static_cast< double >( z1 ), 2. ) \
 	)
 
-#define ABSDISTANCE2( x1, y1, x2, y2 )         ROUNDu ( FABSDISTANCE2 ( x1, y1, x2, y2 ) )
-#define ABSDISTANCE3( x1, y1, z1, x2, y2, z2 ) ROUNDu ( FABSDISTANCE3 ( x1, y1, z1, x2, y2, z2 ) )
+#define ABSDISTANCE2( x1, y1, x2, y2 )         ROUNDu( FABSDISTANCE2( x1, y1, x2, y2 ) )
+#define ABSDISTANCE3( x1, y1, z1, x2, y2, z2 ) ROUNDu( FABSDISTANCE3( x1, y1, z1, x2, y2, z2 ) )
 
-#define DEG2RAD( degree_ )                     ( static_cast< double > ( degree_ ) * M_PIl / 180. )
-#define RAD2DEG( radian_ )                     ( static_cast< double > ( radian_ ) * 180. / M_PIl )
+#define DEG2RAD( degree_ )                     ( static_cast< double >( degree_ ) * M_PIl / 180. )
+#define RAD2DEG( radian_ )                     ( static_cast< double >( radian_ ) * 180. / M_PIl )
 
 
 /** @brief show or hide the custom mouse cursor
@@ -196,22 +196,22 @@ using std::string;
  * @param[in] where BITMAP pointer to draw the custom cursor on or nullptr to
  * hide the custom mouse cursor.
  **/
-#define SHOW_MOUSE( where )                                                                                  \
-	{                                                                                                    \
-		if ( !env.osMouse ) {                                                                        \
-			if ( ( where ) != nullptr )                                                          \
-				unscare_mouse();                                                             \
-			else                                                                                 \
-				scare_mouse();                                                               \
-			show_mouse ( where );                                                                \
-			/* Make the neccessary updates */                                                    \
-			if ( ( where ) != nullptr ) {                                                        \
-				global.make_update ( mouse_x, mouse_y, env.misc[ 0 ]->w, env.misc[ 0 ]->h ); \
-				global.make_update ( lx, ly, env.misc[ 0 ]->w, env.misc[ 0 ]->h );           \
-				lx = mouse_x;                                                                \
-				ly = mouse_y;                                                                \
-			}                                                                                    \
-		}                                                                                            \
+#define SHOW_MOUSE( where )                                                                                 \
+	{                                                                                                   \
+		if ( !env.osMouse ) {                                                                       \
+			if ( ( where ) != nullptr )                                                         \
+				unscare_mouse();                                                            \
+			else                                                                                \
+				scare_mouse();                                                              \
+			show_mouse( where );                                                                \
+			/* Make the neccessary updates */                                                   \
+			if ( ( where ) != nullptr ) {                                                       \
+				global.make_update( mouse_x, mouse_y, env.misc[ 0 ]->w, env.misc[ 0 ]->h ); \
+				global.make_update( lx, ly, env.misc[ 0 ]->w, env.misc[ 0 ]->h );           \
+				lx = mouse_x;                                                               \
+				ly = mouse_y;                                                               \
+			}                                                                                   \
+		}                                                                                           \
 	}
 
 #define MAXPLAYERS    10
@@ -277,8 +277,8 @@ struct BOX {
 	int32_t h = 0;
 
 	BOX()     = default;
-	BOX ( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
-	void set ( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
+	BOX( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
+	void set( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
 };
 
 // Make the BOX usage easier:
@@ -309,8 +309,8 @@ public:
 	const char* getDesc() const;
 	const char* getName() const;
 
-	void        setDesc ( const char* desc_ );
-	void        setName ( const char* name_ );
+	void        setDesc( const char* desc_ );
+	void        setName( const char* name_ );
 
 
 	/* -----------------------------------
@@ -378,8 +378,8 @@ public:
 	const char* getDesc() const;
 	const char* getName() const;
 
-	void        setDesc ( const char* desc_ );
-	void        setName ( const char* name_ );
+	void        setDesc( const char* desc_ );
+	void        setName( const char* name_ );
 
 
 	/* -----------------------------------
@@ -527,7 +527,17 @@ enum itemType {
  *
  * The ordering here determines the order of the drawing.
  **/
-enum eClasses { CLASS_MISSILE = 0, CLASS_BEAM, CLASS_TANK, CLASS_TELEPORT, CLASS_DECOR_DIRT, CLASS_DECOR_SMOKE, CLASS_EXPLOSION, CLASS_FLOATTEXT, CLASS_COUNT };
+enum eClasses {
+	CLASS_MISSILE = 0,
+	CLASS_BEAM,
+	CLASS_TANK,
+	CLASS_TELEPORT,
+	CLASS_DECOR_DIRT,
+	CLASS_DECOR_SMOKE,
+	CLASS_EXPLOSION,
+	CLASS_FLOATTEXT,
+	CLASS_COUNT
+};
 
 
 #ifndef HAS_TANK
@@ -535,13 +545,13 @@ class TANK; // forwarding if not known
 #endif      // HAS_TANK
 
 /// === Global functions used in several compilation units ====
-void   drawMenuBackground ( eBackgroundTypes backType, int32_t tOffset, int32_t numItems );
-double interpolate ( double x1, double x2, double i );
-double Noise ( int x );
-double Noise2D ( int x, int y );
-double perlin1DPoint ( double amplitude, double scale, double xo, double lambda, int octaves );
-double perlin2DPoint ( double amplitude, double scale, double xo, double yo, double lambda, int octaves );
-void   quickChange ( bool clearerror );
+void   drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems );
+double interpolate( double x1, double x2, double i );
+double Noise( int x );
+double Noise2D( int x, int y );
+double perlin1DPoint( double amplitude, double scale, double xo, double lambda, int octaves );
+double perlin2DPoint( double amplitude, double scale, double xo, double yo, double lambda, int octaves );
+void   quickChange( bool clearerror );
 
 #include "externs.h"
 

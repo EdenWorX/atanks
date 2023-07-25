@@ -27,7 +27,7 @@
 
 #  include "menu.h"
 
-void    drawMenuBackground ( int32_t itemType, int32_t tOffset, int32_t numItems );
+void    drawMenuBackground( int32_t itemType, int32_t tOffset, int32_t numItems );
 void    editPlayers();
 void    optionsMenu();
 int32_t selectPlayers();

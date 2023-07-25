@@ -44,7 +44,7 @@ struct PLAYER;
 // This function takes some data from the server
 // and tries to figure out what to do with it.
 // The game stage is returned.
-int         Parse_Client_Data ( char *buffer );
+int         Parse_Client_Data( char *buffer );
 
 
 // Draws a background
@@ -52,16 +52,16 @@ void        Create_Sky();
 
 // Sends fire command to the server
 // Message must be in format "FIRE item angle power"
-int         Client_Fire ( PLAYER *my_player, int my_socket );
-int         Client_Power ( PLAYER *my_player, int up_or_down );
-int         Client_Angle ( PLAYER *my_player, int left_or_right );
-int         Client_Cycle_Weapon ( PLAYER *my_player, int forward_or_back );
+int         Client_Fire( PLAYER *my_player, int my_socket );
+int         Client_Power( PLAYER *my_player, int up_or_down );
+int         Client_Angle( PLAYER *my_player, int left_or_right );
+int         Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back );
 
 // Take an error code and return a string with readable info.
 // The returning string should NOT be freed after use.
 // Note: This is nowhere used. ( REMOVEME ??? )
-const char *Explain_Error ( int32_t error_code );
+const char *Explain_Error( int32_t error_code );
 
-int         Game_Client ( int socket_number );
+int         Game_Client( int socket_number );
 
 #endif

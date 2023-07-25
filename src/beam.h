@@ -41,8 +41,8 @@ public:
 	 * -----------------------------------
 	 */
 
-	explicit BEAM ( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
-	BEAM ( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
+	explicit BEAM( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
+	BEAM( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
 	~BEAM();
 
 
@@ -53,8 +53,8 @@ public:
 
 	void     applyPhysics();
 	void     draw();
-	void     getEndPoint ( int32_t& x, int32_t& y ); // For mind shots to fetch
-	void     moveStart ( double x_, double y_ );     // For the satellite
+	void     getEndPoint( int32_t& x, int32_t& y ); // For mind shots to fetch
+	void     moveStart( double x_, double y_ );     // For the satellite
 
 	eClasses getClass() { return CLASS_BEAM; }
 

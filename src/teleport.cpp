@@ -32,8 +32,8 @@
 TELEPORT::~TELEPORT() {
 	requireUpdate();
 	update();
-	if ( dim_cur.w > 0 ) global.make_bgupdate ( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
-	if ( dim_old.w > 0 ) global.make_bgupdate ( dim_old.x, dim_old.y, dim_old.w, dim_old.h );
+	if ( dim_cur.w > 0 ) global.make_bgupdate( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
+	if ( dim_old.w > 0 ) global.make_bgupdate( dim_old.x, dim_old.y, dim_old.w, dim_old.h );
 
 	if ( remote ) {
 		remote->destroy = true;
@@ -44,11 +44,22 @@ TELEPORT::~TELEPORT() {
 	remote = nullptr;
 
 	// Take out of the chain:
-	global.removeObject ( this );
+	global.removeObject( this );
 }
 
-TELEPORT::TELEPORT ( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t destinationY, int32_t objRadius, int32_t duration, int32_t type )
-	: VIRTUAL_OBJECT(), clock ( duration ), object ( targetObj ), radius ( objRadius ), startClock ( duration ) {
+TELEPORT::TELEPORT(
+	VIRTUAL_OBJECT* targetObj,
+	int32_t         destinationX,
+	int32_t         destinationY,
+	int32_t         objRadius,
+	int32_t         duration,
+	int32_t         type
+)
+	: VIRTUAL_OBJECT()
+	, clock( duration )
+	, object( targetObj )
+	, radius( objRadius )
+	, startClock( duration ) {
 
 	if ( object ) {
 		x = object->x;
@@ -61,46 +72,47 @@ TELEPORT::TELEPORT ( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t de
 		TANK* lt   = nullptr;
 		need_check = false;
 
-		global.getHeadOfClass ( CLASS_TANK, &lt );
+		global.getHeadOfClass( CLASS_TANK, &lt );
 		while ( lt ) {
-			if ( ( std::abs ( lt->x - destinationX ) < objRadius ) && ( lt->y > destinationY ) && ( ( lt->y - destinationY ) < objRadius ) ) {
+			if ( ( std::abs( lt->x - destinationX ) < objRadius ) && ( lt->y > destinationY )
+			     && ( ( lt->y - destinationY ) < objRadius ) ) {
 				need_check = true;
 
 				// Maybe move left
 				if ( ( ( destinationX > ( objRadius * 2 ) ) && ( destinationX <= lt->x ) )
 				     || ( destinationX >= ( env.screenWidth - ( objRadius * 2 ) ) ) )
-					destinationX -= std::abs ( lt->x - destinationX );
+					destinationX -= std::abs( lt->x - destinationX );
 				// Or move right
 				else if ( destinationX < ( env.screenWidth - ( objRadius * 2 ) ) )
-					destinationX += std::abs ( lt->x - destinationX );
+					destinationX += std::abs( lt->x - destinationX );
 
 				// Maybe move up
 				if ( ( ( destinationY > ( MENUHEIGHT + ( objRadius * 2 ) ) ) && ( destinationY <= lt->y ) )
 				     || ( destinationY >= ( env.screenHeight - ( objRadius * 2 ) ) ) )
-					destinationY -= std::abs ( lt->y - destinationY );
+					destinationY -= std::abs( lt->y - destinationY );
 				// Or move down
 				else if ( destinationY < ( env.screenHeight - ( objRadius * 2 ) ) )
-					destinationY += std::abs ( lt->y - destinationY );
+					destinationY += std::abs( lt->y - destinationY );
 			}
 
 
-			lt->getNext ( &lt );
+			lt->getNext( &lt );
 		}
 	} // end of needing to check the destination
 
 	try {
-		remote = new TELEPORT ( this, destinationX, destinationY );
+		remote = new TELEPORT( this, destinationX, destinationY );
 	} catch ( std::bad_alloc& e ) {
 		std::cerr << "Error creating TELEPORT: " << e.what() << std::endl;
 	}
 
-	play_fire_sound ( ITEM_TELEPORT + WEAPONS, x, 255, 1000 );
+	play_fire_sound( ITEM_TELEPORT + WEAPONS, x, 255, 1000 );
 
 #ifdef NETWORK
 	// this seems to be the teleport we usually use
 	int   playerindex = 0;
 	bool  found       = false;
-	TANK* the_tank    = static_cast< TANK* > ( targetObj );
+	TANK* the_tank    = static_cast< TANK* >( targetObj );
 
 	// match the player with the tank
 	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
@@ -112,16 +124,16 @@ TELEPORT::TELEPORT ( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t de
 
 	if ( found ) {
 		char buffer[ 64 ] = { 0x0 };
-		snprintf ( buffer, 63, "TELEPORT %d %d %d", playerindex, destinationX, destinationY );
-		env.sendToClients ( buffer );
+		snprintf( buffer, 63, "TELEPORT %d %d %d", playerindex, destinationX, destinationY );
+		env.sendToClients( buffer );
 	}
 #endif // NETWORK
 
 	// Add to the chain:
-	global.addObject ( this );
+	global.addObject( this );
 }
 
-TELEPORT::TELEPORT ( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : VIRTUAL_OBJECT(), remote ( remoteEnd ) {
+TELEPORT::TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : VIRTUAL_OBJECT(), remote( remoteEnd ) {
 	this->x = destX;
 	this->y = destY;
 	if ( remote ) {
@@ -131,7 +143,7 @@ TELEPORT::TELEPORT ( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : VIRTU
 	}
 
 	// Add to the chain:
-	global.addObject ( this );
+	global.addObject( this );
 }
 
 void TELEPORT::applyPhysics() {
@@ -167,29 +179,29 @@ void TELEPORT::draw() {
 	else if ( transMod < 0 )
 		transMod = 0;
 
-	blobSize           -= round ( 8 / ( startClock / pClock ) ) + 1;
-	pRadius            -= round ( radius / ( startClock / pClock ) ) + 1;
+	blobSize           -= round( 8 / ( startClock / pClock ) ) + 1;
+	pRadius            -= round( radius / ( startClock / pClock ) ) + 1;
 	maxblobs           += pRadius * 4;
 
-	BITMAP* tempBitmap  = create_bitmap ( radius * 2, radius * 2 );
-	blit ( global.canvas, tempBitmap, remote->x - radius, remote->y - radius, 0, 0, radius * 2, radius * 2 );
+	BITMAP* tempBitmap  = create_bitmap( radius * 2, radius * 2 );
+	blit( global.canvas, tempBitmap, remote->x - radius, remote->y - radius, 0, 0, radius * 2, radius * 2 );
 
 	if ( object && remote ) remote->draw();
 
-	drawing_mode ( DRAW_MODE_TRANS, NULL, 0, 0 );
-	set_trans_blender ( 0, 0, 0, transMod );
+	drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+	set_trans_blender( 0, 0, 0, transMod );
 
-	for ( int32_t i = round ( maxblobs + pClock ); i > pClock; --i ) {
-		int32_t xOff  = perlin2DPoint ( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius;
-		int32_t yOff  = perlin2DPoint ( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius;
-		int32_t t_col = getpixel ( tempBitmap, pRadius + xOff, pRadius + yOff );
-		circlefill ( global.canvas, x + xOff, y + yOff, blobSize, t_col );
+	for ( int32_t i = round( maxblobs + pClock ); i > pClock; --i ) {
+		int32_t xOff  = perlin2DPoint( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius;
+		int32_t yOff  = perlin2DPoint( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius;
+		int32_t t_col = getpixel( tempBitmap, pRadius + xOff, pRadius + yOff );
+		circlefill( global.canvas, x + xOff, y + yOff, blobSize, t_col );
 	}
 
-	drawing_mode ( DRAW_MODE_SOLID, NULL, 0, 0 );
+	drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
 
-	setUpdateArea ( x - pRadius - blobSize, y - pRadius - blobSize, ( pRadius + blobSize ) * 2, ( pRadius + blobSize ) * 2 );
+	setUpdateArea( x - pRadius - blobSize, y - pRadius - blobSize, ( pRadius + blobSize ) * 2, ( pRadius + blobSize ) * 2 );
 	requireUpdate();
 
-	destroy_bitmap ( tempBitmap );
+	destroy_bitmap( tempBitmap );
 }

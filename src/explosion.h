@@ -32,9 +32,9 @@ public:
 	 */
 
 	// default ctor for all non-BEAM explosions
-	explicit EXPLOSION ( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
+	explicit EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
 	// Special ctor for BEAM:
-	EXPLOSION ( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
+	EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
 	~EXPLOSION();
 
 
@@ -56,9 +56,17 @@ private:
 	 * -----------------------
 	 */
 
-	void    do_clear();
-	void    do_throw();
-	void    drawFracture ( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse, int32_t recurseDepth );
+	void do_clear();
+	void do_throw();
+	void drawFracture(
+		int32_t x,
+		int32_t y,
+		int32_t frac_angle,
+		int32_t width,
+		int32_t segmentLength,
+		int32_t maxRecurse,
+		int32_t recurseDepth
+	);
 
 
 	/* -----------------------
@@ -91,7 +99,7 @@ private:
 };
 
 // Global helpers:
-void   draw_Napalm_Blob ( VIRTUAL_OBJECT* blob, int32_t x, int32_t y, int32_t radius, int32_t frame );
-double get_hit_damage ( TANK* tank, weaponType type, int32_t hit_x, int32_t hit_y );
+void   draw_Napalm_Blob( VIRTUAL_OBJECT* blob, int32_t x, int32_t y, int32_t radius, int32_t frame );
+double get_hit_damage( TANK* tank, weaponType type, int32_t hit_x, int32_t hit_y );
 
 #endif

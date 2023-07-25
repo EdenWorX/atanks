@@ -11,7 +11,7 @@ struct update_data {
 	char* remote_file = nullptr;
 	char  update_string[ 1024 ];
 
-	explicit update_data ( const char* server_, const char* remote_, const char* host_ );
+	explicit update_data( const char* server_, const char* remote_, const char* host_ );
 	~update_data();
 
 	void operator() ();

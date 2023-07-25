@@ -64,7 +64,7 @@ public:
 	 * ------------------------------
 	 */
 
-	explicit OptionItemBase (
+	explicit OptionItemBase(
 		eEntryType   type_,
 		const char*  title_,
 		int32_t      titleIdx_,
@@ -88,36 +88,36 @@ public:
 	 * ----------------------
 	 */
 
-	void            clear_display ( bool update_full );
+	void            clear_display( bool update_full );
 	void            cursor_flip();
-	void            getDimension ( int32_t& tgt_width, int32_t& tgt_height );
+	void            getDimension( int32_t& tgt_width, int32_t& tgt_height );
 	int32_t         getKeyCode();
 	OptionItemBase* getNext();
 	OptionItemBase* getPrev();
 	uint32_t        getTextClass();
 	uint32_t        getTitleIdx();
 	eEntryType      getType();
-	void            insert_after ( OptionItemBase* new_prev );
-	void            insert_before ( OptionItemBase* new_next );
-	bool            is_click_in ( int32_t x, int32_t y, int32_t& ret );
+	void            insert_after( OptionItemBase* new_prev );
+	void            insert_before( OptionItemBase* new_next );
+	bool            is_click_in( int32_t x, int32_t y, int32_t& ret );
 	bool            is_selected();
-	void            move ( int32_t new_left, int32_t new_top, bool do_update );
+	void            move( int32_t new_left, int32_t new_top, bool do_update );
 	bool            needs_text();
 	void            remove();
-	void            resize ( int32_t new_width, int32_t new_height );
+	void            resize( int32_t new_width, int32_t new_height );
 	void            select();
-	void            setPadding ( int32_t new_padding );
-	void            setTitle ( const char* new_title );
-	void            setTextClass ( eTextClass new_class );
-	void            setTexts ( const char** new_texts );
+	void            setPadding( int32_t new_padding );
+	void            setTitle( const char* new_title );
+	void            setTextClass( eTextClass new_class );
+	void            setTexts( const char** new_texts );
 	void            unselect();
 
 	// virtuals to be implemented by the deriving template
-	virtual int32_t activate ( int32_t val, int32_t x, int32_t y, int32_t k ) = 0;
-	virtual bool    canGoDown()                                               = 0;
-	virtual bool    canGoUp()                                                 = 0;
-	virtual void    display ( bool show_full )                                = 0;
-	virtual bool    isExitButton()                                            = 0;
+	virtual int32_t activate( int32_t val, int32_t x, int32_t y, int32_t k ) = 0;
+	virtual bool    canGoDown()                                              = 0;
+	virtual bool    canGoUp()                                                = 0;
+	virtual void    display( bool show_full )                                = 0;
+	virtual bool    isExitButton()                                           = 0;
 
 
 protected:
@@ -125,27 +125,27 @@ protected:
 	 * --- Protected methods ---
 	 * -------------------------
 	 */
-	int32_t                         activateMenu ( Menu* target );
-	void                            activateText ( char* target, int32_t k );
-	void                            activateToggle ( bool* target );
+	int32_t                         activateMenu( Menu* target );
+	void                            activateText( char* target, int32_t k );
+	void                            activateToggle( bool* target );
 	void                            displayButton();
-	void                            displayDeco ( int32_t show_color = BLACK );
-	void                            displayMenu ( Menu* target );
-	void                            displayText ( char* target );
-	void                            displayText ( const char* target );
-	void                            displayText ( uint32_t* target );
-	void                            displayToggle ( bool* target );
+	void                            displayDeco( int32_t show_color = BLACK );
+	void                            displayMenu( Menu* target );
+	void                            displayText( char* target );
+	void                            displayText( const char* target );
+	void                            displayText( uint32_t* target );
+	void                            displayToggle( bool* target );
 
 	/// @brief As OT_VALUE might be anything, it is templated on method scale.
-	template< typename tgt_T > void displayValue ( tgt_T* target ) {
+	template< typename tgt_T > void displayValue( tgt_T* target ) {
 		if ( format ) {
 			char txt_buf[ 256 ] = { 0x0 };
-			snprintf ( txt_buf, 255, format, *target );
-			textLen = static_cast< int32_t > ( strlen ( txt_buf ) );
-			this->displayText ( txt_buf );
+			snprintf( txt_buf, 255, format, *target );
+			textLen = static_cast< int32_t >( strlen( txt_buf ) );
+			this->displayText( txt_buf );
 		} else if ( texts && texts[ entryNum ] ) {
-			textLen = static_cast< int32_t > ( strlen ( texts[ entryNum ] ) );
-			this->displayText ( texts[ entryNum ] );
+			textLen = static_cast< int32_t >( strlen( texts[ entryNum ] ) );
+			this->displayText( texts[ entryNum ] );
 		}
 	}
 
@@ -156,21 +156,21 @@ protected:
 	// syntax and call path checking, and thrown away being unused later.
 	// This looks like a waste, but makes the dispatching a lot less complex
 	// and more secure.
-#  define EMERGENCY_OUT                                                                                                 \
-	  fprintf ( stderr, "%s:%d [%s] : Illegal target type, template called!\n", __FILE__, __LINE__, __FUNCTION__ ); \
+#  define EMERGENCY_OUT                                                                                                \
+	  fprintf( stderr, "%s:%d [%s] : Illegal target type, template called!\n", __FILE__, __LINE__, __FUNCTION__ ); \
 	  std::terminate();
 
-	template< typename T > int32_t activateMenu ( T* ) { EMERGENCY_OUT }
+	template< typename T > int32_t activateMenu( T* ) { EMERGENCY_OUT }
 
-	template< typename T > void    activateText ( T*, int ) { EMERGENCY_OUT }
+	template< typename T > void    activateText( T*, int ) { EMERGENCY_OUT }
 
-	template< typename T > void    activateToggle ( T* ) { EMERGENCY_OUT }
+	template< typename T > void    activateToggle( T* ) { EMERGENCY_OUT }
 
-	template< typename T > void    displayMenu ( T* ) { EMERGENCY_OUT }
+	template< typename T > void    displayMenu( T* ) { EMERGENCY_OUT }
 
-	template< typename T > void    displayText ( T* ) { EMERGENCY_OUT }
+	template< typename T > void    displayText( T* ) { EMERGENCY_OUT }
 
-	template< typename T > void    displayToggle ( T* ) { EMERGENCY_OUT }
+	template< typename T > void    displayToggle( T* ) { EMERGENCY_OUT }
 
 #  undef EMERGENCY_OUT
 

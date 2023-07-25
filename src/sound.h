@@ -27,10 +27,10 @@
  * @brief declare centralized functions to play sounds.
  **/
 
-void play_explosion_sound ( int32_t type, int32_t x, int32_t vol, int32_t f_off );
-void play_fire_sound ( int32_t type, int32_t x, int32_t vol, int32_t f_off );
+void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
+void play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
 void play_music();
-void play_natural_sound ( int32_t type, int32_t x, int32_t vol, int32_t f_off );
-void play_interface_sound ( eSounds sound );
+void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
+void play_interface_sound( eSounds sound );
 
 #endif // ATANKS_SRC_SOUNDS_H_INCLUDED

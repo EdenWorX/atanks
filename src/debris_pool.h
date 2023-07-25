@@ -34,7 +34,7 @@ struct sDebrisItem {
 	sDebrisItem* next    = nullptr;
 	sDebrisItem* prev    = nullptr;
 
-	explicit sDebrisItem ( int32_t diameter_, sDebrisItem* next_ );
+	explicit sDebrisItem( int32_t diameter_, sDebrisItem* next_ );
 	~sDebrisItem();
 };
 
@@ -47,14 +47,14 @@ struct sDebrisItem {
 struct sDebrisPool {
 	typedef sDebrisItem item_t;
 
-	explicit sDebrisPool ( int32_t limit_ );
+	explicit sDebrisPool( int32_t limit_ );
 	~sDebrisPool();
 
-	void    free_item ( item_t* item );
-	item_t* get_item ( int32_t radius );
+	void    free_item( item_t* item );
+	item_t* get_item( int32_t radius );
 
 private:
-	item_t* create_item ( int32_t radius );
+	item_t* create_item( int32_t radius );
 
 	int32_t avail[ 5 ];    //!< How many items are available for which radius.
 	int32_t count_all = 0; //!< Sum of all created items.

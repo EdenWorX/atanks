@@ -38,11 +38,11 @@ volatile int32_t win_clock = 0;
 void             win_clock_add() {
         ++win_clock;
 }
-END_OF_FUNCTION ( win_clock_add )
+END_OF_FUNCTION( win_clock_add )
 
 void win_clock_deinit() {
 	if ( has_win_clock ) {
-		remove_int ( win_clock_add );
+		remove_int( win_clock_add );
 		has_win_clock = false;
 	}
 	win_clock = 0;
@@ -59,9 +59,9 @@ inline int32_t win_clock_get() {
 void win_clock_init() {
 	win_clock = 0;
 	if ( !has_win_clock ) {
-		LOCK_VARIABLE ( win_clock )
-		LOCK_FUNCTION ( win_clock_add )
-		install_int_ex ( win_clock_add, MSEC_TO_TIMER ( 1 ) );
+		LOCK_VARIABLE( win_clock )
+		LOCK_FUNCTION( win_clock_add )
+		install_int_ex( win_clock_add, MSEC_TO_TIMER( 1 ) );
 		has_win_clock = true;
 	}
 }

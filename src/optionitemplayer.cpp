@@ -27,9 +27,9 @@
  * @param[in] height_ Height of the display area.
  * @param[in] padding_ Padding of the title and buttons to the display area.
  **/
-OptionItemPlayer::OptionItemPlayer (
+OptionItemPlayer::OptionItemPlayer(
 	PLAYER** player_,
-	int32_t ( *action_ ) ( PLAYER** player_, int32_t ),
+	int32_t ( *action_ )( PLAYER** player_, int32_t ),
 	const char* title_,
 	int32_t     titleIdx_,
 	int32_t     top_,
@@ -38,7 +38,7 @@ OptionItemPlayer::OptionItemPlayer (
 	int32_t     height_,
 	int32_t     padding_
 )
-	: OptionItemBase (
+	: OptionItemBase(
 		ET_NONE,
 		title_                    ? title_
 		: ( player_ && *player_ ) ? ( *player_ )->getName()
@@ -58,10 +58,10 @@ OptionItemPlayer::OptionItemPlayer (
 		0
 	) {
 	// For ET_TOGGLE, only the player_ is needed
-	assert ( player_ && "ERROR: player_ must be set" );
+	assert( player_ && "ERROR: player_ must be set" );
 
 	// For ET_MENU, action_ must be set, too, and for ET_TOGGLE *player_ must be set.
-	assert ( ( action_ || ( player_ && *player_ ) ) && "ERROR: If no action_ function is set, *player_ must be valid" );
+	assert( ( action_ || ( player_ && *player_ ) ) && "ERROR: If no action_ function is set, *player_ must be valid" );
 	actionFunc = action_;
 	player     = player_;
 
@@ -94,16 +94,16 @@ OptionItemPlayer::~OptionItemPlayer() {
  *
  * @return The return code of the action function.
  **/
-int32_t OptionItemPlayer::activate ( int32_t, int32_t, int32_t, int32_t ) {
+int32_t OptionItemPlayer::activate( int32_t, int32_t, int32_t, int32_t ) {
 	int32_t result = -1;
 
 	if ( ET_MENU == this->type )
-		result = actionFunc ( player, 0 );
+		result = actionFunc( player, 0 );
 	else if ( ET_TOGGLE == this->type )
-		this->activateToggle ( &( *player )->selected );
+		this->activateToggle( &( *player )->selected );
 
 	// Changes are displayed at once:
-	if ( ET_NONE != this->type ) this->clear_display ( true );
+	if ( ET_NONE != this->type ) this->clear_display( true );
 
 	return result;
 }
@@ -122,31 +122,32 @@ bool OptionItemPlayer::canGoUp() {
  *
  * @param[in] show_full If set to true, title and buttons are redrawn.
  **/
-void OptionItemPlayer::display ( bool show_full ) {
+void OptionItemPlayer::display( bool show_full ) {
 	static const int32_t team_col_hi         = 0xc0;
 	static const int32_t team_col_mi         = 0x40;
 	static const int32_t team_col_lo         = 0x18;
 	static const char*   team_Indicator[ 4 ] = { "S", "N", "J", "?" };
 	static const int32_t team_color_bg[ 4 ]  = {
-                makecol ( team_col_mi, team_col_lo, team_col_lo ),
-                makecol ( team_col_lo, team_col_mi, team_col_lo ),
-                makecol ( team_col_lo, team_col_lo, team_col_mi ),
-                makecol ( team_col_mi, team_col_mi, team_col_mi )
+                makecol( team_col_mi, team_col_lo, team_col_lo ),
+                makecol( team_col_lo, team_col_mi, team_col_lo ),
+                makecol( team_col_lo, team_col_lo, team_col_mi ),
+                makecol( team_col_mi, team_col_mi, team_col_mi )
 	};
 	static const int32_t team_color_fg[ 4 ] = {
-		makecol ( team_col_hi, team_col_mi, team_col_mi ),
-		makecol ( team_col_mi, team_col_hi, team_col_mi ),
-		makecol ( team_col_mi, team_col_mi, team_col_hi ),
-		makecol ( team_col_hi, team_col_hi, team_col_hi )
+		makecol( team_col_hi, team_col_mi, team_col_mi ),
+		makecol( team_col_mi, team_col_hi, team_col_mi ),
+		makecol( team_col_mi, team_col_mi, team_col_hi ),
+		makecol( team_col_hi, team_col_hi, team_col_hi )
 	};
 
 	if ( !drawn ) {
 		// Be sure to have the current name and color:
 		color = player && *player ? ( *player )->color : color;
-		if ( player && *player && ( !title || ( strcmp ( ( *player )->getName(), title ) ) ) ) setTitle ( ( *player )->getName() );
+		if ( player && *player && ( !title || ( strcmp( ( *player )->getName(), title ) ) ) )
+			setTitle( ( *player )->getName() );
 
 		// Now display the player
-		int32_t tWidth   = -1 == titleIdx ? text_length ( font, "W" ) + padding + 4 : 0;
+		int32_t tWidth   = -1 == titleIdx ? text_length( font, "W" ) + padding + 4 : 0;
 		int32_t xOff     = -1 == titleIdx ? 15 + padding + tWidth : 0;
 		int32_t txtLeft  = left + xOff;
 		int32_t txtColor = color;
@@ -156,7 +157,7 @@ void OptionItemPlayer::display ( bool show_full ) {
 		// If this is a toggle, it must be displayed first:
 		if ( ET_TOGGLE == this->type ) {
 			int32_t bgColor = BLACK;
-			int32_t shColor = makecol ( getr ( color ) / 3, getg ( color ) / 3, getb ( color ) / 3 );
+			int32_t shColor = makecol( getr( color ) / 3, getg( color ) / 3, getb( color ) / 3 );
 
 			// Swap colors if the player is selected
 			if ( ( *player )->selected ) {
@@ -165,13 +166,13 @@ void OptionItemPlayer::display ( bool show_full ) {
 			}
 
 			// Add a button like area for the name
-			rect ( global.canvas, txtLeft, top, left + width, top + height, txtColor );
-			rect ( global.canvas, txtLeft + 1, top + 1, left + width - 1, top + height - 1, txtColor );
-			hline ( global.canvas, txtLeft + 1, top + height - 1, left + width - 1, shColor );
-			hline ( global.canvas, txtLeft, top + height, left + width, shColor );
-			vline ( global.canvas, left + width - 1, top + 1, top + height - 1, shColor );
-			vline ( global.canvas, left + width, top, top + height, shColor );
-			rectfill ( global.canvas, txtLeft + 2, top + 2, left + width - 2, top + height - 2, bgColor );
+			rect( global.canvas, txtLeft, top, left + width, top + height, txtColor );
+			rect( global.canvas, txtLeft + 1, top + 1, left + width - 1, top + height - 1, txtColor );
+			hline( global.canvas, txtLeft + 1, top + height - 1, left + width - 1, shColor );
+			hline( global.canvas, txtLeft, top + height, left + width, shColor );
+			vline( global.canvas, left + width - 1, top + 1, top + height - 1, shColor );
+			vline( global.canvas, left + width, top, top + height, shColor );
+			rectfill( global.canvas, txtLeft + 2, top + 2, left + width - 2, top + height - 2, bgColor );
 
 			// Additional text offset for the border
 			txtLeft += 3;
@@ -183,27 +184,44 @@ void OptionItemPlayer::display ( bool show_full ) {
 		if ( title && title[ 0 ] ) {
 
 			// Is the text shadowed, then create one:
-			if ( env.shadowedText ) textout_ex ( global.canvas, font, title, txtLeft + 2, xTop + 2, GetShadeColor ( txtColor, true, PINK ), -1 );
+			if ( env.shadowedText )
+				textout_ex(
+					global.canvas,
+					font,
+					title,
+					txtLeft + 2,
+					xTop + 2,
+					GetShadeColor( txtColor, true, PINK ),
+					-1
+				);
 
-			textout_ex ( global.canvas, font, title, txtLeft + 1, xTop + 1, txtColor, -1 );
+			textout_ex( global.canvas, font, title, txtLeft + 1, xTop + 1, txtColor, -1 );
 		}
 
 		// Second the player type indicator:
 		if ( -1 == titleIdx ) {
-			( *player )->drawIndicator ( left, xTop, xHeight );
+			( *player )->drawIndicator( left, xTop, xHeight );
 
 			// and third the team indicator:
 			int32_t xLeft = left + 19;
 
-			rectfill ( global.canvas, xLeft + 1, xTop + 3, xLeft + 12, xTop + xHeight - 2, team_color_bg[ pTeam ] );
-			rect ( global.canvas, xLeft, xTop + 2, xLeft + 13, xTop + xHeight - 1, team_color_fg[ pTeam ] );
+			rectfill( global.canvas, xLeft + 1, xTop + 3, xLeft + 12, xTop + xHeight - 2, team_color_bg[ pTeam ] );
+			rect( global.canvas, xLeft, xTop + 2, xLeft + 13, xTop + xHeight - 1, team_color_fg[ pTeam ] );
 
 			xLeft += 7;
 
-			textout_centre_ex ( global.canvas, font, team_Indicator[ pTeam ], xLeft - ( TEAM_SITH == pTeam ? 1 : 0 ), xTop + 1, team_color_fg[ pTeam ], -1 );
+			textout_centre_ex(
+				global.canvas,
+				font,
+				team_Indicator[ pTeam ],
+				xLeft - ( TEAM_SITH == pTeam ? 1 : 0 ),
+				xTop + 1,
+				team_color_fg[ pTeam ],
+				-1
+			);
 		} // end of player indicator
 
-		global.make_update ( left, top, width, height );
+		global.make_update( left, top, width, height );
 		drawn = true;
 	}
 

@@ -20,10 +20,18 @@
  * @param[in] height_ Height of the display area.
  * @param[in] padding_ Padding of the title and buttons to the display area.
  **/
-OptionItemMenu::OptionItemMenu (
-	Menu* menu_, const char* title_, int32_t titleIdx_, int32_t color_, int32_t top_, int32_t left_, int32_t width_, int32_t height_, int32_t padding_
+OptionItemMenu::OptionItemMenu(
+	Menu*       menu_,
+	const char* title_,
+	int32_t     titleIdx_,
+	int32_t     color_,
+	int32_t     top_,
+	int32_t     left_,
+	int32_t     width_,
+	int32_t     height_,
+	int32_t     padding_
 )
-	: OptionItemBase (
+	: OptionItemBase(
 		ET_MENU,
 		title_  ? title_
 		: menu_ ? menu_->getTitle()
@@ -40,9 +48,9 @@ OptionItemMenu::OptionItemMenu (
 		padding_,
 		0
 	)
-	, menu ( menu_ ) {
+	, menu( menu_ ) {
 	// Both action or player must be set
-	assert ( menu_ && "A nullptr menu_ makes no sense..." );
+	assert( menu_ && "A nullptr menu_ makes no sense..." );
 	// As the title is displayed as text, textOnly must be set:
 	this->textOnly = true;
 }
@@ -66,7 +74,7 @@ OptionItemMenu::~OptionItemMenu() {
  *
  * @return The return code of the sub menu.
  **/
-int32_t OptionItemMenu::activate ( int32_t, int32_t, int32_t, int32_t ) {
+int32_t OptionItemMenu::activate( int32_t, int32_t, int32_t, int32_t ) {
 	// Remove parent menu timer
 	WIN_CLOCK_REMOVE
 
@@ -74,7 +82,7 @@ int32_t OptionItemMenu::activate ( int32_t, int32_t, int32_t, int32_t ) {
 
 	// Changes are displayed at once:
 	this->drawn    = false;
-	this->display ( false );
+	this->display( false );
 
 	// Re-add parent menu timer
 	WIN_CLOCK_INIT
@@ -96,8 +104,8 @@ bool OptionItemMenu::canGoUp() {
  *
  * @param[in] show_full If set to true, title and buttons are redrawn.
  **/
-void OptionItemMenu::display ( bool show_full ) {
-	this->displayMenu ( menu );
+void OptionItemMenu::display( bool show_full ) {
+	this->displayMenu( menu );
 
 	// Show decorations if wanted:
 	if ( show_full ) this->displayDeco();
@@ -110,5 +118,5 @@ bool OptionItemMenu::isExitButton() {
 
 /// @brief simply calls setLanguage(false) on the target menu
 void OptionItemMenu::setLanguage() {
-	if ( menu ) menu->setLanguage ( false );
+	if ( menu ) menu->setLanguage( false );
 }

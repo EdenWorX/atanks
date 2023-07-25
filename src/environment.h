@@ -96,35 +96,35 @@ public:
 	 * --- Public methods ---
 	 * ----------------------
 	 */
-	void         addGamePlayer ( PLAYER* player_ );
-	PLAYER*      createNewPlayer ( const char* player_name );
-	void         creditWinners ( int32_t winner );
+	void         addGamePlayer( PLAYER* player_ );
+	PLAYER*      createNewPlayer( const char* player_name );
+	void         creditWinners( int32_t winner );
 	void         decreaseVolume();
-	void         deletePermPlayer ( PLAYER* player_ );
+	void         deletePermPlayer( PLAYER* player_ );
 	void         destroy(); // Must be called before allegro shutdown
 	void         find_config_dir();
 	bool         find_data_dir();
 	void         first_init(); // Used for the first init after creation
 	void         genItemsList();
-	int32_t      getPlayerByName ( const char* player_name );
+	int32_t      getPlayerByName( const char* player_name );
 	void         increaseVolume();
 	int32_t      ingamemenu();
 	void         initialise(); // Does a regular initialization
-	bool         isItemAvailable ( int32_t itemNum );
+	bool         isItemAvailable( int32_t itemNum );
 	bool         loadBackgroundMusic();
 	bool         loadBitmaps();
 	bool         loadFonts();
 	bool         loadGameFiles();
-	void         load_from_file ( FILE* file );
+	void         load_from_file( FILE* file );
 	bool         loadSounds();
 	void         load_text_files();
 	void         newRound();
-	void         removeGamePlayer ( PLAYER* player_ );
+	void         removeGamePlayer( PLAYER* player_ );
 	void         Reset_Options();
-	bool         save_to_file ( FILE* file );
-	bool         sendToClients ( const char* message ); // send a short message to all network clients
-	void         set_fps ( int32_t new_FPS );
-	void         window_update ( int32_t x, int32_t y, int32_t w, int32_t h );
+	bool         save_to_file( FILE* file );
+	bool         sendToClients( const char* message ); // send a short message to all network clients
+	void         set_fps( int32_t new_FPS );
+	void         window_update( int32_t x, int32_t y, int32_t w, int32_t h );
 
 
 	/* ----------------------
@@ -132,17 +132,17 @@ public:
 	 * ----------------------
 	 */
 
-	PLAYER**     allPlayers = nullptr;
+	PLAYER**     allPlayers               = nullptr;
 	int32_t      availableItems[ THINGS ] = { 0x0 };
-	SAMPLE*      background_music  = nullptr;
-	char**       bitmap_filenames  = nullptr;
-	int32_t      boxedMode         = BM_OFF;
-	BITMAP**     button            = nullptr;
-	bool         campaign_mode     = false;
-	double       campaign_rounds   = 0.; // 20% of the total round number
-	bool         check_for_updates = true;
-	int32_t      colourDepth       = 0;
-	int32_t      colourTheme       = CT_CRISPY; // land and sky gradiant theme
+	SAMPLE*      background_music         = nullptr;
+	char**       bitmap_filenames         = nullptr;
+	int32_t      boxedMode                = BM_OFF;
+	BITMAP**     button                   = nullptr;
+	bool         campaign_mode            = false;
+	double       campaign_rounds          = 0.; // 20% of the total round number
+	bool         check_for_updates        = true;
+	int32_t      colourDepth              = 0;
+	int32_t      colourTheme              = CT_CRISPY; // land and sky gradiant theme
 	string       configDir;
 	int32_t      current_wallType  = 0;
 	int32_t      custom_background = 0;

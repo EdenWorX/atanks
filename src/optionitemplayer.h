@@ -44,9 +44,9 @@ public:
 	 * -------------------------------------------
 	 */
 
-	explicit OptionItemPlayer (
+	explicit OptionItemPlayer(
 		PLAYER** player_,
-		int32_t ( *action_ ) ( PLAYER** player_, int32_t ),
+		int32_t ( *action_ )( PLAYER** player_, int32_t ),
 		const char* title_,
 		int32_t     titleIdx_,
 		int32_t     top_,
@@ -62,10 +62,10 @@ public:
 	 * ----------------------
 	 */
 
-	virtual int32_t activate ( int32_t, int32_t, int32_t, int32_t );
+	virtual int32_t activate( int32_t, int32_t, int32_t, int32_t );
 	virtual bool    canGoDown();
 	virtual bool    canGoUp();
-	virtual void    display ( bool show_full );
+	virtual void    display( bool show_full );
 	virtual bool    isExitButton();
 	void            setLanguage();
 
@@ -75,7 +75,7 @@ private:
 	 * ----------------------------------------------
 	 */
 
-	int32_t ( *actionFunc ) ( PLAYER** target, int32_t ) = nullptr;
+	int32_t ( *actionFunc )( PLAYER** target, int32_t ) = nullptr;
 
 
 	/* -----------------------
@@ -83,7 +83,7 @@ private:
 	 * -----------------------
 	 */
 
-	PLAYER** player                                      = nullptr; //!< PLAYER instance to handle
+	PLAYER** player                                     = nullptr; //!< PLAYER instance to handle
 };
 
 

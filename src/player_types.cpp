@@ -1,10 +1,10 @@
 #include "player_types.h"
 
 playerType &operator+= ( playerType &src, int32_t val ) {
-	int32_t cur = static_cast< int32_t > ( src ) + val;
+	int32_t cur = static_cast< int32_t >( src ) + val;
 	if ( cur > 0 ) cur %= LAST_PLAYER_TYPE;
 	if ( cur < 0 ) cur = LAST_PLAYER_TYPE - ( ( -1 * cur ) % LAST_PLAYER_TYPE );
-	src = static_cast< playerType > ( cur );
+	src = static_cast< playerType >( cur );
 	return src;
 }
 
@@ -23,10 +23,10 @@ playerType operator++ ( playerType &src, int32_t ) {
 }
 
 playerPrefType &operator+= ( playerPrefType &src, int32_t val ) {
-	int32_t cur = static_cast< int32_t > ( src ) + val;
+	int32_t cur = static_cast< int32_t >( src ) + val;
 	if ( cur > 0 ) cur %= PREF_COUNT;
 	if ( cur < 0 ) cur = PREF_COUNT - ( ( -1 * cur ) % PREF_COUNT );
-	src = static_cast< playerPrefType > ( cur );
+	src = static_cast< playerPrefType >( cur );
 	return src;
 }
 
@@ -45,10 +45,10 @@ playerPrefType operator++ ( playerPrefType &src, int32_t ) {
 }
 
 ePlayerStages &operator+= ( ePlayerStages &src, int32_t val ) {
-	int32_t cur = static_cast< int32_t > ( src ) + val;
+	int32_t cur = static_cast< int32_t >( src ) + val;
 	if ( cur > 0 ) cur %= PS_STAGE_COUNT;
 	if ( cur < 0 ) cur = PS_STAGE_COUNT - ( ( -1 * cur ) % PS_STAGE_COUNT );
-	src = static_cast< ePlayerStages > ( cur );
+	src = static_cast< ePlayerStages >( cur );
 	return src;
 }
 
@@ -67,10 +67,10 @@ ePlayerStages operator++ ( ePlayerStages &src, int32_t ) {
 }
 
 eTeamTypes &operator+= ( eTeamTypes &src, int32_t val ) {
-	int32_t cur = static_cast< int32_t > ( src ) + val;
+	int32_t cur = static_cast< int32_t >( src ) + val;
 	if ( cur > 0 ) cur %= TEAM_COUNT;
 	if ( cur < 0 ) cur = TEAM_COUNT - ( ( -1 * cur ) % TEAM_COUNT );
-	src = static_cast< eTeamTypes > ( cur );
+	src = static_cast< eTeamTypes >( cur );
 	return src;
 }
 
@@ -89,10 +89,10 @@ eTeamTypes operator++ ( eTeamTypes &src, int32_t ) {
 }
 
 eTankTypes &operator+= ( eTankTypes &src, int32_t val ) {
-	int32_t cur = static_cast< int32_t > ( src ) + val;
+	int32_t cur = static_cast< int32_t >( src ) + val;
 	if ( cur > 0 ) cur %= TT_TANK_COUNT;
 	if ( cur < 0 ) cur = TT_TANK_COUNT - ( ( -1 * cur ) % TT_TANK_COUNT );
-	src = static_cast< eTankTypes > ( cur );
+	src = static_cast< eTankTypes >( cur );
 	return src;
 }
 

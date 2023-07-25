@@ -29,48 +29,48 @@ ITEM   item[ ITEMS ];
  * @return true on success and false on failure.
  **/
 bool   Save_Game() {
-        string save_path{ env.configDir + string ( "/" ).append ( env.game_name ).append ( ".sav" ) };
+        string save_path{ env.configDir + string( "/" ).append( env.game_name ).append( ".sav" ) };
 
-        FILE*  game_file = fopen ( save_path.c_str(), "w" );
+        FILE*  game_file = fopen( save_path.c_str(), "w" );
         if ( !game_file ) return false;
 
         // write file version information
-        fprintf ( game_file, "VERSION\n" );
-        fprintf ( game_file, "FILE_VERSION=%d\n", game_version );
-        fprintf ( game_file, "***\n" );
+        fprintf( game_file, "VERSION\n" );
+        fprintf( game_file, "FILE_VERSION=%d\n", game_version );
+        fprintf( game_file, "***\n" );
 
         // write global data
-        fprintf ( game_file, "GLOBAL\n" );
-        fprintf ( game_file, "CURRENTROUND=%d\n", global.currentround + 1 );
+        fprintf( game_file, "GLOBAL\n" );
+        fprintf( game_file, "CURRENTROUND=%d\n", global.currentround + 1 );
         // Note: When the game is saved, the round already has been decreased. Thus,
         // to not loose rounds when saving a game, returning to main and load it
         // again, this has to be increased here.
-        fprintf ( game_file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
-        fprintf ( game_file, "***\n" );
+        fprintf( game_file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
+        fprintf( game_file, "***\n" );
 
         // write environment data
-        fprintf ( game_file, "ENVIRONMENT\n" );
-        fprintf ( game_file, "CAMPAIGNMODE=%d\n", env.campaign_mode ? 1 : 0 );
-        fprintf ( game_file, "CAMPAIGNROUNDS=%lf\n", env.campaign_rounds );
-        fprintf ( game_file, "NEXTCAMPROUND=%lf\n", env.nextCampaignRound );
-        fprintf ( game_file, "ROUNDS=%u\n", env.rounds );
-        fprintf ( game_file, "***\n" );
+        fprintf( game_file, "ENVIRONMENT\n" );
+        fprintf( game_file, "CAMPAIGNMODE=%d\n", env.campaign_mode ? 1 : 0 );
+        fprintf( game_file, "CAMPAIGNROUNDS=%lf\n", env.campaign_rounds );
+        fprintf( game_file, "NEXTCAMPROUND=%lf\n", env.nextCampaignRound );
+        fprintf( game_file, "ROUNDS=%u\n", env.rounds );
+        fprintf( game_file, "***\n" );
 
         // write player data
-        fprintf ( game_file, "PLAYERS\n" );
+        fprintf( game_file, "PLAYERS\n" );
         for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
                 PLAYER* my_player = env.players[ i ];
 
                 if ( my_player->index > -1 ) {
                         // Note: This line is needed to know which player to load
-                        fprintf ( game_file, "PLAYERNUMBER=%d\n", my_player->index );
-                        my_player->save_game_data ( game_file );
+                        fprintf( game_file, "PLAYERNUMBER=%d\n", my_player->index );
+                        my_player->save_game_data( game_file );
                 }
         }
 
-        fprintf ( game_file, "***EOF***\n" );
+        fprintf( game_file, "***EOF***\n" );
 
-        fclose ( game_file );
+        fclose( game_file );
 
         /* atanks always saved the current configuration in a file
          * alongside the save game, but this environment file was
@@ -84,9 +84,9 @@ bool   Save_Game() {
          * but if an old one is laying around, we should delete our
          * own garbage:
          */
-        save_path.replace ( save_path.size() - 3, 3, "txt" );
-        if ( !access ( save_path.c_str(), F_OK ) && !access ( save_path.c_str(), W_OK ) ) {
-                unlink ( save_path.c_str() );
+        save_path.replace( save_path.size() - 3, 3, "txt" );
+        if ( !access( save_path.c_str(), F_OK ) && !access( save_path.c_str(), W_OK ) ) {
+                unlink( save_path.c_str() );
         }
 
         return true;
@@ -111,87 +111,86 @@ bool Load_Game() {
 	int32_t     file_version                 = 0;
 
 	// Be sure that numbers are understood right:
-	const char* cur_lc_numeric               = setlocale ( LC_NUMERIC, "C" );
+	const char* cur_lc_numeric               = setlocale( LC_NUMERIC, "C" );
 
 	// Ensure backward compatibility:
 	env.nextCampaignRound                    = -1.;
 	env.campaign_rounds                      = -1.;
 
 	// Open game file
-	string save_path{ env.configDir + string ( "/" ).append ( env.game_name ).append ( ".sav" ) };
-	FILE*  game_file = fopen ( save_path.c_str(), "r" );
+	string save_path{ env.configDir + string( "/" ).append( env.game_name ).append( ".sav" ) };
+	FILE*  game_file = fopen( save_path.c_str(), "r" );
 	if ( !game_file ) return false;
 
 	// Now read until the file is finished loading
 	eSaveGameStage stage = SGS_NONE;
 	do {
 		// read a line
-		memset ( line, 0, MAX_CONFIG_LINE );
-		if ( ( result = fgets ( line, MAX_CONFIG_LINE, game_file ) ) ) {
+		memset( line, 0, MAX_CONFIG_LINE );
+		if ( ( result = fgets( line, MAX_CONFIG_LINE, game_file ) ) ) {
 			++line_num;
 
 			// if we hit end of the file, stop
-			if ( !strncmp ( line, "***EOF***", 9 ) ) {
+			if ( !strncmp( line, "***EOF***", 9 ) ) {
 				done = true;
 				continue; // This exits the loop as well
 			}
 
 			// strip newline character
-			size_t line_length = strlen ( line );
+			size_t line_length = strlen( line );
 			while ( line[ line_length - 1 ] == '\n' ) {
 				line[ line_length - 1 ] = '\0';
 				line_length--;
 			}
 
 			// check to see if we found a new stage
-			if ( !strcasecmp ( line, "GLOBAL" ) )
+			if ( !strcasecmp( line, "GLOBAL" ) )
 				stage = SGS_GLOBAL;
-			else if ( !strcasecmp ( line, "ENVIRONMENT" ) )
+			else if ( !strcasecmp( line, "ENVIRONMENT" ) )
 				stage = SGS_ENVIRONMENT;
-			else if ( !strcasecmp ( line, "PLAYERS" ) ) {
+			else if ( !strcasecmp( line, "PLAYERS" ) ) {
 				// Here the file version must be known, or it is not set.
 				// Inform the user if an upgrade is needed
 				if ( game_version > file_version )
-					fprintf (
-						stdout,
-						"Game \"%s\" needs to be upgraded"
-						" from version %2.1f to version %2.1f\n",
-						env.game_name.c_str(),
-						static_cast< float > ( file_version ) / 10.0,
-						static_cast< float > ( game_version ) / 10.0
-					);
+					fprintf( stdout,
+					         "Game \"%s\" needs to be upgraded"
+					         " from version %2.1f to version %2.1f\n",
+					         env.game_name.c_str(),
+					         static_cast< float >( file_version ) / 10.0,
+					         static_cast< float >( game_version ) / 10.0 );
 
 				stage = SGS_PLAYERS;
-			} else if ( !strcasecmp ( line, "VERSION" ) )
+			} else if ( !strcasecmp( line, "VERSION" ) )
 				stage = SGS_VERSION;
 			else {
 				// Not a new stage, keep loading.
 
 				// find equal sign
 				size_t equal_position = 1;
-				while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) equal_position++;
+				while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) )
+					equal_position++;
 
 				// make sure the equal sign position is valid
 				if ( line[ equal_position ] != '=' ) continue; // Go to next line
 
 				// separate field from value
-				memset ( field, '\0', MAX_CONFIG_LINE );
-				memset ( value, '\0', MAX_CONFIG_LINE );
-				strncpy ( field, line, equal_position );
-				strncpy ( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
+				memset( field, '\0', MAX_CONFIG_LINE );
+				memset( value, '\0', MAX_CONFIG_LINE );
+				strncpy( field, line, equal_position );
+				strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
 
 				switch ( stage ) {
 					case SGS_ENVIRONMENT:
-						if ( !strcasecmp ( field, "CAMPAIGNMODE" ) ) {
+						if ( !strcasecmp( field, "CAMPAIGNMODE" ) ) {
 							int32_t cm = 0;
-							sscanf ( value, "%d", &cm );
+							sscanf( value, "%d", &cm );
 							env.campaign_mode = !cm ? false : true;
-						} else if ( !strcasecmp ( field, "CAMPAIGNROUNDS" ) )
-							sscanf ( value, "%lf", &env.campaign_rounds );
-						else if ( !strcasecmp ( field, "ROUNDS" ) )
-							sscanf ( value, "%u", &env.rounds );
-						else if ( !strcasecmp ( field, "NEXTCAMPROUND" ) )
-							sscanf ( value, "%lf", &env.nextCampaignRound );
+						} else if ( !strcasecmp( field, "CAMPAIGNROUNDS" ) )
+							sscanf( value, "%lf", &env.campaign_rounds );
+						else if ( !strcasecmp( field, "ROUNDS" ) )
+							sscanf( value, "%u", &env.rounds );
+						else if ( !strcasecmp( field, "NEXTCAMPROUND" ) )
+							sscanf( value, "%lf", &env.nextCampaignRound );
 						else {
 							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
@@ -200,21 +199,22 @@ bool Load_Game() {
 
 						break;
 					case SGS_GLOBAL:
-						if ( !strcasecmp ( field, "CURRENTROUND" ) ) sscanf ( value, "%u", &global.currentround );
+						if ( !strcasecmp( field, "CURRENTROUND" ) )
+							sscanf( value, "%u", &global.currentround );
 
 						// The following are kept for backwards compatibility:
 
-						else if ( !strcasecmp ( field, "NEXTCAMPROUND" ) )
-							sscanf ( value, "%lf", &env.nextCampaignRound );
-						else if ( !strcasecmp ( field, "CAMPAIGNMODE" ) ) {
+						else if ( !strcasecmp( field, "NEXTCAMPROUND" ) )
+							sscanf( value, "%lf", &env.nextCampaignRound );
+						else if ( !strcasecmp( field, "CAMPAIGNMODE" ) ) {
 							int32_t cm = 0;
-							sscanf ( value, "%d", &cm );
+							sscanf( value, "%d", &cm );
 							env.campaign_mode = !cm ? false : true;
-						} else if ( !strcasecmp ( field, "ROUNDS" ) )
-							sscanf ( value, "%u", &env.rounds );
-						else if ( !strcasecmp ( field, "SCOREBOARD" ) ) {
+						} else if ( !strcasecmp( field, "ROUNDS" ) )
+							sscanf( value, "%u", &env.rounds );
+						else if ( !strcasecmp( field, "SCOREBOARD" ) ) {
 							int32_t enabled = 0;
-							sscanf ( value, "%d", &enabled );
+							sscanf( value, "%d", &enabled );
 							global.showScoreBoard = ( enabled != 0 );
 						} else {
 							cerr << save_path << ":" << line_num << " : Ignored line\n";
@@ -224,18 +224,19 @@ bool Load_Game() {
 
 						break;
 					case SGS_PLAYERS:
-						if ( !strcasecmp ( field, "PLAYERNUMBER" ) ) {
-							sscanf ( value, "%d", &player_idx );
-							if ( ( player_idx > -1 ) && ( player_idx < env.numPermanentPlayers ) && ( player_count < MAXPLAYERS ) ) {
-								env.addGamePlayer ( env.allPlayers[ player_idx ] );
-								env.players[ player_count++ ]->initialise ( true );
+						if ( !strcasecmp( field, "PLAYERNUMBER" ) ) {
+							sscanf( value, "%d", &player_idx );
+							if ( ( player_idx > -1 ) && ( player_idx < env.numPermanentPlayers )
+							     && ( player_count < MAXPLAYERS ) ) {
+								env.addGamePlayer( env.allPlayers[ player_idx ] );
+								env.players[ player_count++ ]->initialise( true );
 							} else
 								player_idx = -1;
 						}
 
 						// Now let the player load itself
 						if ( player_idx > -1 )
-							env.allPlayers[ player_idx ]->load_game_data ( game_file, file_version );
+							env.allPlayers[ player_idx ]->load_game_data( game_file, file_version );
 						else {
 							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
@@ -244,8 +245,8 @@ bool Load_Game() {
 
 						break;
 					case SGS_VERSION:
-						if ( !strcasecmp ( field, "FILE_VERSION" ) )
-							sscanf ( value, "%d", &file_version );
+						if ( !strcasecmp( field, "FILE_VERSION" ) )
+							sscanf( value, "%d", &file_version );
 						else {
 							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
@@ -265,13 +266,13 @@ bool Load_Game() {
 	} while ( result && !done );
 	// End of being not done
 
-	fclose ( game_file );
+	fclose( game_file );
 
 	// See if the campaign state values have to be recalculated
 	// because an old save game was loaded.
-	if ( env.campaign_rounds < 0. ) env.campaign_rounds = static_cast< double > ( env.rounds ) / 5.;
+	if ( env.campaign_rounds < 0. ) env.campaign_rounds = static_cast< double >( env.rounds ) / 5.;
 	if ( env.nextCampaignRound < 0. ) {
-		env.nextCampaignRound = static_cast< double > ( env.rounds ) - env.campaign_rounds;
+		env.nextCampaignRound = static_cast< double >( env.rounds ) - env.campaign_rounds;
 		while ( global.currentround < env.nextCampaignRound ) env.nextCampaignRound -= env.campaign_rounds;
 	}
 
@@ -281,9 +282,9 @@ bool Load_Game() {
 
 	// Revert locale settings
 	if ( cur_lc_numeric )
-		setlocale ( LC_NUMERIC, cur_lc_numeric );
+		setlocale( LC_NUMERIC, cur_lc_numeric );
 	else
-		setlocale ( LC_NUMERIC, "" );
+		setlocale( LC_NUMERIC, "" );
 
 	return true;
 }
@@ -292,9 +293,9 @@ bool Load_Game() {
 Check to see if a saved game exists with the given name.
 */
 bool Check_For_Saved_Game() {
-	string save_path{ env.configDir + string ( "/" ).append ( env.game_name ).append ( ".sav" ) };
+	string save_path{ env.configDir + string( "/" ).append( env.game_name ).append( ".sav" ) };
 
-	if ( !access ( save_path.c_str(), R_OK ) ) return true;
+	if ( !access( save_path.c_str(), R_OK ) ) return true;
 
 	return false;
 }
@@ -314,50 +315,50 @@ bool Copy_Config_File() {
 	char        buffer[ PATH_MAX + 1 ] = { 0 };
 
 	// check to see if the config file has already been copied
-	string      dest_path{ env.configDir + string ( "/atanks-config.txt" ) };
-	if ( !access ( dest_path.c_str(), R_OK | W_OK ) ) return true;
+	string      dest_path{ env.configDir + string( "/atanks-config.txt" ) };
+	if ( !access( dest_path.c_str(), R_OK | W_OK ) ) return true;
 
-	char* my_home_folder = getenv ( HOME_DIR );
+	char* my_home_folder = getenv( HOME_DIR );
 
 	// figure out where home is
 	if ( !my_home_folder ) my_home_folder = xHere;
 
 
 	// file not copied yet, create the required directory
-	snprintf ( buffer, PATH_MAX, "%s/.atanks", my_home_folder );
+	snprintf( buffer, PATH_MAX, "%s/.atanks", my_home_folder );
 #ifdef ATANKS_IS_WINDOWS
-	int32_t mkdir_status = mkdir ( buffer );
+	int32_t mkdir_status = mkdir( buffer );
 #else
-	int32_t mkdir_status = mkdir ( buffer, 0700 );
+	int32_t mkdir_status = mkdir( buffer, 0700 );
 #endif // ATANKS_IS_WINDOWS
 
 	if ( mkdir_status == -1 ) {
-		printf ( "Error occured. Unable to create sub directory.\n" );
+		printf( "Error occured. Unable to create sub directory.\n" );
 		return false;
 	}
 
 	// check to make sure we have a source file
-	string source_path{ string ( my_home_folder ) + string ( "/.atanks-config.txt" ) };
-	source_file = fopen ( source_path.c_str(), "r" );
+	string source_path{ string( my_home_folder ) + string( "/.atanks-config.txt" ) };
+	source_file = fopen( source_path.c_str(), "r" );
 	if ( !source_file ) return true;
 
 	// we already have an open source file, create destination file
-	dest_file = fopen ( dest_path.c_str(), "wb" );
+	dest_file = fopen( dest_path.c_str(), "wb" );
 	if ( !dest_file ) {
-		printf ( "Unable to create destination file.\n" );
-		fclose ( source_file );
+		printf( "Unable to create destination file.\n" );
+		fclose( source_file );
 		return false;
 	}
 
 	// we have open files, let's copy
-	size_t file_status = fread ( buffer, 1, PATH_MAX, source_file );
+	size_t file_status = fread( buffer, 1, PATH_MAX, source_file );
 	while ( file_status ) {
-		fwrite ( buffer, 1, PATH_MAX, dest_file );
-		file_status = fread ( buffer, 1, PATH_MAX, source_file );
+		fwrite( buffer, 1, PATH_MAX, dest_file );
+		file_status = fread( buffer, 1, PATH_MAX, source_file );
 	}
 
-	fclose ( source_file );
-	fclose ( dest_file );
+	fclose( source_file );
+	fclose( dest_file );
 	return true;
 }
 
@@ -365,19 +366,19 @@ bool Copy_Config_File() {
  * @return true on success or false if an error occures.
  **/
 bool Create_Music_Folder() {
-	string music_dir{ env.configDir + string ( "/music" ) };
-	DIR*   music_folder = opendir ( music_dir.c_str() );
+	string music_dir{ env.configDir + string( "/music" ) };
+	DIR*   music_folder = opendir( music_dir.c_str() );
 
 	if ( !music_folder ) {
 #ifdef ATANKS_IS_WINDOWS
-		if ( mkdir ( music_dir.c_str() ) )
+		if ( mkdir( music_dir.c_str() ) )
 #else
-		if ( mkdir ( music_dir.c_str(), 0700 ) )
+		if ( mkdir( music_dir.c_str(), 0700 ) )
 #endif // ATANKS_IS_WINDOWS
 			return false;
 	} else
 		// it already exists
-		closedir ( music_folder );
+		closedir( music_folder );
 
 	return true;
 }
@@ -385,7 +386,7 @@ bool Create_Music_Folder() {
 /*
 Scroll text in a box
 */
-void scrollTextList ( TEXTBLOCK* lines ) {
+void scrollTextList( TEXTBLOCK* lines ) {
 	int32_t          spacing  = 2;
 	int32_t          tOffset  = ( RAND_MAX / 4 ) + ( rand() % ( RAND_MAX / 4 ) );
 	int32_t          numItems = ( rand() % 100 ) + 20;
@@ -393,20 +394,21 @@ void scrollTextList ( TEXTBLOCK* lines ) {
 	bool             done     = false;
 	bool             moving   = true;
 
-	eBackgroundTypes bgType   = env.dynamicMenuBg ? static_cast< eBackgroundTypes > ( rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	eBackgroundTypes bgType =
+		env.dynamicMenuBg ? static_cast< eBackgroundTypes >( rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 
-	drawMenuBackground ( bgType, tOffset, numItems );
-	quickChange ( true );
+	drawMenuBackground( bgType, tOffset, numItems );
+	quickChange( true );
 
 	int32_t clip_l = env.halfWidth - 299;
 	int32_t clip_t = env.menuBeginY + 1;
 	int32_t clip_b = env.menuEndY - 1;
 	int32_t clip_r = env.halfWidth + 299;
-	set_clip_rect ( global.canvas, clip_l, clip_t, clip_r, clip_b );
+	set_clip_rect( global.canvas, clip_l, clip_t, clip_r, clip_b );
 
 	int32_t scrollOffset = clip_b - env.halfHeight - 14;
 	flush_inputs();
-	SHOW_MOUSE ( nullptr )
+	SHOW_MOUSE( nullptr )
 
 	do {
 		if ( global.isCloseBtnPressed() ) done = true;
@@ -419,9 +421,9 @@ void scrollTextList ( TEXTBLOCK* lines ) {
 		else if ( scrollOffset > ( clip_b - env.halfHeight - 14 ) )
 			scrollOffset = clip_b - env.halfHeight - 14;
 
-		drawMenuBackground ( bgType, tOffset, numItems );
-		lines->Render_Lines ( scrollOffset, spacing, clip_t, clip_b );
-		global.make_update ( env.halfWidth - 300, env.menuBeginY, 601, env.screenHeight - 2 * env.menuBeginY );
+		drawMenuBackground( bgType, tOffset, numItems );
+		lines->Render_Lines( scrollOffset, spacing, clip_t, clip_b );
+		global.make_update( env.halfWidth - 300, env.menuBeginY, 601, env.screenHeight - 2 * env.menuBeginY );
 		global.do_updates();
 		LINUX_REST;
 
@@ -448,8 +450,8 @@ void scrollTextList ( TEXTBLOCK* lines ) {
 		if ( mouse_b ) done = true;
 	} while ( !done );
 
-	SHOW_MOUSE ( global.canvas )
-	set_clip_rect ( global.canvas, 0, 0, ( env.screenWidth - 1 ), ( env.screenHeight - 1 ) );
+	SHOW_MOUSE( global.canvas )
+	set_clip_rect( global.canvas, 0, 0, ( env.screenWidth - 1 ), ( env.screenHeight - 1 ) );
 	flush_inputs();
 }
 
@@ -466,7 +468,7 @@ void flush_inputs() {
 // Returns TRUE on success and FALSE on failure
 bool Load_Weapons_Text() {
 	// Be sure that numbers are understood right:
-	const char* cur_lc_numeric = setlocale ( LC_NUMERIC, "C" );
+	const char* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
 	string      weap_file{ env.dataDir };
 
 	// get path name
@@ -488,16 +490,16 @@ bool Load_Weapons_Text() {
 		weap_file += "/text/weapons_it.txt";
 
 	// open file
-	FILE* wfile = fopen ( weap_file.c_str(), "r" );
+	FILE* wfile = fopen( weap_file.c_str(), "r" );
 
 	if ( !wfile ) {
-		printf ( "Unable to open weapons file. (%s)\n", weap_file.c_str() );
+		printf( "Unable to open weapons file. (%s)\n", weap_file.c_str() );
 		return false;
 	}
 
 	// read line
 	char       line[ 512 ]   = { 0 };
-	char*      status        = fgets ( line, 512, wfile );
+	char*      status        = fgets( line, 512, wfile );
 	eFileStage file_stage    = FS_WEAPONS; // weapons, naturals, items
 	eDataStage data_stage    = DS_NAME;    // name, description, data
 	int32_t    item_count    = 0;
@@ -506,20 +508,20 @@ bool Load_Weapons_Text() {
 
 	while ( status ) {
 		// clear end of line
-		if ( strchr ( line, '\n' ) ) strchr ( line, '\n' )[ 0 ] = '\0';
-		if ( strchr ( line, '\r' ) ) strchr ( line, '\r' )[ 0 ] = '\0';
+		if ( strchr( line, '\n' ) ) strchr( line, '\n' )[ 0 ] = '\0';
+		if ( strchr( line, '\r' ) ) strchr( line, '\r' )[ 0 ] = '\0';
 
 		// skip # and empty lines
-		if ( ( line[ 0 ] != '#' ) && ( strlen ( line ) > 2 ) ) {
+		if ( ( line[ 0 ] != '#' ) && ( strlen( line ) > 2 ) ) {
 
 			// check for header
-			if ( !strcasecmp ( line, "*WEAPONS*" ) ) {
+			if ( !strcasecmp( line, "*WEAPONS*" ) ) {
 				file_stage = FS_WEAPONS;
 				data_stage = DS_NAME;
-			} else if ( !strcasecmp ( line, "*NATURALS*" ) ) {
+			} else if ( !strcasecmp( line, "*NATURALS*" ) ) {
 				file_stage = FS_NATURALS;
 				data_stage = DS_NAME;
-			} else if ( !strcasecmp ( line, "*ITEMS*" ) ) {
+			} else if ( !strcasecmp( line, "*ITEMS*" ) ) {
 				file_stage = FS_ITEMS;
 				data_stage = DS_NAME;
 			}
@@ -531,37 +533,36 @@ bool Load_Weapons_Text() {
 				// =============
 				if ( ( FS_WEAPONS == file_stage ) && ( weapon_count < WEAPONS ) ) {
 					if ( DS_NAME == data_stage )
-						weapon[ weapon_count ].setName ( line );
+						weapon[ weapon_count ].setName( line );
 					else if ( DS_DESC == data_stage )
-						weapon[ weapon_count ].setDesc ( line );
+						weapon[ weapon_count ].setDesc( line );
 					else if ( DS_DATA == data_stage ) {
-						sscanf (
-							line,
-							"%d %d %lf %lf %d %d %d %d %d %d %d %d %d %d %d %d %lf %d %lf %lf %lf %d %lf",
-							&( weapon[ weapon_count ].cost ),
-							&( weapon[ weapon_count ].amt ),
-							&( weapon[ weapon_count ].mass ),
-							&( weapon[ weapon_count ].drag ),
-							&( weapon[ weapon_count ].radius ),
-							&( weapon[ weapon_count ].sound ),
-							&( weapon[ weapon_count ].etime ),
-							&( weapon[ weapon_count ].damage ),
-							&( weapon[ weapon_count ].picpoint ),
-							&( weapon[ weapon_count ].spread ),
-							&( weapon[ weapon_count ].delay ),
-							&( weapon[ weapon_count ].noimpact ),
-							&( weapon[ weapon_count ].techLevel ),
-							&( weapon[ weapon_count ].warhead ),
-							&( weapon[ weapon_count ].numSubmunitions ),
-							&( weapon[ weapon_count ].submunition ),
-							&( weapon[ weapon_count ].impartVelocity ),
-							&( weapon[ weapon_count ].divergence ),
-							&( weapon[ weapon_count ].spreadVariation ),
-							&( weapon[ weapon_count ].launchSpeed ),
-							&( weapon[ weapon_count ].speedVariation ),
-							&( weapon[ weapon_count ].countdown ),
-							&( weapon[ weapon_count ].countVariation )
-						);
+						sscanf( line,
+						        "%d %d %lf %lf %d %d %d %d %d %d %d %d %d %d %d %d %lf %d %lf %lf %lf "
+						        "%d %lf",
+						        &( weapon[ weapon_count ].cost ),
+						        &( weapon[ weapon_count ].amt ),
+						        &( weapon[ weapon_count ].mass ),
+						        &( weapon[ weapon_count ].drag ),
+						        &( weapon[ weapon_count ].radius ),
+						        &( weapon[ weapon_count ].sound ),
+						        &( weapon[ weapon_count ].etime ),
+						        &( weapon[ weapon_count ].damage ),
+						        &( weapon[ weapon_count ].picpoint ),
+						        &( weapon[ weapon_count ].spread ),
+						        &( weapon[ weapon_count ].delay ),
+						        &( weapon[ weapon_count ].noimpact ),
+						        &( weapon[ weapon_count ].techLevel ),
+						        &( weapon[ weapon_count ].warhead ),
+						        &( weapon[ weapon_count ].numSubmunitions ),
+						        &( weapon[ weapon_count ].submunition ),
+						        &( weapon[ weapon_count ].impartVelocity ),
+						        &( weapon[ weapon_count ].divergence ),
+						        &( weapon[ weapon_count ].spreadVariation ),
+						        &( weapon[ weapon_count ].launchSpeed ),
+						        &( weapon[ weapon_count ].speedVariation ),
+						        &( weapon[ weapon_count ].countdown ),
+						        &( weapon[ weapon_count ].countVariation ) );
 					}
 
 					// Advance data stage
@@ -578,37 +579,36 @@ bool Load_Weapons_Text() {
 				// ==============
 				else if ( ( FS_NATURALS == file_stage ) && ( natural_count < NATURALS ) ) {
 					if ( DS_NAME == data_stage )
-						naturals[ natural_count ].setName ( line );
+						naturals[ natural_count ].setName( line );
 					else if ( DS_DESC == data_stage )
-						naturals[ natural_count ].setDesc ( line );
+						naturals[ natural_count ].setDesc( line );
 					else if ( DS_DATA == data_stage ) {
-						sscanf (
-							line,
-							"%d %d %lf %lf %d %d %d %d %d %d %d %d %d %d %d %d %lf %d %lf %lf %lf %d %lf",
-							&( naturals[ natural_count ].cost ),
-							&( naturals[ natural_count ].amt ),
-							&( naturals[ natural_count ].mass ),
-							&( naturals[ natural_count ].drag ),
-							&( naturals[ natural_count ].radius ),
-							&( naturals[ natural_count ].sound ),
-							&( naturals[ natural_count ].etime ),
-							&( naturals[ natural_count ].damage ),
-							&( naturals[ natural_count ].picpoint ),
-							&( naturals[ natural_count ].spread ),
-							&( naturals[ natural_count ].delay ),
-							&( naturals[ natural_count ].noimpact ),
-							&( naturals[ natural_count ].techLevel ),
-							&( naturals[ natural_count ].warhead ),
-							&( naturals[ natural_count ].numSubmunitions ),
-							&( naturals[ natural_count ].submunition ),
-							&( naturals[ natural_count ].impartVelocity ),
-							&( naturals[ natural_count ].divergence ),
-							&( naturals[ natural_count ].spreadVariation ),
-							&( naturals[ natural_count ].launchSpeed ),
-							&( naturals[ natural_count ].speedVariation ),
-							&( naturals[ natural_count ].countdown ),
-							&( naturals[ natural_count ].countVariation )
-						);
+						sscanf( line,
+						        "%d %d %lf %lf %d %d %d %d %d %d %d %d %d %d %d %d %lf %d %lf %lf %lf "
+						        "%d %lf",
+						        &( naturals[ natural_count ].cost ),
+						        &( naturals[ natural_count ].amt ),
+						        &( naturals[ natural_count ].mass ),
+						        &( naturals[ natural_count ].drag ),
+						        &( naturals[ natural_count ].radius ),
+						        &( naturals[ natural_count ].sound ),
+						        &( naturals[ natural_count ].etime ),
+						        &( naturals[ natural_count ].damage ),
+						        &( naturals[ natural_count ].picpoint ),
+						        &( naturals[ natural_count ].spread ),
+						        &( naturals[ natural_count ].delay ),
+						        &( naturals[ natural_count ].noimpact ),
+						        &( naturals[ natural_count ].techLevel ),
+						        &( naturals[ natural_count ].warhead ),
+						        &( naturals[ natural_count ].numSubmunitions ),
+						        &( naturals[ natural_count ].submunition ),
+						        &( naturals[ natural_count ].impartVelocity ),
+						        &( naturals[ natural_count ].divergence ),
+						        &( naturals[ natural_count ].spreadVariation ),
+						        &( naturals[ natural_count ].launchSpeed ),
+						        &( naturals[ natural_count ].speedVariation ),
+						        &( naturals[ natural_count ].countdown ),
+						        &( naturals[ natural_count ].countVariation ) );
 					}
 
 					// Advance data stage
@@ -626,25 +626,23 @@ bool Load_Weapons_Text() {
 				// ==============
 				else if ( ( FS_ITEMS == file_stage ) && ( item_count < ITEMS ) ) {
 					if ( DS_NAME == data_stage )
-						item[ item_count ].setName ( line );
+						item[ item_count ].setName( line );
 					else if ( DS_DESC == data_stage )
-						item[ item_count ].setDesc ( line );
+						item[ item_count ].setDesc( line );
 					else if ( DS_DATA == data_stage ) {
-						sscanf (
-							line,
-							"%d %d %d %d %d %lf %lf %lf %lf %lf %lf",
-							&( item[ item_count ].cost ),
-							&( item[ item_count ].amt ),
-							&( item[ item_count ].selectable ),
-							&( item[ item_count ].techLevel ),
-							&( item[ item_count ].sound ),
-							&( item[ item_count ].vals[ 0 ] ),
-							&( item[ item_count ].vals[ 1 ] ),
-							&( item[ item_count ].vals[ 2 ] ),
-							&( item[ item_count ].vals[ 3 ] ),
-							&( item[ item_count ].vals[ 4 ] ),
-							&( item[ item_count ].vals[ 5 ] )
-						);
+						sscanf( line,
+						        "%d %d %d %d %d %lf %lf %lf %lf %lf %lf",
+						        &( item[ item_count ].cost ),
+						        &( item[ item_count ].amt ),
+						        &( item[ item_count ].selectable ),
+						        &( item[ item_count ].techLevel ),
+						        &( item[ item_count ].sound ),
+						        &( item[ item_count ].vals[ 0 ] ),
+						        &( item[ item_count ].vals[ 1 ] ),
+						        &( item[ item_count ].vals[ 2 ] ),
+						        &( item[ item_count ].vals[ 3 ] ),
+						        &( item[ item_count ].vals[ 4 ] ),
+						        &( item[ item_count ].vals[ 5 ] ) );
 					}
 
 					// Advance data stage
@@ -659,19 +657,19 @@ bool Load_Weapons_Text() {
 		}                 // end of valid line
 
 		// read in data
-		status = fgets ( line, 512, wfile );
+		status = fgets( line, 512, wfile );
 	} // end while(status)
 
 
 	// close file
-	if ( wfile ) fclose ( wfile );
+	if ( wfile ) fclose( wfile );
 
 
 	// Revert locale settings
 	if ( cur_lc_numeric )
-		setlocale ( LC_NUMERIC, cur_lc_numeric );
+		setlocale( LC_NUMERIC, cur_lc_numeric );
 	else
-		setlocale ( LC_NUMERIC, "" );
+		setlocale( LC_NUMERIC, "" );
 
 	return true;
 }
@@ -680,12 +678,12 @@ bool Load_Weapons_Text() {
 Filter out files that do not have .sav in the name.
 */
 #ifndef MACOSX
-int Filter_File ( const struct dirent* my_file )
+int Filter_File( const struct dirent* my_file )
 #else
-int Filter_File ( struct dirent* my_file )
+int Filter_File( struct dirent* my_file )
 #endif
 {
-	if ( strstr ( my_file->d_name, ".sav" ) )
+	if ( strstr( my_file->d_name, ".sav" ) )
 		return true;
 	else
 		return false;
@@ -698,13 +696,13 @@ are returned.
 After use, the return value *must* be freed.
 */
 #if defined( ATANKS_IS_LINUX )
-dirent** Find_Saved_Games ( uint32_t& num_files_found ) {
+dirent** Find_Saved_Games( uint32_t& num_files_found ) {
 	dirent** my_list = nullptr;
 	int32_t  status  = 0;
 
-	status           = scandir ( env.configDir.c_str(), &my_list, Filter_File, alphasort );
+	status           = scandir( env.configDir.c_str(), &my_list, Filter_File, alphasort );
 	if ( status < 0 ) {
-		printf ( "Error trying to find saved games.\n" );
+		printf( "Error trying to find saved games.\n" );
 		return nullptr;
 	}
 
@@ -721,33 +719,33 @@ function returns an array of filenames. If an error occures
 or no files are found, NULL is returned.
 */
 #if defined( ATANKS_IS_WINDOWS )
-dirent** Find_Saved_Games ( uint32_t& num_files_found ) {
-	dirent** my_list    = (dirent**)calloc ( 256, sizeof ( dirent* ) );
+dirent** Find_Saved_Games( uint32_t& num_files_found ) {
+	dirent** my_list    = (dirent**)calloc( 256, sizeof( dirent* ) );
 	dirent*  one_file   = nullptr;
 	uint32_t file_count = 0;
 	DIR*     game_dir   = nullptr;
 
 	if ( !my_list ) return nullptr;
 
-	game_dir = opendir ( env.configDir );
+	game_dir = opendir( env.configDir );
 	if ( !game_dir ) {
-		free ( my_list );
+		free( my_list );
 		return nullptr;
 	}
 
-	while ( ( one_file = readdir ( game_dir ) ) && ( file_count < 256 ) ) {
+	while ( ( one_file = readdir( game_dir ) ) && ( file_count < 256 ) ) {
 		// check to see if this is a save game file
-		if ( strstr ( one_file->d_name, ".sav" ) ) {
-			my_list[ file_count ] = (dirent*)calloc ( 1, sizeof ( dirent ) );
+		if ( strstr( one_file->d_name, ".sav" ) ) {
+			my_list[ file_count ] = (dirent*)calloc( 1, sizeof( dirent ) );
 			if ( my_list[ file_count ] ) {
-				memcpy ( my_list[ file_count ], one_file, sizeof ( dirent ) );
-				my_list[ file_count ]->d_name = strdup ( one_file->d_name );
+				memcpy( my_list[ file_count ], one_file, sizeof( dirent ) );
+				my_list[ file_count ]->d_name = strdup( one_file->d_name );
 				file_count++;
 			}
 		}
 	}
 
-	closedir ( game_dir );
+	closedir( game_dir );
 	num_files_found = file_count;
 	return my_list;
 }
@@ -759,45 +757,45 @@ dirent** Find_Saved_Games ( uint32_t& num_files_found ) {
  * The function returns an array of bitmap file names. If no files
  * are found, or an error occures, then NULL is returned.
  * */
-char** Find_Bitmaps ( int32_t* bitmaps_found ) {
+char** Find_Bitmaps( int32_t* bitmaps_found ) {
 	char**         my_list;
 	struct dirent* one_file;
 	int32_t        file_count = 0;
 	DIR*           game_dir;
 
-	my_list = (char**)calloc ( 256, sizeof ( char* ) );
+	my_list = (char**)calloc( 256, sizeof( char* ) );
 	if ( !my_list ) return nullptr;
 
 
-	game_dir = opendir ( env.configDir.c_str() );
+	game_dir = opendir( env.configDir.c_str() );
 	if ( !game_dir ) {
-		free ( my_list );
+		free( my_list );
 		return nullptr;
 	}
 
-	one_file = readdir ( game_dir );
+	one_file = readdir( game_dir );
 	while ( ( one_file ) && ( file_count < 256 ) ) {
 		// check to see if this is a save game file
 #ifdef ATANKS_IS_LINUX
-		if ( strcasestr ( one_file->d_name, ".bmp" ) ) {
+		if ( strcasestr( one_file->d_name, ".bmp" ) ) {
 #else
-		if ( ( strstr ( one_file->d_name, ".bmp" ) ) || ( strstr ( one_file->d_name, ".BMP" ) ) ) {
+		if ( ( strstr( one_file->d_name, ".bmp" ) ) || ( strstr( one_file->d_name, ".BMP" ) ) ) {
 #endif // ATANKS_IS_LINUX
-			size_t nLen           = env.configDir.size() + strlen ( one_file->d_name ) + 16;
-			my_list[ file_count ] = (char*)calloc ( nLen + 1, sizeof ( char ) );
+			size_t nLen           = env.configDir.size() + strlen( one_file->d_name ) + 16;
+			my_list[ file_count ] = (char*)calloc( nLen + 1, sizeof( char ) );
 			if ( my_list[ file_count ] ) {
-				snprintf ( my_list[ file_count ], nLen, "%s/%s", env.configDir.c_str(), one_file->d_name );
+				snprintf( my_list[ file_count ], nLen, "%s/%s", env.configDir.c_str(), one_file->d_name );
 				file_count++;
 			}
 		}
 
-		one_file = readdir ( game_dir );
+		one_file = readdir( game_dir );
 	}
 
-	closedir ( game_dir );
+	closedir( game_dir );
 	*bitmaps_found = file_count;
 	if ( file_count < 1 ) {
-		free ( my_list );
+		free( my_list );
 		my_list = nullptr;
 	}
 

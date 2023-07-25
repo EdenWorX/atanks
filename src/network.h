@@ -33,7 +33,7 @@ public:
 	~MESSAGE_QUEUE();
 
 	// add a message to the queue
-	bool     Add ( char *some_text, int to );
+	bool     Add( char *some_text, int to );
 
 	// pull the first message from the queue and erase it from the queue
 	MESSAGE *Read();
@@ -41,7 +41,7 @@ public:
 	// read the next message in the queue without erasing it
 	MESSAGE *Peek();
 
-	MESSAGE *Read_To ( int to );
+	MESSAGE *Read_To( int to );
 
 	// erases the next message in the queue without reading it
 	void     Erase();
@@ -65,33 +65,35 @@ struct SEND_RECEIVE_TYPE {
 /// A char buffer named "buffer" must be available to put the message in.
 /// The two size_t values "towrite" and "written" must be at least declared.
 /// All three variables will be overwritten.
-#  define SAFE_WRITE( sock_, fmt_, ... )                                                                                                                  \
-	  {                                                                                                                                               \
-		  sprintf ( buffer, fmt_, __VA_ARGS__ );                                                                                                  \
-		  towrite = strlen ( buffer );                                                                                                            \
-		  written = write ( sock_, buffer, towrite );                                                                                             \
-		  if ( written < towrite ) fprintf ( stderr, "%s:%d: Warning: Only %d/%d bytes sent to server\n", __FILE__, __LINE__, written, towrite ); \
+#  define SAFE_WRITE( sock_, fmt_, ... )                                                                                             \
+	  {                                                                                                                          \
+		  sprintf( buffer, fmt_, __VA_ARGS__ );                                                                              \
+		  towrite = strlen( buffer );                                                                                        \
+		  written = write( sock_, buffer, towrite );                                                                         \
+		  if ( written < towrite )                                                                                           \
+			  fprintf( stderr, "%s:%d: Warning: Only %d/%d bytes sent to server\n", __FILE__, __LINE__, written, towrite \
+			  );                                                                                                         \
 	  }
 
-int      Setup_Server_Socket ( int port );
+int      Setup_Server_Socket( int port );
 
-int      Setup_Client_Socket ( char *server, char *port );
+int      Setup_Client_Socket( char *server, char *port );
 
-int      Accept_Incoming_Connection ( int my_socket );
+int      Accept_Incoming_Connection( int my_socket );
 
-int      Send_Message ( MESSAGE *mess, int to_socket );
+int      Send_Message( MESSAGE *mess, int to_socket );
 
-MESSAGE *Receive_Message ( int from_socket );
+MESSAGE *Receive_Message( int from_socket );
 
-void     Clean_Up_Server_Socket ( int my_socket );
+void     Clean_Up_Server_Socket( int my_socket );
 
-void     Clean_Up_Client_Socket ( int my_socket );
+void     Clean_Up_Client_Socket( int my_socket );
 
-int      Check_For_Incoming_Data ( int socket_number );
+int      Check_For_Incoming_Data( int socket_number );
 
-int      Check_For_Errors ( int socket_number );
+int      Check_For_Errors( int socket_number );
 
-void    *Send_And_Receive ( void *data_we_need );
+void    *Send_And_Receive( void *data_we_need );
 
 #else
 #  define SAFE_WRITE( sock_, fmt_, ... ) \

@@ -67,7 +67,7 @@ public:
 	~PLAYER();
 
 	// no copying, no assignments
-	PLAYER ( const PLAYER& )             = delete;
+	PLAYER( const PLAYER& )              = delete;
 	PLAYER&  operator= ( const PLAYER& ) = delete;
 
 
@@ -77,42 +77,42 @@ public:
 	 */
 
 	void     checkOppMem();
-	int32_t  chooseItemToBuy ( int32_t max_boost, int32_t& last_idx );
-	eControl controlTank ( AICore* aicore, bool allow_fire );
-	void     drawIndicator ( int32_t x, int32_t y, int32_t h );
+	int32_t  chooseItemToBuy( int32_t max_boost, int32_t& last_idx );
+	eControl controlTank( AICore* aicore, bool allow_fire );
+	void     drawIndicator( int32_t x, int32_t y, int32_t h );
 #ifdef NETWORK
-	eControl executeNetCmd ( bool my_turn, AICore* aicore );
+	eControl executeNetCmd( bool my_turn, AICore* aicore );
 #endif // NETWORK
 	void           exitShop();
 	void           generatePreferences();
 	int32_t        getBoostValue();
-	int32_t        getItemPref ( int32_t idx );
-	int32_t        getMoneyToSave ( bool first_look );
+	int32_t        getItemPref( int32_t idx );
+	int32_t        getMoneyToSave( bool first_look );
 	const char*    getName() const;
 	bool           getNetCmd();
-	sOpponent*     getOppMem ( int32_t idx );
+	sOpponent*     getOppMem( int32_t idx );
 	const char*    getTeamName() const;
-	int32_t        getWeapPref ( int32_t idx );
-	void           initialise ( bool loaded_game );
-	bool           load_from_file ( FILE* file );
-	void           load_game_data ( FILE* file, int32_t file_version );
+	int32_t        getWeapPref( int32_t idx );
+	void           initialise( bool loaded_game );
+	bool           load_from_file( FILE* file );
+	void           load_game_data( FILE* file, int32_t file_version );
 	void           newGame();
 	void           newRound();
-	void           noteDamageFrom ( PLAYER* opponent, int32_t damage, bool destroyed );
-	void           noteDamageTo ( PLAYER* opponent, int32_t damage, bool destroyed );
+	void           noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed );
+	void           noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );
 	void           reclaimShield(); // restore unused shield
 	bool           reduceClock();
-	void           save_game_data ( FILE* file );
-	void           save_to_file ( FILE* file );
+	void           save_game_data( FILE* file );
+	void           save_to_file( FILE* file );
 	const char*    selectGloatPhrase();
-	const char*    selectPanicPhrase ( PLAYER* shocker );
+	const char*    selectPanicPhrase( PLAYER* shocker );
 	const char*    selectKamikazePhrase();
 	const char*    selectRetaliationPhrase();
 	const char*    selectRevengePhrase();
 	const char*    selectSuicidePhrase();
-	void           setLastOpponent ( sOpponent* last_opp );
-	void           setName ( const char* name_ );
-	void           updatePreferences ( int32_t max_boost, int32_t max_score );
+	void           setLastOpponent( sOpponent* last_opp );
+	void           setName( const char* name_ );
+	void           updatePreferences( int32_t max_boost, int32_t max_score );
 
 
 	/* ----------------------
@@ -170,14 +170,14 @@ private:
 	 * -----------------------
 	 */
 
-	void                  boostPrefences ( bool boostArmour, bool boostAmps, bool boostWeapons );
-	bool                  buy_item ( int32_t itemindex, int32_t max_boost );
-	eControl              computerControls ( AICore* aicore, bool allow_fire );
-	int32_t               computerSelectPreBuyItem ( int32_t max_boost );
+	void                  boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons );
+	bool                  buy_item( int32_t itemindex, int32_t max_boost );
+	eControl              computerControls( AICore* aicore, bool allow_fire );
+	int32_t               computerSelectPreBuyItem( int32_t max_boost );
 	int32_t               generateDesiredList();
 	int32_t               getAmpValue();
 	int32_t               getArmourValue();
-	eControl              humanControls ( AICore* aicore );
+	eControl              humanControls( AICore* aicore );
 
 
 	/* -----------------------
@@ -233,17 +233,17 @@ struct PLAYER_mini {
 	explicit PLAYER_mini();
 
 	// "Backup a player"
-	void copy_from ( PLAYER* source );
+	void copy_from( PLAYER* source );
 
 	// Write back the values
-	void write_back ( PLAYER* target = nullptr );
+	void write_back( PLAYER* target = nullptr );
 };
 
 #define HAS_PLAYER_MINI 1
 
 // Helper functions to be used as action function with ET_BUTTON entries
-int32_t edit_player ( PLAYER** target, int32_t );
-int32_t new_player ( PLAYER** target, int32_t );
+int32_t edit_player( PLAYER** target, int32_t );
+int32_t new_player( PLAYER** target, int32_t );
 
 
 #endif

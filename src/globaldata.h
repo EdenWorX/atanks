@@ -69,7 +69,7 @@ public:
 	explicit CSpinLock();
 	~CSpinLock();
 
-	CSpinLock ( const CSpinLock& )            = delete;
+	CSpinLock( const CSpinLock& )             = delete;
 	CSpinLock& operator= ( const CSpinLock& ) = delete;
 
 	bool       hasLock();
@@ -110,47 +110,47 @@ public:
 	 * --- Public methods ---
 	 * ----------------------
 	 */
-	void                             addLandSlide ( int32_t left, int32_t right, bool do_lock );
-	void                             addObject ( vobj_t* object );
-	bool                             areTanksInBox ( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
-	bool                             check_time_changed(); // check to see if one second has passed
-	void                             clear_objects();
-	void                             destroy();
-	void                             do_updates();
-	void                             first_init();
-	void                             free_debris_item ( item_t* item );
-	int32_t                          get_avg_bgcolor ( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv );
-	int32_t                          get_command();
-	TANK*                            get_curr_tank();
-	item_t*                          get_debris_item ( int32_t radius );
-	TANK*                            get_next_tank ( bool* wrapped_around );
-	TANK*                            get_random_tank();
-	void                             initialise();
-	bool                             isCloseBtnPressed();
-	bool                             isDirtInBox ( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
-	void                             load_from_file ( FILE* file );
-	void                             lockClass ( eClasses class_ );
-	void                             lockLand();
-	void                             make_bgupdate ( int32_t x, int32_t y, int32_t w, int32_t h );
-	void                             make_fullUpdate();
-	void                             make_update ( int32_t x, int32_t y, int32_t w, int32_t h );
-	void                             newRound();
-	void                             pressCloseButton();
-	void                             removeObject ( vobj_t* object );
-	void                             removeTank ( TANK* tank );
-	void                             replace_canvas();
-	bool                             save_to_file ( FILE* file );
-	void                             set_curr_tank ( TANK* tank_ );
-	void                             set_command ( int32_t cmd );
-	void                             slideLand();
-	void                             unlockClass ( eClasses class_ );
-	void                             unlockLand();
-	void                             unlockLandSlide ( int32_t left, int32_t right );
+	void    addLandSlide( int32_t left, int32_t right, bool do_lock );
+	void    addObject( vobj_t* object );
+	bool    areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	bool    check_time_changed(); // check to see if one second has passed
+	void    clear_objects();
+	void    destroy();
+	void    do_updates();
+	void    first_init();
+	void    free_debris_item( item_t* item );
+	int32_t get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv );
+	int32_t get_command();
+	TANK*   get_curr_tank();
+	item_t* get_debris_item( int32_t radius );
+	TANK*   get_next_tank( bool* wrapped_around );
+	TANK*   get_random_tank();
+	void    initialise();
+	bool    isCloseBtnPressed();
+	bool    isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	void    load_from_file( FILE* file );
+	void    lockClass( eClasses class_ );
+	void    lockLand();
+	void    make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h );
+	void    make_fullUpdate();
+	void    make_update( int32_t x, int32_t y, int32_t w, int32_t h );
+	void    newRound();
+	void    pressCloseButton();
+	void    removeObject( vobj_t* object );
+	void    removeTank( TANK* tank );
+	void    replace_canvas();
+	bool    save_to_file( FILE* file );
+	void    set_curr_tank( TANK* tank_ );
+	void    set_command( int32_t cmd );
+	void    slideLand();
+	void    unlockClass( eClasses class_ );
+	void    unlockLand();
+	void    unlockLandSlide( int32_t left, int32_t right );
 
-	template< typename Head_T > void getHeadOfClass ( eClasses class_, Head_T** head_ ) {
+	template< typename Head_T > void getHeadOfClass( eClasses class_, Head_T** head_ ) {
 		if ( class_ < CLASS_COUNT ) {
 			objLocks[ class_ ].lock();
-			*head_ = static_cast< Head_T* > ( heads[ class_ ] );
+			*head_ = static_cast< Head_T* >( heads[ class_ ] );
 			objLocks[ class_ ].unlock();
 		} else
 			*head_ = nullptr;
@@ -202,7 +202,7 @@ private:
 	 */
 
 	// Combine make_update and make_bgupdate with safety checks
-	void                addUpdate ( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count );
+	void                addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count );
 
 
 	/* -----------------------

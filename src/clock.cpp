@@ -19,8 +19,8 @@ using clock_us_t = std::chrono::microseconds;
 
 /// === Helper macros to not have ridiculously long lines ===
 #define CLOCK_NOW    atanks_clock_t::now()
-#define MS_CAST( x ) static_cast< int32_t > ( std::chrono::duration_cast< clock_ms_t > ( x ).count() )
-#define US_CAST( x ) static_cast< int32_t > ( std::chrono::duration_cast< clock_us_t > ( x ).count() )
+#define MS_CAST( x ) static_cast< int32_t >( std::chrono::duration_cast< clock_ms_t >( x ).count() )
+#define US_CAST( x ) static_cast< int32_t >( std::chrono::duration_cast< clock_us_t >( x ).count() )
 
 /// === Internal values only used here ===
 static time_point_t game_us_end   = CLOCK_NOW;
@@ -35,7 +35,7 @@ static time_point_t menu_ms_start = CLOCK_NOW;
 #if !defined( ATANKS_IS_MSVC ) || defined( ATANKS_IS_AT_LEAST_MSVC13 )
 int32_t game_us_get() {
 	game_us_end     = CLOCK_NOW;
-	int32_t used_us = US_CAST ( game_us_end - game_us_start );
+	int32_t used_us = US_CAST( game_us_end - game_us_start );
 	game_us_start   = game_us_end;
 	return used_us > 0 ? used_us : 0;
 }
@@ -47,7 +47,7 @@ void game_us_reset() {
 
 int32_t menu_ms_get() {
 	menu_ms_end     = CLOCK_NOW;
-	int32_t used_us = MS_CAST ( menu_ms_end - menu_ms_start );
+	int32_t used_us = MS_CAST( menu_ms_end - menu_ms_start );
 	menu_ms_start   = menu_ms_end;
 	return used_us > 0 ? used_us : 0;
 }

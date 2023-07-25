@@ -66,7 +66,7 @@ enum ePlayerEdit {
 	PE_CONFIRM_NEW  = 0x010000, //!< Adding a new player was confirmed
 	PE_CONFIRM_EDIT = 0x020000, //!< Changes to a player have been confirmed
 	PE_CONFIRM_DEL  = 0x040000  //!< Deleting a player was confirmed
-				    // Note: The values allow to use the last 16 bit for key code bit masks.
+	                            // Note: The values allow to use the last 16 bit for key code bit masks.
 };
 
 /** @enum eTeamTypes
@@ -87,7 +87,19 @@ enum eTankOffsets { TO_TURRET = 0, TO_TANK = 7 };
 /** @enum eTankTypes
  * @brief the tanks currently known, TT_TANK_COUNT is the number of tanks
  **/
-enum eTankTypes { TT_NORMAL = 0, TT_CLASSIC, TT_BIGGREY, TT_T34, TT_HEAVY, TT_FUTURE, TT_UFO, TT_SPIDER, TT_BIGFOOT, TT_MINI, TT_TANK_COUNT };
+enum eTankTypes {
+	TT_NORMAL = 0,
+	TT_CLASSIC,
+	TT_BIGGREY,
+	TT_T34,
+	TT_HEAVY,
+	TT_FUTURE,
+	TT_UFO,
+	TT_SPIDER,
+	TT_BIGFOOT,
+	TT_MINI,
+	TT_TANK_COUNT
+};
 
 eTankTypes &operator+= ( eTankTypes &src, int32_t val );
 eTankTypes &operator-= ( eTankTypes &src, int32_t val );

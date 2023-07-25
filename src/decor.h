@@ -34,10 +34,18 @@ public:
 	 */
 
 	// ctor without bitmap
-	explicit DECOR ( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ );
+	explicit DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ );
 
 	// ctor with bitmap
-	DECOR ( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_, sDebrisItem* deb_item, sDebrisItem* met_item );
+	DECOR( double       x_,
+	       double       y_,
+	       double       xv_,
+	       double       yv_,
+	       int32_t      maxRadius,
+	       int32_t      type_,
+	       int32_t      delay_,
+	       sDebrisItem* deb_item,
+	       sDebrisItem* met_item );
 
 
 	~DECOR();
@@ -50,7 +58,7 @@ public:
 
 	void     applyPhysics();
 	void     draw();
-	void     force_aging ( int32_t frames ); // Helper to work against FPS drops.
+	void     force_aging( int32_t frames ); // Helper to work against FPS drops.
 
 	eClasses getClass() { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
 

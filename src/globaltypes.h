@@ -100,7 +100,16 @@ enum eFullScreen { FULL_SCREEN_EITHER = 0, FULL_SCREEN_TRUE, FULL_SCREEN_FALSE }
 /** @enum eLandscapeTypes
  * @brief determine the types the landscape can have
  **/
-enum eLandscapeTypes { LAND_RANDOM = 0, LAND_CANYONS, LAND_MOUNTAINS, LAND_VALLEYS, LAND_HILLS, LAND_FOOTHILLS, LAND_PLAIN, LAND_NONE };
+enum eLandscapeTypes {
+	LAND_RANDOM = 0,
+	LAND_CANYONS,
+	LAND_MOUNTAINS,
+	LAND_VALLEYS,
+	LAND_HILLS,
+	LAND_FOOTHILLS,
+	LAND_PLAIN,
+	LAND_NONE
+};
 
 /** @enum eLandSlideTypes
  * @brief determine the kind of land sliding.
@@ -121,7 +130,17 @@ enum eLandSlideTypes {
  *
  * This enum is sorted in the order the languages should be listed.
  **/
-enum eLanguages { EL_ENGLISH = 0, EL_PORTUGUESE, EL_FRENCH, EL_GERMAN, EL_SLOVAK, EL_RUSSIAN, EL_SPANISH, EL_ITALIAN, EL_LANGUAGE_COUNT };
+enum eLanguages {
+	EL_ENGLISH = 0,
+	EL_PORTUGUESE,
+	EL_FRENCH,
+	EL_GERMAN,
+	EL_SLOVAK,
+	EL_RUSSIAN,
+	EL_SPANISH,
+	EL_ITALIAN,
+	EL_LANGUAGE_COUNT
+};
 
 // Helper operators to rotate languages:
 eLanguages &operator++ ( eLanguages &lang );

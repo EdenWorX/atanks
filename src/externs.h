@@ -41,11 +41,12 @@ extern ENVIRONMENT env;
 
 
 // === Defined colours used everywhere ===
-extern int32_t BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED, SILVER, TURQUOISE, WHITE, YELLOW;
+extern int32_t BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE,
+	RED, SILVER, TURQUOISE, WHITE, YELLOW;
 
 
 // === General values that are globally used ===
-extern char    buf[ 100 ];
+extern char        buf[ 100 ];
 extern const char* errorMessage;
 extern int32_t     errorX, errorY;
 extern int32_t     k, K;

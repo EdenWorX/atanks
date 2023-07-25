@@ -71,8 +71,8 @@ private:
 
 // === Helper Functions ===
 // ========================
-BITMAP* create_gradient_strip ( const gradient* grad, int32_t len );
-int32_t gradientColorPoint ( const gradient* grad, double len, double line );
+BITMAP* create_gradient_strip( const gradient* grad, int32_t len );
+int32_t gradientColorPoint( const gradient* grad, double len, double line );
 
 
 #endif // ATANKS_SRC_GFXDATA_H_INCLUDED

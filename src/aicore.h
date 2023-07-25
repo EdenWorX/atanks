@@ -765,7 +765,7 @@ public:
 	~AICore();
 
 	// No copying, no assignment
-	AICore ( const AICore& )            = delete;
+	AICore( const AICore& )             = delete;
 	AICore& operator= ( const AICore& ) = delete;
 
 
@@ -779,9 +779,9 @@ public:
 	bool    can_work() const;
 	void    forbidText();
 	bool    hasExited() const;
-	void    hasMoved ( int32_t direction );
-	bool    start ( PLAYER* player_ );
-	bool    status ( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
+	void    hasMoved( int32_t direction );
+	bool    start( PLAYER* player_ );
+	bool    status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
 	void    stop();
 	void    weapon_fired();
 
@@ -809,46 +809,53 @@ private:
 	 * -----------------------
 	 */
 
-	bool                                aim ( bool is_last, bool can_move );
-	bool                                calcAttack ( int32_t attempt );
-	bool                                calcBoxed ( bool is_last );
-	void                                calcHitDamage ( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType );
-	int32_t                             calcHitScore ( bool is_last );
-	bool                                calcKamikaze ( bool is_last );
-	bool                                calcLaser ( bool is_last );
-	bool                                calcOffset ( bool is_last );
-	bool                                calcStandard ( bool is_last, bool allow_flip_shot );
-	bool                                calcUnbury ( bool is_last );
-	void                                checkItemMem();
-	void                                checkOppMem();
-	void                                checkWeapMem();
-	void                                destroy();
-	void                                flattenCurrAng();
-	void                                fixCrashed ( int32_t& ang_mod, int32_t& pow_mod );
-	void                                fixOvershoot ( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score );
-	void                                fixUnfinished ( int32_t& ang_mod, int32_t& pow_mod );
-	const char*                         getLevelName ( int32_t level ) const;
-	bool                                getMemory();
-	bool                                initialize();
-	bool                                moveTank();
-	void                                sanitizeCurr();
-	bool                                selectItem ( bool is_last );
-	bool                                selectTarget ( bool is_last );
-	bool                                setupAttack ( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
-	void                                showFeedback ( const char* const feedback, int32_t col, double yv, eTextSway text_sway, int32_t dur );
-	void                                traceCluster ( int32_t subType, int32_t subCount, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
-	bool                                traceShot (
-					       int32_t trace_angle, int32_t delay_idx, bool& finished, bool& top_wrapped, int32_t& reached_x_, int32_t& reached_y_, double& end_xv, double& end_yv
-				       );
-	void          traceWeapon ( int32_t& has_crashed, int32_t& has_finished );
-	void          updateItemScore ( itEntry_t* pItem );
-	void          updateOppScore ( opEntry_t* pOpp );
-	void          updateWeapScore ( weEntry_t* pWeap );
-	bool          useFreeingTool ( bool free_tank, bool is_last );
-	bool          useItem ( itemType item_type );
-	bool          useItem ( int32_t item_index );
-	bool          useWeapon ( weaponType weap_type );
-	bool          useWeapon ( int32_t weap_index );
+	bool                                aim( bool is_last, bool can_move );
+	bool                                calcAttack( int32_t attempt );
+	bool                                calcBoxed( bool is_last );
+	void        calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType );
+	int32_t     calcHitScore( bool is_last );
+	bool        calcKamikaze( bool is_last );
+	bool        calcLaser( bool is_last );
+	bool        calcOffset( bool is_last );
+	bool        calcStandard( bool is_last, bool allow_flip_shot );
+	bool        calcUnbury( bool is_last );
+	void        checkItemMem();
+	void        checkOppMem();
+	void        checkWeapMem();
+	void        destroy();
+	void        flattenCurrAng();
+	void        fixCrashed( int32_t& ang_mod, int32_t& pow_mod );
+	void        fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score );
+	void        fixUnfinished( int32_t& ang_mod, int32_t& pow_mod );
+	const char* getLevelName( int32_t level ) const;
+	bool        getMemory();
+	bool        initialize();
+	bool        moveTank();
+	void        sanitizeCurr();
+	bool        selectItem( bool is_last );
+	bool        selectTarget( bool is_last );
+	bool        setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
+	void        showFeedback( const char* const feedback, int32_t col, double yv, eTextSway text_sway, int32_t dur );
+	void traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
+	bool traceShot(
+		int32_t  trace_angle,
+		int32_t  delay_idx,
+		bool&    finished,
+		bool&    top_wrapped,
+		int32_t& reached_x_,
+		int32_t& reached_y_,
+		double&  end_xv,
+		double&  end_yv
+	);
+	void          traceWeapon( int32_t& has_crashed, int32_t& has_finished );
+	void          updateItemScore( itEntry_t* pItem );
+	void          updateOppScore( opEntry_t* pOpp );
+	void          updateWeapScore( weEntry_t* pWeap );
+	bool          useFreeingTool( bool free_tank, bool is_last );
+	bool          useItem( itemType item_type );
+	bool          useItem( int32_t item_index );
+	bool          useWeapon( weaponType weap_type );
+	bool          useWeapon( int32_t weap_index );
 
 
 	/* -----------------------

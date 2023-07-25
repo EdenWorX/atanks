@@ -33,29 +33,30 @@
 using std::string;
 
 ENVIRONMENT::ENVIRONMENT() {
-	memset ( playerOrder, 0, sizeof ( PLAYER* ) * MAXPLAYERS );
-	memset ( server_name, 0, sizeof ( char ) * 129 );
-	memset ( server_port, 0, sizeof ( char ) * 129 );
-	memset ( slope, 0, sizeof ( double ) * 720 );
+	memset( playerOrder, 0, sizeof( PLAYER* ) * MAXPLAYERS );
+	memset( server_name, 0, sizeof( char ) * 129 );
+	memset( server_port, 0, sizeof( char ) * 129 );
+	memset( slope, 0, sizeof( double ) * 720 );
 
 
-	set_fps ( 60 );  // rock solid default.
+	set_fps( 60 );   // rock solid default.
 
 	fontHeight = 10; // Initial value
 
-	strncpy ( server_name, "127.0.0.1", 127 );
-	strncpy ( server_port, "25645", 127 );
+	strncpy( server_name, "127.0.0.1", 127 );
+	strncpy( server_port, "25645", 127 );
 
 	// Reserve space for the players array:
 	// Note: The allPlayers array is dynamically (re-)allocated while loading
 	//       stored players from the configuration.
-	if ( ( players = (PLAYER**)calloc ( MAXPLAYERS, sizeof ( PLAYER* ) ) ) == nullptr ) perror ( "environment.cpp: Failed allocating memory for players" );
+	if ( ( players = (PLAYER**)calloc( MAXPLAYERS, sizeof( PLAYER* ) ) ) == nullptr )
+		perror( "environment.cpp: Failed allocating memory for players" );
 
 	// sin/cos short-cuts, With only 1° granularity the arrays are always
 	// faster than live calculations.
 	for ( int32_t i = 0; i < 360; i++ ) {
-		slope[ i ][ 0 ] = std::sin ( DEG2RAD ( i ) );
-		slope[ i ][ 1 ] = std::cos ( DEG2RAD ( i ) );
+		slope[ i ][ 0 ] = std::sin( DEG2RAD( i ) );
+		slope[ i ][ 1 ] = std::cos( DEG2RAD( i ) );
 	}
 }
 
@@ -67,7 +68,7 @@ ENVIRONMENT::~ENVIRONMENT() {
 }
 
 /// @brief add a player to the players[] array that will take part in the next game
-void ENVIRONMENT::addGamePlayer ( PLAYER* player_ ) {
+void ENVIRONMENT::addGamePlayer( PLAYER* player_ ) {
 	if ( player_ && ( numGamePlayers < MAXPLAYERS ) ) {
 
 		// Ensure the player isn't already there:
@@ -82,22 +83,22 @@ void ENVIRONMENT::addGamePlayer ( PLAYER* player_ ) {
 }
 
 /// @brief create a new player or return nullptr if an error occurred
-PLAYER* ENVIRONMENT::createNewPlayer ( const char* player_name ) {
+PLAYER* ENVIRONMENT::createNewPlayer( const char* player_name ) {
 	PLAYER** reallocatedPlayers = nullptr;
 	PLAYER*  player             = nullptr;
 
-	assert ( player_name && "ERROR: player_name is nullptr!" );
+	assert( player_name && "ERROR: player_name is nullptr!" );
 
 	if ( nullptr == player_name ) return nullptr;
 
-	if ( getPlayerByName ( player_name ) > -1 ) return nullptr;
+	if ( getPlayerByName( player_name ) > -1 ) return nullptr;
 
-	reallocatedPlayers = (PLAYER**)realloc ( allPlayers, sizeof ( PLAYER* ) * ( numPermanentPlayers + 1 ) );
+	reallocatedPlayers = (PLAYER**)realloc( allPlayers, sizeof( PLAYER* ) * ( numPermanentPlayers + 1 ) );
 
 	if ( reallocatedPlayers )
 		allPlayers = reallocatedPlayers;
 	else
-		perror ( "environment.cpp: Failed allocating memory for reallocatedPlayers in ENVIRONMENT::createNewPlayer" );
+		perror( "environment.cpp: Failed allocating memory for reallocatedPlayers in ENVIRONMENT::createNewPlayer" );
 
 	try {
 		player = new PLAYER();
@@ -106,14 +107,14 @@ PLAYER* ENVIRONMENT::createNewPlayer ( const char* player_name ) {
 	}
 
 	player->index = numPermanentPlayers;
-	player->setName ( player_name );
+	player->setName( player_name );
 	allPlayers[ numPermanentPlayers++ ] = player;
 
 	return player;
 }
 
 /// @brief This function gives credits, score and money to the winner(s).
-void ENVIRONMENT::creditWinners ( int32_t winner ) {
+void ENVIRONMENT::creditWinners( int32_t winner ) {
 	if ( winner == WINNER_DRAW ) // no winner
 		return;
 
@@ -157,7 +158,7 @@ void ENVIRONMENT::decreaseVolume() {
 }
 
 /// @brief Remove one of the players, then gone for good.
-void ENVIRONMENT::deletePermPlayer ( PLAYER* player_ ) {
+void ENVIRONMENT::deletePermPlayer( PLAYER* player_ ) {
 	int32_t toCount = 0;
 
 	for ( int32_t fromCount = 0; fromCount < numPermanentPlayers; fromCount++ ) {
@@ -180,91 +181,91 @@ void ENVIRONMENT::deletePermPlayer ( PLAYER* player_ ) {
  **/
 void ENVIRONMENT::destroy() {
 	if ( sky ) {
-		destroy_bitmap ( sky );
+		destroy_bitmap( sky );
 		sky = nullptr;
 	}
 
 	if ( bitmap_filenames ) {
 		for ( int32_t count = 0; count < number_of_bitmaps; ++count ) {
-			if ( bitmap_filenames[ count ] ) free ( bitmap_filenames[ count ] );
+			if ( bitmap_filenames[ count ] ) free( bitmap_filenames[ count ] );
 		}
-		free ( bitmap_filenames );
+		free( bitmap_filenames );
 		bitmap_filenames = nullptr;
 	}
 
 	if ( saved_game_list_size && saved_game_list ) {
 		for ( uint32_t i = 0; i < saved_game_list_size; ++i ) {
-			if ( saved_game_list[ i ] ) free ( const_cast< char* > ( saved_game_list[ i ] ) );
+			if ( saved_game_list[ i ] ) free( const_cast< char* >( saved_game_list[ i ] ) );
 			saved_game_list[ i ] = nullptr;
 		}
-		free ( saved_game_list );
+		free( saved_game_list );
 		saved_game_list      = nullptr;
 		saved_game_list_size = 0;
 	}
 
 	if ( music_dir ) {
-		closedir ( music_dir );
+		closedir( music_dir );
 		music_dir = nullptr;
 	}
 
 	if ( background_music ) {
-		destroy_sample ( background_music );
+		destroy_sample( background_music );
 		background_music = nullptr;
 	}
 
 	if ( sounds ) {
 		int32_t index = 0;
-		while ( sounds[ index ] ) destroy_sample ( sounds[ index++ ] );
-		free ( sounds );
+		while ( sounds[ index ] ) destroy_sample( sounds[ index++ ] );
+		free( sounds );
 		sounds = nullptr;
 	}
 
 	if ( title ) {
 		int32_t index = 0;
-		while ( title[ index ] ) destroy_bitmap ( title[ index++ ] );
-		free ( title );
+		while ( title[ index ] ) destroy_bitmap( title[ index++ ] );
+		free( title );
 		title = nullptr;
 	}
 
 	if ( button ) {
 		int32_t index = 0;
-		while ( button[ index ] ) destroy_bitmap ( button[ index++ ] );
-		free ( button );
+		while ( button[ index ] ) destroy_bitmap( button[ index++ ] );
+		free( button );
 		button = nullptr;
 	}
 
 	if ( misc ) {
 		int32_t index = 0;
-		while ( misc[ index ] ) destroy_bitmap ( misc[ index++ ] );
-		free ( misc );
+		while ( misc[ index ] ) destroy_bitmap( misc[ index++ ] );
+		free( misc );
 		misc = nullptr;
 	}
 
 	if ( missile ) {
 		int32_t index = 0;
-		while ( missile[ index ] ) destroy_bitmap ( missile[ index++ ] );
-		free ( missile );
+		while ( missile[ index ] ) destroy_bitmap( missile[ index++ ] );
+		free( missile );
 		missile = nullptr;
 	}
 
 	if ( stock ) {
 		int32_t index = 0;
-		while ( stock[ index ] ) destroy_bitmap ( stock[ index++ ] );
-		free ( stock );
+		while ( stock[ index ] ) destroy_bitmap( stock[ index++ ] );
+		free( stock );
 		stock = nullptr;
 	}
 
 	if ( tank ) {
 		int32_t index = 0;
-		while ( tank[ index ] ) destroy_bitmap ( tank[ index++ ] );
-		free ( tank );
+		while ( tank[ index ] ) destroy_bitmap( tank[ index++ ] );
+		free( tank );
 		tank = nullptr;
 	}
 
 	if ( tankgun ) {
 		int32_t index = 0;
-		while ( tankgun[ index ] ) destroy_bitmap ( tankgun[ index++ ] );
-		free ( tankgun );
+		while ( tankgun[ index ] ) destroy_bitmap( tankgun[ index++ ] );
+		free( tankgun );
 		tankgun = nullptr;
 	}
 
@@ -310,18 +311,18 @@ void ENVIRONMENT::destroy() {
 			if ( allPlayers[ i ] ) delete allPlayers[ i ];
 			allPlayers[ i ] = nullptr;
 		}
-		free ( allPlayers );
+		free( allPlayers );
 		allPlayers = nullptr;
 	}
 
 	if ( players ) {
 		for ( int32_t i = 0; i < MAXPLAYERS; ++i ) players[ i ] = nullptr;
-		free ( players );
+		free( players );
 		players = nullptr;
 	}
 
 	if ( main_font ) {
-		destroy_font ( main_font );
+		destroy_font( main_font );
 		main_font = nullptr;
 	}
 
@@ -333,19 +334,19 @@ void ENVIRONMENT::find_config_dir() {
 	// If no config dir was given on the command line, try to find a valid one
 	if ( !configDir[ 0 ] ) {
 		// figure out file name
-		char* homedir  = getenv ( HOME_DIR );
+		char* homedir  = getenv( HOME_DIR );
 		configDir      = homedir ? homedir : ".";
 		configDir     += "/.atanks";
 
 		// copy the file over, if we did not yet
 		if ( !Copy_Config_File() ) {
 			// If it did not work, look whether the directory already exists:
-			DIR* pDestDir = opendir ( env.configDir.c_str() );
+			DIR* pDestDir = opendir( env.configDir.c_str() );
 			if ( !pDestDir )
 				cerr << "ERROR: An error has occurred trying to set up"
 				     << " Atomic Tanks folders." << endl;
 			else {
-				closedir ( pDestDir );
+				closedir( pDestDir );
 				pDestDir = nullptr;
 			}
 		}
@@ -357,7 +358,7 @@ bool ENVIRONMENT::find_data_dir() {
 
 	// If the datadir set by command line options, try that first
 	if ( !dataDir.empty() ) {
-		if ( !access ( dataDir.c_str(), R_OK ) )
+		if ( !access( dataDir.c_str(), R_OK ) )
 			return true;
 		else {
 			cerr << "ERROR: The given datadir \"" << dataDir << "\""
@@ -367,15 +368,15 @@ bool ENVIRONMENT::find_data_dir() {
 	}
 
 	// Try the set directory from the build
-	if ( !access ( DATA_DIR "/unicode.dat", R_OK ) )
-		dataDir.assign ( DATA_DIR );
+	if ( !access( DATA_DIR "/unicode.dat", R_OK ) )
+		dataDir.assign( DATA_DIR );
 	else {
 		// This was not successful, try the current directory if not tried, yet.
 
-		if ( ( 0 == strncmp ( DATA_DIR, ".", 1 ) ) && ( 0 == strncmp ( DATA_DIR, "./", 2 ) ) ) {
+		if ( ( 0 == strncmp( DATA_DIR, ".", 1 ) ) && ( 0 == strncmp( DATA_DIR, "./", 2 ) ) ) {
 			// Try again and reset if unsuccessful
-			if ( !access ( "./unicode.dat", R_OK ) ) {
-				dataDir.assign ( "." );
+			if ( !access( "./unicode.dat", R_OK ) ) {
+				dataDir.assign( "." );
 			}
 		}
 	}
@@ -388,7 +389,7 @@ bool ENVIRONMENT::find_data_dir() {
 void ENVIRONMENT::first_init() {
 	// Determine maximum number of updates before doing
 	// a full update:
-	max_screen_updates = ROUND ( std::sqrt ( ROUND ( screenWidth / 8 ) * ROUND ( screenHeight / 8 ) ) );
+	max_screen_updates = ROUND( std::sqrt( ROUND( screenWidth / 8 ) * ROUND( screenHeight / 8 ) ) );
 	/* This is:
 	 *  800 x  600 => sqrt(100 *  75) => sqrt( 7500) =  87
 	 * 1280 x 1024 => sqrt(160 *  28) => sqrt(20480) = 143
@@ -397,10 +398,10 @@ void ENVIRONMENT::first_init() {
 	 */
 
 	// Get memory ...
-	if ( !sky ) sky = create_bitmap ( screenWidth, screenHeight - MENUHEIGHT );
+	if ( !sky ) sky = create_bitmap( screenWidth, screenHeight - MENUHEIGHT );
 	if ( !sky ) {
 		cout << "Failed to create sky bitmap: " << allegro_error << endl;
-		exit ( 1 );
+		exit( 1 );
 	}
 
 	initialise();
@@ -416,21 +417,21 @@ void ENVIRONMENT::first_init() {
 void ENVIRONMENT::genItemsList() {
 	int32_t slot = 0;
 	for ( int32_t i = 0; i < THINGS; ++i ) {
-		if ( isItemAvailable ( i ) ) availableItems[ slot++ ] = i;
+		if ( isItemAvailable( i ) ) availableItems[ slot++ ] = i;
 	}
 	numAvailable = slot;
 }
 
 /// @brief return the index of the player with @a player_name or -1 if not found
-int32_t ENVIRONMENT::getPlayerByName ( const char* player_name ) {
+int32_t ENVIRONMENT::getPlayerByName( const char* player_name ) {
 	int32_t result = -1;
 
-	assert ( player_name && "ERROR: player_name is nullptr!" );
+	assert( player_name && "ERROR: player_name is nullptr!" );
 
 	if ( nullptr == player_name ) return result;
 
 	for ( int32_t i = 0; ( -1 == result ) && ( i < numPermanentPlayers ); ++i ) {
-		if ( !strcmp ( player_name, allPlayers[ i ]->getName() ) ) result = i;
+		if ( !strcmp( player_name, allPlayers[ i ]->getName() ) ) result = i;
 	}
 
 	return result;
@@ -446,10 +447,10 @@ int32_t ENVIRONMENT::ingamemenu() {
 	int32_t     button[ INGAMEBUTTONS ];
 	bool        updatew[ INGAMEBUTTONS ];
 	const char* buttext[ INGAMEBUTTONS ] = {
-		ingame->Get_Line ( 69 ),
-		ingame->Get_Line ( 70 ),
-		ingame->Get_Line ( 71 ),
-		ingame->Get_Line ( 72 ),
+		ingame->Get_Line( 69 ),
+		ingame->Get_Line( 70 ),
+		ingame->Get_Line( 71 ),
+		ingame->Get_Line( 72 ),
 	};
 
 	// Set/calculate button size and positions
@@ -483,13 +484,13 @@ int32_t ENVIRONMENT::ingamemenu() {
 		y            += b_height + b_space;
 	}
 
-	SHOW_MOUSE ( nullptr );
+	SHOW_MOUSE( nullptr );
 	k = 0;
 	K = 0;
 
-	global.make_update ( d_left, d_top, d_width, d_height );
-	rectfill ( global.canvas, d_left, d_top, d_right, d_bottom, GREY );
-	rect ( global.canvas, d_left, d_top, d_right, d_bottom, BLACK );
+	global.make_update( d_left, d_top, d_width, d_height );
+	rectfill( global.canvas, d_left, d_top, d_right, d_bottom, GREY );
+	rect( global.canvas, d_left, d_top, d_right, d_bottom, BLACK );
 
 	while ( -1 == pressed ) {
 		LINUX_REST;
@@ -535,21 +536,29 @@ int32_t ENVIRONMENT::ingamemenu() {
 		for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
 			if ( updatew[ i ] ) {
 				updatew[ i ] = false;
-				global.make_update ( b_left, halfHeight + button[ i ], b_width, b_height );
+				global.make_update( b_left, halfHeight + button[ i ], b_width, b_height );
 			}
 		}
 
 		// Draw buttons
 		if ( need_draw ) {
-			SHOW_MOUSE ( nullptr )
+			SHOW_MOUSE( nullptr )
 
 			for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
-				draw_sprite ( global.canvas, misc[ ( pressed == i ) ? 8 : 7 ], b_left, halfHeight + button[ i ] );
-				textout_centre_ex ( global.canvas, font, buttext[ i ], halfWidth, halfHeight + button[ i ] + 1, WHITE, -1 );
+				draw_sprite( global.canvas, misc[ ( pressed == i ) ? 8 : 7 ], b_left, halfHeight + button[ i ] );
+				textout_centre_ex(
+					global.canvas,
+					font,
+					buttext[ i ],
+					halfWidth,
+					halfHeight + button[ i ] + 1,
+					WHITE,
+					-1
+				);
 			}
 
 			// Update non-OS mouse movements
-			SHOW_MOUSE ( global.canvas )
+			SHOW_MOUSE( global.canvas )
 
 			global.do_updates();
 			need_draw = false;
@@ -560,14 +569,14 @@ int32_t ENVIRONMENT::ingamemenu() {
 }
 
 void ENVIRONMENT::initialise() {
-	campaign_rounds = static_cast< double > ( rounds ) / 5.;
+	campaign_rounds = static_cast< double >( rounds ) / 5.;
 	if ( campaign_rounds < 1. ) campaign_rounds = 1.;
 
-	nextCampaignRound = static_cast< double > ( rounds ) - campaign_rounds;
+	nextCampaignRound = static_cast< double >( rounds ) - campaign_rounds;
 }
 
 /// @return true if the items tech level is not too high and if it is not a warhead.
-bool ENVIRONMENT::isItemAvailable ( int32_t itemNum ) {
+bool ENVIRONMENT::isItemAvailable( int32_t itemNum ) {
 	if ( itemNum < WEAPONS ) {
 		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].techLevel > weapontechLevel ) ) return false;
 	} else if ( item[ itemNum - WEAPONS ].techLevel > itemtechLevel )
@@ -584,7 +593,7 @@ any erors are encountered.
 /// @todo : This should be changed to streams. It's C++ and we have formatted
 /// text files, so formatted input/output should be far more efficient in
 /// maintenance.
-void ENVIRONMENT::load_from_file ( FILE* file ) {
+void ENVIRONMENT::load_from_file( FILE* file ) {
 	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
 	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
 	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
@@ -594,30 +603,30 @@ void ENVIRONMENT::load_from_file ( FILE* file ) {
 
 	// read until we hit line "*ENV*" or "***" or EOF
 	do {
-		result = fgets ( line, MAX_CONFIG_LINE, file );
-		if ( !result || !strncmp ( line, "***", 3 ) )
+		result = fgets( line, MAX_CONFIG_LINE, file );
+		if ( !result || !strncmp( line, "***", 3 ) )
 			// eof or end of record
 			return;
-		else if ( !strncmp ( line, "*GLOBAL*", 8 ) ) {
+		else if ( !strncmp( line, "*GLOBAL*", 8 ) ) {
 			// Old style config/save file
-			rewind ( file );
-			global.load_from_file ( file );
+			rewind( file );
+			global.load_from_file( file );
 		}
-	} while ( strncmp ( line, "*ENV*", 5 ) );
+	} while ( strncmp( line, "*ENV*", 5 ) );
 	// read until we hit new record
 
 	while ( ( result ) && ( !done ) ) {
 		// read a line
-		memset ( line, 0, MAX_CONFIG_LINE );
-		result = fgets ( line, MAX_CONFIG_LINE, file );
+		memset( line, 0, MAX_CONFIG_LINE );
+		result = fgets( line, MAX_CONFIG_LINE, file );
 
 		// if we hit end of the record, stop
-		if ( !strncmp ( line, "***", 3 ) ) done = true;
+		if ( !strncmp( line, "***", 3 ) ) done = true;
 
 		if ( result && !done ) {
 
 			// strip newline character
-			int32_t line_length = strlen ( line );
+			int32_t line_length = strlen( line );
 			while ( line[ line_length - 1 ] == '\n' ) {
 				line[ line_length - 1 ] = '\0';
 				line_length--;
@@ -631,186 +640,186 @@ void ENVIRONMENT::load_from_file ( FILE* file ) {
 			if ( line[ equal_position ] != '=' ) continue; // Go to next line
 
 			// seperate field from value
-			memset ( field, '\0', MAX_CONFIG_LINE );
-			memset ( value, '\0', MAX_CONFIG_LINE );
-			strncpy ( field, line, equal_position );
-			strncpy ( value, &( line[ equal_position + 1 ] ), 127 );
+			memset( field, '\0', MAX_CONFIG_LINE );
+			memset( value, '\0', MAX_CONFIG_LINE );
+			strncpy( field, line, equal_position );
+			strncpy( value, &( line[ equal_position + 1 ] ), 127 );
 
 			// check for fields and values
-			if ( !strcasecmp ( field, "acceleratedai" ) ) {
-				sscanf ( value, "%d", &skipComputerPlay );
+			if ( !strcasecmp( field, "acceleratedai" ) ) {
+				sscanf( value, "%d", &skipComputerPlay );
 				if ( skipComputerPlay > SKIP_HUMANS_DEAD ) skipComputerPlay = SKIP_HUMANS_DEAD;
-			} else if ( !strcasecmp ( field, "checkupdates" ) ) {
+			} else if ( !strcasecmp( field, "checkupdates" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				check_for_updates = val > 0;
-			} else if ( !strcasecmp ( field, "colourtheme" ) ) {
-				sscanf ( value, "%d", &colourTheme );
+			} else if ( !strcasecmp( field, "colourtheme" ) ) {
+				sscanf( value, "%d", &colourTheme );
 				if ( colourTheme < CT_REGULAR ) colourTheme = CT_REGULAR;
 				if ( colourTheme > CT_CRISPY ) colourTheme = CT_CRISPY;
-			} else if ( !strcasecmp ( field, "debrislevel" ) )
-				sscanf ( value, "%d", &debris_level );
-			else if ( !strcasecmp ( field, "detailedland" ) ) {
+			} else if ( !strcasecmp( field, "debrislevel" ) )
+				sscanf( value, "%d", &debris_level );
+			else if ( !strcasecmp( field, "detailedland" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				detailedLandscape = val > 0;
-			} else if ( !strcasecmp ( field, "detailedsky" ) ) {
+			} else if ( !strcasecmp( field, "detailedsky" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				detailedSky = val > 0;
-			} else if ( !strcasecmp ( field, "dither" ) ) {
+			} else if ( !strcasecmp( field, "dither" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				ditherGradients = val > 0;
-			} else if ( !strcasecmp ( field, "dividemoney" ) ) {
+			} else if ( !strcasecmp( field, "dividemoney" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				divide_money = val > 0;
-			} else if ( !strcasecmp ( field, "doboxwrap" ) ) {
+			} else if ( !strcasecmp( field, "doboxwrap" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				do_box_wrap = val > 0;
-			} else if ( !strcasecmp ( field, "dynamicmenubg" ) ) {
+			} else if ( !strcasecmp( field, "dynamicmenubg" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				dynamicMenuBg = val > 0;
-			} else if ( !strcasecmp ( field, "frames" ) ) {
+			} else if ( !strcasecmp( field, "frames" ) ) {
 				int32_t new_fps = 0;
-				sscanf ( value, "%d", &new_fps );
-				set_fps ( new_fps );
-			} else if ( !strcasecmp ( field, "fullscreen" ) )
-				sscanf ( value, "%d", &full_screen );
-			else if ( !strcasecmp ( field, "interest" ) )
-				sscanf ( value, "%lf", &interest );
-			else if ( !strcasecmp ( field, "language" ) ) {
+				sscanf( value, "%d", &new_fps );
+				set_fps( new_fps );
+			} else if ( !strcasecmp( field, "fullscreen" ) )
+				sscanf( value, "%d", &full_screen );
+			else if ( !strcasecmp( field, "interest" ) )
+				sscanf( value, "%lf", &interest );
+			else if ( !strcasecmp( field, "language" ) ) {
 				uint32_t stored_lang = 0;
-				sscanf ( value, "%u", &stored_lang );
-				language = static_cast< eLanguages > ( stored_lang );
-			} else if ( !strcasecmp ( field, "maxfiretime" ) )
-				sscanf ( value, "%d", &maxFireTime );
-			else if ( !strcasecmp ( field, "networking" ) ) {
+				sscanf( value, "%u", &stored_lang );
+				language = static_cast< eLanguages >( stored_lang );
+			} else if ( !strcasecmp( field, "maxfiretime" ) )
+				sscanf( value, "%d", &maxFireTime );
+			else if ( !strcasecmp( field, "networking" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				network_enabled = val > 0;
-			} else if ( !strcasecmp ( field, "networkport" ) )
-				sscanf ( value, "%d", &network_port );
-			else if ( !strcasecmp ( field, "numpermanentplayers" ) )
-				sscanf ( value, "%d", &numPermanentPlayers );
-			else if ( !strcasecmp ( field, "osmouse" ) ) {
+			} else if ( !strcasecmp( field, "networkport" ) )
+				sscanf( value, "%d", &network_port );
+			else if ( !strcasecmp( field, "numpermanentplayers" ) )
+				sscanf( value, "%d", &numPermanentPlayers );
+			else if ( !strcasecmp( field, "osmouse" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				osMouse = val > 0;
-			} else if ( !strcasecmp ( field, "playmusic" ) ) {
+			} else if ( !strcasecmp( field, "playmusic" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				play_music = val > 0;
-			} else if ( !strcasecmp ( field, "rounds" ) )
-				sscanf ( value, "%u", &rounds );
-			else if ( !strcasecmp ( field, "scoreboard" ) ) {
+			} else if ( !strcasecmp( field, "rounds" ) )
+				sscanf( value, "%u", &rounds );
+			else if ( !strcasecmp( field, "scoreboard" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				global.showScoreBoard = val > 0;
-			} else if ( !strcasecmp ( field, "scorehitunit" ) )
-				sscanf ( value, "%d", &scoreHitUnit );
-			else if ( !strcasecmp ( field, "scoreroundwinbonus" ) )
-				sscanf ( value, "%d", &scoreRoundWinBonus );
-			else if ( !strcasecmp ( field, "scoreselfhit" ) )
-				sscanf ( value, "%d", &scoreSelfHit );
-			else if ( !strcasecmp ( field, "scoreteamhit" ) )
-				sscanf ( value, "%d", &scoreTeamHit );
-			else if ( !strcasecmp ( field, "scoreunitdestroybonus" ) )
-				sscanf ( value, "%d", &scoreUnitDestroyBonus );
-			else if ( !strcasecmp ( field, "scoreunitselfdestroy" ) )
-				sscanf ( value, "%d", &scoreUnitSelfDestroy );
-			else if ( !strcasecmp ( field, "sellpercent" ) )
-				sscanf ( value, "%lf", &sellpercent );
+			} else if ( !strcasecmp( field, "scorehitunit" ) )
+				sscanf( value, "%d", &scoreHitUnit );
+			else if ( !strcasecmp( field, "scoreroundwinbonus" ) )
+				sscanf( value, "%d", &scoreRoundWinBonus );
+			else if ( !strcasecmp( field, "scoreselfhit" ) )
+				sscanf( value, "%d", &scoreSelfHit );
+			else if ( !strcasecmp( field, "scoreteamhit" ) )
+				sscanf( value, "%d", &scoreTeamHit );
+			else if ( !strcasecmp( field, "scoreunitdestroybonus" ) )
+				sscanf( value, "%d", &scoreUnitDestroyBonus );
+			else if ( !strcasecmp( field, "scoreunitselfdestroy" ) )
+				sscanf( value, "%d", &scoreUnitSelfDestroy );
+			else if ( !strcasecmp( field, "sellpercent" ) )
+				sscanf( value, "%lf", &sellpercent );
 #ifdef NETWORK
-			else if ( !strcasecmp ( field, "servername" ) )
-				sscanf ( value, "%*[']%[^']%*[']", server_name );
-			else if ( !strcasecmp ( field, "serverport" ) )
-				sscanf ( value, "%*[']%[^']%*[']", server_port );
+			else if ( !strcasecmp( field, "servername" ) )
+				sscanf( value, "%*[']%[^']%*[']", server_name );
+			else if ( !strcasecmp( field, "serverport" ) )
+				sscanf( value, "%*[']%[^']%*[']", server_port );
 #endif // NETWORK
-			else if ( !strcasecmp ( field, "showaifeedback" ) ) {
+			else if ( !strcasecmp( field, "showaifeedback" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				showAIFeedback = val > 0;
-			} else if ( !strcasecmp ( field, "showfps" ) ) {
+			} else if ( !strcasecmp( field, "showfps" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				showFPS = val > 0;
-			} else if ( !strcasecmp ( field, "soundenabled" ) ) {
+			} else if ( !strcasecmp( field, "soundenabled" ) ) {
 				int32_t val = 0;
-				sscanf ( value, "%d", &val );
+				sscanf( value, "%d", &val );
 				sound_enabled = val > 0;
-			} else if ( !strcasecmp ( field, "sounddriver" ) )
-				sscanf ( value, "%d", &sound_driver );
-			else if ( !strcasecmp ( field, "startmoney" ) )
-				sscanf ( value, "%d", &startmoney );
-			else if ( !strcasecmp ( field, "turntype" ) )
-				sscanf ( value, "%d", &turntype );
-			else if ( !strcasecmp ( field, "violentdeath" ) )
-				sscanf ( value, "%d", &violent_death );
-			else if ( !strcasecmp ( field, "windstrength" ) )
-				sscanf ( value, "%d", &windstrength );
-			else if ( !strcasecmp ( field, "windvariation" ) )
-				sscanf ( value, "%d", &windvariation );
-			else if ( !strcasecmp ( field, "viscosity" ) ) {
-				sscanf ( value, "%lf", &viscosity );
+			} else if ( !strcasecmp( field, "sounddriver" ) )
+				sscanf( value, "%d", &sound_driver );
+			else if ( !strcasecmp( field, "startmoney" ) )
+				sscanf( value, "%d", &startmoney );
+			else if ( !strcasecmp( field, "turntype" ) )
+				sscanf( value, "%d", &turntype );
+			else if ( !strcasecmp( field, "violentdeath" ) )
+				sscanf( value, "%d", &violent_death );
+			else if ( !strcasecmp( field, "windstrength" ) )
+				sscanf( value, "%d", &windstrength );
+			else if ( !strcasecmp( field, "windvariation" ) )
+				sscanf( value, "%d", &windvariation );
+			else if ( !strcasecmp( field, "viscosity" ) ) {
+				sscanf( value, "%lf", &viscosity );
 				if ( viscosity < 0.25 ) viscosity = 0.5;
-			} else if ( !strcasecmp ( field, "gravity" ) ) {
-				sscanf ( value, "%lf", &gravity );
+			} else if ( !strcasecmp( field, "gravity" ) ) {
+				sscanf( value, "%lf", &gravity );
 				if ( gravity < 0.025 ) gravity = 0.15;
-			} else if ( !strcasecmp ( field, "techlevel" ) ) {
-				sscanf ( value, "%d", &weapontechLevel );
+			} else if ( !strcasecmp( field, "techlevel" ) ) {
+				sscanf( value, "%d", &weapontechLevel );
 				itemtechLevel = weapontechLevel; // for backward compatibility
-			} else if ( !strcasecmp ( field, "weapontechlevel" ) )
-				sscanf ( value, "%d", &weapontechLevel );
-			else if ( !strcasecmp ( field, "itemtechlevel" ) )
-				sscanf ( value, "%d", &itemtechLevel );
-			else if ( !strcasecmp ( field, "meteors" ) )
-				sscanf ( value, "%d", &meteors );
-			else if ( !strcasecmp ( field, "lightning" ) )
-				sscanf ( value, "%d", &lightning );
-			else if ( !strcasecmp ( field, "satellite" ) )
-				sscanf ( value, "%d", &satellite );
-			else if ( !strcasecmp ( field, "fog" ) )
-				sscanf ( value, "%d", &fog );
-			else if ( !strcasecmp ( field, "landtype" ) )
-				sscanf ( value, "%d", &landType );
-			else if ( !strcasecmp ( field, "landslidetype" ) )
-				sscanf ( value, "%d", &landSlideType );
-			else if ( !strcasecmp ( field, "walltype" ) )
-				sscanf ( value, "%d", &wallType );
-			else if ( !strcasecmp ( field, "boxmode" ) )
-				sscanf ( value, "%d", &boxedMode );
-			else if ( !strcasecmp ( field, "textfade" ) ) {
+			} else if ( !strcasecmp( field, "weapontechlevel" ) )
+				sscanf( value, "%d", &weapontechLevel );
+			else if ( !strcasecmp( field, "itemtechlevel" ) )
+				sscanf( value, "%d", &itemtechLevel );
+			else if ( !strcasecmp( field, "meteors" ) )
+				sscanf( value, "%d", &meteors );
+			else if ( !strcasecmp( field, "lightning" ) )
+				sscanf( value, "%d", &lightning );
+			else if ( !strcasecmp( field, "satellite" ) )
+				sscanf( value, "%d", &satellite );
+			else if ( !strcasecmp( field, "fog" ) )
+				sscanf( value, "%d", &fog );
+			else if ( !strcasecmp( field, "landtype" ) )
+				sscanf( value, "%d", &landType );
+			else if ( !strcasecmp( field, "landslidetype" ) )
+				sscanf( value, "%d", &landSlideType );
+			else if ( !strcasecmp( field, "walltype" ) )
+				sscanf( value, "%d", &wallType );
+			else if ( !strcasecmp( field, "boxmode" ) )
+				sscanf( value, "%d", &boxedMode );
+			else if ( !strcasecmp( field, "textfade" ) ) {
 				int32_t res = 0;
-				sscanf ( value, "%d", &res );
+				sscanf( value, "%d", &res );
 				fadingText = res != 0;
-			} else if ( !strcasecmp ( field, "textshadow" ) ) {
+			} else if ( !strcasecmp( field, "textshadow" ) ) {
 				int32_t res = 0;
-				sscanf ( value, "%d", &res );
+				sscanf( value, "%d", &res );
 				shadowedText = res != 0;
-			} else if ( !strcasecmp ( field, "textsway" ) ) {
+			} else if ( !strcasecmp( field, "textsway" ) ) {
 				int32_t res = 0;
-				sscanf ( value, "%d", &res );
+				sscanf( value, "%d", &res );
 				swayingText = res != 0;
-			} else if ( !strcasecmp ( field, "landslidedelay" ) )
-				sscanf ( value, "%d", &landSlideDelay );
-			else if ( !strcasecmp ( field, "fallingdirtballs" ) ) {
-				sscanf ( value, "%d", &falling_dirt_balls );
+			} else if ( !strcasecmp( field, "landslidedelay" ) )
+				sscanf( value, "%d", &landSlideDelay );
+			else if ( !strcasecmp( field, "fallingdirtballs" ) ) {
+				sscanf( value, "%d", &falling_dirt_balls );
 				if ( falling_dirt_balls < 0 ) falling_dirt_balls = 0;
 				if ( falling_dirt_balls > 3 ) falling_dirt_balls = 3;
-			} else if ( !strcasecmp ( field, "custombackground" ) )
-				sscanf ( value, "%d", &custom_background );
-			else if ( !strcasecmp ( field, "volumefactor" ) )
-				sscanf ( value, "%d", &volume_factor );
-			else if ( !strcasecmp ( field, "volleydelay" ) )
-				sscanf ( value, "%d", &volley_delay );
-			else if ( !strcasecmp ( field, "screenwidth" ) )
-				sscanf ( value, "%d", &screenWidth );
-			else if ( !strcasecmp ( field, "screenheight" ) )
-				sscanf ( value, "%d", &screenHeight );
+			} else if ( !strcasecmp( field, "custombackground" ) )
+				sscanf( value, "%d", &custom_background );
+			else if ( !strcasecmp( field, "volumefactor" ) )
+				sscanf( value, "%d", &volume_factor );
+			else if ( !strcasecmp( field, "volleydelay" ) )
+				sscanf( value, "%d", &volley_delay );
+			else if ( !strcasecmp( field, "screenwidth" ) )
+				sscanf( value, "%d", &screenWidth );
+			else if ( !strcasecmp( field, "screenheight" ) )
+				sscanf( value, "%d", &screenHeight );
 		} // end of read a line properly
 	}         // end of while not done
 
@@ -849,12 +858,12 @@ void ENVIRONMENT::load_from_file ( FILE* file ) {
 	return;
 }
 
-#define LOAD_TEXT_BLOCK( var, file )                                                     \
-	try {                                                                            \
-		string     text_file{ text_base + string ( file ) + string ( suffix ) }; \
-		TEXTBLOCK* new_##var = new TEXTBLOCK ( text_file.c_str() );              \
-		delete ( var );                                                          \
-		( var ) = new_##var;                                                     \
+#define LOAD_TEXT_BLOCK( var, file )                                                   \
+	try {                                                                          \
+		string     text_file{ text_base + string( file ) + string( suffix ) }; \
+		TEXTBLOCK* new_##var = new TEXTBLOCK( text_file.c_str() );             \
+		delete ( var );                                                        \
+		( var ) = new_##var;                                                   \
 	} catch ( ... ) {}
 
 /** @brief load text files according to set language
@@ -871,36 +880,36 @@ void ENVIRONMENT::load_text_files() {
 
 	switch ( language ) {
 		case EL_FRENCH:
-			strncpy ( suffix, "_fr.txt", 11 );
+			strncpy( suffix, "_fr.txt", 11 );
 			war_lines += "war_quotes.txt";
 			break;
 		case EL_GERMAN:
-			strncpy ( suffix, "_de.txt", 11 );
+			strncpy( suffix, "_de.txt", 11 );
 			war_lines += "war_quotes.txt";
 			break;
 		case EL_ITALIAN:
-			strncpy ( suffix, "_it.txt", 11 );
+			strncpy( suffix, "_it.txt", 11 );
 			war_lines += "war_quotes_it.txt";
 			break;
 		case EL_PORTUGUESE:
-			strncpy ( suffix, ".pt_BR.txt", 11 );
+			strncpy( suffix, ".pt_BR.txt", 11 );
 			war_lines += "war_quotes.txt";
 			break;
 		case EL_RUSSIAN:
-			strncpy ( suffix, "_ru.txt", 11 );
+			strncpy( suffix, "_ru.txt", 11 );
 			war_lines += "war_quotes_ru.txt";
 			break;
 		case EL_SLOVAK:
-			strncpy ( suffix, "_sk.txt", 11 );
+			strncpy( suffix, "_sk.txt", 11 );
 			war_lines += "war_quotes.txt";
 			break;
 		case EL_SPANISH:
-			strncpy ( suffix, "_ES.txt", 11 );
+			strncpy( suffix, "_ES.txt", 11 );
 			war_lines += "war_quotes_ES.txt";
 			break;
 		case EL_ENGLISH:
 		default:
-			strncpy ( suffix, ".txt", 11 ); // default to english
+			strncpy( suffix, ".txt", 11 ); // default to english
 			war_lines += "war_quotes.txt";
 			break;
 	}
@@ -908,21 +917,21 @@ void ENVIRONMENT::load_text_files() {
 	if ( r < 0 ) abort();
 
 	try {
-		auto new_war_quotes = new TEXTBLOCK ( war_lines.c_str() );
+		auto new_war_quotes = new TEXTBLOCK( war_lines.c_str() );
 		delete war_quotes;
 		war_quotes = new_war_quotes;
 	} catch ( ... ) { /* can't do anything helpful here anyway */
 	}
 
 
-	LOAD_TEXT_BLOCK ( gloat, "gloat" )
-	LOAD_TEXT_BLOCK ( ingame, "ingame" )
-	LOAD_TEXT_BLOCK ( instructions, "instr" )
-	LOAD_TEXT_BLOCK ( panic, "panic" )
-	LOAD_TEXT_BLOCK ( kamikaze, "kamikaze" )
-	LOAD_TEXT_BLOCK ( retaliation, "retaliation" )
-	LOAD_TEXT_BLOCK ( revenge, "revenge" )
-	LOAD_TEXT_BLOCK ( suicide, "suicide" )
+	LOAD_TEXT_BLOCK( gloat, "gloat" )
+	LOAD_TEXT_BLOCK( ingame, "ingame" )
+	LOAD_TEXT_BLOCK( instructions, "instr" )
+	LOAD_TEXT_BLOCK( panic, "panic" )
+	LOAD_TEXT_BLOCK( kamikaze, "kamikaze" )
+	LOAD_TEXT_BLOCK( retaliation, "retaliation" )
+	LOAD_TEXT_BLOCK( revenge, "revenge" )
+	LOAD_TEXT_BLOCK( suicide, "suicide" )
 }
 
 /** @brief load a background music file.
@@ -944,7 +953,7 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 
 	// see if we have the music folder open
 	if ( !music_dir ) {
-		music_dir = opendir ( string ( configDir + "/music" ).c_str() );
+		music_dir = opendir( string( configDir + "/music" ).c_str() );
 		if ( !music_dir ) {
 			return false;
 		}
@@ -955,18 +964,18 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 	// the music folder is closed by global's deconstructor
 	// search for files ending in .wav
 	string music_path{ configDir + "/music/" };
-	folder_entry = readdir ( music_dir );
+	folder_entry = readdir( music_dir );
 	while ( folder_entry && !newStream ) {
 		// we have something, see if it is a wav file
-		if ( strstr ( folder_entry->d_name, ".wav" ) ) {
-			newStream = load_sample ( string ( music_path + folder_entry->d_name ).c_str() );
+		if ( strstr( folder_entry->d_name, ".wav" ) ) {
+			newStream = load_sample( string( music_path + folder_entry->d_name ).c_str() );
 		}
-		if ( !newStream ) folder_entry = readdir ( music_dir );
+		if ( !newStream ) folder_entry = readdir( music_dir );
 	}
 
 	if ( !folder_entry ) {
 		// hit end of folder
-		closedir ( music_dir );
+		closedir( music_dir );
 		music_dir = nullptr;
 
 		// If there is a current background music file loaded, then the
@@ -980,7 +989,7 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 			// files in that directory
 			if ( background_music ) {
 				// Okay, this is odd.
-				destroy_sample ( background_music );
+				destroy_sample( background_music );
 				background_music = nullptr;
 			}
 			play_music = false;
@@ -988,7 +997,7 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 		}
 	}
 
-	if ( background_music ) destroy_sample ( background_music );
+	if ( background_music ) destroy_sample( background_music );
 	background_music = newStream;
 	isSecondTry      = false;
 
@@ -1036,19 +1045,19 @@ bool ENVIRONMENT::loadBitmaps() {
 
 		// set up empty array
 		int32_t array_size = 10;
-		bitmap_array       = (BITMAP**)calloc ( 10, sizeof ( BITMAP* ) );
+		bitmap_array       = (BITMAP**)calloc( 10, sizeof( BITMAP* ) );
 		if ( !bitmap_array ) {
-			printf ( "Ran out of memory, loading bitmaps.\n" );
+			printf( "Ran out of memory, loading bitmaps.\n" );
 			return false;
 		}
 
 		// search for files
 		int32_t file_count = 0;
-		string  bitmap_path{ folder + std::to_string ( file_count ) + ".bmp" };
-		while ( !access ( bitmap_path.c_str(), F_OK | R_OK ) && bitmap_array ) {
-			newbitmap = load_bitmap ( bitmap_path.c_str(), nullptr );
+		string  bitmap_path{ folder + std::to_string( file_count ) + ".bmp" };
+		while ( !access( bitmap_path.c_str(), F_OK | R_OK ) && bitmap_array ) {
+			newbitmap = load_bitmap( bitmap_path.c_str(), nullptr );
 			if ( !newbitmap ) {
-				printf ( "An error occured loading bitmap %s\n", bitmap_path.c_str() );
+				printf( "An error occured loading bitmap %s\n", bitmap_path.c_str() );
 			}
 
 			// Crop tank bitmaps for unification
@@ -1062,7 +1071,7 @@ bool ENVIRONMENT::loadBitmaps() {
 				bool    hasPix = false;
 				while ( !hasPix && ( left < right ) ) {
 					for ( int32_t y = top; !hasPix && ( y < bottom ); ++y ) {
-						if ( PINK != getpixel ( newbitmap, left, y ) ) hasPix = true;
+						if ( PINK != getpixel( newbitmap, left, y ) ) hasPix = true;
 					}
 					if ( !hasPix ) ++left;
 				}
@@ -1071,7 +1080,7 @@ bool ENVIRONMENT::loadBitmaps() {
 				hasPix = false;
 				while ( !hasPix && ( right > left ) ) {
 					for ( int32_t y = top; !hasPix && ( y < bottom ); ++y ) {
-						if ( PINK != getpixel ( newbitmap, right, y ) ) hasPix = true;
+						if ( PINK != getpixel( newbitmap, right, y ) ) hasPix = true;
 					}
 					if ( !hasPix ) --right;
 				}
@@ -1080,7 +1089,7 @@ bool ENVIRONMENT::loadBitmaps() {
 				hasPix = false;
 				while ( !hasPix && ( top < bottom ) ) {
 					for ( int32_t x = left; !hasPix && ( x < right ); ++x ) {
-						if ( PINK != getpixel ( newbitmap, x, top ) ) hasPix = true;
+						if ( PINK != getpixel( newbitmap, x, top ) ) hasPix = true;
 					}
 					if ( !hasPix ) ++top;
 				}
@@ -1089,16 +1098,16 @@ bool ENVIRONMENT::loadBitmaps() {
 				hasPix = false;
 				while ( !hasPix && ( bottom > top ) ) {
 					for ( int32_t x = left; !hasPix && ( x < right ); ++x ) {
-						if ( PINK != getpixel ( newbitmap, x, bottom ) ) hasPix = true;
+						if ( PINK != getpixel( newbitmap, x, bottom ) ) hasPix = true;
 					}
 					if ( !hasPix ) --bottom;
 				}
 
 				// Now create the real bitmap
-				bitmap_array[ file_count ] = create_bitmap ( right - left, bottom - top );
-				blit ( newbitmap, bitmap_array[ file_count ], left, top, 0, 0, right - left, bottom - top );
+				bitmap_array[ file_count ] = create_bitmap( right - left, bottom - top );
+				blit( newbitmap, bitmap_array[ file_count ], left, top, 0, 0, right - left, bottom - top );
 
-				destroy_bitmap ( newbitmap );
+				destroy_bitmap( newbitmap );
 			} // End of cropping tank bitmap
 
 			// otherwise just copy the bitmap pointer
@@ -1111,19 +1120,19 @@ bool ENVIRONMENT::loadBitmaps() {
 			// make sure array is large enough
 			if ( file_count >= array_size ) {
 				array_size     += 10;
-				auto new_array  = (BITMAP**)realloc ( bitmap_array, sizeof ( BITMAP* ) * ( array_size + 1 ) );
+				auto new_array  = (BITMAP**)realloc( bitmap_array, sizeof( BITMAP* ) * ( array_size + 1 ) );
 				if ( !new_array ) {
-					printf ( "Unable to increase array size while loading bitmaps.\n" );
-					free ( bitmap_array );
+					printf( "Unable to increase array size while loading bitmaps.\n" );
+					free( bitmap_array );
 					return false;
 				} else {
 					bitmap_array = new_array;
-					memset ( bitmap_array + file_count, 0, sizeof ( BITMAP* ) * ( array_size - file_count ) );
+					memset( bitmap_array + file_count, 0, sizeof( BITMAP* ) * ( array_size - file_count ) );
 				}
 			}
 
 			// get next file
-			bitmap_path.assign ( folder + std::to_string ( file_count ) + ".bmp" );
+			bitmap_path.assign( folder + std::to_string( file_count ) + ".bmp" );
 		}
 
 		// save the new array
@@ -1163,17 +1172,17 @@ bool ENVIRONMENT::loadBitmaps() {
 // success the function returns true. When an
 // error occurs, it returns false.
 bool ENVIRONMENT::loadFonts() {
-	string font_file{ dataDir + string ( "/unicode.dat" ) };
+	string font_file{ dataDir + string( "/unicode.dat" ) };
 
-	main_font = load_font ( font_file.c_str(), nullptr, nullptr );
+	main_font = load_font( font_file.c_str(), nullptr, nullptr );
 
 	if ( main_font )
 		font = main_font;
 	else
-		printf ( "Unable to load font %s\n", font_file.c_str() );
+		printf( "Unable to load font %s\n", font_file.c_str() );
 
 	// Store font height
-	if ( main_font ) fontHeight = text_height ( main_font );
+	if ( main_font ) fontHeight = text_height( main_font );
 
 	return main_font != nullptr;
 }
@@ -1202,7 +1211,7 @@ bool ENVIRONMENT::loadGameFiles() {
 	//       Thus the second load is always necessary.
 
 
-	bitmap_filenames = Find_Bitmaps ( &number_of_bitmaps );
+	bitmap_filenames = Find_Bitmaps( &number_of_bitmaps );
 
 	// If no bitmaps where found, a custom background is futile.
 	if ( custom_background && !bitmap_filenames ) custom_background = 0;
@@ -1222,23 +1231,23 @@ bool ENVIRONMENT::loadSounds() {
 	SAMPLE* temp_sample = nullptr;
 
 	// allocate space for sound samples
-	sounds              = (SAMPLE**)calloc ( SND_COUNT, sizeof ( SAMPLE* ) );
+	sounds              = (SAMPLE**)calloc( SND_COUNT, sizeof( SAMPLE* ) );
 	if ( !sounds ) {
-		printf ( "Unable to create sound array.\n" );
+		printf( "Unable to create sound array.\n" );
 		return false;
 	}
 
 	// read from directory
-	string sound_dir{ dataDir + string ( "/sound/" ) };
+	string sound_dir{ dataDir + string( "/sound/" ) };
 	for ( int32_t i = 0; i < SND_COUNT; ++i ) {
 		string sound_file{ sound_dir };
-		sound_file += ( i < 10 ? "0" : "" ) + std::to_string ( i ) + string ( ".wav" );
-		if ( !access ( sound_file.c_str(), R_OK ) ) {
-			temp_sample = load_sample ( sound_file.c_str() );
+		sound_file += ( i < 10 ? "0" : "" ) + std::to_string( i ) + string( ".wav" );
+		if ( !access( sound_file.c_str(), R_OK ) ) {
+			temp_sample = load_sample( sound_file.c_str() );
 			if ( temp_sample )
 				sounds[ i ] = temp_sample;
 			else
-				fprintf ( stderr, "An error occured loading sound file %s\n", sound_file.c_str() );
+				fprintf( stderr, "An error occured loading sound file %s\n", sound_file.c_str() );
 		}
 		// No else, because the sound enum has free slots.
 	}
@@ -1269,16 +1278,16 @@ void ENVIRONMENT::newRound() {
 	// Set wall colour
 	switch ( current_wallType ) {
 		case WALL_RUBBER:
-			wallColour = makecol ( 0, 255, 0 );
+			wallColour = makecol( 0, 255, 0 );
 			break;
 		case WALL_STEEL:
-			wallColour = makecol ( 255, 0, 0 );
+			wallColour = makecol( 255, 0, 0 );
 			break;
 		case WALL_SPRING:
-			wallColour = makecol ( 0, 0, 255 );
+			wallColour = makecol( 0, 0, 255 );
 			break;
 		case WALL_WRAP:
-			wallColour = makecol ( 255, 255, 0 );
+			wallColour = makecol( 255, 255, 0 );
 			break;
 	}
 
@@ -1286,7 +1295,7 @@ void ENVIRONMENT::newRound() {
 	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) playerOrder[ i ] = nullptr;
 }
 
-void ENVIRONMENT::removeGamePlayer ( PLAYER* player_ ) {
+void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
 	int32_t fromCount = 0;
 	int32_t toCount   = -1;
 
@@ -1326,7 +1335,7 @@ void ENVIRONMENT::Reset_Options() {
 	fadingText         = false;
 	falling_dirt_balls = 0;
 	fog                = 0;
-	set_fps ( 60 );
+	set_fps( 60 );
 	gravity               = 0.15;
 	interest              = 1.25;
 	itemtechLevel         = 5;
@@ -1367,8 +1376,8 @@ void ENVIRONMENT::Reset_Options() {
 	windstrength          = 8;
 	windvariation         = 1;
 
-	strncpy ( server_name, "127.0.0.1", 127 );
-	strncpy ( server_port, "25645", 127 );
+	strncpy( server_name, "127.0.0.1", 127 );
+	strncpy( server_port, "25645", 127 );
 }
 
 /** @brief Save environment settings to a text file
@@ -1378,92 +1387,98 @@ void ENVIRONMENT::Reset_Options() {
  *
  * @return true on success and false on failure.
  */
-bool ENVIRONMENT::save_to_file ( FILE* file ) {
+bool ENVIRONMENT::save_to_file( FILE* file ) {
 	if ( !file ) return false;
 
-	fprintf ( file, "*ENV*\n" );
+	fprintf( file, "*ENV*\n" );
 
-	fprintf ( file, "ACCELERATEDAI=%d\n", skipComputerPlay );
-	fprintf ( file, "BOXMODE=%d\n", boxedMode );
-	fprintf ( file, "CHECKUPDATES=%d\n", check_for_updates ? 1 : 0 );
-	fprintf ( file, "COLOURTHEME=%d\n", colourTheme );
-	fprintf ( file, "CUSTOMBACKGROUND=%d\n", custom_background );
-	fprintf ( file, "DEBRISLEVEL=%d\n", debris_level );
-	fprintf ( file, "DETAILEDLAND=%d\n", detailedLandscape ? 1 : 0 );
-	fprintf ( file, "DETAILEDSKY=%d\n", detailedSky ? 1 : 0 );
-	fprintf ( file, "DITHER=%d\n", ditherGradients ? 1 : 0 );
-	fprintf ( file, "DIVIDEMONEY=%d\n", divide_money );
-	fprintf ( file, "DOBOXWRAP=%d\n", do_box_wrap );
-	fprintf ( file, "DYNAMICMENUBG=%d\n", dynamicMenuBg ? 1 : 0 );
-	fprintf ( file, "FALLINGDIRTBALLS=%d\n", falling_dirt_balls );
-	fprintf ( file, "FOG=%d\n", fog );
-	fprintf ( file, "FRAMES=%d\n", frames_per_second );
-	fprintf ( file, "FULLSCREEN=%d\n", full_screen );
-	fprintf ( file, "GRAVITY=%f\n", gravity );
-	fprintf ( file, "INTEREST=%f\n", interest );
-	fprintf ( file, "ITEMTECHLEVEL=%d\n", itemtechLevel );
-	fprintf ( file, "LANDSLIDEDELAY=%d\n", landSlideDelay );
-	fprintf ( file, "LANDSLIDETYPE=%d\n", landSlideType );
-	fprintf ( file, "LANDTYPE=%d\n", landType );
-	fprintf ( file, "LANGUAGE=%u\n", static_cast< uint32_t > ( language ) );
-	fprintf ( file, "LIGHTNING=%d\n", lightning );
-	fprintf ( file, "MAXFIRETIME=%d\n", maxFireTime );
-	fprintf ( file, "METEORS=%d\n", meteors );
-	fprintf ( file, "NETWORKING=%d\n", network_enabled ? 1 : 0 );
-	fprintf ( file, "NETWORKPORT=%d\n", network_port );
-	fprintf ( file, "NUMPERMANENTPLAYERS=%d\n", numPermanentPlayers );
-	fprintf ( file, "OSMOUSE=%d\n", osMouse );
-	fprintf ( file, "PLAYMUSIC=%d\n", play_music ? 1 : 0 );
-	fprintf ( file, "ROUNDS=%d\n", rounds );
-	fprintf ( file, "SATELLITE=%d\n", satellite );
-	fprintf ( file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
-	fprintf ( file, "SCOREHITUNIT=%d\n", scoreHitUnit );
-	fprintf ( file, "SCOREROUNDWINBONUS=%d\n", scoreRoundWinBonus );
-	fprintf ( file, "SCORESELFHIT=%d\n", scoreSelfHit );
-	fprintf ( file, "SCORETEAMHIT=%d\n", scoreTeamHit );
-	fprintf ( file, "SCOREUNITDESTROYBONUS=%d\n", scoreUnitDestroyBonus );
-	fprintf ( file, "SCOREUNITSELFDESTROY=%d\n", scoreUnitSelfDestroy );
-	fprintf ( file, "SCREENHEIGHT=%d\n", temp_screenHeight );
-	fprintf ( file, "SCREENWIDTH=%d\n", temp_screenWidth );
-	fprintf ( file, "SELLPERCENT=%f\n", sellpercent );
-	fprintf ( file, "SERVERNAME='%s'\n", server_name );
-	fprintf ( file, "SERVERPORT='%s'\n", server_port );
-	fprintf ( file, "SHOWAIFEEDBACK=%d\n", showAIFeedback ? 1 : 0 );
-	fprintf ( file, "SHOWFPS=%d\n", showFPS ? 1 : 0 );
-	fprintf ( file, "SOUNDDRIVER=%d\n", sound_driver );
-	fprintf ( file, "SOUNDENABLED=%d\n", sound_enabled ? 1 : 0 );
-	fprintf ( file, "STARTMONEY=%d\n", startmoney );
-	fprintf ( file, "TEXTFADE=%d\n", fadingText ? 1 : 0 );
-	fprintf ( file, "TEXTSHADOW=%d\n", shadowedText ? 1 : 0 );
-	fprintf ( file, "TEXTSWAY=%d\n", swayingText ? 1 : 0 );
-	fprintf ( file, "TURNTYPE=%d\n", turntype );
-	fprintf ( file, "VISCOSITY=%f\n", viscosity );
-	fprintf ( file, "VIOLENTDEATH=%d\n", violent_death );
-	fprintf ( file, "VOLLEYDELAY=%d\n", volley_delay );
-	fprintf ( file, "VOLUMEFACTOR=%d\n", volume_factor );
-	fprintf ( file, "WALLTYPE=%d\n", wallType );
-	fprintf ( file, "WEAPONTECHLEVEL=%d\n", weapontechLevel );
-	fprintf ( file, "WINDSTRENGTH=%d\n", windstrength );
-	fprintf ( file, "WINDVARIATION=%d\n", windvariation );
-	fprintf ( file, "***\n" );
+	fprintf( file, "ACCELERATEDAI=%d\n", skipComputerPlay );
+	fprintf( file, "BOXMODE=%d\n", boxedMode );
+	fprintf( file, "CHECKUPDATES=%d\n", check_for_updates ? 1 : 0 );
+	fprintf( file, "COLOURTHEME=%d\n", colourTheme );
+	fprintf( file, "CUSTOMBACKGROUND=%d\n", custom_background );
+	fprintf( file, "DEBRISLEVEL=%d\n", debris_level );
+	fprintf( file, "DETAILEDLAND=%d\n", detailedLandscape ? 1 : 0 );
+	fprintf( file, "DETAILEDSKY=%d\n", detailedSky ? 1 : 0 );
+	fprintf( file, "DITHER=%d\n", ditherGradients ? 1 : 0 );
+	fprintf( file, "DIVIDEMONEY=%d\n", divide_money );
+	fprintf( file, "DOBOXWRAP=%d\n", do_box_wrap );
+	fprintf( file, "DYNAMICMENUBG=%d\n", dynamicMenuBg ? 1 : 0 );
+	fprintf( file, "FALLINGDIRTBALLS=%d\n", falling_dirt_balls );
+	fprintf( file, "FOG=%d\n", fog );
+	fprintf( file, "FRAMES=%d\n", frames_per_second );
+	fprintf( file, "FULLSCREEN=%d\n", full_screen );
+	fprintf( file, "GRAVITY=%f\n", gravity );
+	fprintf( file, "INTEREST=%f\n", interest );
+	fprintf( file, "ITEMTECHLEVEL=%d\n", itemtechLevel );
+	fprintf( file, "LANDSLIDEDELAY=%d\n", landSlideDelay );
+	fprintf( file, "LANDSLIDETYPE=%d\n", landSlideType );
+	fprintf( file, "LANDTYPE=%d\n", landType );
+	fprintf( file, "LANGUAGE=%u\n", static_cast< uint32_t >( language ) );
+	fprintf( file, "LIGHTNING=%d\n", lightning );
+	fprintf( file, "MAXFIRETIME=%d\n", maxFireTime );
+	fprintf( file, "METEORS=%d\n", meteors );
+	fprintf( file, "NETWORKING=%d\n", network_enabled ? 1 : 0 );
+	fprintf( file, "NETWORKPORT=%d\n", network_port );
+	fprintf( file, "NUMPERMANENTPLAYERS=%d\n", numPermanentPlayers );
+	fprintf( file, "OSMOUSE=%d\n", osMouse );
+	fprintf( file, "PLAYMUSIC=%d\n", play_music ? 1 : 0 );
+	fprintf( file, "ROUNDS=%d\n", rounds );
+	fprintf( file, "SATELLITE=%d\n", satellite );
+	fprintf( file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
+	fprintf( file, "SCOREHITUNIT=%d\n", scoreHitUnit );
+	fprintf( file, "SCOREROUNDWINBONUS=%d\n", scoreRoundWinBonus );
+	fprintf( file, "SCORESELFHIT=%d\n", scoreSelfHit );
+	fprintf( file, "SCORETEAMHIT=%d\n", scoreTeamHit );
+	fprintf( file, "SCOREUNITDESTROYBONUS=%d\n", scoreUnitDestroyBonus );
+	fprintf( file, "SCOREUNITSELFDESTROY=%d\n", scoreUnitSelfDestroy );
+	fprintf( file, "SCREENHEIGHT=%d\n", temp_screenHeight );
+	fprintf( file, "SCREENWIDTH=%d\n", temp_screenWidth );
+	fprintf( file, "SELLPERCENT=%f\n", sellpercent );
+	fprintf( file, "SERVERNAME='%s'\n", server_name );
+	fprintf( file, "SERVERPORT='%s'\n", server_port );
+	fprintf( file, "SHOWAIFEEDBACK=%d\n", showAIFeedback ? 1 : 0 );
+	fprintf( file, "SHOWFPS=%d\n", showFPS ? 1 : 0 );
+	fprintf( file, "SOUNDDRIVER=%d\n", sound_driver );
+	fprintf( file, "SOUNDENABLED=%d\n", sound_enabled ? 1 : 0 );
+	fprintf( file, "STARTMONEY=%d\n", startmoney );
+	fprintf( file, "TEXTFADE=%d\n", fadingText ? 1 : 0 );
+	fprintf( file, "TEXTSHADOW=%d\n", shadowedText ? 1 : 0 );
+	fprintf( file, "TEXTSWAY=%d\n", swayingText ? 1 : 0 );
+	fprintf( file, "TURNTYPE=%d\n", turntype );
+	fprintf( file, "VISCOSITY=%f\n", viscosity );
+	fprintf( file, "VIOLENTDEATH=%d\n", violent_death );
+	fprintf( file, "VOLLEYDELAY=%d\n", volley_delay );
+	fprintf( file, "VOLUMEFACTOR=%d\n", volume_factor );
+	fprintf( file, "WALLTYPE=%d\n", wallType );
+	fprintf( file, "WEAPONTECHLEVEL=%d\n", weapontechLevel );
+	fprintf( file, "WINDSTRENGTH=%d\n", windstrength );
+	fprintf( file, "WINDVARIATION=%d\n", windvariation );
+	fprintf( file, "***\n" );
 
 	return true;
 }
 
 /// @brief This function sends a message to all connected game clients.
 /// @return true on success or false if the message could not be sent
-bool ENVIRONMENT::sendToClients ( const char* message ) {
+bool ENVIRONMENT::sendToClients( const char* message ) {
 	if ( !message ) return false;
 
 #ifdef NETWORK
 	int32_t written        = 0;
-	int32_t message_length = strlen ( message );
+	int32_t message_length = strlen( message );
 
 	for ( int32_t index = 0; index < numGamePlayers; index++ ) {
 		if ( ( players[ index ] ) && ( players[ index ]->type == NETWORK_CLIENT ) ) {
-			written = write ( players[ index ]->server_socket, message, message_length );
+			written = write( players[ index ]->server_socket, message, message_length );
 			if ( written < message_length )
-				fprintf ( stderr, "%s:%d: Warning: Only %d/%d bytes sent to player %d\n", __FILE__, __LINE__, written, message_length, index );
+				fprintf( stderr,
+				         "%s:%d: Warning: Only %d/%d bytes sent to player %d\n",
+				         __FILE__,
+				         __LINE__,
+				         written,
+				         message_length,
+				         index );
 		}
 	} // done all players
 #endif    // NETWORK
@@ -1471,15 +1486,15 @@ bool ENVIRONMENT::sendToClients ( const char* message ) {
 }
 
 /// @brief set new frames per second if valid and calculate dependent values.
-void ENVIRONMENT::set_fps ( int32_t new_FPS ) {
+void ENVIRONMENT::set_fps( int32_t new_FPS ) {
 	if ( !new_FPS || ( ( new_FPS > 0 ) && ( new_FPS != frames_per_second ) ) ) {
 		if ( new_FPS ) frames_per_second = new_FPS;
-		FPS_mod     = 100. / static_cast< double > ( frames_per_second );
-		maxVelocity = static_cast< double > ( MAX_POWER ) * FPS_mod / 100.;
+		FPS_mod     = 100. / static_cast< double >( frames_per_second );
+		maxVelocity = static_cast< double >( MAX_POWER ) * FPS_mod / 100.;
 	}
 }
 
-void ENVIRONMENT::window_update ( int32_t x, int32_t y, int32_t w, int32_t h ) {
+void ENVIRONMENT::window_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	if ( x < window.x ) window.x = x;
 	if ( y < window.y ) window.y = y;
 	if ( x + w > window.w ) window.w = ( x + w ) - 1;

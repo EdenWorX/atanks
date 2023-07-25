@@ -9,7 +9,8 @@ GLOBALDATA  global;
 ENVIRONMENT env;
 
 // === Defined colours used everywhere ===
-int32_t     BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED, SILVER, TURQUOISE, WHITE, YELLOW;
+int32_t     BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED,
+	SILVER, TURQUOISE, WHITE, YELLOW;
 
 // === General values that are globally used ===
 char        buf[ 100 ]; // buffer for general use
@@ -32,28 +33,28 @@ gradient stuff_bar_gradient[ 11 ] = {
 	{{ 0, 120, 0, 0 },      0.0 },
         { { 10, 210, 50, 0 },   0.1 },
         { { 100, 150, 150, 0 }, 0.28},
-        { { 100, 170, 170, 0 }, 0.31},
-	{ { 200, 200, 200, 0 }, 0.33},
+	{ { 100, 170, 170, 0 }, 0.31},
+        { { 200, 200, 200, 0 }, 0.33},
         { { 120, 150, 120, 0 }, 0.35},
-        { { 180, 190, 180, 0 }, 0.5 },
+	{ { 180, 190, 180, 0 }, 0.5 },
         { { 210, 210, 210, 0 }, 0.55},
-	{ { 200, 220, 200, 0 }, 0.57},
-        { { 255, 255, 255, 0 }, 1.0 },
+        { { 200, 220, 200, 0 }, 0.57},
+	{ { 255, 255, 255, 0 }, 1.0 },
         { { 0, 0, 0, 0 },       -1  }
 };
 
 gradient circles_gradient[ 4 ] = {
 	{{ 100, 75, 50, 0 },    0.0},
-        { { 0, 100, 0, 0 },     0.5},
-        { { 255, 255, 255, 0 }, 1.0},
-        { { 0, 0, 0, 0 },       -1 }
+	{ { 0, 100, 0, 0 },     0.5},
+	{ { 255, 255, 255, 0 }, 1.0},
+	{ { 0, 0, 0, 0 },       -1 }
 };
 
 // Explosion gradient
 gradient explosion_gradient1[ 3 ] = {
 	{{ 150, 75, 30, 0 },    0.0},
-        { { 255, 255, 255, 0 }, 1.0},
-        { { 0, 0, 0, 0 },       -1 }
+	{ { 255, 255, 255, 0 }, 1.0},
+	{ { 0, 0, 0, 0 },       -1 }
 };
 
 // Explosion gradient

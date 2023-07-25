@@ -52,29 +52,29 @@ public:
 
 	void      activate();
 	void      activateCurrentSelection();
-	void      addDamage ( PLAYER* damageFrom, double damage_ );
+	void      addDamage( PLAYER* damageFrom, double damage_ );
 	void      applyDamage();
 	void      applyPhysics();
 	void      check_weapon();
 	void      deactivate();
 	void      draw();
-	void      explode ( bool allow_vengeance );
+	void      explode( bool allow_vengeance );
 	int32_t   getBottom();
 	double    getDiameter();
-	void      getGuntop ( int32_t angle_, double& top_x, double& top_y );
+	void      getGuntop( int32_t angle_, double& top_x, double& top_y );
 	int32_t   getMaxLife();
 	bool      hasRepulsorActivated();
-	int32_t   howBuried ( int32_t* left, int32_t* right );
+	int32_t   howBuried( int32_t* left, int32_t* right );
 	bool      isFlying();
-	bool      isInBox ( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
-	bool      isInEllipse ( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y );
-	bool      moveTank ( int32_t direction );
-	void      newRound ( int32_t pos_x, int32_t pos_y );
+	bool      isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	bool      isInEllipse( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y );
+	bool      moveTank( int32_t direction );
+	void      newRound( int32_t pos_x, int32_t pos_y );
 	void      reactivate_shield();
 	void      repair();
-	bool      repulse ( double xpos, double ypos, double* xa, double* ya, ePhysType phys_type );
+	bool      repulse( double xpos, double ypos, double* xa, double* ya, ePhysType phys_type );
 	void      resetFlashDamage();
-	bool      shootClearance ( int32_t targetAngle, int32_t minimumClearance, bool& crashed );
+	bool      shootClearance( int32_t targetAngle, int32_t minimumClearance, bool& crashed );
 	void      simActivateCurrentSelection();
 
 	eClasses  getClass() { return CLASS_TANK; }
@@ -102,7 +102,7 @@ private:
 	 */
 
 	void      setBitmap();
-	void      setTextPositions ( bool renew_colour );
+	void      setTextPositions( bool renew_colour );
 	bool      tank_on_tank(); // is this tank on top of another?
 
 

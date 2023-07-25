@@ -30,7 +30,14 @@ public:
 	 * -----------------------------------
 	 */
 	// Source constructor
-	TELEPORT ( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t destinationY, int32_t objRadius, int32_t duration, int32_t type );
+	TELEPORT(
+		VIRTUAL_OBJECT* targetObj,
+		int32_t         destinationX,
+		int32_t         destinationY,
+		int32_t         objRadius,
+		int32_t         duration,
+		int32_t         type
+	);
 	virtual ~TELEPORT();
 
 
@@ -52,7 +59,7 @@ private:
 	 */
 
 	// Target constructor
-	TELEPORT ( TELEPORT* remoteEnd, int32_t destX, int32_t destY );
+	TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY );
 
 
 	/* -----------------------

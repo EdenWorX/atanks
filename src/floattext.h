@@ -40,8 +40,17 @@ public:
 	 * -----------------------------------
 	 */
 
-	explicit FLOATTEXT (
-		const char* text_, int32_t xpos, int32_t ypos, double xv_, double yv_, int32_t color_, alignType alignment, eTextSway sway_type, int32_t max_age, bool is_fixed_
+	explicit FLOATTEXT(
+		const char* text_,
+		int32_t     xpos,
+		int32_t     ypos,
+		double      xv_,
+		double      yv_,
+		int32_t     color_,
+		alignType   alignment,
+		eTextSway   sway_type,
+		int32_t     max_age,
+		bool        is_fixed_
 	);
 	~FLOATTEXT();
 
@@ -54,10 +63,10 @@ public:
 	void     applyPhysics();
 	void     draw();
 	void     newRound();
-	void     set_color ( int32_t color_ );
-	void     set_pos ( int32_t xpos, int32_t ypos );
-	void     set_sway_type ( eTextSway sway_type );
-	void     set_text ( const char* text_ );
+	void     set_color( int32_t color_ );
+	void     set_pos( int32_t xpos, int32_t ypos );
+	void     set_sway_type( eTextSway sway_type );
+	void     set_text( const char* text_ );
 
 	eClasses getClass() { return CLASS_FLOATTEXT; }
 
@@ -68,11 +77,11 @@ private:
 	 * -----------------------
 	 */
 
-	void      check_pos ( bool is_new );
-	int32_t   overlaps_by ( const FLOATTEXT* other );
-	void      push_down ( int32_t ydiff, bool is_new );
+	void      check_pos( bool is_new );
+	int32_t   overlaps_by( const FLOATTEXT* other );
+	void      push_down( int32_t ydiff, bool is_new );
 	void      reset_sway();
-	void      set_speed ( double xv_, double yv_ );
+	void      set_speed( double xv_, double yv_ );
 
 
 	/* -----------------------
@@ -93,6 +102,6 @@ private:
 // This function returns a shade colour, which
 // is either brighter or darker depending on
 // the given colour and options.
-int32_t GetShadeColor ( int32_t colour, bool do_lighten, int32_t bg_colour );
+int32_t GetShadeColor( int32_t colour, bool do_lighten, int32_t bg_colour );
 
 #endif

@@ -50,10 +50,10 @@ static BITMAP* temp_sky = nullptr;
 /*****************************************************************************
 Static helper function prototypes
 *****************************************************************************/
-static double  central_rand ( double u );
-static int32_t clamped_int ( int32_t m, int32_t a, int32_t z );
-static double  coverage ( double distance, double radius );
-static void    draw_moons ( LevelCreator* lcr, int32_t width, int32_t height );
+static double  central_rand( double u );
+static int32_t clamped_int( int32_t m, int32_t a, int32_t z );
+static double  coverage( double distance, double radius );
+static void    draw_moons( LevelCreator* lcr, int32_t width, int32_t height );
 
 /*============================================================================
 struct moon
@@ -74,23 +74,23 @@ struct moon {
 	double  yoffset;
 
 	// Simple ctor:
-	explicit moon ( int32_t scrnw, int32_t scrnh )
-		: col1 ( makecol ( rand() % 255, rand() % 255, rand() % 255 ) )
-		, col2 ( makecol ( rand() % 255, rand() % 255, rand() % 255 ) )
-		, lambda ( ( ( rand() % 60 ) + 30 ) / 100. )
-		, octaves ( ( rand() % 4 ) + 6 )
-		, radius ( static_cast< int32_t > ( central_rand ( scrnw / 8 ) + .5 ) )
-		, smoothness ( ( rand() % 20 ) + 3 )
-		, x ( rand() % scrnw )
-		, xoffset ( rand() )
-		, y ( rand() % scrnh )
-		, yoffset ( rand() ) {
-		bitmap = create_bitmap ( radius * 2, radius * 2 );
+	explicit moon( int32_t scrnw, int32_t scrnh )
+		: col1( makecol( rand() % 255, rand() % 255, rand() % 255 ) )
+		, col2( makecol( rand() % 255, rand() % 255, rand() % 255 ) )
+		, lambda( ( ( rand() % 60 ) + 30 ) / 100. )
+		, octaves( ( rand() % 4 ) + 6 )
+		, radius( static_cast< int32_t >( central_rand( scrnw / 8 ) + .5 ) )
+		, smoothness( ( rand() % 20 ) + 3 )
+		, x( rand() % scrnw )
+		, xoffset( rand() )
+		, y( rand() % scrnh )
+		, yoffset( rand() ) {
+		bitmap = create_bitmap( radius * 2, radius * 2 );
 	}
 
 	// Simple dtor to get rid of the temp bitmap
 	~moon() {
-		if ( bitmap ) destroy_bitmap ( bitmap );
+		if ( bitmap ) destroy_bitmap( bitmap );
 	}
 };
 
@@ -112,13 +112,13 @@ public:
 	Construct a ZBuffer object capable of storing "popup" values for a
 	w by h grid.  All cells in the ZBuffer start out lowered.
 	*************************************************************************/
-	ZBuffer ( int32_t w, int32_t h ) {
+	ZBuffer( int32_t w, int32_t h ) {
 		int32_t width = w;
 		while ( width ) {
 			width >>= 1;
 			++shiftamt;
 		}
-		z.resize ( ( h << shiftamt ) | w );
+		z.resize( ( h << shiftamt ) | w );
 	}
 
 	/*************************************************************************
@@ -128,9 +128,9 @@ public:
 	undefined if x does not fall in the range [0,w) or if y does not fall in
 	the range [0,h); w and h being the parameters to the ctor.
 	*************************************************************************/
-	bool test ( int32_t x, int32_t y ) const {
+	bool test( int32_t x, int32_t y ) const {
 		try {
-			return z.at ( ( y << shiftamt ) | x );
+			return z.at( ( y << shiftamt ) | x );
 		} catch ( ... ) {
 			return false;
 		}
@@ -142,9 +142,9 @@ public:
 	Causes a cell in the ZBuffer to become raised.  Follows the same
 	conditions on x and y as the test function does.
 	*************************************************************************/
-	void set ( int32_t x, int32_t y ) {
+	void set( int32_t x, int32_t y ) {
 		try {
-			z.at ( ( y << shiftamt ) | x ) = true;
+			z.at( ( y << shiftamt ) | x ) = true;
 		} catch ( ... ) { /* nothing can be done here... */
 		}
 	}
@@ -157,8 +157,9 @@ private:
 /*****************************************************************************
 Static function prototypes that need either moon or ZBuffer
 *****************************************************************************/
-static void   draw_amoon ( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer );
-static void   paint_moonpix ( int32_t x, int32_t y, const moon& mn, double xval, double yval, double blend );
+static void
+	draw_amoon( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer );
+static void   paint_moonpix( int32_t x, int32_t y, const moon& mn, double xval, double yval, double blend );
 
 /*****************************************************************************
 central_rand
@@ -168,8 +169,8 @@ are preferred.
 
 Basic on a simple cubic function.
 *****************************************************************************/
-static double central_rand ( double u ) {
-	const double x = static_cast< double > ( rand() ) / static_cast< double > ( RAND_MAX ) - 0.5; // [-.5,+.5]
+static double central_rand( double u ) {
+	const double x = static_cast< double >( rand() ) / static_cast< double >( RAND_MAX ) - 0.5; // [-.5,+.5]
 	return u * ( 0.5 - ( x * x * x ) * 4.0 );
 }
 
@@ -179,7 +180,7 @@ clamped_int
 Clamps an integer value, m, into a range specified by [a,z].  Returns the
 clamped value.
 *****************************************************************************/
-static int32_t clamped_int ( int32_t m, int32_t a, int32_t z ) {
+static int32_t clamped_int( int32_t m, int32_t a, int32_t z ) {
 	return ( m < a ? a : ( m > z ? z : m ) );
 }
 
@@ -189,7 +190,7 @@ coverage
 Compute the percent coverage of a pixel by a sphere given the pixel's
 distance from the centre and the sphere's radius.
 *****************************************************************************/
-static double coverage ( double distance, double radius ) {
+static double coverage( double distance, double radius ) {
 	if ( distance > radius ) return 1 - ( distance - radius );
 	return 1.;
 }
@@ -205,21 +206,22 @@ dark.  Obeys and updates the z-buffer.
 The current implementation of this function is begging for some
 simplifications.  And again, what about those [xy]offset variables?
 *****************************************************************************/
-static void draw_amoon ( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer ) {
-	int32_t startX = std::min ( x0, x1 );
-	int32_t endX   = std::max ( x0, x1 );
-	int32_t startY = std::min ( y0, y1 );
-	int32_t endY   = std::max ( y0, y1 );
+static void
+	draw_amoon( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool darkside, ZBuffer& zbuffer ) {
+	int32_t startX = std::min( x0, x1 );
+	int32_t endX   = std::max( x0, x1 );
+	int32_t startY = std::min( y0, y1 );
+	int32_t endY   = std::max( y0, y1 );
 
-	clear_to_color ( mn.bitmap, BLACK );
-	blit ( temp_sky, mn.bitmap, startX, startY, 0, 0, mn.radius * 2, mn.radius * 2 );
+	clear_to_color( mn.bitmap, BLACK );
+	blit( temp_sky, mn.bitmap, startX, startY, 0, 0, mn.radius * 2, mn.radius * 2 );
 
 	for ( int32_t y = startY; ( y < endY ) && lcr->can_work(); ++y ) {
 		bool hityet = false;
 
 		for ( int32_t x = startX; ( x < endX ) && lcr->can_work(); ++x ) {
 			/* Occupied? */
-			if ( zbuffer.test ( x, y ) ) continue;
+			if ( zbuffer.test( x, y ) ) continue;
 
 			/* Find distance from this moon */
 			int32_t      xdist     = mn.x - x;
@@ -227,10 +229,10 @@ static void draw_amoon ( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t 
 
 			/* Compute some other nice circle values */
 			const double radius    = mn.radius;
-			double       xval      = static_cast< double > ( xdist ) / radius;
-			double       yval      = static_cast< double > ( ydist ) / radius;
+			double       xval      = static_cast< double >( xdist ) / radius;
+			double       yval      = static_cast< double >( ydist ) / radius;
 			double       distance2 = ( xdist * xdist ) + ( ydist * ydist );
-			double       distance  = std::sqrt ( distance2 );
+			double       distance  = std::sqrt( distance2 );
 
 			/* A bound check -> are we in the circle? */
 			if ( distance > ( radius + 1 ) ) {
@@ -240,25 +242,25 @@ static void draw_amoon ( LevelCreator* lcr, const moon& mn, int32_t x0, int32_t 
 			}
 
 			/* Edges use lighter blending */
-			const double edgeval = coverage ( distance, radius );
+			const double edgeval = coverage( distance, radius );
 
 			/* Now, should we paint this side of the moon? */
 			if ( xval && ( ( xval < 0 ) == darkside ) ) {
 				lcr->yield();
-				paint_moonpix ( x - startX, y - startY, mn, fabs ( xval ), yval, edgeval );
+				paint_moonpix( x - startX, y - startY, mn, fabs( xval ), yval, edgeval );
 			}
 
 			/* Mark this pixel as occupied */
-			zbuffer.set ( x, y );
+			zbuffer.set( x, y );
 			hityet = true;
 		}
 	}
 
 	// Put the moon on the sky bitmap:
 	global.lockLand();
-	drawing_mode ( DRAW_MODE_TRANS, NULL, 0, 0 );
-	blit ( mn.bitmap, temp_sky, 0, 0, startX, startY, mn.radius * 2, mn.radius * 2 );
-	drawing_mode ( global.current_drawing_mode, NULL, 0, 0 );
+	drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+	blit( mn.bitmap, temp_sky, 0, 0, startX, startY, mn.radius * 2, mn.radius * 2 );
+	drawing_mode( global.current_drawing_mode, NULL, 0, 0 );
 	global.unlockLand();
 }
 
@@ -278,19 +280,31 @@ Parameters:
         values cause stronger painting.  Used for anti-aliasing.
 
 *****************************************************************************/
-static void paint_moonpix ( int32_t x, int32_t y, const moon& mn, double xval, double yval, double blend ) {
-	const double thetax = RAD2DEG ( asin ( xval ) );
-	const double thetay = RAD2DEG ( acos ( yval ) );
-	const double offset = ( perlin2DPoint ( 1., mn.smoothness, mn.xoffset + mn.x + thetax, mn.yoffset + mn.y + thetay, mn.lambda, mn.octaves ) + 1. ) / 2.;
+static void paint_moonpix( int32_t x, int32_t y, const moon& mn, double xval, double yval, double blend ) {
+	const double thetax = RAD2DEG( asin( xval ) );
+	const double thetay = RAD2DEG( acos( yval ) );
+	const double offset =
+		( perlin2DPoint( 1., mn.smoothness, mn.xoffset + mn.x + thetax, mn.yoffset + mn.y + thetay, mn.lambda, mn.octaves )
+	          + 1. )
+		/ 2.;
 	const double percVal =
-		( perlin2DPoint ( 1.0, mn.smoothness, mn.xoffset + mn.x * 1000 + thetax, mn.yoffset + mn.y * 1000 + thetay, mn.lambda, mn.octaves ) + 1 ) / 2;
+		( perlin2DPoint(
+			  1.0,
+			  mn.smoothness,
+			  mn.xoffset + mn.x * 1000 + thetax,
+			  mn.yoffset + mn.y * 1000 + thetay,
+			  mn.lambda,
+			  mn.octaves
+		  )
+	          + 1 )
+		/ 2;
 
-	set_add_blender ( 0, 0, 0, blend * xval * percVal * offset * 255 );
-	drawing_mode ( DRAW_MODE_TRANS, NULL, 0, 0 );
-	putpixel ( mn.bitmap, x, y, mn.col1 );
-	set_add_blender ( 0, 0, 0, blend * xval * ( 1. - percVal ) * offset * 255 );
-	putpixel ( mn.bitmap, x, y, mn.col2 );
-	drawing_mode ( global.current_drawing_mode, NULL, 0, 0 );
+	set_add_blender( 0, 0, 0, blend * xval * percVal * offset * 255 );
+	drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+	putpixel( mn.bitmap, x, y, mn.col1 );
+	set_add_blender( 0, 0, 0, blend * xval * ( 1. - percVal ) * offset * 255 );
+	putpixel( mn.bitmap, x, y, mn.col2 );
+	drawing_mode( global.current_drawing_mode, NULL, 0, 0 );
 }
 
 /*****************************************************************************
@@ -299,22 +313,22 @@ draw_moons
 Renders a set of moons over a given bitmap.  The bitmap to draw of and the
 appropriate dimensions must be given.
 *****************************************************************************/
-static void draw_moons ( LevelCreator* lcr, int32_t width, int32_t height ) {
+static void draw_moons( LevelCreator* lcr, int32_t width, int32_t height ) {
 	const bool darkside = rand() > ( RAND_MAX / 2 + 1 );
-	ZBuffer    zbuffer ( width, height );
+	ZBuffer    zbuffer( width, height );
 
-	for ( int32_t numMoons = central_rand ( 14.0 ); numMoons; --numMoons ) {
+	for ( int32_t numMoons = central_rand( 14.0 ); numMoons; --numMoons ) {
 		/* Make up a moon */
-		const moon mn ( width, height );
+		const moon mn( width, height );
 
 		/* Where is it? */
-		int32_t    x0 = clamped_int ( mn.x - mn.radius, 0, width );
-		int32_t    y0 = clamped_int ( mn.y - mn.radius, 0, height );
-		int32_t    x1 = clamped_int ( mn.x + mn.radius, 0, width );
-		int32_t    y1 = clamped_int ( mn.y + mn.radius, 0, height );
+		int32_t    x0 = clamped_int( mn.x - mn.radius, 0, width );
+		int32_t    y0 = clamped_int( mn.y - mn.radius, 0, height );
+		int32_t    x1 = clamped_int( mn.x + mn.radius, 0, width );
+		int32_t    y1 = clamped_int( mn.y + mn.radius, 0, height );
 
 		/* Draw it */
-		draw_amoon ( lcr, mn, x0, y0, x1, y1, darkside, zbuffer );
+		draw_amoon( lcr, mn, x0, y0, x1, y1, darkside, zbuffer );
 	}
 }
 
@@ -323,14 +337,14 @@ generate_sky
 
 Given some input parameters, renders a sky (with moons) onto a bitmap.
 *****************************************************************************/
-void generate_sky ( LevelCreator* lcr, const gradient* grad, int32_t flags ) {
-	double    messiness = ( static_cast< double > ( rand() % 100 ) / 1000.0 + 0.05 );
+void generate_sky( LevelCreator* lcr, const gradient* grad, int32_t flags ) {
+	double    messiness = ( static_cast< double >( rand() % 100 ) / 1000.0 + 0.05 );
 	const int xoffset   = rand() % env.screenWidth;  // For perlin, random starting x
 	const int yoffset   = rand() % env.screenHeight; // For perlin, random starting y
 
-	temp_sky            = create_bitmap ( env.sky->w, env.sky->h );
-	clear_to_color ( temp_sky, BLACK );
-	clear_to_color ( env.sky, BLACK );
+	temp_sky            = create_bitmap( env.sky->w, env.sky->h );
+	clear_to_color( temp_sky, BLACK );
+	clear_to_color( env.sky, BLACK );
 
 	for ( int32_t x = 0; ( !lcr || lcr->can_work() ) && ( x < env.screenWidth ); ++x ) {
 		for ( int32_t y = 0; ( !lcr || lcr->can_work() ) && ( y < ( env.screenHeight - MENUHEIGHT ) ); ++y ) {
@@ -340,29 +354,30 @@ void generate_sky ( LevelCreator* lcr, const gradient* grad, int32_t flags ) {
 			double offset = 0;
 
 			if ( flags & GENSKY_DETAILED )
-				offset += perlin2DPoint ( 1., 200, xoffset + x, yoffset + y, .3, 6 )
-				        * ( static_cast< double > ( env.screenHeight - MENUHEIGHT ) * messiness );
+				offset += perlin2DPoint( 1., 200, xoffset + x, yoffset + y, .3, 6 )
+				        * ( static_cast< double >( env.screenHeight - MENUHEIGHT ) * messiness );
 
 			if ( flags & GENSKY_DITHERGRAD ) offset += ( rand() % 10 ) - 5;
 
-			while ( ( ( y + offset ) < 0 ) || ( ( y + offset + 1 ) > ( env.screenHeight - MENUHEIGHT ) ) ) offset /= 2;
+			while ( ( ( y + offset ) < 0 ) || ( ( y + offset + 1 ) > ( env.screenHeight - MENUHEIGHT ) ) )
+				offset /= 2;
 
 			global.lockLand();
 			solid_mode();
-			putpixel ( temp_sky, x, y, gradientColorPoint ( grad, env.screenHeight - MENUHEIGHT, y + offset ) );
-			drawing_mode ( global.current_drawing_mode, NULL, 0, 0 );
+			putpixel( temp_sky, x, y, gradientColorPoint( grad, env.screenHeight - MENUHEIGHT, y + offset ) );
+			drawing_mode( global.current_drawing_mode, NULL, 0, 0 );
 			global.unlockLand();
 		}
 	}
-	draw_moons ( lcr, env.screenWidth, env.screenHeight - MENUHEIGHT );
+	draw_moons( lcr, env.screenWidth, env.screenHeight - MENUHEIGHT );
 
 	// Put temp sky onto the real bitmap:
 	global.lockLand();
 	solid_mode();
-	blit ( temp_sky, env.sky, 0, 0, 0, 0, env.sky->w, env.sky->h );
+	blit( temp_sky, env.sky, 0, 0, 0, 0, env.sky->w, env.sky->h );
 	global.unlockLand();
 
 	// clean up
-	if ( temp_sky ) destroy_bitmap ( temp_sky );
+	if ( temp_sky ) destroy_bitmap( temp_sky );
 	temp_sky = nullptr;
 }

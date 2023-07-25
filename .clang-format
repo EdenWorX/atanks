@@ -5,8 +5,8 @@ Standard: Latest
 Language: Cpp
 DisableFormat: false
 
-ColumnLimit: 168                           # Modern displays really do not need low-low limits anymore. Even TTYs have 120+ columns
-# LineEnding:  LF                          # Needs clang-format version 16
+ColumnLimit: 128                       # Modern displays really do not need low-low limits anymore. Even TTYs have 120+ columns
+# LineEnding:  LF                      # Needs clang-format version 16
 IndentWidth: 8
 TabWidth: 8
 UseCRLF: false                         # Deprecated in clang-format 16, see LineEnding: LF
@@ -33,8 +33,8 @@ AlignTrailingComments: true         # Deprecated in clang-format 16, then switch
 #  Kind:           Always                  # Added in clang-format 16
 #  OverEmptyLines: 2                       # Added in clang-format 16
 
-AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortEnumsOnASingleLine: true
@@ -93,15 +93,6 @@ FixNamespaceComments: true
 
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^(("|<)havilib/)'
-    Priority: 3
-    CaseSensitive: true
-  - Regex: '^([<](jbig|jpe?g|pdf|png|tiff?))'
-    Priority: 4
-    CaseSensitive: false
-  - Regex: '^(("|<)(gtest|gmock|isl|json)/)'
-    Priority: 5
-    CaseSensitive: true
   - Regex: '<[[:alnum:].]+>'
     Priority: 6
   - Regex: '.*'
@@ -134,9 +125,7 @@ LambdaBodyIndentation: Signature
 MaxEmptyLinesToKeep: 2        # Set to 2 so implementations can be kept apart with better visibility
 NamespaceIndentation: Inner   # If you have to nest namespaces, re-think your design.
 
-AllowAllConstructorInitializersOnNextLine: true  # Deprecated in clang-format 15, See PackConstructorInitializers!
-ConstructorInitializerAllOnOneLineOrOnePerLine: true  # Deprecated in clang-format 15, See PackConstructorInitializers!
-PackConstructorInitializers: NextLine                 # Needs clang-format version 14
+PackConstructorInitializers: CurrentLine   # Needs clang-format version 14
 
 PenaltyBreakAssignment: 10
 PenaltyBreakBeforeFirstCallParameter: 30
@@ -184,7 +173,7 @@ SpaceBeforeParensOptions:
   AfterOverloadedOperator: true
   AfterRequiresInClause: true
   AfterRequiresInExpression: true
-  BeforeNonEmptyParentheses: true
+  BeforeNonEmptyParentheses: false
 SpaceBeforeRangeBasedForLoopColon: true
 SpaceBeforeSquareBrackets: false
 
