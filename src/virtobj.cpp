@@ -23,8 +23,8 @@
 
 #include <cassert>
 
-VIRTUAL_OBJECT::VIRTUAL_OBJECT() : needsUpdate ( ATOMIC_VAR_INIT ( false ) ) { /* nothing to do */
-}
+VIRTUAL_OBJECT::VIRTUAL_OBJECT()
+{ /* nothing to do */ }
 
 VIRTUAL_OBJECT::~VIRTUAL_OBJECT() {
 	bitmap = nullptr;
@@ -60,6 +60,8 @@ void VIRTUAL_OBJECT::applyPhysics() {
 }
 
 void VIRTUAL_OBJECT::draw() {
+	assert(bitmap && "ERROR: VIRTUAL_OBJECT::draw() called without bitmap!");
+
 	if ( !destroy && bitmap ) {
 
 		rotate_sprite ( global.canvas, bitmap, x - ( width / 2 ), y - ( height / 2 ), itofix ( angle ) );

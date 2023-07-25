@@ -60,18 +60,18 @@ public:
 	 */
 
 	/* --- non-inline methods --- */
-	void                            addUpdateArea ( int32_t left, int32_t top, int32_t width, int32_t height );
-	virtual void                    applyPhysics();
-	virtual void                    draw();
-	virtual void                    initialise();
-	void                            setUpdateArea ( int32_t left, int32_t top, int32_t width, int32_t height );
-	void                            update();
+	void         addUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height );
+	virtual void applyPhysics();
+	virtual void draw();
+	virtual void initialise();
+	void         setUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height );
+	void         update();
 
 	/* --- inline methods --- */
-	void                            requireUpdate() { needsUpdate.store ( true, ATOMIC_WRITE ); }
+	void requireUpdate() { needsUpdate.store( true, ATOMIC_WRITE ); }
 
 	/* --- pure virtual (abstract) methods --- */
-	virtual eClasses                getClass() _PURE;
+	virtual eClasses getClass() _PURE;
 
 	/* ------------------------------
 	 * --- templated list getters ---
@@ -108,11 +108,11 @@ protected:
 	 * -------------------------
 	 */
 
-	BITMAP*   getBitmap() const { return bitmap; }
+	[[nodiscard]] BITMAP* getBitmap() const { return bitmap; }
 
-	bool      hasBitmap() const { return ( bitmap != nullptr ); }
+	[[nodiscard]] bool    hasBitmap() const { return ( bitmap != nullptr ); }
 
-	void      setBitmap ( BITMAP* bitmap_ );
+	void    setBitmap( BITMAP* bitmap_ );
 
 
 	/* -------------------------
@@ -138,8 +138,8 @@ private:
 	 * -----------------------
 	 */
 
-	BITMAP* bitmap = nullptr;
-	abool_t needsUpdate;
+	BITMAP* bitmap      = nullptr;
+	abool_t needsUpdate = ATOMIC_VAR_INIT( false );
 };
 
 /// === Shorten the usage of virtual objects ===

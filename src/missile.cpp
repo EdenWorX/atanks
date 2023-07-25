@@ -28,6 +28,8 @@
 #include "sound.h"
 #include "tank.h"
 
+#include <cassert>
+
 /* Note: If you wonder why the MISSILE ctor needs the AI_LEVEL, it is used
  *       for two things:
  *       1. Whether repulsion is considered for mind shots depends on the
@@ -58,7 +60,8 @@ MISSILE::MISSILE (
 		weap = &weapon[ weapType ];
 	else
 		weap = &naturals[ weapType - WEAPONS ];
-	setBitmap ( env.missile[ weap->picpoint ] );
+	assert(env.missile[ weap->picpoint ] && "Missile has no Bitmap loaded!");
+	setBitmap( env.missile[ weap->picpoint ] );
 	drag     = weap->drag;
 	mass     = weap->mass;
 	noimpact = weap->noimpact;
