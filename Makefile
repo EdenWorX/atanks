@@ -1,5 +1,5 @@
-.PHONY: all install clean veryclean user winuser osxuser ubuntu \
-dist tarball zipfile source-dist i686-dist win32-dist
+.PHONY: aidebug all clean debug dist fulldebug i686-dist install osxuser \
+    source-dist tarball ubuntu user veryclean win32-dist winuser zipfile
 
 VERSION := 6.7
 
@@ -86,9 +86,10 @@ FILENAME := $(TARGET)-$(VERSION)
 # ------------------------------------
 # Tools to use
 # ------------------------------------
+CXX     ?= $(shell which clang++)
 INSTALL := $(shell which install)
+MAKE    := $(shell which make)
 RM      := $(shell which rm) -f
-CXX     ?= clang++
 SED     := $(shell which sed)
 WINDRES :=
 
@@ -168,10 +169,10 @@ endif
 
 ifeq (YES,$(DEBUG))
   ifeq (NO,$(HAS_DEBUG_FLAG))
-    CXXFLAGS := -ggdb ${CXXFLAGS} -O0
+    CXXFLAGS := -ggdb ${CXXFLAGS}
   endif
 
-  CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG
+  CPPFLAGS := ${CPPFLAGS} -Og -DATANKS_DEBUG
   CXXFLAGS := ${CXXFLAGS} ${GCC_STACKPROT} -Wunused
 
   # LTO is hard blocked now:
@@ -214,7 +215,8 @@ ifeq (YES,$(DEBUG))
   endif
 
 else
-  CXXFLAGS := -march=native ${CXXFLAGS} -O2
+  CPPFLAGS := ${CPPFLAGS} -O2
+  CXXFLAGS := -march=native ${CXXFLAGS}
 endif
 
 
@@ -321,6 +323,20 @@ ifeq (WIN32,$(PLATFORM))
 else
 	$(RM) $(TARGET)
 endif
+
+
+# ------------------------------------
+# Debugging targets
+# ------------------------------------
+
+aidebug:
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES
+
+debug:
+	$(MAKE) -f Makefile DEBUG=YES
+
+fulldebug:
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_FINANCE=YES DEBUG_OBJECTS=YES DEBUG_PHYSICS=YES DEBUG_LOG_TO_FILE=YES
 
 
 # ------------------------------------

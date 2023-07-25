@@ -1,11 +1,12 @@
 #include "debug.h"
 
-#include <cstdarg>
-#include <ctime>
-#include <iostream>
-#include <mutex>
-
 #if defined( ATANKS_DEBUG )
+
+#  include <cstdarg>
+#  include <cstdint>
+#  include <ctime>
+#  include <iostream>
+#  include <mutex>
 
 #  if defined( ATANKS_IS_WINDOWS ) || defined( ATANKS_DEBUG_LOGTOFILE )
 #    include <cstdio>
@@ -26,7 +27,17 @@ void       debug_log ( const char* moduleName, const char* title, const char* me
         atanks_tzset();
         t = time ( NULL );
         atanks_localtime ( &tm_, &t );
-        atanks_snprintf ( timebuf, 20, "%04d.%02d.%02d %02d:%02d:%02d", tm_.tm_year + 1900, tm_.tm_mon + 1, tm_.tm_mday, tm_.tm_hour, tm_.tm_min, tm_.tm_sec );
+        atanks_snprintf (
+                timebuf,
+                20,
+                "%04d.%02d.%02d %02d:%02d:%02d",
+                static_cast< uint16_t > ( tm_.tm_year + 1900 ),
+                static_cast< uint8_t > ( tm_.tm_mon + 1 ),
+                static_cast< uint8_t > ( tm_.tm_mday ),
+                static_cast< uint8_t > ( tm_.tm_hour ),
+                static_cast< uint8_t > ( tm_.tm_min ),
+                static_cast< uint8_t > ( tm_.tm_sec )
+        );
         timebuf[ 20 ] = 0x0;
 
         // Create message

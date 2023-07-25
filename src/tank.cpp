@@ -474,11 +474,11 @@ void TANK::applyDamage() {
 	// --- Display the damage value ---
 	// --------------------------------
 	if ( full_damage > 0 ) {
-		static char buf[ 10 ] = { 0x0 };
+		static char buf[ 12 ] = { 0x0 };
 		flashdamage           = 1;
 
 		if ( !global.skippingComputerPlay ) {
-			snprintf ( buf, 9, "%d", full_damage );
+			snprintf ( buf, 11, "%d", full_damage );
 			try {
 				new FLOATTEXT ( buf, x, y - 30, .0, -.3, RED, CENTRE, env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY, 300, false );
 			} catch ( std::exception &e ) {
@@ -488,14 +488,14 @@ void TANK::applyDamage() {
 
 		// If shield remains, the shield text has to be regenerated
 		if ( sh > 0 ) {
-			snprintf ( buf, 9, "%d", sh );
+			snprintf ( buf, 11, "%d", sh );
 			shieldText.set_text ( buf );
 		} else
 			shieldText.set_text ( nullptr );
 
 		// If life points were taken, the life text is to be regenerated
 		if ( old_life != l ) {
-			snprintf ( buf, 9, "%d", l );
+			snprintf ( buf, 11, "%d", l );
 			healthText.set_text ( buf );
 		}
 	}            // End of having damage
@@ -1306,7 +1306,7 @@ void TANK::newRound ( int32_t pos_x, int32_t pos_y ) {
 	assert ( player && "ERROR: TANK::newRound called with nullptr player" );
 	if ( nullptr == player ) return;
 
-	static char buf[ 10 ] = { 0x0 };
+	static char buf[ 12 ] = { 0x0 };
 
 	// Reclaim shield if there is one left from end of last round
 	player->reclaimShield();
@@ -1329,7 +1329,7 @@ void TANK::newRound ( int32_t pos_x, int32_t pos_y ) {
 	l           = maxLife;
 
 	// (re)-init health text
-	snprintf ( buf, 9, "%d", l );
+	snprintf ( buf, 11, "%d", l );
 	healthText.set_text ( buf );
 	healthText.set_color ( player->color );
 
