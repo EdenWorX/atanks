@@ -810,12 +810,15 @@ eControl PLAYER::controlTank ( AICore* aicore, bool allow_fire ) {
 
 
 	if ( key[ KEY_F1 ] ) {
+		static char shot_file[20] = { 0x0 };
 		int32_t nr = 0;
 		do {
-			snprintf ( path_buf, PATH_MAX, "screenshot_%03d.bmp", ++nr );
-		} while ( !access ( path_buf, F_OK ) );
+			snprintf ( shot_file, 20, "screenshot_%04d.bmp", ++nr );
+		} while ( !access ( shot_file, F_OK ) );
 
-		if ( nr < 1000 ) save_bmp ( path_buf, global.canvas, nullptr );
+		if ( nr < 1000 ) {
+			save_bmp ( shot_file, global.canvas, nullptr );
+		}
 	}
 
 

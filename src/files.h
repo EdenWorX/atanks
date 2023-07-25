@@ -19,9 +19,6 @@
 #include "globaldata.h"
 #include "text.h"
 
-/* Global path buffer */
-extern char path_buf[ PATH_MAX + 1 ];
-
 
 bool        Save_Game();
 bool        Load_Game();

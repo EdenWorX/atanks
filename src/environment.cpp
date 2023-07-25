@@ -29,12 +29,13 @@
 #include "tank.h"
 
 #include <cassert>
+#include <string>
+using std::string;
 
 ENVIRONMENT::ENVIRONMENT() {
 	// Unfortunately Visual C++ can not initialize arrays using an initialization list
 	// although it is part of C++11. Gcc and clang do it fine btw...
 	memset ( availableItems, 0, sizeof ( int32_t ) * THINGS );
-	memset ( configDir, 0, sizeof ( char ) * ( PATH_MAX + 1 ) );
 	memset ( dataDir, 0, sizeof ( char ) * ( PATH_MAX + 1 ) );
 	memset ( game_name, 0, sizeof ( char ) * GAMENAMELEN );
 	memset ( playerOrder, 0, sizeof ( PLAYER* ) * MAXPLAYERS );
@@ -337,13 +338,14 @@ void ENVIRONMENT::find_config_dir() {
 	// If no config dir was given on the command line, try to find a valid one
 	if ( !configDir[ 0 ] ) {
 		// figure out file name
-		char* homedir = getenv ( HOME_DIR );
-		snprintf ( configDir, PATH_MAX, "%s/.atanks", homedir ? homedir : "." );
+		char* homedir  = getenv ( HOME_DIR );
+		configDir      = homedir ? homedir : ".";
+		configDir     += "/.atanks";
 
 		// copy the file over, if we did not yet
 		if ( !Copy_Config_File() ) {
 			// If it did not work, look whether the directory already exists:
-			DIR* pDestDir = opendir ( env.configDir );
+			DIR* pDestDir = opendir ( env.configDir.c_str() );
 			if ( !pDestDir )
 				cerr << "ERROR: An error has occurred trying to set up"
 				     << " Atomic Tanks folders." << endl;
@@ -360,8 +362,7 @@ bool ENVIRONMENT::find_data_dir() {
 
 	// If the datadir set by command line options, try that first
 	if ( dataDir[ 0 ] ) {
-		snprintf ( path_buf, PATH_MAX, "%s/%s", DATA_DIR, "unicode.dat" );
-		if ( !access ( path_buf, R_OK ) )
+		if ( !access ( dataDir, R_OK ) )
 			return true;
 		else {
 			cerr << "ERROR: The given datadir \"" << dataDir << "\""
@@ -371,16 +372,16 @@ bool ENVIRONMENT::find_data_dir() {
 	}
 
 	// Try the set directory from the build
-	snprintf ( path_buf, PATH_MAX, "%s/%s", DATA_DIR, "unicode.dat" );
-	if ( !access ( path_buf, R_OK ) )
+	if ( !access ( DATA_DIR "/unicode.dat", R_OK ) )
 		strncpy ( dataDir, DATA_DIR, PATH_MAX );
 	else {
 		// This was not successful, try the current directory if not tried, yet.
 
-		if ( ( strncmp ( DATA_DIR, ".", 1 ) ) && ( strncmp ( DATA_DIR, "./", 2 ) ) ) {
-			strncpy ( path_buf, "./unicode.dat", PATH_MAX );
+		if ( ( 0 == strncmp ( DATA_DIR, ".", 1 ) ) && ( 0 == strncmp ( DATA_DIR, "./", 2 ) ) ) {
 			// Try again and reset if unsuccessful
-			if ( !access ( path_buf, R_OK ) ) strncpy ( dataDir, ".", PATH_MAX );
+			if ( !access ( "./unicode.dat", R_OK ) ) {
+				strncpy ( dataDir, ".", PATH_MAX );
+			}
 		}
 	}
 
@@ -855,12 +856,12 @@ void ENVIRONMENT::load_from_file ( FILE* file ) {
 	return;
 }
 
-#define LOAD_TEXT_BLOCK( var, file )                                                    \
-	try {                                                                           \
-		snprintf ( path_buf, PATH_MAX, "%s/text/%s%s", dataDir, file, suffix ); \
-		TEXTBLOCK* new_##var = new TEXTBLOCK ( path_buf );                      \
-		delete ( var );                                                         \
-		( var ) = new_##var;                                                    \
+#define LOAD_TEXT_BLOCK( var, file )                                                     \
+	try {                                                                            \
+		string     text_file{ text_base + string ( file ) + string ( suffix ) }; \
+		TEXTBLOCK* new_##var = new TEXTBLOCK ( text_file.c_str() );              \
+		delete ( var );                                                          \
+		( var ) = new_##var;                                                     \
 	} catch ( ... ) {}
 
 /** @brief load text files according to set language
@@ -869,49 +870,52 @@ void ENVIRONMENT::load_from_file ( FILE* file ) {
  * removed from memory first.
  **/
 void ENVIRONMENT::load_text_files() {
-	char suffix[ 12 ] = { 0 };
-	int  r            = 0;
+	char   suffix[ 12 ] = { 0 };
+	int    r            = 0;
+	string text_base{ dataDir };
+	text_base += "/text/";
+	string war_lines{ text_base };
 
 	switch ( language ) {
 		case EL_FRENCH:
 			strncpy ( suffix, "_fr.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir );
+			war_lines += "war_quotes.txt";
 			break;
 		case EL_GERMAN:
 			strncpy ( suffix, "_de.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir );
+			war_lines += "war_quotes.txt";
 			break;
 		case EL_ITALIAN:
 			strncpy ( suffix, "_it.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes_it.txt", dataDir );
+			war_lines += "war_quotes_it.txt";
 			break;
 		case EL_PORTUGUESE:
 			strncpy ( suffix, ".pt_BR.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir );
+			war_lines += "war_quotes.txt";
 			break;
 		case EL_RUSSIAN:
 			strncpy ( suffix, "_ru.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes_ru.txt", dataDir );
+			war_lines += "war_quotes_ru.txt";
 			break;
 		case EL_SLOVAK:
 			strncpy ( suffix, "_sk.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir );
+			war_lines += "war_quotes.txt";
 			break;
 		case EL_SPANISH:
 			strncpy ( suffix, "_ES.txt", 11 );
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes_ES.txt", dataDir );
+			war_lines += "war_quotes_ES.txt";
 			break;
 		case EL_ENGLISH:
 		default:
 			strncpy ( suffix, ".txt", 11 ); // default to english
-			r = snprintf ( path_buf, PATH_MAX, "%s/text/war_quotes.txt", dataDir );
+			war_lines += "war_quotes.txt";
 			break;
 	}
 
 	if ( r < 0 ) abort();
 
 	try {
-		auto new_war_quotes = new TEXTBLOCK ( path_buf );
+		auto new_war_quotes = new TEXTBLOCK ( war_lines.c_str() );
 		delete war_quotes;
 		war_quotes = new_war_quotes;
 	} catch ( ... ) { /* can't do anything helpful here anyway */
@@ -947,21 +951,22 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 
 	// see if we have the music folder open
 	if ( !music_dir ) {
-		snprintf ( path_buf, PATH_MAX, "%s/music", configDir );
-		music_dir = opendir ( path_buf );
-		if ( !music_dir ) return false;
+		music_dir = opendir ( string(configDir + "/music").c_str() );
+		if ( !music_dir ) {
+			return false;
+		}
 	}
 
 
 	// at this point we should have an open music folder
 	// the music folder is closed by global's deconstructor
 	// search for files ending in .wav
+	string music_path { configDir + "/music/" };
 	folder_entry = readdir ( music_dir );
 	while ( folder_entry && !newStream ) {
 		// we have something, see if it is a wav file
 		if ( strstr ( folder_entry->d_name, ".wav" ) ) {
-			snprintf ( path_buf, PATH_MAX, "%s/music/%s", configDir, folder_entry->d_name );
-			newStream = load_sample ( path_buf );
+			newStream = load_sample ( string(music_path + folder_entry->d_name).c_str() );
 		}
 		if ( !newStream ) folder_entry = readdir ( music_dir );
 	}
@@ -1011,27 +1016,29 @@ bool ENVIRONMENT::loadBitmaps() {
 
 	while ( file_group < 7 ) {
 		// set the folder we're looking at
+		string folder{dataDir};
 		switch ( file_group ) {
 			case 0:
-				strncpy ( sub_folder, "title", 8 );
+				folder += "/title";
 				break;
 			case 1:
-				strncpy ( sub_folder, "button", 8 );
+				folder += "/button";
 				break;
 			case 2:
-				strncpy ( sub_folder, "misc", 8 );
+				folder += "/misc";
 				break;
 			case 3:
-				strncpy ( sub_folder, "missile", 8 );
+				folder += "/missile";
 				break;
 			case 4:
-				strncpy ( sub_folder, "stock", 8 );
+				folder += "/stock";
 				break;
 			case 5:
-				strncpy ( sub_folder, "tank", 8 );
+				folder += "/tank";
 				break;
 			case 6:
-				strncpy ( sub_folder, "tankgun", 8 );
+			default:
+				folder += "/tankgun";
 				break;
 		}
 
@@ -1045,10 +1052,12 @@ bool ENVIRONMENT::loadBitmaps() {
 
 		// search for files
 		int32_t file_count = 0;
-		snprintf ( path_buf, PATH_MAX, "%s/%s/%d.bmp", dataDir, sub_folder, file_count );
-		while ( !access ( path_buf, F_OK | R_OK ) && bitmap_array ) {
-			newbitmap = load_bitmap ( path_buf, nullptr );
-			if ( !newbitmap ) printf ( "An error occured loading bitmap %s\n", path_buf );
+		string bitmap_path{folder + std::to_string(file_count) + ".bmp"};
+		while ( !access ( bitmap_path.c_str(), F_OK | R_OK ) && bitmap_array ) {
+			newbitmap = load_bitmap ( bitmap_path.c_str(), nullptr );
+			if ( !newbitmap ) {
+				printf ( "An error occured loading bitmap %s\n", bitmap_path.c_str() );
+			}
 
 			// Crop tank bitmaps for unification
 			if ( newbitmap && ( 5 == file_group ) ) {
@@ -1110,16 +1119,19 @@ bool ENVIRONMENT::loadBitmaps() {
 			// make sure array is large enough
 			if ( file_count >= array_size ) {
 				array_size   += 10;
-				bitmap_array  = (BITMAP**)realloc ( bitmap_array, sizeof ( BITMAP* ) * ( array_size + 1 ) );
-				if ( !bitmap_array ) {
+				auto new_array = (BITMAP**)realloc ( bitmap_array, sizeof ( BITMAP* ) * ( array_size + 1 ) );
+				if ( !new_array ) {
 					printf ( "Unable to increase array size while loading bitmaps.\n" );
+					free(bitmap_array);
 					return false;
-				} else
+				} else {
+					bitmap_array = new_array;
 					memset ( bitmap_array + file_count, 0, sizeof ( BITMAP* ) * ( array_size - file_count ) );
+				}
 			}
 
 			// get next file
-			snprintf ( path_buf, PATH_MAX, "%s/%s/%d.bmp", dataDir, sub_folder, file_count );
+			bitmap_path.assign(folder + std::to_string(file_count) + ".bmp");
 		}
 
 		// save the new array
@@ -1143,6 +1155,7 @@ bool ENVIRONMENT::loadBitmaps() {
 				tank = bitmap_array;
 				break;
 			case 6:
+			default:
 				tankgun = bitmap_array;
 				break;
 		}
@@ -1158,19 +1171,19 @@ bool ENVIRONMENT::loadBitmaps() {
 // success the function returns true. When an
 // error occurs, it returns false.
 bool ENVIRONMENT::loadFonts() {
-	snprintf ( path_buf, PATH_MAX, "%s/unicode.dat", dataDir );
+	string font_file{string(dataDir) + string("/unicode.dat")};
 
-	main_font = load_font ( path_buf, nullptr, nullptr );
+	main_font = load_font ( font_file.c_str(), nullptr, nullptr );
 
 	if ( main_font )
 		font = main_font;
 	else
-		printf ( "Unable to load font %s\n", path_buf );
+		printf ( "Unable to load font %s\n", font_file.c_str() );
 
 	// Store font height
 	if ( main_font ) fontHeight = text_height ( main_font );
 
-	return main_font ? true : false;
+	return main_font != nullptr;
 }
 
 /// @brief collection of all game text file loadings.
@@ -1224,14 +1237,16 @@ bool ENVIRONMENT::loadSounds() {
 	}
 
 	// read from directory
+	string sound_dir{string(dataDir) + string("/sounds/")};
 	for ( int32_t i = 0; i < SND_COUNT; ++i ) {
-		snprintf ( path_buf, PATH_MAX, "%s/sound/%02d.wav", dataDir, i );
-		if ( !access ( path_buf, R_OK ) ) {
-			temp_sample = load_sample ( path_buf );
+		string sound_file{sound_dir};
+		sound_file += (i < 10 ? "0" : "") + std::to_string(i) + string(".wav");
+		if ( !access ( sound_file.c_str(), R_OK ) ) {
+			temp_sample = load_sample ( sound_file.c_str() );
 			if ( temp_sample )
 				sounds[ i ] = temp_sample;
 			else
-				fprintf ( stderr, "An error occured loading sound file %s\n", path_buf );
+				fprintf ( stderr, "An error occured loading sound file %s\n", sound_file.c_str() );
 		}
 		// No else, because the sound enum has free slots.
 	}

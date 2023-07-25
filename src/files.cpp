@@ -1,10 +1,5 @@
 #include "main.h"
 
-#include <cassert>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 // basically all UNIX-like OSes should use stat
 #ifndef WIN32
 #  include <sys/stat.h>
@@ -14,6 +9,13 @@
 #include "player.h"
 #include "text.h"
 
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+using std::string;
+
 
 // They are filled here, declaring them here prevents the linker
 // from 'optimizing' them away.
@@ -21,28 +23,15 @@ WEAPON weapon[ WEAPONS ];
 WEAPON naturals[ NATURALS ];
 ITEM   item[ ITEMS ];
 
-
-/* Update: Instead of using constantly allocated/deallocated
- * char strings for file path generation, one string buffer
- * used everywhere that does not need *alloc/free is faster
- * and a lot more secure.
- * - Sven
- */
-char   path_buf[ PATH_MAX + 1 ] = { 0x0 };
-
-// Note: Any consumer of this buffer has to include files.h or
-//       to define an extern for it.
-
-
 /** @brief Save the current game in progress
  * This function saves the game in progress.
  * All data is saved in a text file for flexibility.
  * @return true on success and false on failure.
  **/
 bool   Save_Game() {
-        if ( 0 > snprintf ( path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name ) ) abort();
+        string save_path{ env.configDir + string("/").append(env.game_name).append(".sav")};
 
-        FILE* game_file = fopen ( path_buf, "w" );
+        FILE* game_file = fopen ( save_path.c_str(), "w" );
         if ( !game_file ) return false;
 
         // write file version information
@@ -95,8 +84,10 @@ bool   Save_Game() {
          * but if an old one is laying around, we should delete our
          * own garbage:
          */
-        if ( 0 > snprintf ( path_buf, PATH_MAX, "%s/%s.txt", env.configDir, env.game_name ) ) abort();
-        if ( !access ( path_buf, F_OK ) && !access ( path_buf, W_OK ) ) unlink ( path_buf );
+	save_path.replace(save_path.size() -3, 3, "txt");
+        if ( !access ( save_path.c_str(), F_OK ) && !access ( save_path.c_str(), W_OK ) ) {
+		unlink ( save_path.c_str() );
+	}
 
         return true;
 }
@@ -127,8 +118,8 @@ bool Load_Game() {
 	env.campaign_rounds                      = -1.;
 
 	// Open game file
-	if ( 0 > snprintf ( path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name ) ) abort();
-	FILE* game_file = fopen ( path_buf, "r" );
+	string save_path{ env.configDir + string("/").append(env.game_name).append(".sav")};
+	FILE* game_file = fopen ( save_path.c_str(), "r" );
 	if ( !game_file ) return false;
 
 	// Now read until the file is finished loading
@@ -202,7 +193,7 @@ bool Load_Game() {
 						else if ( !strcasecmp ( field, "NEXTCAMPROUND" ) )
 							sscanf ( value, "%lf", &env.nextCampaignRound );
 						else {
-							cerr << path_buf << ":" << line_num << " : Ignored line\n";
+							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
 							cerr << " is ignored, it does not belong to ENV" << endl;
 						}
@@ -226,7 +217,7 @@ bool Load_Game() {
 							sscanf ( value, "%d", &enabled );
 							global.showScoreBoard = ( enabled != 0 );
 						} else {
-							cerr << path_buf << ":" << line_num << " : Ignored line\n";
+							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
 							cerr << " is ignored, it does not belong to GLOBAL" << endl;
 						}
@@ -246,7 +237,7 @@ bool Load_Game() {
 						if ( player_idx > -1 )
 							env.allPlayers[ player_idx ]->load_game_data ( game_file, file_version );
 						else {
-							cerr << path_buf << ":" << line_num << " : Ignored line\n";
+							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
 							cerr << " is ignored, as player idx is " << player_idx << endl;
 						}
@@ -256,7 +247,7 @@ bool Load_Game() {
 						if ( !strcasecmp ( field, "FILE_VERSION" ) )
 							sscanf ( value, "%d", &file_version );
 						else {
-							cerr << path_buf << ":" << line_num << " : Ignored line\n";
+							cerr << save_path << ":" << line_num << " : Ignored line\n";
 							cerr << "The line \"" << line << "\"";
 							cerr << " is ignored, it does not belong to VERSION" << endl;
 						}
@@ -264,7 +255,7 @@ bool Load_Game() {
 						break;
 					case SGS_NONE:
 					default:
-						cerr << path_buf << ":" << line_num << " : Wrong line\n";
+						cerr << save_path << ":" << line_num << " : Wrong line\n";
 						cerr << "The line \"" << line << "\"";
 						cerr << " does not belong  to any stage!" << endl;
 						break;
@@ -301,9 +292,9 @@ bool Load_Game() {
 Check to see if a saved game exists with the given name.
 */
 bool Check_For_Saved_Game() {
-	if ( 0 > snprintf ( path_buf, PATH_MAX, "%s/%s.sav", env.configDir, env.game_name ) ) abort();
+	string save_path{ env.configDir + string("/").append(env.game_name).append(".sav")};
 
-	if ( !access ( path_buf, R_OK ) ) return true;
+	if ( !access ( save_path.c_str(), R_OK ) ) return true;
 
 	return false;
 }
@@ -320,13 +311,11 @@ bool Copy_Config_File() {
 	static char xHere[ 2 ]                  = ".";
 	FILE*       source_file                 = nullptr;
 	FILE*       dest_file                   = nullptr;
-	char        source_path[ PATH_MAX + 1 ] = { 0 };
-	char        dest_path[ PATH_MAX + 1 ]   = { 0 };
 	char        buffer[ PATH_MAX + 1 ]      = { 0 };
 
 	// check to see if the config file has already been copied
-	if ( 0 > snprintf ( dest_path, PATH_MAX, "%s/atanks-config.txt", env.configDir ) ) abort();
-	if ( !access ( dest_path, R_OK | W_OK ) ) return true;
+	string      dest_path{ env.configDir + string("/atanks-config.txt") };
+	if ( !access ( dest_path.c_str(), R_OK | W_OK ) ) return true;
 
 	char* my_home_folder = getenv ( HOME_DIR );
 
@@ -348,12 +337,12 @@ bool Copy_Config_File() {
 	}
 
 	// check to make sure we have a source file
-	snprintf ( source_path, PATH_MAX, "%s/.atanks-config.txt", my_home_folder );
-	source_file = fopen ( source_path, "r" );
+	string source_path{ string(my_home_folder) + string("/.atanks-config.txt") };
+	source_file = fopen ( source_path.c_str(), "r" );
 	if ( !source_file ) return true;
 
 	// we already have an open source file, create destination file
-	dest_file = fopen ( dest_path, "wb" );
+	dest_file = fopen ( dest_path.c_str(), "wb" );
 	if ( !dest_file ) {
 		printf ( "Unable to create destination file.\n" );
 		fclose ( source_file );
@@ -363,7 +352,7 @@ bool Copy_Config_File() {
 	// we have open files, let's copy
 	size_t file_status = fread ( buffer, 1, PATH_MAX, source_file );
 	while ( file_status ) {
-		file_status = fwrite ( buffer, 1, PATH_MAX, dest_file );
+		fwrite ( buffer, 1, PATH_MAX, dest_file );
 		file_status = fread ( buffer, 1, PATH_MAX, source_file );
 	}
 
@@ -376,14 +365,14 @@ bool Copy_Config_File() {
  * @return true on success or false if an error occures.
  **/
 bool Create_Music_Folder() {
-	if ( 0 > snprintf ( path_buf, PATH_MAX, "%s/music", env.configDir ) ) abort();
-	DIR* music_folder = opendir ( path_buf );
+	string music_dir{env.configDir + string("/music")};
+	DIR* music_folder = opendir ( music_dir.c_str() );
 
 	if ( !music_folder ) {
 #ifdef ATANKS_IS_WINDOWS
-		if ( mkdir ( path_buf ) )
+		if ( mkdir ( music_dir.c_str() ) )
 #else
-		if ( mkdir ( path_buf, 0700 ) )
+		if ( mkdir ( music_dir.c_str(), 0700 ) )
 #endif // ATANKS_IS_WINDOWS
 			return false;
 	} else
@@ -478,32 +467,31 @@ void flush_inputs() {
 bool Load_Weapons_Text() {
 	// Be sure that numbers are understood right:
 	const char* cur_lc_numeric = setlocale ( LC_NUMERIC, "C" );
+	string weap_file{env.dataDir};
 
 	// get path name
-	int         r              = 0;
 	if ( env.language == EL_ENGLISH )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons.txt", env.dataDir );
+		weap_file += "/text/weapons.txt";
 	else if ( env.language == EL_PORTUGUESE )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons.pt_BR.txt", env.dataDir );
+		weap_file += "/text/weapons.pt_BR.txt";
 	else if ( env.language == EL_FRENCH )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons_fr.txt", env.dataDir );
+		weap_file += "/text/weapons_fr.txt";
 	else if ( env.language == EL_GERMAN )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons_de.txt", env.dataDir );
+		weap_file += "/text/weapons_de.txt";
 	else if ( env.language == EL_SLOVAK )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons_sk.txt", env.dataDir );
+		weap_file += "/text/weapons_sk.txt";
 	else if ( env.language == EL_RUSSIAN )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons_ru.txt", env.dataDir );
+		weap_file += "/text/weapons_ru.txt";
 	else if ( env.language == EL_SPANISH )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons_ES.txt", env.dataDir );
+		weap_file += "/text/weapons_ES.txt";
 	else if ( env.language == EL_ITALIAN )
-		r = snprintf ( path_buf, PATH_MAX, "%s/text/weapons_it.txt", env.dataDir );
-	if ( r < 0 ) abort();
+		weap_file += "/text/weapons_it.txt";
 
 	// open file
-	FILE* wfile = fopen ( path_buf, "r" );
+	FILE* wfile = fopen ( weap_file.c_str(), "r" );
 
 	if ( !wfile ) {
-		printf ( "Unable to open weapons file. (%s)\n", path_buf );
+		printf ( "Unable to open weapons file. (%s)\n", weap_file.c_str() );
 		return false;
 	}
 
@@ -522,7 +510,7 @@ bool Load_Weapons_Text() {
 		if ( strchr ( line, '\r' ) ) strchr ( line, '\r' )[ 0 ] = '\0';
 
 		// skip # and empty lines
-		if ( ( !( line[ 0 ] == '#' ) ) && ( strlen ( line ) > 2 ) ) {
+		if ( (line[ 0 ] != '#') && ( strlen ( line ) > 2 ) ) {
 
 			// check for header
 			if ( !strcasecmp ( line, "*WEAPONS*" ) ) {
@@ -714,7 +702,7 @@ dirent** Find_Saved_Games ( uint32_t& num_files_found ) {
 	dirent** my_list = nullptr;
 	int32_t  status  = 0;
 
-	status           = scandir ( env.configDir, &my_list, Filter_File, alphasort );
+	status           = scandir ( env.configDir.c_str(), &my_list, Filter_File, alphasort );
 	if ( status < 0 ) {
 		printf ( "Error trying to find saved games.\n" );
 		return nullptr;
@@ -781,7 +769,7 @@ char** Find_Bitmaps ( int32_t* bitmaps_found ) {
 	if ( !my_list ) return nullptr;
 
 
-	game_dir = opendir ( env.configDir );
+	game_dir = opendir ( env.configDir.c_str() );
 	if ( !game_dir ) {
 		free ( my_list );
 		return nullptr;
@@ -795,10 +783,10 @@ char** Find_Bitmaps ( int32_t* bitmaps_found ) {
 #else
 		if ( ( strstr ( one_file->d_name, ".bmp" ) ) || ( strstr ( one_file->d_name, ".BMP" ) ) ) {
 #endif // ATANKS_IS_LINUX
-			size_t nLen           = strlen ( env.configDir ) + strlen ( one_file->d_name ) + 16;
+			size_t nLen           = env.configDir.size() + strlen ( one_file->d_name ) + 16;
 			my_list[ file_count ] = (char*)calloc ( nLen + 1, sizeof ( char ) );
 			if ( my_list[ file_count ] ) {
-				snprintf ( my_list[ file_count ], nLen, "%s/%s", env.configDir, one_file->d_name );
+				snprintf ( my_list[ file_count ], nLen, "%s/%s", env.configDir.c_str(), one_file->d_name );
 				file_count++;
 			}
 		}

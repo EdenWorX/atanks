@@ -26,6 +26,8 @@
 #include "network.h"
 #include "text.h"
 
+#include <string>
+using std::string;
 
 // As everything depends on environment.h, PLAYER, TANK and VIRTUAL_OBJECT
 // Must be forwarded here, and included before the ENVIRONMENT definition
@@ -141,7 +143,7 @@ public:
 	bool         check_for_updates = true;
 	int32_t      colourDepth       = 0;
 	int32_t      colourTheme       = CT_CRISPY; // land and sky gradiant theme
-	char         configDir[ PATH_MAX + 1 ];
+	string       configDir;
 	int32_t      current_wallType  = 0;
 	int32_t      custom_background = 0;
 	char         dataDir[ PATH_MAX + 1 ];

@@ -29,13 +29,14 @@
 #include "tank.h"
 #include "update.h"
 
-
 #ifdef NETWORK
 #  include "client.h"
 
 #  include <thread>
 #endif
 
+#include <string>
+using std::string;
 
 #define HELP_REQUESTED     -100
 #define SWITCH_HELP        "-h"
@@ -50,11 +51,11 @@
 /*****************************
 *** static local variables ***
 *****************************/
-static bool        allow_network            = true;
-static char        fullPath[ PATH_MAX + 1 ] = { 0 };
-static eFullScreen full_screen              = FULL_SCREEN_EITHER;
-static bool        load_config_file         = true;
-static int32_t     screen_mode              = GFX_AUTODETECT_WINDOWED;
+static bool        allow_network = true;
+static string      fullPath;
+static eFullScreen full_screen      = FULL_SCREEN_EITHER;
+static bool        load_config_file = true;
+static int32_t     screen_mode      = GFX_AUTODETECT_WINDOWED;
 #ifdef NETWORK
 static int32_t client_socket = -1;
 #endif // NETWORK
@@ -137,9 +138,9 @@ static void close_button_handler ( void ) {
 
 /// @brief Show the credits file in a text box
 static void credits() {
-	if ( 0 > snprintf ( path_buf, PATH_MAX, "%s/credits.txt", env.dataDir ) ) abort();
+	string    credits_file{ string ( env.dataDir ) + ( "/credits.txt" ) };
 
-	TEXTBLOCK my_text ( path_buf );
+	TEXTBLOCK my_text ( credits_file.c_str() );
 	scrollTextList ( &my_text );
 }
 
@@ -647,10 +648,10 @@ static void initialisePlayers() {
 static bool loadConfig() {
 	bool result = false;
 
-	if ( load_config_file ) {
-		if ( 0 > snprintf ( fullPath, PATH_MAX, "%s/atanks-config.txt", env.configDir ) ) abort();
+	fullPath.assign ( env.configDir + string ( "/atanks-config.txt" ) );
 
-		FILE* old_config_file = fopen ( fullPath, "r" );
+	if ( load_config_file ) {
+		FILE* old_config_file = fopen ( fullPath.c_str(), "r" );
 
 		if ( old_config_file ) {
 			env.load_from_file ( old_config_file );
@@ -1039,7 +1040,7 @@ static int32_t parse_args ( int32_t argc, char** argv ) {
 				std::string next_arg ( argv[ ++c ] );
 
 				if ( next_arg.length() <= PATH_MAX )
-					strncpy ( env.configDir, next_arg.c_str(), PATH_MAX );
+					env.configDir = next_arg;
 				else {
 					cerr << "ERROR: Configuration path too long:\n"
 					     << "\"" << next_arg << "\"\n\n"
@@ -1266,7 +1267,9 @@ static void show_options() {
 
 	optionsMenu();
 
-	if ( !Save_Game_Settings ( fullPath ) ) cerr << "atanks.cpp:" << __LINE__ << " Failed to save game settings from " << __FUNCTION__ << endl;
+	if ( !Save_Game_Settings ( fullPath.c_str() ) ) {
+		cerr << "atanks.cpp:" << __LINE__ << " Failed to save game settings from " << __FUNCTION__ << endl;
+	}
 
 	// check for changes to settings
 	Change_Settings ( temp_sound, temp_itech, temp_wtech );
@@ -1408,7 +1411,7 @@ int32_t main ( int32_t argc, char** argv ) {
 	updateThread.join();
 #endif // NETWORK
 
-	if ( !Save_Game_Settings ( fullPath ) ) {
+	if ( !Save_Game_Settings ( fullPath.c_str() ) ) {
 		// This is a very critical issue, but as we are ending here, we just report it
 		cerr << "atanks.cpp: Failed to save game settings from atanks::main()!" << endl;
 		result = EXIT_FAILURE;
