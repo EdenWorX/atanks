@@ -239,7 +239,7 @@ void GLOBALDATA::do_updates() {
 	release_bitmap ( screen );
 	if ( !isBgUpdNeeded ) {
 		lastUpdatesCount = updateCount;
-		lastUpdates      = updates;
+		memcpy(lastUpdates, updates, sizeof(BOX) * env.max_screen_updates);
 	}
 	updateCount = 0;
 }
