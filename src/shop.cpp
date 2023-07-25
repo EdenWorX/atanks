@@ -25,8 +25,8 @@ void           draw_simple_bg ( bool drawImage );
 bool           shop ( LevelCreator* lvl_creator ) {
         bool          performed_save_game = false;
         char          buf[ 50 ]           = { 0 };
-        char          description[ 1024 ] = { 0x20, 0x0 };
         const int32_t scrollArrowPos      = env.screenWidth - STUFF_BAR_WIDTH - 30;
+        string        description{ " " };
 
         draw_shop ( nullptr );
 
@@ -253,11 +253,12 @@ bool           shop ( LevelCreator* lvl_creator ) {
                                 // check for saving the game
                                 else if ( K == KEY_F10 ) {
                                         if ( !performed_save_game && Save_Game() ) performed_save_game = true;
-                                        if ( performed_save_game )
-                                                snprintf ( description, 64, "%s \"%s\".", env.ingame->Get_Line ( 17 ), env.game_name );
-                                        else
-                                                strncpy ( description, env.ingame->Get_Line ( 41 ), 1023 );
-                                        draw_text_in_box ( &area, description, true );
+                                        if ( performed_save_game ) {
+                                                description.assign ( env.ingame->Get_Line ( 17 ) ).append ( "\"" ).append ( env.game_name ).append ( "\"" );
+                                        } else {
+                                                description.assign ( env.ingame->Get_Line ( 41 ) );
+                                        }
+                                        draw_text_in_box ( &area, description.c_str(), true );
                                         need_draw = true;
                                 }
 
@@ -309,29 +310,27 @@ bool           shop ( LevelCreator* lvl_creator ) {
                                         if ( newlyOver > -1 ) {
                                                 if ( newlyOver < WEAPONS ) {
                                                         WEAPON* weap = &weapon[ newlyOver ];
-                                                        snprintf (
-                                                                description,
-                                                                1023,
-                                                                "Radius: %d\nYield: %d\n\n%s",
-                                                                weap->radius,
-                                                                calcPotentialDmg ( newlyOver ) * weap->spread,
-                                                                weap->getDesc()
-                                                        );
+                                                        description.assign ( "Radius: " ).append ( std::to_string ( weap->radius ) );
+                                                        description.append ( "\nYield : " ).append ( std::to_string ( calcPotentialDmg ( newlyOver ) * weap->spread ) );
+                                                        description.append ( "\n\n" ).append ( weap->getDesc() );
                                                 } else {
                                                         int32_t itemNum = newlyOver - WEAPONS;
                                                         ITEM*   it      = &item[ itemNum ];
                                                         if ( ( itemNum >= ITEM_VENGEANCE ) && ( itemNum <= ITEM_FATAL_FURY ) ) {
                                                                 double potDmg = calcPotentialDmg ( it->vals[ 0 ] ) * it->vals[ 1 ];
-                                                                snprintf ( description, 1023, "Potential Damage: %d\n\n%s", ROUND ( potDmg ), it->getDesc() );
-                                                        } else
-                                                                snprintf ( description, 1023, "%s", it->getDesc() );
+                                                                description.assign ( "Potential Damage: " ).append ( std::to_string ( ROUND ( potDmg ) ) );
+                                                                description.append ( "\n\n" ).append ( it->getDesc() );
+                                                        } else {
+                                                                description.assign ( it->getDesc() );
+                                                        }
                                                 }
-                                        } else
-                                                description[ 0 ] = 0;
+                                        } else {
+                                                description.clear();
+                                        }
                                         hoverOver = newlyOver;
                                         need_draw = true;
 
-                                        draw_text_in_box ( &area, description, true );
+                                        draw_text_in_box ( &area, description.c_str(), true );
                                 } // end of hovering on a different item
 
                                 // Check mouse buttons against scrolling, buying and selling.
