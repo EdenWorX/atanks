@@ -1010,7 +1010,6 @@ bool ENVIRONMENT::loadBackgroundMusic() {
  */
 bool ENVIRONMENT::loadBitmaps() {
 	int32_t  file_group      = 0;
-	char     sub_folder[ 9 ] = { 0 };
 	BITMAP*  newbitmap       = nullptr;
 	BITMAP** bitmap_array    = nullptr;
 
@@ -1019,26 +1018,26 @@ bool ENVIRONMENT::loadBitmaps() {
 		string folder{dataDir};
 		switch ( file_group ) {
 			case 0:
-				folder += "/title";
+				folder += "/title/";
 				break;
 			case 1:
-				folder += "/button";
+				folder += "/button/";
 				break;
 			case 2:
-				folder += "/misc";
+				folder += "/misc/";
 				break;
 			case 3:
-				folder += "/missile";
+				folder += "/missile/";
 				break;
 			case 4:
-				folder += "/stock";
+				folder += "/stock/";
 				break;
 			case 5:
-				folder += "/tank";
+				folder += "/tank/";
 				break;
 			case 6:
 			default:
-				folder += "/tankgun";
+				folder += "/tankgun/";
 				break;
 		}
 
@@ -1237,7 +1236,7 @@ bool ENVIRONMENT::loadSounds() {
 	}
 
 	// read from directory
-	string sound_dir{string(dataDir) + string("/sounds/")};
+	string sound_dir{string(dataDir) + string("/sound/")};
 	for ( int32_t i = 0; i < SND_COUNT; ++i ) {
 		string sound_file{sound_dir};
 		sound_file += (i < 10 ? "0" : "") + std::to_string(i) + string(".wav");

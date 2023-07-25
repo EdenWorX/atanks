@@ -42,7 +42,7 @@ PREFIX     ?= /usr
 DESTDIR    ?=
 BINPREFIX  ?= $(PREFIX)
 BINDIR     ?= ${BINPREFIX}/bin
-INSTALLDIR ?= ${PREFIX}/share/games/atanks
+INSTALLDIR ?= ${PREFIX}/share/atanks
 
 
 # ------------------------------------

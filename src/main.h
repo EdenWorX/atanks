@@ -24,12 +24,6 @@
 #  error "VERSION information is missing. Fix Makefile."
 #endif
 
-#ifdef GENTOO
-#  ifndef DATA_DIR
-#    define DATA_DIR "/usr/share/games/atanks"
-#  endif // DATA_DIR
-#endif   // GENTOO
-
 #ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 256
 #endif
