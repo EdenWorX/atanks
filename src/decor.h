@@ -26,7 +26,7 @@
 
 enum decorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
 
-class DECOR : public PHYSICAL_OBJECT {
+class DECOR final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -48,7 +48,7 @@ public:
 	       sDebrisItem* met_item );
 
 
-	~DECOR();
+	~DECOR() final;
 
 
 	/* -----------------------------------
@@ -56,13 +56,11 @@ public:
 	 * -----------------------------------
 	 */
 
-	void     applyPhysics();
-	void     draw();
-	void     force_aging( int32_t frames ); // Helper to work against FPS drops.
+	void   applyPhysics() final;
+	void   draw() final;
+	void   force_aging( int32_t frames ); // Helper to work against FPS drops.
 
-	eClass   getClass() { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
-
-	bool     isSmoke() { return DECOR_SMOKE == type; }
+	eClass getClass() final { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
 
 
 private:
@@ -74,9 +72,9 @@ private:
 	 * -----------------------------------
 	 */
 
-	bool                isOnFloor();
-	void                repulseDecor();
-	void                updateDirt();
+	bool isOnFloor();
+	void repulseDecor();
+	void updateDirt();
 
 
 	/* -----------------------------------
@@ -98,7 +96,7 @@ private:
 	double  maxWindAccel = 1.;      //!< Pre-calculated physics helper.
 	item_t* meteor       = nullptr; //!< Metor data if not enough dirt was found, but a meteor stroke.
 	int32_t radius       = 5;
-	bool    ready        = false; //!< Whether a debris item is finished or not.
+	bool    ready        = false;   //!< Whether a debris item is finished or not.
 	int32_t type         = DECOR_SMOKE;
 };
 

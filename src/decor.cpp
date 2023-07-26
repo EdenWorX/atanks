@@ -102,8 +102,8 @@ DECOR::DECOR(
 DECOR::~DECOR() {
 	if ( DECOR_DIRT == type ) {
 		// Draw dirt on terrain and add land slide
-		rotate_sprite( global.terrain, dirt->bmp, x - radius, y - radius, itofix( angle ) );
-		global.addLandSlide( x - radius - 1, x + radius + 1, false );
+		rotate_sprite( global.terrain, dirt->bmp, ROUND( x - radius ), ROUND( y - radius ), itofix( angle ) );
+		global.addLandSlide( ROUND( x - radius - 1 ), ROUND( x + radius + 1 ), false );
 	}
 
 	if ( dirt ) {
@@ -126,7 +126,7 @@ DECOR::~DECOR() {
 		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
 	}
 
-	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
+	setUpdateArea( ROUND( x - calcRadius - 1 ), ROUND( y - calcRadius - 1 ), ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
 	requireUpdate();
 	this->update();
 
@@ -159,7 +159,7 @@ void DECOR::applyPhysics() {
 			// It ended!
 
 			// fix y:
-			int32_t dirt_bottom = y + dirt->bmp->h;
+			auto dirt_bottom = ROUND( y + dirt->bmp->h );
 			if ( ( ( y - radius ) > MENUHEIGHT ) && ( dirt_bottom < env.screenHeight )
 			     && ( PINK != getpixel( global.terrain, x, dirt_bottom ) ) ) {
 				--y;
@@ -254,7 +254,7 @@ void DECOR::applyPhysics() {
 		y += yv;
 
 		// Destroy the smoke if it goes off-screen or is diffused
-		int32_t calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
+		auto calcRadius = ROUND( radius * ( 4.0 * age / maxAge ) );
 
 		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screenWidth + calcRadius ) )
 		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > maxAge ) ) {
@@ -284,7 +284,7 @@ void DECOR::draw() {
 
 	if ( DECOR_DIRT == type ) {
 		// Rotate according to xv and yv
-		angle += yv + ( ( SIGNd( xv ) * 5. ) - xv );
+		angle += ROUND( yv + ( ( SIGNd( xv ) * 5. ) - xv ) );
 
 		// Be sure the angle is in order:
 		if ( angle < 0 ) {
@@ -296,21 +296,21 @@ void DECOR::draw() {
 
 		// And draw it:
 		if ( y > MENUHEIGHT ) {
-			VIRTUAL_OBJECT::draw();
+			PHYSICAL_OBJECT::draw();
 			++calcRadius;
 		}
 	} else if ( DECOR_SMOKE == type ) {
 		// The older, the larger...
 		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
 
-		drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+		drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
 		set_trans_blender( 0, 0, 0, 255 - ( 255 * age / maxAge ) );
 		circlefill( global.canvas, x, y, calcRadius, color );
 	}
 
-	drawing_mode( global.current_drawing_mode, NULL, 0, 0 );
+	drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
 
-	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
+	setUpdateArea( ROUND( x - calcRadius - 1 ), ROUND( y - calcRadius - 1 ), ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
 	requireUpdate();
 }
 
@@ -401,7 +401,7 @@ void DECOR::repulseDecor() {
 /// Small scale dirt grabber
 void DECOR::updateDirt() {
 	int32_t togo    = grabPerCall + 1;
-	double  deb_rad = static_cast< double >( radius );
+	auto    deb_rad = static_cast< double >( radius );
 
 	while ( togo ) {
 		double deb_dist =
@@ -417,10 +417,10 @@ void DECOR::updateDirt() {
 
 			// If this is valid, scorch the colour and put it back.
 			if ( PINK != tcol ) {
-				double  deb_mod = deb_dist / deb_rad;
-				int32_t new_r   = getr( tcol ) / ( 1.25 + deb_mod );
-				int32_t new_g   = getg( tcol ) / ( 1.66 + deb_mod );
-				int32_t new_b   = getb( tcol ) / ( 1.33 + deb_mod );
+				double deb_mod = deb_dist / deb_rad;
+				auto   new_r   = ROUND( getr( tcol ) / ( 1.25 + deb_mod ) );
+				auto   new_g   = ROUND( getg( tcol ) / ( 1.66 + deb_mod ) );
+				auto   new_b   = ROUND( getb( tcol ) / ( 1.33 + deb_mod ) );
 				putpixel( dirt->bmp, grab_x, grab_y, makecol( new_r, new_g, new_b ) );
 				++gotPixels;
 			}
