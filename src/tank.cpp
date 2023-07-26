@@ -1374,7 +1374,9 @@ bool TANK::moveTank( int32_t direction ) {
 	// be taken into account, too
 	int32_t afterX = nextX + direction;
 	float   afterY = nextY;
-	if ( ( afterX > 0 ) && ( afterX < env.screenWidth ) ) afterY = global.surface[ afterX ].load( ATOMIC_READ ) - 1;
+	if ( ( afterX > 0 ) && ( afterX < env.screenWidth ) ) {
+		afterY = global.surface[ afterX ].load( ATOMIC_READ ) - 1;
+	}
 
 	// If the tank is not climbing too much, let it move:
 	if ( ( nextY > ( y - tank_sag ) ) && ( afterY > ( y - tank_off_y + tank_sag ) ) ) {
@@ -1386,7 +1388,9 @@ bool TANK::moveTank( int32_t direction ) {
 		y = nextY - tank_off_y + tank_sag;
 
 		// But secure y
-		if ( y > ( env.screenHeight - tank_off_y ) ) y = env.screenHeight - tank_off_y;
+		if ( y > ( env.screenHeight - tank_off_y ) ) {
+			y = env.screenHeight - tank_off_y;
+		}
 		return true;
 	}
 

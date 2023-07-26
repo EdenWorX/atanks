@@ -52,7 +52,7 @@ interpolate
 Performs a cosine interpolation between two points.  Given two y values
 and a distance between them, return the interpolated y.  x1 and x2 are the y
 values (sorry, it's the best I could explain it).  i is the distance,
-expressed as a percentage of the wave length, ie 0<=i<1 .
+expressed as a percentage of the wave length, ie 0<=i<=1 .
 *****************************************************************************/
 double interpolate( double x1, double x2, double i ) {
 	if ( std::isnan( x1 ) || std::isnan( x2 ) ) return 0.0;

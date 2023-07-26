@@ -100,13 +100,10 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			int32_t left    = x;
 			int32_t right   = env.screenWidth - ( x + 1 );
 
-			double  ratio_n = ( static_cast< double >( x ) / static_cast< double >( length ) / 2. ) + .5; // [n]ear:
-			                                                                                              // 50% at
-			                                                                                              // the
-			                                                                                              // wall,
-			                                                                                              // 100% at
-			                                                                                              // length.
-			double ratio_f = 1. - ratio_n; // [f]ar : 50% at the wall,   0% at length.
+			double  ratio_n = ( static_cast< double >( x ) / static_cast< double >( length ) / 2. ) + .5;
+			// [n]ear: 50% at the wall, 100% at length.
+			double ratio_f = 1. - ratio_n;
+			// [f]ar : 50% at the wall,   0% at length.
 
 			// Get the heights currently set
 			double old_left_y  = global.surface[ left ].load( ATOMIC_READ );
@@ -124,34 +121,30 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 
 	// Generate detailed depths
 	for ( int32_t x = 0; lcr->can_work() && ( x < env.screenWidth ); ++x ) {
-		int32_t depth   = 0;
-		int32_t surface = global.surface[ x ].load();
+		int32_t height = env.screenHeight - global.surface[ x ].load();
+
 		if ( env.detailedLandscape && ( LAND_NONE != land_type ) ) {
 			memcpy( depthStrip[ 0 ], depthStrip[ 1 ], env.screenHeight * sizeof( double ) );
-			for ( depth = 1; depth < env.screenHeight; depth++ ) {
-				depthStrip[ 1 ][ depth ] =
-					( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, depth, lambda, octaves )
-				        ) / 2. * land_height
-					- ( env.screenHeight - depth );
-				if ( depthStrip[ 1 ][ depth ] > surface ) {
-					depthStrip[ 1 ][ depth ] = surface;
-				}
-				if ( depthStrip[ 1 ][ depth ] < 1. ) {
-					depthStrip[ 1 ][ depth ] = 1.;
+			for ( int32_t d = 1; d < env.screenHeight; d++ ) {
+				depthStrip[ 1 ][ d ] =
+					( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, d, lambda, octaves ) ) / 2. * heightx
+					- ( land_height - d );
+				if ( depthStrip[ 1 ][ d ] > height ) {
+					depthStrip[ 1 ][ d ] = height;
 				}
 			}
 			depthStrip[ 1 ][ 0 ] = 0;
-			depth                = 1;
 		}
 
 		// Now generate the height colourization
-		for ( int32_t y = 1; lcr->can_work() && ( y <= surface ); ++y ) {
+		for ( int32_t y = 1; lcr->can_work() && ( y <= height ); ++y ) {
 
 			lcr->yield();
 
-			double  offset = 0;
 			int32_t color;
-			double  shade = 0;
+			int32_t depth  = 1;
+			double  offset = 0;
+			double  shade  = 0;
 
 			if ( env.detailedLandscape ) {
 				while ( ( depth < env.screenHeight ) && ( depthStrip[ 1 ][ depth ] <= y ) ) {
@@ -166,12 +159,19 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 				double bot     = ( under_l + under_r ) / 2;
 				double minBot  = std::min( under_l, under_r );
 				double maxTop  = std::max( surf_l, surf_r );
-				double btdiff  = std::max( maxTop, minBot ) - std::min( maxTop, minBot );
-				double i       = ( y - bot ) / ( btdiff > 0.001 ? btdiff : 0.001 );
+				double btdiff  = maxTop - minBot;
+				double i       = ( y - bot ) / btdiff;
 				double a1      = RAD2DEG( atan2( under_l - under_r, 1.0 ) ) + 180.;
 				double a2      = RAD2DEG( atan2( surf_l - surf_r, 1.0 ) ) + 180.;
-				double angle   = interpolate( a1, a2, i );
-				shade          = env.slope[ (int)angle ][ 0 ];
+
+				if ( std::isnan( i ) ) i = 0.;
+				if ( std::isinf( i ) ) i = 1.;
+				while ( i < 0. ) i += 1.;
+				while ( i > 1. ) i -= 1.;
+
+				double angle = interpolate( a1, a2, i );
+
+				shade        = env.slope[ (int)angle ][ 0 ];
 			}
 
 			if ( env.ditherGradients ) offset += get_rand() % 10 - 5;
@@ -181,7 +181,7 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			while ( ( y + offset ) < 0 ) offset /= 2;
 			while ( ( y + offset ) > env.screenHeight ) offset /= 2;
 
-			color = gradientColorPoint( land_gradients[ curland ], surface, y + offset );
+			color = gradientColorPoint( land_gradients[ curland ], height, y + offset );
 
 			if ( env.detailedLandscape ) {
 				float   h, s, v;

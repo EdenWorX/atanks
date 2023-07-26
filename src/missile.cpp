@@ -71,9 +71,7 @@ MISSILE::MISSILE(
 		weap = &weapon[ weapType ];
 	else
 		weap = &naturals[ weapType - WEAPONS ];
-
-	assert(env.missile[ weap->picpoint ] && "Missile has no Bitmap loaded!");
-
+	assert( env.missile[ weap->picpoint ] && "Missile has no Bitmap loaded!" );
 	setBitmap( env.missile[ weap->picpoint ] );
 	drag     = weap->drag;
 	mass     = weap->mass;
