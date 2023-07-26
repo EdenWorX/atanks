@@ -4976,21 +4976,21 @@ void AICore::operator() () {
 		// --- Done here and not in initialize so the full ---
 		// --- shock check is already done.                ---
 		// ---------------------------------------------------
-		findOppAttempts  = ai_level;
-		findRngAttempts  = ai_level;
-		findTgtAttempts  = ai_level;
-		findWeapAttempts = ai_level;
-		focusRate        = ai_level;
+		findOppAttempts  = ai_level + 1 - ( isShocked ? ai_level / 2 : 0 );
+		findRngAttempts  = ( ( ai_level + 1 ) * 2 ) / ( isShocked ? 2 : 1 );
+		findTgtAttempts  = ai_level + 1 - ( isShocked ? ai_level : 0 );
+		findWeapAttempts = ai_level * 2 - ( isShocked ? ai_level : 0 );
+		focusRate       = ai_level_d * 2. / ( static_cast< double >( maxAiLevel * 2 ) + 1. );
 		errorMultiplier = static_cast< double >( maxAiLevel + 1 - ai_level ) / static_cast< double >( findRngAttempts );
-		maxBounce       = ai_level;
+		maxBounce       = ROUND( ai_level * 3. * focusRate ) + 2;
 		/* The results should be [if shocked]:
-		 * findOppAttempts : Useless   3   [2], Deadly + 1:  8    [4]
-		 * findRngAttempts : Useless: 10   [2], Deadly + 1: 60    [7]
+		 * findOppAttempts : Useless   2   [1], Deadly + 1:  7    [4]
+		 * findRngAttempts : Useless:  4   [2], Deadly + 1: 14    [7]
 		 * findTgtAttempts : Useless:  2   [1], Deadly + 1:  7    [1]
-		 * findWeapAttempts: Useless:  2   [1], Deadly + 1: 12    [2]
-		 * focusRate       : Useless:  0.166,   Deadly + 1:  1.0
-		 * errorMultiplier : Useless:  1.2 [3], Deadly + 1:  0.02 [0.14]
-		 * maxBounce       : Useless:  3,       Deadly + 1: 20
+		 * findWeapAttempts: Useless:  2   [1], Deadly + 1: 12    [6]
+		 * focusRate       : Useless:  0.154,   Deadly + 1:  0.923
+		 * errorMultiplier : Useless:  1.5 [3], Deadly + 1:  0.071 [0.143]
+		 * maxBounce       : Useless:  2        Deadly + 1:  19
 		 */
 
 		DEBUG_LOG_AI( player->getName(), "AI Level       : %d (%s)", ai_level, getLevelName( ai_level ) )
