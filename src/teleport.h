@@ -49,7 +49,7 @@ public:
 	void     applyPhysics();
 	void     draw();
 
-	eClasses getClass() { return CLASS_TELEPORT; }
+	eClass   getClass() { return CLASS_TELEPORT; }
 
 
 private:

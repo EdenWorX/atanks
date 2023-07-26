@@ -90,7 +90,7 @@ std::condition_variable updCondition;
 
 /// Helper Class to multi-thread object updating
 class ObjectUpdater {
-	eClasses class_ = CLASS_COUNT;
+	eClass   class_ = CLASS_COUNT;
 	abool_t  doExit;
 	abool_t  doStart;
 	abool_t  isDone;
@@ -132,7 +132,7 @@ public:
 
 
 			// Okay, do the updating for this class:
-			global.getHeadOfClass( static_cast< eClasses >( class_ ), &obj );
+			global.getHeadOfClass( static_cast< eClass >( class_ ), &obj );
 
 			// If this is the floating text class, lock it, or AI
 			// feedback might lead to data races.
@@ -220,7 +220,7 @@ public:
 
 	bool hasExited() const { return isExited.load( ATOMIC_READ ); }
 
-	void setClass( eClasses aClass_ ) { class_ = aClass_; }
+	void setClass( eClass aClass_ ) { class_ = aClass_; }
 
 	void setForceAge( int32_t ageing_ ) { force_age = ageing_; }
 
@@ -268,7 +268,7 @@ void game() {
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
 		if ( CLASS_DECOR_SMOKE == class_ ) smkIdx = class_;
 
-		updater[ class_ ].setClass( static_cast< eClasses >( class_ ) );
+		updater[ class_ ].setClass( static_cast< eClass >( class_ ) );
 		threads[ class_ ] = new std::thread( std::ref( updater[ class_ ] ) );
 	}
 
@@ -805,7 +805,7 @@ static inline void delete_destroyed( AICore& aicore ) {
 		// function explode_tanks() as there is more to do.
 		if ( CLASS_TANK == class_ ) continue;
 
-		eClasses e_class = static_cast< eClasses >( class_ );
+		eClass e_class = static_cast< eClass >( class_ );
 
 		global.getHeadOfClass( e_class, &obj );
 		global.lockClass( e_class );
@@ -950,7 +950,7 @@ static inline void draw_objects( AICore& aicore ) {
 
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
 
-		global.getHeadOfClass( static_cast< eClasses >( class_ ), &obj );
+		global.getHeadOfClass( static_cast< eClass >( class_ ), &obj );
 		while ( obj ) {
 
 			if ( show_frame ) {

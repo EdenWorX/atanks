@@ -47,7 +47,7 @@ public:
 	void     draw();
 	void     explode();
 
-	eClasses getClass() { return CLASS_EXPLOSION; }
+	eClass   getClass() { return CLASS_EXPLOSION; }
 
 
 private:

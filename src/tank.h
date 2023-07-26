@@ -67,6 +67,7 @@ public:
 	int32_t   howBuried( int32_t* left, int32_t* right );
 	bool      isFlying();
 	bool      isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	bool      isInBox( double x1, double y1, double x2, double y2 );
 	bool      isInEllipse( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y );
 	bool      moveTank( int32_t direction );
 	void      newRound( int32_t pos_x, int32_t pos_y );
@@ -77,7 +78,7 @@ public:
 	bool      shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );
 	void      simActivateCurrentSelection();
 
-	eClasses  getClass() { return CLASS_TANK; }
+	eClass    getClass() { return CLASS_TANK; }
 
 	/* ----------------------
 	 * --- Public members ---

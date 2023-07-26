@@ -34,7 +34,7 @@ enum eBeamType {
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
-class BEAM : public PHYSICAL_OBJECT {
+class BEAM final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -43,7 +43,7 @@ public:
 
 	explicit BEAM( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
 	BEAM( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
-	~BEAM();
+	~BEAM() final;
 
 
 	/* ----------------------
@@ -51,12 +51,12 @@ public:
 	 * ----------------------
 	 */
 
-	void     applyPhysics();
-	void     draw();
-	void     getEndPoint( int32_t& x, int32_t& y ); // For mind shots to fetch
-	void     moveStart( double x_, double y_ );     // For the satellite
+	void   applyPhysics() final;
+	void   draw() final;
+	void   getEndPoint( int32_t& x, int32_t& y ); // For mind shots to fetch
+	void   moveStart( double x_, double y_ );     // For the satellite
 
-	eClasses getClass() { return CLASS_BEAM; }
+	eClass getClass() final { return CLASS_BEAM; }
 
 
 private:
@@ -65,9 +65,9 @@ private:
 	 * -----------------------
 	 */
 
-	void      createBeamPath();
-	void      makeLightningPath();
-	void      traceBeamPath();
+	void createBeamPath();
+	void makeLightningPath();
+	void traceBeamPath();
 
 
 	/* -----------------------
@@ -78,8 +78,8 @@ private:
 	eBeamType beamType  = BT_WEAPON;
 	int32_t   color     = WHITE;
 	double    damage    = 0.;
-	int32_t   numPoints = 0;
-	POINT_t*  points    = nullptr;
+	int32_t   numPoints = 2; // Default for lasers
+	POINT_t   points[ 12 ];  // Maximum for lightnings
 	int32_t   radius    = 0;
 	int32_t   seed      = 0;
 	int32_t   tgtLeftX  = 0;

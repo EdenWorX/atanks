@@ -69,8 +69,8 @@ public:
 	explicit CSpinLock();
 	~CSpinLock();
 
-	CSpinLock( const CSpinLock& )             = delete;
-	CSpinLock& operator= ( const CSpinLock& ) = delete;
+	CSpinLock( CSpinLock const& )             = delete;
+	CSpinLock& operator= ( CSpinLock const& ) = delete;
 
 	bool       hasLock();
 	void       lock();
@@ -113,6 +113,7 @@ public:
 	void    addLandSlide( int32_t left, int32_t right, bool do_lock );
 	void    addObject( vobj_t* object );
 	bool    areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	bool    areTanksInBox( double x1, double y1, double x2, double y2 );
 	bool    check_time_changed(); // check to see if one second has passed
 	void    clear_objects();
 	void    destroy();
@@ -128,8 +129,9 @@ public:
 	void    initialise();
 	bool    isCloseBtnPressed();
 	bool    isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	bool    isDirtInBox( double x1, double y1, double x2, double y2 );
 	void    load_from_file( FILE* file );
-	void    lockClass( eClasses class_ );
+	void    lockClass( eClass class_ );
 	void    lockLand();
 	void    make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h );
 	void    make_fullUpdate();
@@ -143,11 +145,11 @@ public:
 	void    set_curr_tank( TANK* tank_ );
 	void    set_command( int32_t cmd );
 	void    slideLand();
-	void    unlockClass( eClasses class_ );
+	void    unlockClass( eClass class_ );
 	void    unlockLand();
 	void    unlockLandSlide( int32_t left, int32_t right );
 
-	template< typename Head_T > void getHeadOfClass( eClasses class_, Head_T** head_ ) {
+	template< typename Head_T > void getHeadOfClass( eClass class_, Head_T** head_ ) {
 		if ( class_ < CLASS_COUNT ) {
 			objLocks[ class_ ].lock();
 			*head_ = static_cast< Head_T* >( heads[ class_ ] );
@@ -163,7 +165,7 @@ public:
 
 	int32_t     AI_clock             = -1;
 	BITMAP*     canvas               = nullptr;
-	const char* client_message       = nullptr; // message sent from client to main menu
+	char const* client_message       = nullptr; // message sent from client to main menu
 	PLAYER*     client_player        = nullptr; // the index we use to know which one is the player on the client side
 	int32_t     curland              = 0;
 	int32_t     current_drawing_mode = DRAW_MODE_SOLID;
@@ -202,7 +204,7 @@ private:
 	 */
 
 	// Combine make_update and make_bgupdate with safety checks
-	void                addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count );
+	void addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count );
 
 
 	/* -----------------------
@@ -210,24 +212,24 @@ private:
 	 * -----------------------
 	 */
 
-	bool                close_button_pressed = false;
-	CSpinLock           cbpLock; //[c]lose_[b]utton_[p]ressed
-	CSpinLock           cmdLock;
-	bool                combineUpdates = true;
-	int32_t             command        = 0;
-	TANK*               currTank       = nullptr;
-	debpool_t*          debris_pool    = nullptr;
-	int8_t*             done           = nullptr;
-	double*             dropIncr       = nullptr;
-	int32_t*            dropTo         = nullptr;
-	int32_t*            fp             = nullptr;
-	vobj_t*             heads[ CLASS_COUNT ];
-	CSpinLock           landLock;
-	CSpinLock           objLocks[ CLASS_COUNT ];
-	vobj_t*             tails[ CLASS_COUNT ];
-	int32_t             tankindex   = 0;
-	int32_t             updateCount = 0;
-	double*             velocity    = nullptr;
+	bool       close_button_pressed = false;
+	CSpinLock  cbpLock; //[c]lose_[b]utton_[p]ressed
+	CSpinLock  cmdLock;
+	bool       combineUpdates = true;
+	int32_t    command        = 0;
+	TANK*      currTank       = nullptr;
+	debpool_t* debris_pool    = nullptr;
+	int8_t*    done           = nullptr;
+	double*    dropIncr       = nullptr;
+	int32_t*   dropTo         = nullptr;
+	int32_t*   fp             = nullptr;
+	vobj_t*    heads[ CLASS_COUNT ];
+	CSpinLock  landLock;
+	CSpinLock  objLocks[ CLASS_COUNT ];
+	vobj_t*    tails[ CLASS_COUNT ];
+	int32_t    tankindex   = 0;
+	int32_t    updateCount = 0;
+	double*    velocity    = nullptr;
 };
 
 #define HAS_GLOBALDATA 1

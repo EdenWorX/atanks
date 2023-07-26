@@ -60,7 +60,7 @@ public:
 	void     draw();
 	void     force_aging( int32_t frames ); // Helper to work against FPS drops.
 
-	eClasses getClass() { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
+	eClass   getClass() { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
 
 	bool     isSmoke() { return DECOR_SMOKE == type; }
 

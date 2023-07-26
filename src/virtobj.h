@@ -71,7 +71,7 @@ public:
 	void requireUpdate() { needsUpdate.store( true, ATOMIC_WRITE ); }
 
 	/* --- pure virtual (abstract) methods --- */
-	virtual eClasses getClass() _PURE;
+	virtual eClass getClass() _PURE;
 
 	/* ------------------------------
 	 * --- templated list getters ---

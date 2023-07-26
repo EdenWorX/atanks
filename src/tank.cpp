@@ -1048,6 +1048,10 @@ bool TANK::isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	         && ( std::max( y1, y2 ) > std::min( y, gun_y ) ) );
 }
 
+bool TANK::isInBox( double x1, double y1, double x2, double y2 ) {
+	return isInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
+}
+
 /** @return true if the tank is within the given ellipse.
  * @param[in] ex Explosion x coordinate
  * @param[in] ey Explosion y coordinate

@@ -22,7 +22,6 @@
 #include "decor.h"
 #include "environment.h"
 #include "explosion.h"
-#include "globaldata.h"
 #include "physobj.h"
 #include "player.h"
 #include "random.h"
@@ -94,13 +93,12 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 	} else if ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) {
 		base_age     *= 2;
 		age_per_size *= 2;
-		numPoints     = 2;
 		weap_size     = weapType - SML_LAZER;
 		if ( BT_SDI != beamType )
 			// The SDI constructor produces its own color
 			color = makecol( 255 - ( ( weapType - SML_LAZER ) * 64 ), 128, 64 + ( ( weapType - SML_LAZER ) * 64 ) );
 		if ( !global.skippingComputerPlay && ( ( BT_WEAPON == beamType ) || ( BT_SDI == beamType ) ) )
-			play_fire_sound( weapType, x, 128 + ( radius * 10 ), 1500 - ( radius * 50 ) );
+			play_fire_sound( weapType, ROUND( x ), 128 + ( radius * 10 ), 1500 - ( radius * 50 ) );
 	}
 
 	maxAge = base_age + ( age_per_size * weap_size );
@@ -132,17 +130,14 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, double tx, double ty, int32_t
 	);
 
 	// Limit the laser to the missiles coordinates
-	points[ numPoints - 1 ].x = tx;
-	points[ numPoints - 1 ].y = ty;
+	points[ numPoints - 1 ].x = ROUND( tx );
+	points[ numPoints - 1 ].y = ROUND( ty );
 }
 
 /// @brief BEAM destructor
 BEAM::~BEAM() {
 	requireUpdate();
 	update();
-	weap = nullptr;
-	if ( points ) delete[] points;
-	points = nullptr;
 
 	if ( BT_MIND_SHOT != beamType ) {
 		global.make_bgupdate( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
@@ -214,7 +209,7 @@ void BEAM::draw() {
 
 	int32_t oldDrawingMode = global.current_drawing_mode;
 
-	drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+	drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
 	global.current_drawing_mode = DRAW_MODE_TRANS;
 	set_trans_blender( 0, 0, 0, 50 );
 
@@ -237,7 +232,7 @@ void BEAM::draw() {
 		addUpdateArea( left - radius, top - radius, right - left + ( 2 * radius ), bottom - top + ( 2 * radius ) );
 	}
 
-	drawing_mode( oldDrawingMode, NULL, 0, 0 );
+	drawing_mode( oldDrawingMode, nullptr, 0, 0 );
 	global.current_drawing_mode = oldDrawingMode;
 
 	requireUpdate();
@@ -248,14 +243,6 @@ void BEAM::draw() {
 
 /// @brief Create the basic points array with path tracing
 void BEAM::createBeamPath() {
-	if ( nullptr == points ) {
-		try {
-			points = new POINT_t[ numPoints ];
-		} catch ( std::exception &e ) {
-			std::cerr << __func__ << " new POINT_t: " << e.what() << std::endl;
-		}
-	}
-
 	// First determine the direct target - where does the beam end?
 	double tx = x, ty = y;
 	hitSomething = false;
@@ -267,8 +254,8 @@ void BEAM::createBeamPath() {
 		ty = points[ numPoints - 1 ].y;
 	} else {
 		// The first point is the starting point, the last will become the target
-		points[ 0 ].x = x;
-		points[ 0 ].y = y;
+		points[ 0 ].x = ROUND( x );
+		points[ 0 ].y = ROUND( y );
 	}
 
 	while ( !hitSomething && ( tx > -radius ) && ( tx < ( env.screenWidth + radius ) ) && ( ty > -radius )
@@ -289,8 +276,8 @@ void BEAM::createBeamPath() {
 
 	// tx and ty now result in the first obstacle (or screen border)
 	// on a direct path.
-	points[ numPoints - 1 ].x = tx;
-	points[ numPoints - 1 ].y = ty;
+	points[ numPoints - 1 ].x = ROUND( tx );
+	points[ numPoints - 1 ].y = ROUND( ty );
 
 	// If this is a lightning strike, points between the first and last
 	// have to be (re-)generated.
@@ -316,26 +303,26 @@ void BEAM::makeLightningPath() {
 		double  stepping = FABSDISTANCE2( points[ 0 ].x, points[ 0 ].y, points[ maxP ].x, points[ maxP ].y ) / maxP;
 
 		for ( int32_t i = 1; i < maxP; ++i ) {
-			points[ i ].x =
+			points[ i ].x = ROUND(
 				x + ( xv * ( static_cast< double >( i ) * stepping ) )
 				+ ( perlin2DPoint( 1.0, 10. * radius, points[ i ].x + seed, points[ i ].y, 0.3, 6 ) * radius
-			            * 10. );
-			points[ i ].y =
+			            * 10. )
+			);
+			points[ i ].y = ROUND(
 				y + ( yv * ( static_cast< double >( i ) * stepping ) )
 				+ ( perlin2DPoint( 1.0, 10. * radius, points[ i ].x, points[ i ].y + seed, 0.3, 6 ) * radius
-			            * 10. );
+			            * 10. )
+			);
 		}
 	} // End of lightning preparation
 }
 
 /// @brief this method is used by the satellite to move the beam with itself.
 void BEAM::moveStart( double x_, double y_ ) {
-	x = x_;
-	y = y_;
-	if ( points ) {
-		points[ 0 ].x = x;
-		points[ 0 ].y = y;
-	}
+	x             = x_;
+	y             = y_;
+	points[ 0 ].x = ROUND( x );
+	points[ 0 ].y = ROUND( y );
 }
 
 /// @brief walk through the beam points and check whether anything is hit
@@ -350,7 +337,7 @@ void BEAM::traceBeamPath() {
 		double startY   = points[ i - 1 ].y;
 		double endX     = points[ i ].x;
 		double endY     = points[ i ].y;
-		bool   chkTanks = ( BT_SDI == beamType ) ? false : global.areTanksInBox( startX, startY, endX, endY );
+		bool   chkTanks = BT_SDI != beamType && global.areTanksInBox( startX, startY, endX, endY );
 		bool   chkDirt  = global.isDirtInBox( startX, startY, endX, endY );
 
 		// Break this if there is nothing possibly in between
@@ -363,7 +350,7 @@ void BEAM::traceBeamPath() {
 		double  absY   = std::abs( distY );
 		double  moveX  = distX / ( absX > absY ? absX : absY );
 		double  moveY  = distY / ( absY > absX ? absY : absX );
-		int32_t toMove = ROUND( std::max( absX, absY ) );
+		auto    toMove = ROUND( std::max( absX, absY ) );
 
 		// Now wander along the path:
 		while ( !hitSomething && ( range < toMove ) && ( startX > 0 ) && ( startX < ( env.screenWidth - 1 ) )
@@ -386,8 +373,8 @@ void BEAM::traceBeamPath() {
 						// 'Lock' the beam end on the tank:
 						if ( startY < ( lt->y + radius ) ) startY = lt->y + radius;
 						if ( startY > ( lt->y + ( 2 * radius ) ) ) startY = lt->y + ( 2 * radius );
-						if ( startX < ( lt->x - ( radius / 2 ) ) ) startX = lt->x - ( radius / 2 );
-						if ( startX > ( lt->x + ( radius / 2 ) ) ) startX = lt->x + ( radius / 2 );
+						if ( startX < ( lt->x - ( radius / 2. ) ) ) startX = lt->x - ( radius / 2. );
+						if ( startX > ( lt->x + ( radius / 2. ) ) ) startX = lt->x + ( radius / 2. );
 
 						// Get the in_rates
 						double in_rate_x, in_rate_y;
@@ -432,8 +419,8 @@ void BEAM::traceBeamPath() {
 			makeLightningPath();
 
 			// Note down x position for dirt slide on destruction:
-			if ( ( startX - radius - 1 ) < tgtLeftX ) tgtLeftX = startX - radius - 1;
-			if ( ( startX + radius + 1 ) > tgtRightX ) tgtRightX = startX + radius + 1;
+			if ( ( startX - radius - 1 ) < tgtLeftX ) tgtLeftX = ROUND( startX - radius - 1. );
+			if ( ( startX + radius + 1 ) > tgtRightX ) tgtRightX = ROUND( startX + radius + 1. );
 		} // End of checking pixels
 	}         // End of looping points
 }

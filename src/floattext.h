@@ -68,7 +68,7 @@ public:
 	void     set_sway_type( eTextSway sway_type );
 	void     set_text( const char* text_ );
 
-	eClasses getClass() { return CLASS_FLOATTEXT; }
+	eClass   getClass() { return CLASS_FLOATTEXT; }
 
 
 private:

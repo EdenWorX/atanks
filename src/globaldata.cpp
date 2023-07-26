@@ -63,7 +63,7 @@ void GLOBALDATA::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
 void GLOBALDATA::addObject( vobj_t* object ) {
 	if ( nullptr == object ) return;
 
-	eClasses class_ = object->getClass();
+	eClass class_ = object->getClass();
 
 	objLocks[ class_ ].lock();
 
@@ -142,7 +142,7 @@ void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* tar
 // return true if any living tank is in the given box.
 // left/right and top/bottom are determined automatically.
 bool GLOBALDATA::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
-	TANK* lt = static_cast< TANK* >( heads[ CLASS_TANK ] );
+	TANK* lt = dynamic_cast< TANK* >( heads[ CLASS_TANK ] );
 
 	while ( lt ) {
 		// Tank found, is it in the box?
@@ -151,6 +151,10 @@ bool GLOBALDATA::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 )
 	}
 
 	return false;
+}
+
+bool GLOBALDATA::areTanksInBox( double x1, double y1, double x2, double y2 ) {
+	return areTanksInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
 }
 
 // This function checks to see if one full second has passed since the
@@ -567,6 +571,10 @@ bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	return false;
 }
 
+bool GLOBALDATA::isDirtInBox( double x1, double y1, double x2, double y2 ) {
+	return isDirtInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
+}
+
 /// @return true if the close button was pressed
 bool GLOBALDATA::isCloseBtnPressed() {
 	cbpLock.lock();
@@ -731,7 +739,7 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 	}         // end of while not done
 }
 
-void GLOBALDATA::lockClass( eClasses class_ ) {
+void GLOBALDATA::lockClass( eClass class_ ) {
 	objLocks[ class_ ].lock();
 }
 
@@ -819,7 +827,7 @@ void GLOBALDATA::pressCloseButton() {
 void GLOBALDATA::removeObject( vobj_t* object ) {
 	if ( nullptr == object ) return;
 
-	eClasses class_ = object->getClass();
+	eClass class_ = object->getClass();
 
 	/// --- 1: Is the list empty? ---
 	if ( nullptr == heads[ class_ ] ) return;
@@ -1057,7 +1065,7 @@ void GLOBALDATA::slideLand() {
 	}         // End of looping columns
 }
 
-void GLOBALDATA::unlockClass( eClasses class_ ) {
+void GLOBALDATA::unlockClass( eClass class_ ) {
 	objLocks[ class_ ].unlock();
 }
 

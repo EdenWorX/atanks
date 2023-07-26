@@ -73,7 +73,7 @@ public:
 	int32_t  direction() const;
 	void     draw();
 
-	eClasses getClass() { return CLASS_MISSILE; }
+	eClass   getClass() { return CLASS_MISSILE; }
 
 	void     update_submun( ePhysType p_type, int32_t cnt_down );
 

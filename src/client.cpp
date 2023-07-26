@@ -609,7 +609,7 @@ int Game_Client( int socket_number ) {
 				continue;
 			}
 
-			global.getHeadOfClass( static_cast< eClasses >( class_ ), &my_object );
+			global.getHeadOfClass( static_cast< eClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->getNext( &next_obj );
 
@@ -648,7 +648,7 @@ int Game_Client( int socket_number ) {
 
 		class_        = 0;
 		while ( class_ < CLASS_COUNT ) {
-			global.getHeadOfClass( static_cast< eClasses >( class_ ), &my_object );
+			global.getHeadOfClass( static_cast< eClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->draw();
 				if ( CLASS_FLOATTEXT == class_ ) my_object->requireUpdate();
