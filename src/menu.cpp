@@ -787,7 +787,9 @@ int32_t Menu::operator() () {
 	 */
 	while ( -1 == key_code ) {
 		int32_t ms_unused = ms_per_frame - menu_ms_get();
-		if ( ms_unused > 0 ) MSLEEP( ms_unused )
+		if ( ms_unused > 0 ) {
+			MSLEEP( ms_unused );
+		}
 		redrawAll( true );
 
 		if ( global.isCloseBtnPressed() ) {

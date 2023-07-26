@@ -2883,7 +2883,7 @@ void AICore::showFeedback( char const* const feedback, int32_t col, double yv, e
 
 		auto y_pos = ROUND( y - ( 50. + ( get_rand() % 21 ) ) );
 		new FLOATTEXT( feedback, ROUND( x ), y_pos, .0, yv, col, CENTRE, text_sway, dur, false );
-		MSLEEP( ( dur / 10 ) + 1 )
+		MSLEEP( ( dur / 10 ) + 1 );
 	}
 }
 

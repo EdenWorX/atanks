@@ -446,7 +446,9 @@ bool           shop( LevelCreator* lvl_creator ) {
                                 lastMouse_b = mouse_b;
 
                                 // Sleep a bit if nothing happened
-                                if ( !done && !need_draw ) LINUX_SLEEP
+                                if ( !done && !need_draw ) {
+					LINUX_SLEEP;
+				}
                         } // End of input handling loop
 
                         // Update display if anything happened:
@@ -585,7 +587,7 @@ bool           shop( LevelCreator* lvl_creator ) {
 
         // Wait until the level creator is done
         while ( !lvl_creator->is_finished() ) {
-                MSLEEP( 20 )
+                MSLEEP( 20 );
                 if ( lvl_creator->has_progress() ) {
                         // Hide custom mouse pointer
                         SHOW_MOUSE( nullptr )

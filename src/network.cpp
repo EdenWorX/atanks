@@ -109,7 +109,7 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 	bool     found = false;
 
 	// search for matching to field
-	current        = first_message;
+	current = first_message;
 	while ( ( current ) && ( !found ) ) {
 		if ( current->to == my_to )
 			found = true;
@@ -395,7 +395,7 @@ void *Send_And_Receive( void *all_the_data ) {
 		}
 
 		// consider resting for a moment?
-		LINUX_SLEEP
+		LINUX_SLEEP;
 	}
 
 	// clean up everything

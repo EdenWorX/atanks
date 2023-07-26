@@ -127,11 +127,11 @@
 // Note: See winclock.h why this is necessary
 /// REMOVE_VS12_WORKAROUND
 #if defined( ATANKS_IS_MSVC ) && !defined( ATANKS_IS_AT_LEAST_MSVC13 )
-#  define USLEEP( microseconds_ ) Sleep( microseconds_ / 1000 );
-#  define MSLEEP( milliseconds_ ) Sleep( milliseconds_ );
+#  define USLEEP( microseconds_ ) Sleep( microseconds_ / 1000 )
+#  define MSLEEP( milliseconds_ ) Sleep( milliseconds_ )
 #else
-#  define USLEEP( microseconds_ ) std::this_thread::sleep_for( std::chrono::microseconds( microseconds_ ) );
-#  define MSLEEP( milliseconds_ ) std::this_thread::sleep_for( std::chrono::milliseconds( milliseconds_ ) );
+#  define USLEEP( microseconds_ ) std::this_thread::sleep_for( std::chrono::microseconds( microseconds_ ) )
+#  define MSLEEP( milliseconds_ ) std::this_thread::sleep_for( std::chrono::milliseconds( milliseconds_ ) )
 #endif // VS12 workaround
 #define LINUX_SLEEP MSLEEP( 10 )
 #define LINUX_REST  MSLEEP( 40 )

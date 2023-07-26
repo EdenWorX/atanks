@@ -636,7 +636,7 @@ static inline void check_fps( ObjectUpdater* upd ) {
 
 		// Sleep what is unused
 		if ( us_unused > 0 ) {
-			USLEEP( us_unused )
+			USLEEP( us_unused );
 		}
 
 		// Add what has been used until now:
