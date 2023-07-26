@@ -1,5 +1,5 @@
-#ifndef BUTTON_HEADER_
-#define BUTTON_HEADER_
+#ifndef ATANKS_SRC_BUTTON_H_INCLUDED
+#define ATANKS_SRC_BUTTON_H_INCLUDED 1
 
 #include "main.h"
 
@@ -14,11 +14,11 @@ public:
 	explicit BUTTON( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
 	// ctor for using a bitmap.
-	BUTTON( const char* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
+	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
 	);
 
 	// ctor for drawing a manual box.
-	BUTTON( const char* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 
 
 	/* ----------------------
@@ -27,10 +27,10 @@ public:
 	 */
 
 	void draw();
-	void getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h );
-	bool isMouseOver();
-	bool isPressed();
-	void setText( const char* text_ );
+	void getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
+	bool isMouseOver() const;
+	bool isPressed() const;
+	void setText( char const* text_ );
 
 private:
 	/* -----------------------
@@ -42,10 +42,9 @@ private:
 	BITMAP*     depressed = nullptr;
 	BITMAP*     hover     = nullptr;
 	BOX         location;               //!< is {0, 0, 0, 0} by default
-	const char* text       = nullptr;
-	bool        text_only  = false;     //!< If set to true, only the title is displayed.
-	int32_t     text_width = 0;         //!< must not be recalculated over and over again...
+	char const* text      = nullptr;
+	bool        text_only = false;      //!< If set to true, only the title is displayed.
 	int32_t     x1, y1, x2, y2, x3, y3; //!< Shortcuts, as those stay fixed.
 };
 
-#endif
+#endif // ATANKS_SRC_BUTTON_H_INCLUDED

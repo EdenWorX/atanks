@@ -1,9 +1,9 @@
 /*
-This file contains funcions for the BUTTON class. These
+This file contains functions for the BUTTON class. These
 are being moved out of the atanks.cc file.
 -- Jesse
 
-Updated to be more variable and self managing
+Updated to be more variable and self-managing
 -- Sven
 */
 
@@ -46,16 +46,15 @@ BUTTON::BUTTON( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMA
  *
  * Note: if @a click_ is nullptr, global_->sounds[8] is used.
  */
-BUTTON::BUTTON( const char* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ )
+BUTTON::BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ )
 	: BUTTON( left_, top_, bmp_, hover_, depressed_ ) {
-	text_only  = text_only_;
-	text       = text_;
-	text_width = text ? text_length( font, text ) : 0;
+	text_only = text_only_;
+	text      = text_;
 }
 
 /** @brief Create a button with manual drawing
  */
-BUTTON::BUTTON( const char* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ )
+BUTTON::BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ )
 	: BUTTON( text_, text_only_, left_, top_, nullptr, nullptr, nullptr ) {
 	location.w = width_;
 	location.h = height_;
@@ -70,9 +69,9 @@ void BUTTON::draw() {
 	bool pressed    = isPressed();
 
 	if ( !text_only ) {
-		if ( bmp )
+		if ( bmp ) {
 			draw_sprite( global.canvas, mouse_over ? ( pressed ? depressed : hover ) : bmp, x1, y1 );
-		else {
+		} else {
 			int32_t fg = mouse_over ? ( pressed ? SILVER : GREY ) : WHITE;
 			int32_t lc = mouse_over ? ( pressed ? GREY : WHITE ) : SILVER;
 			int32_t dc = mouse_over ? ( pressed ? WHITE : SILVER ) : GREY;
@@ -91,25 +90,28 @@ void BUTTON::draw() {
 		}
 	}
 
-	if ( text )
+	if ( text ) {
 		textout_centre_ex( global.canvas, font, text, x3, y3 - ( text_height( font ) / 2 ), text_only ? BLACK : WHITE, -1 );
+	}
 
 	global.make_update( x1 - 5, y1 - 5, x2 + 5, y2 + 5 );
 }
 
-void BUTTON::getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) {
+void BUTTON::getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const {
 	x = location.x;
 	y = location.y;
 	w = location.w;
 	h = location.h;
 }
 
-bool BUTTON::isMouseOver() {
-	if ( ( mouse_x >= x1 ) && ( mouse_y >= y1 ) && ( mouse_x <= x2 ) && ( mouse_y <= y2 ) ) return true;
+bool BUTTON::isMouseOver() const {
+	if ( ( mouse_x >= x1 ) && ( mouse_y >= y1 ) && ( mouse_x <= x2 ) && ( mouse_y <= y2 ) ) {
+		return true;
+	}
 	return false;
 }
 
-bool BUTTON::isPressed() {
+bool BUTTON::isPressed() const {
 	if ( ( mouse_b & 3 ) && isMouseOver() ) {
 		play_interface_sound( SND_INTE_BUTTON_CLICK );
 		return true;
@@ -117,6 +119,6 @@ bool BUTTON::isPressed() {
 	return false;
 }
 
-void BUTTON::setText( const char* text_ ) {
+void BUTTON::setText( char const* text_ ) {
 	text = text_;
 }
