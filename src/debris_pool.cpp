@@ -13,23 +13,32 @@ sDebrisItem::sDebrisItem( int32_t diameter_, sDebrisItem* next_ ) : idx( ( diame
 	if ( bmp && next ) {
 		prev       = next->prev;
 		next->prev = this;
-		if ( prev ) prev->next = this;
+		if ( prev ) {
+			prev->next = this;
+		}
 	}
 
 	if ( bmp ) {
 		clear_to_color( bmp, PINK );
-	} else
+	} else {
 		// unusable...
 		delete this;
+	}
 }
 
 /// @brief take this out of the list and free bmp data
 sDebrisItem::~sDebrisItem() {
-	if ( bmp ) destroy_bitmap( bmp );
+	if ( bmp ) {
+		destroy_bitmap( bmp );
+	}
 	bmp = nullptr;
 
-	if ( prev ) prev->next = next;
-	if ( next ) next->prev = prev;
+	if ( prev ) {
+		prev->next = next;
+	}
+	if ( next ) {
+		next->prev = prev;
+	}
 	prev = nullptr;
 	next = nullptr;
 }
@@ -38,20 +47,16 @@ sDebrisItem::~sDebrisItem() {
 sDebrisPool::sDebrisPool( int32_t limit_ )
 	: limit( limit_ * 5 ) // The limit is per debris size
 {
-	DEBUG_LOG_OBJ( "Debris Pool", "Pool created with limit %d", limit );
-
-	// memset initialization, Visual C++ 2013 can not do array initialization
-	memset( avail, 0, sizeof( int32_t ) * 5 );
-	memset( counts, 0, sizeof( int32_t ) * 5 );
-	memset( heads, 0, sizeof( item_t* ) * 5 );
-	memset( tails, 0, sizeof( item_t* ) * 5 );
+	DEBUG_LOG_OBJ( "Debris Pool", "Pool created with limit %d", limit )
 
 	// Pre-create a third of the possible pool elements now,
 	// so an evenly distributed base is given at any time.
 	int32_t max_items = limit / 3 / 5;
 
 	for ( int32_t r = 1; r < 6; ++r ) {
-		for ( int32_t i = 0; i < max_items; ++i ) create_item( r );
+		for ( int32_t i = 0; i < max_items; ++i ) {
+			create_item( r );
+		}
 	}
 }
 
@@ -79,42 +84,42 @@ sDebrisPool::~sDebrisPool() {
 
 /// @brief centralized creation, so it can be used by both the ctor and get_item()
 sDebrisItem* sDebrisPool::create_item( int32_t radius ) {
-	item_t* res = nullptr;
-
-	if ( count_all < limit ) {
-
-		int32_t idx = radius - 1;
-
-		res         = new sDebrisItem( radius * 2, heads[ idx ] );
-
-		if ( res ) {
-			// Insert item as new head
-			heads[ idx ] = res;
-			if ( nullptr == tails[ idx ] ) tails[ idx ] = res;
-
-			// Count the item
-			++count_all;
-			++counts[ idx ];
-			++avail[ idx ];
-			DEBUG_LOG_OBJ( "Debris", "New maximum number: %d", count_all )
-		}
+	if ( count_all >= limit ) {
+		return nullptr; // Sorry, we're booked.
 	}
+
+	int32_t idx = radius - 1;
+	auto*   res = new sDebrisItem( radius * 2, heads[ idx ] );
+
+	// Insert item as new head
+	heads[ idx ] = res;
+	if ( nullptr == tails[ idx ] ) {
+		tails[ idx ] = res;
+	}
+
+	// Count the item
+	++count_all;
+	++counts[ idx ];
+	++avail[ idx ];
+	DEBUG_LOG_OBJ( "Debris", "New maximum number: %d", count_all )
 
 	return res;
 }
 
-/** @brief mark one item as unused.
+/** @brief mark one itm as unused.
  * Do not do this yourself, although it is a struct.
  * The pool needs to keep track of how many items are available.
  **/
-void sDebrisPool::free_item( item_t* item ) {
-	if ( item && !item->is_free ) {
-		// Reset item to PINK
-		if ( item->bmp ) clear_to_color( item->bmp, PINK );
+void sDebrisPool::free_item( item_t* itm ) {
+	if ( itm && !itm->is_free ) {
+		// Reset itm to PINK
+		if ( itm->bmp ) {
+			clear_to_color( itm->bmp, PINK );
+		}
 
-		// Mark item as being free
-		item->is_free = true;
-		++avail[ item->idx ];
+		// Mark itm as being free
+		itm->is_free = true;
+		++avail[ itm->idx ];
 	}
 }
 
@@ -126,14 +131,18 @@ void sDebrisPool::free_item( item_t* item ) {
 sDebrisItem* sDebrisPool::get_item( int32_t radius ) {
 	assert( ( radius > 0 ) && ( radius < 6 ) && "ERROR: Only radius in the range [1;5] supported!" );
 
-	if ( ( radius < 1 ) || ( radius > 5 ) ) return nullptr;
+	if ( ( radius < 1 ) || ( radius > 5 ) ) {
+		return nullptr;
+	}
 
 	int32_t idx = radius - 1;
 
 	// See whether an item is available:
 	if ( avail[ idx ] ) {
 		item_t* curr = heads[ idx ];
-		while ( curr && !curr->is_free ) curr = curr->next;
+		while ( curr && !curr->is_free ) {
+			curr = curr->next;
+		}
 
 		assert( curr && "ERROR: avail[idx] is not 0, but no item available!" );
 
@@ -166,19 +175,26 @@ sDebrisItem* sDebrisPool::get_item( int32_t radius ) {
 		int32_t hasMaxIdx = 0;
 
 		for ( int32_t i = 0; i < 5; ++i ) {
-			if ( ( i != idx ) && avail[ i ] && ( ( counts[ i ] > counts[ hasMaxIdx ] ) || !avail[ hasMaxIdx ] ) )
+			if ( ( i != idx ) && avail[ i ] && ( ( counts[ i ] > counts[ hasMaxIdx ] ) || !avail[ hasMaxIdx ] ) ) {
 				hasMaxIdx = i;
+			}
 		}
 
 		if ( avail[ hasMaxIdx ] ) {
 			item_t* curr = heads[ hasMaxIdx ];
-			while ( curr && !curr->is_free ) curr = curr->next;
+			while ( curr && !curr->is_free ) {
+				curr = curr->next;
+			}
 
 			// If a free item is found, delete it!
 			if ( curr ) {
 				// fix head/tail if affected
-				if ( heads[ hasMaxIdx ] == curr ) heads[ hasMaxIdx ] = curr->next;
-				if ( tails[ hasMaxIdx ] == curr ) tails[ hasMaxIdx ] = curr->prev;
+				if ( heads[ hasMaxIdx ] == curr ) {
+					heads[ hasMaxIdx ] = curr->next;
+				}
+				if ( tails[ hasMaxIdx ] == curr ) {
+					tails[ hasMaxIdx ] = curr->prev;
+				}
 				delete curr;
 				--avail[ hasMaxIdx ];
 				--counts[ hasMaxIdx ];

@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
-#  define ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
+#define ATANKS_SRC_DEBRIS_POOL_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -22,7 +21,7 @@
  *
  */
 
-#  include "main.h"
+#include "main.h"
 
 /** @struct sDebrisItem
  * @brief represent one entry in the debris pool
@@ -50,18 +49,18 @@ struct sDebrisPool {
 	explicit sDebrisPool( int32_t limit_ );
 	~sDebrisPool();
 
-	void    free_item( item_t* item );
+	void    free_item( item_t* itm );
 	item_t* get_item( int32_t radius );
 
 private:
 	item_t* create_item( int32_t radius );
 
-	int32_t avail[ 5 ];    //!< How many items are available for which radius.
-	int32_t count_all = 0; //!< Sum of all created items.
-	int32_t counts[ 5 ];   //!< How many items are used for which radius.
-	int32_t limit = 0;     //!< The limit of the pool, set on pool creation.
-	item_t* heads[ 5 ];
-	item_t* tails[ 5 ];
+	int32_t avail[ 5 ]  = { 0x0 }; //!< How many items are available for which radius.
+	int32_t count_all   = 0;       //!< Sum of all created items.
+	int32_t counts[ 5 ] = { 0x0 }; //!< How many items are used for which radius.
+	int32_t limit       = 0;       //!< The limit of the pool, set on pool creation.
+	item_t* heads[ 5 ]  = { nullptr };
+	item_t* tails[ 5 ]  = { nullptr };
 };
 
 
