@@ -12,7 +12,7 @@ int32_t menu_ms_get();
 void    menu_ms_reset();
 
 /// REMOVE_VS12_WORKAROUND
-#  if defined( ATANKS_IS_MSVC ) && !defined( ATANKS_IS_AT_LEAST_MSVC13 )
+#  if defined( ATANKS_IS_WINDOWS ) && ( 0 == ATANKS_HAS_MSVC12_BUG )
 void win_clock_deinit();
 void win_clock_init();
 #    define WIN_CLOCK_INIT   win_clock_init();

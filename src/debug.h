@@ -7,14 +7,16 @@
 /********************************************************
  * Determine whether we build for BSD, Linux or Windows *
  *******************************************************/
+#  define ATANKS_HAS_MSVC12_BUG 0
 #  if defined( _WIN32 ) || defined( __WIN32__ )
 #    define ATANKS_IS_WINDOWS
 #    if defined( _MSC_VER )
 #      define ATANKS_IS_MSVC
 // See whether the chrono bug is fixed:
-#      if ( _MSC_VER >= 1900 )
-#	define ATANKS_IS_AT_LEAST_MSVC13
-#      endif // VS 2015
+#      if ( _MSC_VER < 1900 )
+#        undef ATANKS_HAS_MSVC12_BUG
+#        define ATANKS_HAS_MSVC12_BUG 1
+#      endif // Earlier than VS 2015
 #    endif   // _MSVC_VER
 #  endif     // Win 32
 
@@ -111,7 +113,7 @@
 	    }
 
 // declaration if debug_log
-void debug_log( const char* moduleName, const char* title, const char* message, ... );
+void debug_log( char const* moduleName, char const* title, char const* message, ... );
 
 
 #  else

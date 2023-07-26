@@ -5,8 +5,8 @@
 /// === Used clocks and time granularity ===
 using atanks_clock_t = std::chrono::steady_clock;
 
-#if defined( ATANKS_IS_MSVC ) && !defined( ATANKS_IS_AT_LEAST_MSVC13 )
-// Note: this is a bug in vc12, that is fixed in vc13.
+#if 1 == ATANKS_HAS_MSVC12_BUG
+// Note: this is a bug in vc12 (2013), that is fixed in vc13 (2015).
 // See: https://connect.microsoft.com/VisualStudio/feedback/details/858357/steady-clock-now-returning-the-wrong-type
 #  include "winclock.h"
 using time_point_t = std::chrono::time_point< std::chrono::system_clock >;
@@ -32,7 +32,8 @@ static time_point_t menu_ms_start = CLOCK_NOW;
 /// === Function implementations ===
 
 /// REMOVE_VS12_WORKAROUND
-#if !defined( ATANKS_IS_MSVC ) || defined( ATANKS_IS_AT_LEAST_MSVC13 )
+#if 0 == ATANKS_HAS_MSVC12_BUG
+// No else here, they are implemented in winclock.h !
 int32_t game_us_get() {
 	game_us_end     = CLOCK_NOW;
 	int32_t used_us = US_CAST( game_us_end - game_us_start );
@@ -56,4 +57,4 @@ void menu_ms_reset() {
 	menu_ms_end   = CLOCK_NOW;
 	menu_ms_start = menu_ms_end;
 }
-#endif // !ATANKS_IS_MSVC
+#endif // ATANKS_HAS_MSVC12_BUG

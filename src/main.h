@@ -126,7 +126,7 @@
 
 // Note: See winclock.h why this is necessary
 /// REMOVE_VS12_WORKAROUND
-#if defined( ATANKS_IS_MSVC ) && !defined( ATANKS_IS_AT_LEAST_MSVC13 )
+#if ATANKS_HAS_MSVC12_BUG
 #  define USLEEP( microseconds_ ) Sleep( microseconds_ / 1000 )
 #  define MSLEEP( milliseconds_ ) Sleep( milliseconds_ )
 #else
