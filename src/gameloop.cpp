@@ -1448,14 +1448,17 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 	if ( lcr->can_work() ) {
 		int32_t peak_height = env.screenHeight;
 		for ( int32_t z = 0; lcr->can_work() && ( z < env.screenWidth ); ++z ) {
-			if ( peak_height > global.surface[ z ].load() ) peak_height = global.surface[ z ].load( ATOMIC_READ );
+			auto local_height = ROUND( env.screenHeight - global.surface[ z ].load() );
+			if ( peak_height > local_height ) {
+				peak_height = local_height;
+			}
 		}
 
 		int32_t min_dist    = 128; // start with this colour distance wanted
 		int32_t max_tries   = 16;  // These many tries before lowering the distance
 		int32_t cur_try     = 1;
 		int32_t bottom      = env.screenHeight - MENUHEIGHT;
-		int32_t max_y       = std::min( env.screenHeight - peak_height, env.screenHeight - MENUHEIGHT );
+		int32_t max_y       = std::min( env.screenHeight - peak_height, bottom );
 		bool    has_colours = false;
 
 		while ( !has_colours && lcr->can_work() ) {
@@ -1564,7 +1567,7 @@ static inline void set_tank_settings() {
 			taken[ x ] = true;
 
 			int32_t tx = ( x + 1 ) * ( env.screenWidth / ( global.numTanks + 1 ) );
-			int32_t ty = env.screenHeight - global.surface[ tx ].load();
+			int32_t ty = global.surface[ tx ].load();
 
 			curr_tank->newRound( tx, ty );
 			curr_tank->getNext( &curr_tank );
