@@ -43,7 +43,7 @@ extern ENVIRONMENT env;
 // === Defined colours used everywhere ===
 extern int32_t BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE,
 	RED, SILVER, TURQUOISE, WHITE, YELLOW;
-
+#define EXTERNS_H_COLORS_DECLARED 1
 
 // === General values that are globally used ===
 extern char        buf[ 100 ];

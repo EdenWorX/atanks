@@ -61,8 +61,11 @@ class PLAYER;
 
 // Something from externs.h can not be used via include
 // due to circular dependencies.
+#ifndef EXTERNS_H_COLORS_DECLARED
 extern int32_t GREY;
 extern int32_t GREEN;
+#endif // EXTERNS_H_COLORS_DECLARED
+
 
 // Defined in sound.cpp:
 extern int32_t MAX_VOLUME_FACTOR;
@@ -96,35 +99,37 @@ public:
 	 * --- Public methods ---
 	 * ----------------------
 	 */
-	void         addGamePlayer( PLAYER* player_ );
-	PLAYER*      createNewPlayer( const char* player_name );
-	void         creditWinners( int32_t winner );
-	void         decreaseVolume();
-	void         deletePermPlayer( PLAYER* player_ );
-	void         destroy(); // Must be called before allegro shutdown
-	void         find_config_dir();
-	bool         find_data_dir();
-	void         first_init(); // Used for the first init after creation
-	void         genItemsList();
-	int32_t      getPlayerByName( const char* player_name );
-	void         increaseVolume();
-	int32_t      ingamemenu();
-	void         initialise(); // Does a regular initialization
-	bool         isItemAvailable( int32_t itemNum );
-	bool         loadBackgroundMusic();
-	bool         loadBitmaps();
-	bool         loadFonts();
-	bool         loadGameFiles();
-	void         load_from_file( FILE* file );
-	bool         loadSounds();
-	void         load_text_files();
-	void         newRound();
-	void         removeGamePlayer( PLAYER* player_ );
-	void         Reset_Options();
-	bool         save_to_file( FILE* file );
-	bool         sendToClients( const char* message ); // send a short message to all network clients
-	void         set_fps( int32_t new_FPS );
-	void         window_update( int32_t x, int32_t y, int32_t w, int32_t h );
+	void    addGamePlayer( PLAYER* player_ );
+	PLAYER* createNewPlayer( char const* player_name );
+	void    creditWinners( int32_t winner ) const;
+	void    decreaseVolume();
+	void    deletePermPlayer( PLAYER* player_ );
+	void    destroy(); // Must be called before allegro shutdown
+	void    find_config_dir();
+	bool    find_data_dir();
+	void    first_init(); // Used for the first init after creation
+	void    genItemsList();
+	int32_t getPlayerByName( char const* player_name ) const;
+	void    increaseVolume();
+	void    initialise(); // Does a regular initialization
+	bool    loadBackgroundMusic();
+	bool    loadBitmaps();
+	bool    loadFonts();
+	bool    loadGameFiles();
+	void    load_from_file( FILE* file );
+	bool    loadSounds();
+	void    load_text_files();
+	void    newRound();
+	void    removeGamePlayer( PLAYER* player_ );
+	void    Reset_Options();
+	bool    save_to_file( FILE* file );
+	bool    sendToClients( char const* message ) const; // send a short message to all network clients
+	void    set_fps( int32_t new_FPS );
+	void    window_update( int32_t x, int32_t y, int32_t w, int32_t h );
+
+	/* Special questioning getters */
+	[[nodiscard]] int32_t ingamemenu() const;
+	[[nodiscard]] bool    isItemAvailable( int32_t itemNum ) const;
 
 
 	/* ----------------------
@@ -200,11 +205,11 @@ public:
 	bool         osMouse                   = true; // whether we should use the OS or custom mouse
 	bool         play_music                = true;
 	PLAYER**     players                   = nullptr;
-	PLAYER*      playerOrder[ MAXPLAYERS ] = { 0x0 };
+	PLAYER*      playerOrder[ MAXPLAYERS ] = { nullptr };
 	uint32_t     rounds                    = 5;
 	int32_t      satellite                 = 0;
 	uint32_t     saved_gameindex           = 0;
-	const char** saved_game_list           = nullptr;
+	char const** saved_game_list           = nullptr;
 	uint32_t     saved_game_list_size      = 0;
 	int32_t      scoreHitUnit              = 75;
 	int32_t      scoreRoundWinBonus        = 10000;
@@ -249,15 +254,15 @@ public:
 	int32_t      windvariation = 1;
 
 	// Text structures holding (translated) lines of in game text
-	TEXTBLOCK*   gloat         = nullptr;
-	TEXTBLOCK*   ingame        = nullptr;
-	TEXTBLOCK*   instructions  = nullptr;
-	TEXTBLOCK*   panic         = nullptr;
-	TEXTBLOCK*   kamikaze      = nullptr;
-	TEXTBLOCK*   retaliation   = nullptr;
-	TEXTBLOCK*   revenge       = nullptr;
-	TEXTBLOCK*   suicide       = nullptr;
-	TEXTBLOCK*   war_quotes    = nullptr;
+	TEXTBLOCK* gloat        = nullptr;
+	TEXTBLOCK* ingame       = nullptr;
+	TEXTBLOCK* instructions = nullptr;
+	TEXTBLOCK* panic        = nullptr;
+	TEXTBLOCK* kamikaze     = nullptr;
+	TEXTBLOCK* retaliation  = nullptr;
+	TEXTBLOCK* revenge      = nullptr;
+	TEXTBLOCK* suicide      = nullptr;
+	TEXTBLOCK* war_quotes   = nullptr;
 
 
 private:

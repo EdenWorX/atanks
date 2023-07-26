@@ -178,8 +178,8 @@ using std::string;
 #define ABSDISTANCE2( x1, y1, x2, y2 )         ROUNDu( FABSDISTANCE2( x1, y1, x2, y2 ) )
 #define ABSDISTANCE3( x1, y1, z1, x2, y2, z2 ) ROUNDu( FABSDISTANCE3( x1, y1, z1, x2, y2, z2 ) )
 
-#define DEG2RAD( degree_ )                     ( static_cast< double >( degree_ ) * M_PIl / 180. )
-#define RAD2DEG( radian_ )                     ( static_cast< double >( radian_ ) * 180. / M_PIl )
+#define DEG2RAD( degree_ )                     static_cast< double >( degree_ * M_PIl / 180. )
+#define RAD2DEG( radian_ )                     static_cast< double >( radian_ * 180. / M_PIl )
 
 
 /** @brief show or hide the custom mouse cursor

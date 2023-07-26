@@ -21,12 +21,10 @@
 #include "environment.h"
 
 #include "files.h"
-#include "globaldata.h"
 #include "main.h"
 #include "missile.h"
 #include "player.h"
 #include "random.h"
-#include "sound.h"
 #include "tank.h"
 
 #include <cassert>
@@ -109,7 +107,7 @@ PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
 }
 
 /// @brief This function gives credits, score and money to the winner(s).
-void ENVIRONMENT::creditWinners( int32_t winner ) {
+void ENVIRONMENT::creditWinners( int32_t winner ) const {
 	if ( winner == WINNER_DRAW ) // no winner
 		return;
 
@@ -418,7 +416,7 @@ void ENVIRONMENT::genItemsList() {
 }
 
 /// @brief return the index of the player with @a player_name or -1 if not found
-int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) {
+int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) const {
 	int32_t result = -1;
 
 	assert( player_name && "ERROR: player_name is nullptr!" );
@@ -436,10 +434,10 @@ void ENVIRONMENT::increaseVolume() {
 	if ( volume_factor < MAX_VOLUME_FACTOR ) ++volume_factor;
 }
 
-int32_t ENVIRONMENT::ingamemenu() {
+int32_t ENVIRONMENT::ingamemenu() const {
 	int32_t     pressed   = -1;
 	bool        need_draw = true;
-	int32_t     button[ INGAMEBUTTONS ];
+	int32_t     btns[ INGAMEBUTTONS ];
 	bool        updatew[ INGAMEBUTTONS ];
 	char const* buttext[ INGAMEBUTTONS ] = {
 		ingame->Get_Line( 69 ),
@@ -475,11 +473,11 @@ int32_t ENVIRONMENT::ingamemenu() {
 
 	for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
 		updatew[ i ]  = false;
-		button[ i ]   = y;
+		btns[ i ]     = y;
 		y            += b_height + b_space;
 	}
 
-	SHOW_MOUSE( nullptr );
+	SHOW_MOUSE( nullptr )
 	k = 0;
 	K = 0;
 
@@ -510,8 +508,8 @@ int32_t ENVIRONMENT::ingamemenu() {
 		if ( mouse_b & 1 ) {
 			bool is_hit = false;
 			for ( int32_t i = 0; !is_hit && ( i < INGAMEBUTTONS ); ++i ) {
-				if ( ( mouse_x >= b_left ) && ( mouse_x < b_right ) && ( mouse_y >= ( button[ i ] + halfHeight ) )
-				     && ( mouse_y < ( button[ i ] + b_height + halfHeight ) ) ) {
+				if ( ( mouse_x >= b_left ) && ( mouse_x < b_right ) && ( mouse_y >= ( btns[ i ] + halfHeight ) )
+				     && ( mouse_y < ( btns[ i ] + b_height + halfHeight ) ) ) {
 
 					is_hit = true;
 
@@ -531,7 +529,7 @@ int32_t ENVIRONMENT::ingamemenu() {
 		for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
 			if ( updatew[ i ] ) {
 				updatew[ i ] = false;
-				global.make_update( b_left, halfHeight + button[ i ], b_width, b_height );
+				global.make_update( b_left, halfHeight + btns[ i ], b_width, b_height );
 			}
 		}
 
@@ -540,13 +538,13 @@ int32_t ENVIRONMENT::ingamemenu() {
 			SHOW_MOUSE( nullptr )
 
 			for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
-				draw_sprite( global.canvas, misc[ ( pressed == i ) ? 8 : 7 ], b_left, halfHeight + button[ i ] );
+				draw_sprite( global.canvas, misc[ ( pressed == i ) ? 8 : 7 ], b_left, halfHeight + btns[ i ] );
 				textout_centre_ex(
 					global.canvas,
 					font,
 					buttext[ i ],
 					halfWidth,
-					halfHeight + button[ i ] + 1,
+					halfHeight + btns[ i ] + 1,
 					WHITE,
 					-1
 				);
@@ -571,7 +569,7 @@ void ENVIRONMENT::initialise() {
 }
 
 /// @return true if the items tech level is not too high and if it is not a warhead.
-bool ENVIRONMENT::isItemAvailable( int32_t itemNum ) {
+bool ENVIRONMENT::isItemAvailable( int32_t itemNum ) const {
 	if ( itemNum < WEAPONS ) {
 		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].techLevel > weapontechLevel ) ) return false;
 	} else if ( item[ itemNum - WEAPONS ].techLevel > itemtechLevel )
@@ -585,9 +583,6 @@ file. The function returns TRUE on success and FALSE if
 any erors are encountered.
 -- Jesse
 */
-/// @todo : This should be changed to streams. It's C++ and we have formatted
-/// text files, so formatted input/output should be far more efficient in
-/// maintenance.
 void ENVIRONMENT::load_from_file( FILE* file ) {
 	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
 	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
@@ -607,7 +602,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 			rewind( file );
 			global.load_from_file( file );
 		}
-	} while ( strncmp( line, "*ENV*", 5 ) );
+	} while ( 0 != strncmp( line, "*ENV*", 5 ) );
 	// read until we hit new record
 
 	while ( ( result ) && ( !done ) ) {
@@ -616,19 +611,19 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 		result = fgets( line, MAX_CONFIG_LINE, file );
 
 		// if we hit end of the record, stop
-		if ( !strncmp( line, "***", 3 ) ) done = true;
+		if ( 0 == strncmp( line, "***", 3 ) ) done = true;
 
 		if ( result && !done ) {
 
 			// strip newline character
-			int32_t line_length = strlen( line );
+			size_t line_length = strlen( line );
 			while ( line[ line_length - 1 ] == '\n' ) {
 				line[ line_length - 1 ] = '\0';
 				line_length--;
 			}
 
 			// find equal sign
-			int32_t equal_position = 1;
+			size_t equal_position = 1;
 			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) equal_position++;
 
 			// make sure the equal sign position is valid
@@ -642,92 +637,88 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 
 			// check for fields and values
 			if ( !strcasecmp( field, "acceleratedai" ) ) {
-				sscanf( value, "%d", &skipComputerPlay );
+				skipComputerPlay = std::stoi( value );
 				if ( skipComputerPlay > SKIP_HUMANS_DEAD ) skipComputerPlay = SKIP_HUMANS_DEAD;
 			} else if ( !strcasecmp( field, "checkupdates" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
-				check_for_updates = val > 0;
+				check_for_updates = std::stoi( value ) > 0;
 			} else if ( !strcasecmp( field, "colourtheme" ) ) {
-				sscanf( value, "%d", &colourTheme );
+				colourTheme = std::stoi( value );
 				if ( colourTheme < CT_REGULAR ) colourTheme = CT_REGULAR;
 				if ( colourTheme > CT_CRISPY ) colourTheme = CT_CRISPY;
 			} else if ( !strcasecmp( field, "debrislevel" ) )
-				sscanf( value, "%d", &debris_level );
+				debris_level = std::stoi( value );
 			else if ( !strcasecmp( field, "detailedland" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val       = 0;
+				val               = std::stoi( value );
 				detailedLandscape = val > 0;
 			} else if ( !strcasecmp( field, "detailedsky" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				val         = std::stoi( value );
 				detailedSky = val > 0;
 			} else if ( !strcasecmp( field, "dither" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val     = 0;
+				val             = std::stoi( value );
 				ditherGradients = val > 0;
 			} else if ( !strcasecmp( field, "dividemoney" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val  = 0;
+				val          = std::stoi( value );
 				divide_money = val > 0;
 			} else if ( !strcasecmp( field, "doboxwrap" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				val         = std::stoi( value );
 				do_box_wrap = val > 0;
 			} else if ( !strcasecmp( field, "dynamicmenubg" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val   = 0;
+				val           = std::stoi( value );
 				dynamicMenuBg = val > 0;
 			} else if ( !strcasecmp( field, "frames" ) ) {
 				int32_t new_fps = 0;
-				sscanf( value, "%d", &new_fps );
+				new_fps         = std::stoi( value );
 				set_fps( new_fps );
 			} else if ( !strcasecmp( field, "fullscreen" ) )
-				sscanf( value, "%d", &full_screen );
+				full_screen = std::stoi( value );
 			else if ( !strcasecmp( field, "interest" ) )
-				sscanf( value, "%lf", &interest );
+				interest = std::stod( value );
 			else if ( !strcasecmp( field, "language" ) ) {
-				uint32_t stored_lang = 0;
-				sscanf( value, "%u", &stored_lang );
-				language = static_cast< eLanguages >( stored_lang );
+				language = static_cast< eLanguages >( std::stoul( value ) );
 			} else if ( !strcasecmp( field, "maxfiretime" ) )
-				sscanf( value, "%d", &maxFireTime );
+				maxFireTime = std::stoi( value );
 			else if ( !strcasecmp( field, "networking" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val     = 0;
+				val             = std::stoi( value );
 				network_enabled = val > 0;
 			} else if ( !strcasecmp( field, "networkport" ) )
-				sscanf( value, "%d", &network_port );
+				network_port = std::stoi( value );
 			else if ( !strcasecmp( field, "numpermanentplayers" ) )
-				sscanf( value, "%d", &numPermanentPlayers );
+				numPermanentPlayers = std::stoi( value );
 			else if ( !strcasecmp( field, "osmouse" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
-				osMouse = val > 0;
+				val         = std::stoi( value );
+				osMouse     = val > 0;
 			} else if ( !strcasecmp( field, "playmusic" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
-				play_music = val > 0;
+				val         = std::stoi( value );
+				play_music  = val > 0;
 			} else if ( !strcasecmp( field, "rounds" ) )
-				sscanf( value, "%u", &rounds );
+				rounds = std::stoul( value );
 			else if ( !strcasecmp( field, "scoreboard" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val           = 0;
+				val                   = std::stoi( value );
 				global.showScoreBoard = val > 0;
 			} else if ( !strcasecmp( field, "scorehitunit" ) )
-				sscanf( value, "%d", &scoreHitUnit );
+				scoreHitUnit = std::stoi( value );
 			else if ( !strcasecmp( field, "scoreroundwinbonus" ) )
-				sscanf( value, "%d", &scoreRoundWinBonus );
+				scoreRoundWinBonus = std::stoi( value );
 			else if ( !strcasecmp( field, "scoreselfhit" ) )
-				sscanf( value, "%d", &scoreSelfHit );
+				scoreSelfHit = std::stoi( value );
 			else if ( !strcasecmp( field, "scoreteamhit" ) )
-				sscanf( value, "%d", &scoreTeamHit );
+				scoreTeamHit = std::stoi( value );
 			else if ( !strcasecmp( field, "scoreunitdestroybonus" ) )
-				sscanf( value, "%d", &scoreUnitDestroyBonus );
+				scoreUnitDestroyBonus = std::stoi( value );
 			else if ( !strcasecmp( field, "scoreunitselfdestroy" ) )
-				sscanf( value, "%d", &scoreUnitSelfDestroy );
+				scoreUnitSelfDestroy = std::stoi( value );
 			else if ( !strcasecmp( field, "sellpercent" ) )
-				sscanf( value, "%lf", &sellpercent );
+				sellpercent = std::stod( value );
 #ifdef NETWORK
 			else if ( !strcasecmp( field, "servername" ) )
 				sscanf( value, "%*[']%[^']%*[']", server_name );
@@ -735,86 +726,86 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				sscanf( value, "%*[']%[^']%*[']", server_port );
 #endif // NETWORK
 			else if ( !strcasecmp( field, "showaifeedback" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val    = 0;
+				val            = std::stoi( value );
 				showAIFeedback = val > 0;
 			} else if ( !strcasecmp( field, "showfps" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
-				showFPS = val > 0;
+				val         = std::stoi( value );
+				showFPS     = val > 0;
 			} else if ( !strcasecmp( field, "soundenabled" ) ) {
-				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				int32_t val   = 0;
+				val           = std::stoi( value );
 				sound_enabled = val > 0;
 			} else if ( !strcasecmp( field, "sounddriver" ) )
-				sscanf( value, "%d", &sound_driver );
+				sound_driver = std::stoi( value );
 			else if ( !strcasecmp( field, "startmoney" ) )
-				sscanf( value, "%d", &startmoney );
+				startmoney = std::stoi( value );
 			else if ( !strcasecmp( field, "turntype" ) )
-				sscanf( value, "%d", &turntype );
+				turntype = std::stoi( value );
 			else if ( !strcasecmp( field, "violentdeath" ) )
-				sscanf( value, "%d", &violent_death );
+				violent_death = std::stoi( value );
 			else if ( !strcasecmp( field, "windstrength" ) )
-				sscanf( value, "%d", &windstrength );
+				windstrength = std::stoi( value );
 			else if ( !strcasecmp( field, "windvariation" ) )
-				sscanf( value, "%d", &windvariation );
+				windvariation = std::stoi( value );
 			else if ( !strcasecmp( field, "viscosity" ) ) {
-				sscanf( value, "%lf", &viscosity );
+				viscosity = std::stod( value );
 				if ( viscosity < 0.25 ) viscosity = 0.5;
 			} else if ( !strcasecmp( field, "gravity" ) ) {
-				sscanf( value, "%lf", &gravity );
+				gravity = std::stod( value );
 				if ( gravity < 0.025 ) gravity = 0.15;
 			} else if ( !strcasecmp( field, "techlevel" ) ) {
-				sscanf( value, "%d", &weapontechLevel );
-				itemtechLevel = weapontechLevel; // for backward compatibility
+				weapontechLevel = std::stoi( value );
+				itemtechLevel   = weapontechLevel; // for backward compatibility
 			} else if ( !strcasecmp( field, "weapontechlevel" ) )
-				sscanf( value, "%d", &weapontechLevel );
+				weapontechLevel = std::stoi( value );
 			else if ( !strcasecmp( field, "itemtechlevel" ) )
-				sscanf( value, "%d", &itemtechLevel );
+				itemtechLevel = std::stoi( value );
 			else if ( !strcasecmp( field, "meteors" ) )
-				sscanf( value, "%d", &meteors );
+				meteors = std::stoi( value );
 			else if ( !strcasecmp( field, "lightning" ) )
-				sscanf( value, "%d", &lightning );
+				lightning = std::stoi( value );
 			else if ( !strcasecmp( field, "satellite" ) )
-				sscanf( value, "%d", &satellite );
+				satellite = std::stoi( value );
 			else if ( !strcasecmp( field, "fog" ) )
-				sscanf( value, "%d", &fog );
+				fog = std::stoi( value );
 			else if ( !strcasecmp( field, "landtype" ) )
-				sscanf( value, "%d", &landType );
+				landType = std::stoi( value );
 			else if ( !strcasecmp( field, "landslidetype" ) )
-				sscanf( value, "%d", &landSlideType );
+				landSlideType = std::stoi( value );
 			else if ( !strcasecmp( field, "walltype" ) )
-				sscanf( value, "%d", &wallType );
+				wallType = std::stoi( value );
 			else if ( !strcasecmp( field, "boxmode" ) )
-				sscanf( value, "%d", &boxedMode );
+				boxedMode = std::stoi( value );
 			else if ( !strcasecmp( field, "textfade" ) ) {
 				int32_t res = 0;
-				sscanf( value, "%d", &res );
-				fadingText = res != 0;
+				res         = std::stoi( value );
+				fadingText  = res != 0;
 			} else if ( !strcasecmp( field, "textshadow" ) ) {
-				int32_t res = 0;
-				sscanf( value, "%d", &res );
+				int32_t res  = 0;
+				res          = std::stoi( value );
 				shadowedText = res != 0;
 			} else if ( !strcasecmp( field, "textsway" ) ) {
 				int32_t res = 0;
-				sscanf( value, "%d", &res );
+				res         = std::stoi( value );
 				swayingText = res != 0;
 			} else if ( !strcasecmp( field, "landslidedelay" ) )
-				sscanf( value, "%d", &landSlideDelay );
+				landSlideDelay = std::stoi( value );
 			else if ( !strcasecmp( field, "fallingdirtballs" ) ) {
-				sscanf( value, "%d", &falling_dirt_balls );
+				falling_dirt_balls = std::stoi( value );
 				if ( falling_dirt_balls < 0 ) falling_dirt_balls = 0;
 				if ( falling_dirt_balls > 3 ) falling_dirt_balls = 3;
 			} else if ( !strcasecmp( field, "custombackground" ) )
-				sscanf( value, "%d", &custom_background );
+				custom_background = std::stoi( value );
 			else if ( !strcasecmp( field, "volumefactor" ) )
-				sscanf( value, "%d", &volume_factor );
+				volume_factor = std::stoi( value );
 			else if ( !strcasecmp( field, "volleydelay" ) )
-				sscanf( value, "%d", &volley_delay );
+				volley_delay = std::stoi( value );
 			else if ( !strcasecmp( field, "screenwidth" ) )
-				sscanf( value, "%d", &screenWidth );
+				screenWidth = std::stoi( value );
 			else if ( !strcasecmp( field, "screenheight" ) )
-				sscanf( value, "%d", &screenHeight );
+				screenHeight = std::stoi( value );
 		} // end of read a line properly
 	}         // end of while not done
 
@@ -849,8 +840,6 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 	menuBeginY = ( screenHeight - 400 ) / 2;
 	if ( menuBeginY < 0 ) menuBeginY = 0;
 	menuEndY = screenHeight - menuBeginY;
-
-	return;
 }
 
 #define LOAD_TEXT_BLOCK( var, file )                                                   \
@@ -1287,7 +1276,7 @@ void ENVIRONMENT::newRound() {
 	}
 
 	// Init player array
-	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) playerOrder[ i ] = nullptr;
+	for ( auto& i : playerOrder ) i = nullptr;
 }
 
 void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
@@ -1344,7 +1333,7 @@ void ENVIRONMENT::Reset_Options() {
 	network_enabled       = false;
 	network_port          = DEFAULT_NETWORK_PORT;
 	osMouse               = true;
-	play_music            = 1.0;
+	play_music            = true;
 	satellite             = 0;
 	scoreHitUnit          = 75;
 	scoreRoundWinBonus    = 10000;
@@ -1456,24 +1445,25 @@ bool ENVIRONMENT::save_to_file( FILE* file ) {
 
 /// @brief This function sends a message to all connected game clients.
 /// @return true on success or false if the message could not be sent
-bool ENVIRONMENT::sendToClients( char const* message ) {
+bool ENVIRONMENT::sendToClients( char const* message ) const {
 	if ( !message ) return false;
 
 #ifdef NETWORK
-	int32_t written        = 0;
-	int32_t message_length = strlen( message );
+	ssize_t written        = 0;
+	size_t  message_length = strlen( message );
 
 	for ( int32_t index = 0; index < numGamePlayers; index++ ) {
 		if ( ( players[ index ] ) && ( players[ index ]->type == NETWORK_CLIENT ) ) {
 			written = write( players[ index ]->server_socket, message, message_length );
-			if ( written < message_length )
+			if ( written < static_cast< ssize_t >( message_length ) ) {
 				fprintf( stderr,
-				         "%s:%d: Warning: Only %d/%d bytes sent to player %d\n",
+				         "%s:%d: Warning: Only %zd/%zu bytes sent to player %d\n",
 				         __FILE__,
 				         __LINE__,
 				         written,
 				         message_length,
 				         index );
+			}
 		}
 	} // done all players
 #endif    // NETWORK
