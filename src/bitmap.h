@@ -3,18 +3,12 @@
 //
 // Created by sed on 24.07.23.
 //
-// Simple forwarder to allow proper sorting of include files
+// Simple forwarders to allow proper sorting of include files
 
 
 #ifndef ALLEGRO_GFX_H
-#  ifdef __cplusplus
-extern "C" {
-#  endif // C++
 struct BITMAP;
-#  ifdef __cplusplus
-}
-#  endif // C++
-#endif   // ALLEGRO_GFX_H
+#endif // ALLEGRO_GFX_H
 
 #ifndef MAIN_DEFINE
 struct gradient;
