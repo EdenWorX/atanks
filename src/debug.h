@@ -169,7 +169,7 @@ void debug_log( char const* moduleName, char const* title, char const* message, 
 #  else
 #    define DEBUG_LOG_PHY( ... ) \
 	    {}
-#  endif // ATANKS_DEBUG_OBJECTS
+#  endif // ATANKS_DEBUG_PHYSICS
 
 
 #endif // ATANKS_SRC_DEBUG_H_INCLUDED

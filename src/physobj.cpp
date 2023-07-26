@@ -21,7 +21,6 @@
 #include "physobj.h"
 
 #include "environment.h"
-#include "globaldata.h"
 #include "random.h"
 
 PHYSICAL_OBJECT::PHYSICAL_OBJECT( bool is_weapon ) : VIRTUAL_OBJECT(), isWeaponFire( is_weapon ) { /* nothing to do here */
@@ -33,7 +32,7 @@ void PHYSICAL_OBJECT::initialise() {
 }
 
 /// @brief return true if this object was fired from a player weapon
-bool PHYSICAL_OBJECT::isWeapon() {
+bool PHYSICAL_OBJECT::isWeapon() const {
 	return isWeaponFire;
 }
 
@@ -41,22 +40,6 @@ bool PHYSICAL_OBJECT::isWeapon() {
 void PHYSICAL_OBJECT::getVelocity( double &xv_, double &yv_ ) {
 	xv_ = xv;
 	yv_ = yv;
-}
-
-/// @brief check whether the object hit something and return true if it has
-/// Note: The objects x and y position is updated to the impact coordinates
-///       if it hit anything.
-bool PHYSICAL_OBJECT::checkPixelsBetweenPrevAndNow() {
-	double startX = x - xv;
-	double startY = y - yv;
-
-	if ( checkPixelsBetweenTwoPoints( &startX, &startY, x, y, mindDelay, &mindPassed ) ) {
-		x = startX;
-		y = startY;
-		return true;
-	}
-
-	return false;
 }
 
 /** @brief applyPhysics
@@ -70,13 +53,13 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	// Apply wind to x-movement
 	xv += ( global.wind - xv ) / mass * drag * env.viscosity;
 
-	// Apply gravity to y movement
+	// Apply gravity to y-movement
 	yv += env.gravity * env.FPS_mod;
 
 	// Barrier test:
 	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) yv *= -1.0;
 
-	bool isMoving = ( std::abs( xv ) + std::abs( yv ) ) < 0.01 ? false : true;
+	bool isMoving = ( std::abs( xv ) + std::abs( yv ) ) >= 0.01;
 
 	if ( !isMoving ) return; // early out
 
@@ -102,12 +85,9 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	// Special handling for Napalm Jellies if this is wrap or steel
 	// ceiling. They sort of 'glide off' of the ceiling instead of
 	// getting glued to it.
-	bool jelly =
-		( NAPALM_JELLY == weapType )
-				&& ( ( WALL_STEEL == env.current_wallType )
-	                             || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) )
-			? true
-			: false;
+	bool jelly = ( NAPALM_JELLY == weapType )
+	          && ( ( WALL_STEEL == env.current_wallType )
+	               || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) );
 
 	// Easiest way is a loop that traces the path step-wise
 	while ( isMoving && !hitSomething ) {
@@ -455,30 +435,31 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
  * a plane the vector @a xv / @a yv has an angle to and returns
  * appropriate reaction velocity values in @a rxv and @a ryv.
  **/
-void getDirtBounceReact( int32_t x, int32_t y, double xv, double yv, double &rxv, double &ryv ) {
+void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, double &ryv ) {
 	int32_t from_x = xv < 0. ? 1 : -1;
 	double  vel    = FABSDISTANCE2( xv, yv, 0., 0. );
 
 	// First find the heights around x/y:
 	int32_t y_map[ 5 ];
 	for ( int i = 0; i < 5; ++i ) {
-		int32_t xpos    = x + ( i - 2 );
-		int32_t min_y   = y - 2;
-		int32_t max_y   = y + 2;
-		int32_t start_y = std::max( min_y, MENUHEIGHT );
-		int32_t stop_y  = std::min( max_y + 1, env.screenHeight );
-		y_map[ i ]      = -1;
+		double xpos    = x + ( i - 2 );
+		double min_y   = y - 2;
+		double max_y   = y + 2;
+		double start_y = std::max( min_y, static_cast< double >( MENUHEIGHT ) );
+		double stop_y  = std::min( max_y + 1, static_cast< double >( env.screenHeight ) );
+		y_map[ i ]     = -1;
 
 		if ( ( xpos > 0 ) && ( xpos < env.screenWidth ) && ( min_y < env.screenHeight ) && ( max_y > MENUHEIGHT )
 		     && ( ( stop_y - start_y ) > 0 ) ) {
 			y_map[ i ] = 5;
 
 			for ( int32_t j = 4; ( j >= 0 ) && ( 5 == y_map[ i ] ); --j ) {
-				int32_t ypos = y + ( j - 2 );
+				double ypos = y + ( j - 2 );
 
 				if ( ( ypos < start_y ) || ( ypos >= stop_y )
-				     || ( PINK != getpixel( global.terrain, xpos, ypos ) ) )
+				     || ( PINK != getpixel( global.terrain, xpos, ypos ) ) ) {
 					y_map[ i ] = j;
+				}
 			}
 		}
 	} // End of generating height map.

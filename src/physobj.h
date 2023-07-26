@@ -1,5 +1,5 @@
 #ifndef PHYSOBJ_DEFINE
-#define PHYSOBJ_DEFINE
+#define PHYSOBJ_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -26,22 +26,20 @@
 // Switch sides (real angle!)
 #define FLIP_ANGLE( angle_ ) ( 180 + ( 180 - ( angle_ ) ) )
 
-// Get the direct angle without any checks
-#define GET_ANGLE( x, y )                                               \
-	( []( double a, double b ) -> int32_t {                         \
-		double result = RAD2DEG( std::atan2( a, b ) );          \
-		/* atan2 returns an angle with 180° up, 90° right */  \
-		/* and -90° left. But we need it from 90° right to */ \
-		/* 270° left counter-clockwise. */                     \
-		if ( result < 0 ) result += 360.;                       \
-		return ROUND( result );                                 \
+// Get the direct angle without any checks.
+// atan2() returns an angle with 180° up, 90° right and -90° left.
+// But we need it from 90° right to 270° left counter-clockwise.
+#define GET_ANGLE( x, y )                                      \
+	( []( double a, double b ) -> int32_t {                \
+		double result = RAD2DEG( std::atan2( a, b ) ); \
+		if ( result < 0 ) result += 360.;              \
+		return ROUND( result );                        \
 	}( static_cast< double >( x ), static_cast< double >( y ) ) )
 
 
-// Get the angle brought into the 90-270 degree range
-// To be usable more widely, this macro allows an additional
-// argument "m", which is the angle modifier (errors made
-// by the AI and such things)
+// Get the angle brought into the 90-270 degree range.
+// To be usable more widely, this macro allows an additional argument m, which is the angle modifier
+// (errors made by the AI and such things)
 #define GET_SAFE_ANGLE( x, y, m )                                  \
 	( []( double a, double b, double c ) -> int32_t {          \
 		double result = RAD2DEG( std::atan2( a, b ) ) + c; \
@@ -63,6 +61,7 @@ public:
 	 * -----------------------------------
 	 */
 	explicit PHYSICAL_OBJECT( bool is_weapon );
+
 	// No explicit dtor needed
 
 	/* ----------------------
@@ -70,9 +69,12 @@ public:
 	 * ----------------------
 	 */
 
-	virtual void draw() _PURE;
-	void         getVelocity( double &xv_, double &yv_ );
-	bool         isWeapon();
+	void inline draw() override { VIRTUAL_OBJECT::draw(); };
+
+	void getVelocity( double &xv_, double &yv_ );
+
+	/* Status Getters */
+	[[nodiscard]] bool isWeapon() const;
 
 
 	/* ----------------------
@@ -80,10 +82,10 @@ public:
 	 * ----------------------
 	 */
 
-	bool         allowDirtyWrap = true; //!< Whether ceiling wrap is allowed into dirt bottom
-	double       drag           = 0.;
-	bool         hitSomething   = false;
-	int32_t      weapType       = 0;
+	bool    allowDirtyWrap = true; //!< Whether ceiling wrap is allowed into dirt bottom
+	double  drag           = 0.;
+	bool    hitSomething   = false;
+	int32_t weapType       = 0;
 
 protected:
 	/* -------------------------
@@ -91,9 +93,8 @@ protected:
 	 * -------------------------
 	 */
 
-	void    applyPhysics();
-	bool    checkPixelsBetweenPrevAndNow();
-	void    initialise();
+	void applyPhysics() override;
+	void initialise() override;
 
 
 	/* -------------------------
@@ -101,19 +102,19 @@ protected:
 	 * -------------------------
 	 */
 
-	int32_t bounces      = 0;     //!< Bounces off walls, floor and ceiling
+	int32_t bounces      = 0; //!< Bounces off walls, floor and ceiling
 	bool    isWeaponFire = true;
 	bool    lacerated    = false; //!< Set to true if the velocity check fails.
 	double  mass         = 0.;
-	double  maxVel       = 0.;    //!< maximum Velocity
-	double  mindDelay    = 0.;    //!< for mind shots to travel through dirt if delayed
-	double  mindPassed   = 0.;    //!< Counts the amount of dirt a delayed shot already passed through
+	double  maxVel       = 0.; //!< maximum Velocity
+	double  mindDelay    = 0.; //!< for mind shots to travel through dirt if delayed
+	double  mindPassed   = 0.; //!< Counts the amount of dirt a delayed shot already passed through
 	bool    noimpact     = false;
 	int32_t spin         = 0;
 };
 
 /// global helper methods:
 bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed );
-void getDirtBounceReact( int32_t x, int32_t y, double xv, double yv, double &rxv, double &ryv );
+void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, double &ryv );
 
-#endif
+#endif // PHYSOBJ_DEFINE

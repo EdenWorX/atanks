@@ -55,13 +55,17 @@ values (sorry, it's the best I could explain it).  i is the distance,
 expressed as a percentage of the wave length, ie 0<=i<=1 .
 *****************************************************************************/
 double interpolate( double x1, double x2, double i ) {
-	if ( std::isnan( x1 ) || std::isnan( x2 ) ) return 0.0;
+	if ( std::isnan( x1 ) || std::isnan( x2 ) ) {
+		return 0.0;
+	}
 
 	double ft     = i * M_PI;
 	double f      = ( 1 - cos( ft ) ) * 0.5;
 	double result = ( x1 * ( 1 - f ) + ( x2 * f ) );
 
-	if ( std::isnan( result ) ) return ( x1 * ( 1 - i ) + ( x2 * i ) ); /* fall back to linear interpolation */
+	if ( std::isnan( result ) ) {
+		return ( x1 * ( 1 - i ) + ( x2 * i ) ); /* fall back to linear interpolation */
+	}
 	return result;
 }
 
