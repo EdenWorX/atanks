@@ -39,14 +39,14 @@
 #include <string>
 using std::string;
 
-#define HELP_REQUESTED     -100
+#define HELP_REQUESTED     ( -100 )
 #define SWITCH_HELP        "-h"
 #define SWITCH_FULL_SCREEN "-fs"
 #define SWITCH_WINDOWED    "--windowed"
-#define SWITCH_NOSOUND     "--nosound"
-#define SWITCH_DATADIR     "--datadir"
-#define SWITCH_CONFIGDIR   "-c"
-#define SWITCH_NO_CONFIG   "--noconfig"
+// #define SWITCH_NOSOUND     "--nosound"
+// #define SWITCH_DATADIR     "--datadir"
+// #define SWITCH_CONFIGDIR   "-c"
+// #define SWITCH_NO_CONFIG   "--noconfig"
 
 
 /*****************************
@@ -74,7 +74,7 @@ extern ITEM   item[ ITEMS ];        // from files.cpp
 *** static local functions ***
 *****************************/
 static void        Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech );
-static void        close_button_handler( void );
+static void        close_button_handler();
 static void        createConfig();
 static void        credits();
 static char const* do_winner();
@@ -101,7 +101,6 @@ static void        title();
 *** external functions     ***
 *****************************/
 void draw_simple_bg( bool drawImage ); // from shop.cpp
-void quickChange( bool clearerror );   // from shop.cpp
 
 /*******************************
 *** Function implementations ***
@@ -117,7 +116,7 @@ static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtec
 	if ( old_sound != env.sound_enabled ) {
 		if ( env.sound_enabled ) {
 			if ( detect_digi_driver( DIGI_AUTODETECT ) ) {
-				if ( install_sound( DIGI_AUTODETECT, MIDI_NONE, NULL ) < 0 )
+				if ( install_sound( DIGI_AUTODETECT, MIDI_NONE, nullptr ) < 0 )
 					fprintf( stderr, "install_sound: failed turning on sound\n" );
 			} else
 				fprintf( stderr, "detect_digi_driver found no sound device\n" );
@@ -134,7 +133,7 @@ static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtec
  * This function catches the close command, usually given by the user pressing
  * the close window button. We'll try to clean-up.
  **/
-static void close_button_handler( void ) {
+static void close_button_handler() {
 	global.pressCloseButton();
 }
 
@@ -200,8 +199,8 @@ static void createConfig() {
 		"Caesar", "Alex", "Hatshepsut", "Patton", "Napoleon", "Attila", "Catherine", "Hannibal", "Stalin", "Mao"
 	};
 
-	for ( int32_t i = 0; i < 10; ++i ) {
-		tempPlayer       = env.createNewPlayer( defaultNames[ i ] );
+	for ( auto defaultName : defaultNames ) {
+		tempPlayer       = env.createNewPlayer( defaultName );
 		tempPlayer->type = static_cast< playerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
 		tempPlayer->generatePreferences();
 	}
@@ -477,7 +476,9 @@ static void init_game_settings() {
 
 	// Be sure no vsync is used:
 	char const* no_vsync = get_config_string( "graphics", "disable_vsync", "no" );
-	if ( strcasecmp( "yes", no_vsync ) ) set_config_string( "graphics", "disable_vsync", "yes" );
+	if ( 0 != strcasecmp( "yes", no_vsync ) ) {
+		set_config_string( "graphics", "disable_vsync", "yes" );
+	}
 
 	set_window_title( "Atomic Tanks V" VERSION );
 
@@ -493,7 +494,7 @@ static void init_game_settings() {
 	}
 
 	// check for X pressed on the window bar
-	LOCK_FUNCTION( close_button_handler );
+	LOCK_FUNCTION( close_button_handler )
 	set_close_button_callback( close_button_handler );
 
 	// Ensure sane colour depth
@@ -525,7 +526,7 @@ static void init_game_settings() {
 		set_display_switch_mode( SWITCH_BACKAMNESIA );
 	else
 		set_display_switch_mode( SWITCH_BACKGROUND );
-#endif // ATANKS_IS_WINDOWS
+#endif // ATANKS_IS_MSVC
 
 	if ( install_keyboard() < 0 ) {
 		perror( "install_keyboard failed" );
@@ -739,12 +740,16 @@ static bool loadPlayers( FILE* file ) {
 			player_new->index            = pl_count;
 			env.allPlayers[ pl_count++ ] = player_new;
 			if ( pl_count == max_pl ) {
-				max_pl         += 5;
-				env.allPlayers  = (PLAYER**)realloc( env.allPlayers, sizeof( PLAYER* ) * max_pl );
+				max_pl               += 5;
+				auto new_player_list  = (PLAYER**)realloc( env.allPlayers, sizeof( PLAYER* ) * max_pl );
+				if ( new_player_list ) {
+					env.allPlayers = new_player_list;
+				}
 				for ( int32_t i = pl_count; i < max_pl; ++i ) env.allPlayers[ i ] = nullptr;
 			}
-		} else if ( player_new )
+		} else {
 			delete player_new;
+		}
 	} // end of while status
 
 	env.numPermanentPlayers = pl_count;
@@ -981,7 +986,9 @@ static int32_t menu() {
 			}
 
 			// Sleep a bit if nothing happened
-			if ( !done && !need_draw ) LINUX_SLEEP
+			if ( !done && !need_draw ) {
+				LINUX_SLEEP;
+			}
 		} // End of while not needing to draw
 
 
@@ -1065,7 +1072,7 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 		} else if ( ( arg == "-d" ) || ( arg == "--depth" ) ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
-				int32_t     val = strtol( next_arg.c_str(), nullptr, 10 );
+				int32_t     val = std::stoi( next_arg );
 
 				if ( ( 16 == val ) || ( 32 == val ) )
 					env.colourDepth = val;
@@ -1079,7 +1086,7 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 		} else if ( ( arg == "-w" ) || ( arg == "--width" ) ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
-				int32_t     val = strtol( next_arg.c_str(), nullptr, 10 );
+				int32_t     val = std::stoi( next_arg );
 
 				if ( 512 <= val ) {
 					env.screenWidth      = val;
@@ -1094,7 +1101,7 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 		} else if ( ( arg == "-t" ) || ( arg == "--tall" ) || ( arg == "--height" ) ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
-				int32_t     val = strtol( next_arg.c_str(), nullptr, 10 );
+				int32_t     val = stoi( next_arg );
 
 				if ( 320 <= val ) {
 					env.screenHeight      = val;
@@ -1160,9 +1167,9 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 }
 
 static void play_demo() {
-	int32_t old_skip    = env.skipComputerPlay;
-	int32_t old_rounds  = env.rounds;
-	bool    old_music   = env.play_music;
+	int32_t  old_skip   = env.skipComputerPlay;
+	uint32_t old_rounds = env.rounds;
+	bool     old_music  = env.play_music;
 
 	global.demo_mode    = true;
 	env.loadGame        = false;
@@ -1180,12 +1187,10 @@ static void play_demo() {
 	env.skipComputerPlay = SKIP_NONE;
 
 	// set up a bunch of players (non-human, less than 10)
-	int32_t playerCount = 0;
-	env.numGamePlayers  = 0;
+	env.numGamePlayers = 0;
 	for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
 		if ( ( env.allPlayers[ i ]->type > HUMAN_PLAYER ) && ( i < MAXPLAYERS ) ) {
 			env.addGamePlayer( env.allPlayers[ i ] );
-			playerCount++;
 		}
 	}
 
@@ -1196,7 +1201,7 @@ static void play_demo() {
 
 		// give them money to spend:
 		env.players[ i ]->money +=
-			static_cast< int32_t >( env.players[ i ]->type ) * 25000 * ( env.rounds - global.currentround );
+			static_cast< int32_t >( env.players[ i ]->type * 25000 * ( env.rounds - global.currentround ) );
 	}
 
 	while ( ( global.currentround > 0 ) && ( !global.isCloseBtnPressed() ) ) {
@@ -1395,9 +1400,8 @@ int32_t main( int32_t argc, char** argv ) {
 	// Set the game version global
 #ifdef VERSION
 	{
-		double this_version = 0.;
-		sscanf( VERSION, "%lf", &this_version );
-		game_version = static_cast< int32_t >( this_version * 10 );
+		double this_version = strtod( VERSION, nullptr );
+		game_version        = static_cast< int32_t >( this_version * 10 );
 	}
 #endif // VERSION
 
@@ -1514,7 +1518,7 @@ int32_t main( int32_t argc, char** argv ) {
 
 	allegro_exit();
 
-	cout << "See http://atanks.sourceforge.net for the latest news and downloads." << endl;
+	cout << "See https://atanks.sourceforge.io for the latest news and downloads." << endl;
 
 	return result;
 }
