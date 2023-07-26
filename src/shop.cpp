@@ -747,7 +747,7 @@ void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
 			if ( weapon[ i ].damage > 0 ) numDmgWeaps += player->nm[ i ] / weapon[ i ].getDelayDiv();
 		}
 
-		// Try to chose something to buy if enough money is there or either
+		// Try to choose something to buy if enough money is there or either
 		// the number of parachutes or damage dealing weapons is too low.
 		if ( ( player->money > moneyToSave ) || ( ( numPara < ai_level ) && ( env.landSlideType > SLIDE_NONE ) )
 		     || ( numDmgWeaps < ( ai_level * 2 ) ) )

@@ -2493,7 +2493,16 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 	// Check whether boosting armour / amps is wanted:
 	if ( getBoostValue() < ( max_boost / ai_level ) ) {
 		// Yes. which ?
-		if ( defensive < 0. ) {
+		double amp_val = getAmpValue();
+		double arm_val = getArmourValue();
+
+		// Amplifier rating for offensive bot: 3:1, and for defensive bot: 3:5
+		double amp_want = defensive < 0 ? arm_val - ( amp_val / 3. ) : ( arm_val / 5. ) - ( amp_val / 3. );
+
+		// Armour rating for offensive bot: 3:5, and for defensive bot: 3:1
+		double arm_want = defensive < 0 ? ( amp_val / 5. ) - ( arm_val / 3. ) : amp_val - ( arm_val / 3. );
+
+		if ( amp_want > arm_want ) {
 			DEBUG_LOG_FIN( name, "updPref: Need to boost amps    (%d / %d)", getBoostValue(), max_boost / ai_level )
 			needAmp = true; // Try to come back with more damage output
 		} else {
