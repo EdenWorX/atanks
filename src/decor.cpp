@@ -4,7 +4,6 @@
 #include "sound.h"
 #include "tank.h"
 
-#include <cassert>
 
 /// @brief Default constructor
 DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ )
@@ -43,10 +42,11 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 	} else if ( DECOR_SMOKE == type ) {
 		int32_t tempCol = 128 + ( get_rand() % 64 );
 
-		if ( maxRadius <= 3 )
+		if ( maxRadius <= 3 ) {
 			radius = 3;
-		else
+		} else {
 			radius = 3 + ( get_rand() % ( maxRadius - 2 ) );
+		}
 
 		color = makecol( tempCol, tempCol, tempCol );
 		mass  = 1.0 + ( static_cast< double >( get_rand() % 5 ) / 10. );
@@ -62,8 +62,9 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 
 		// Smoke does not need the dirt grabber
 		ready = true;
-	} else
+	} else {
 		destroy = true;
+	}
 
 	maxVel = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
@@ -91,9 +92,10 @@ DECOR::DECOR(
 	// global graphics and must not be destroyed.
 	meteor = met_item;
 
-	if ( ( nullptr == dirt ) || !hasBitmap() )
+	if ( ( nullptr == dirt ) || !hasBitmap() ) {
 		// Can't work without...
 		destroy = true;
+	}
 }
 
 /// @brief default destructor
@@ -117,11 +119,12 @@ DECOR::~DECOR() {
 	// Update the last drawing area
 	int32_t calcRadius = radius;
 
-	if ( DECOR_DIRT == type )
+	if ( DECOR_DIRT == type ) {
 		++calcRadius;
-	else if ( DECOR_SMOKE == type )
+	} else if ( DECOR_SMOKE == type ) {
 		// The older, the larger...
 		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
+	}
 
 	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
 	requireUpdate();
@@ -133,7 +136,9 @@ DECOR::~DECOR() {
 
 /// @brief let smoke drift and disperse with the wind
 void DECOR::applyPhysics() {
-	if ( destroy ) return;
+	if ( destroy ) {
+		return;
+	}
 
 	if ( delay > 0 ) {
 		--delay;
@@ -156,8 +161,9 @@ void DECOR::applyPhysics() {
 			// fix y:
 			int32_t dirt_bottom = y + dirt->bmp->h;
 			if ( ( ( y - radius ) > MENUHEIGHT ) && ( dirt_bottom < env.screenHeight )
-			     && ( PINK != getpixel( global.terrain, x, dirt_bottom ) ) )
+			     && ( PINK != getpixel( global.terrain, x, dirt_bottom ) ) ) {
 				--y;
+			}
 
 			xv      = 0.;
 			yv      = 0.;
@@ -173,17 +179,26 @@ void DECOR::applyPhysics() {
 
 			// Be sure x/y values are sane (Can drift into walls
 			// on rare wind conditions.)
-			if ( x < 2 ) x = 2;
-			if ( x > ( env.screenWidth - 2 ) ) x = env.screenWidth - 2;
-			if ( y > ( env.screenHeight - 2 ) ) y = env.screenHeight - 2;
+			if ( x < 2 ) {
+				x = 2;
+			}
+			if ( x > ( env.screenWidth - 2 ) ) {
+				x = env.screenWidth - 2;
+			}
+			if ( y > ( env.screenHeight - 2 ) ) {
+				y = env.screenHeight - 2;
+			}
 
 			// Maybe play a sound on bounce
-			if ( !global.skippingComputerPlay && ( old_yv > .5 ) && ( yv < -0.1 ) )
-				play_natural_sound( DIRT_FRAGMENT, x, radius * 32, 1200 - ( radius * 50 ) );
+			if ( !global.skippingComputerPlay && ( old_yv > .5 ) && ( yv < -0.1 ) ) {
+				play_natural_sound( DIRT_FRAGMENT, ROUND( x ), radius * 16, 1200 - ( radius * 50 ) );
+			}
 		}
 
 		// raise age if movement is below 0.5
-		if ( ( on_floor || ( FABSDISTANCE2( xv, yv, 0, 0 ) < .5 ) ) && ( ++age > maxAge ) ) destroy = true;
+		if ( ( on_floor || ( FABSDISTANCE2( xv, yv, 0, 0 ) < .5 ) ) && ( ++age > maxAge ) ) {
+			destroy = true;
+		}
 
 	} else if ( DECOR_SMOKE == type ) {
 		// Apply wind first
@@ -212,8 +227,12 @@ void DECOR::applyPhysics() {
 
 		// Be sure that neither xv outruns wind nor yv is
 		// higher than reverse gravity
-		if ( std::abs( xv ) > std::abs( curWind ) ) xv = curWind;
-		if ( yv < maxGravAccel ) yv = maxGravAccel;
+		if ( std::abs( xv ) > std::abs( curWind ) ) {
+			xv = curWind;
+		}
+		if ( yv < maxGravAccel ) {
+			yv = maxGravAccel;
+		}
 
 		// Don't push through the floor
 		if ( ( y + yv ) >= env.screenHeight ) {
@@ -222,10 +241,13 @@ void DECOR::applyPhysics() {
 		}
 
 		// The faster the smoke is blown by the wind, the less it rises:
-		if ( ( yv < -1. ) && ( std::abs( xv ) > 1. ) ) yv = ( yv + ( yv / std::abs( xv ) ) ) / 2.;
+		if ( ( yv < -1. ) && ( std::abs( xv ) > 1. ) ) {
+			yv = ( yv + ( yv / std::abs( xv ) ) ) / 2.;
+		}
 		// and if the smoke is going down, halve yv
-		else if ( yv > 0. )
+		else if ( yv > 0. ) {
 			yv /= 2.;
+		}
 
 		// Now the velocity can be applied.
 		x += xv;
@@ -235,8 +257,9 @@ void DECOR::applyPhysics() {
 		int32_t calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
 
 		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screenWidth + calcRadius ) )
-		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > maxAge ) )
+		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > maxAge ) ) {
 			destroy = true;
+		}
 	}
 }
 
@@ -246,13 +269,16 @@ void DECOR::draw() {
 		updateDirt();
 		if ( ready ) {
 			// finished! See whether there are enough pixels
-			if ( gotPixels <= radius )
+			if ( gotPixels <= radius ) {
 				// nope.
 				destroy = true;
+			}
 		}
 	}
 
-	if ( destroy || ( delay > 0 ) ) return;
+	if ( destroy || ( delay > 0 ) ) {
+		return;
+	}
 
 	int32_t calcRadius = radius;
 
@@ -261,8 +287,12 @@ void DECOR::draw() {
 		angle += yv + ( ( SIGNd( xv ) * 5. ) - xv );
 
 		// Be sure the angle is in order:
-		if ( angle < 0 ) angle += 360;
-		if ( angle > 360 ) angle -= 360;
+		if ( angle < 0 ) {
+			angle += 360;
+		}
+		if ( angle > 360 ) {
+			angle -= 360;
+		}
 
 		// And draw it:
 		if ( y > MENUHEIGHT ) {
@@ -287,35 +317,42 @@ void DECOR::draw() {
 /// In case of too much decor for the machine, allow forced ageing
 void DECOR::force_aging( int32_t frames ) {
 	age += frames;
-	if ( age > maxAge ) destroy = true;
+	if ( age > maxAge ) {
+		destroy = true;
+	}
 }
 
 /// return true if a dirt debris item "lies" on the floor, or is squeezed in a
 /// dirt slide.
 bool DECOR::isOnFloor() {
-	int32_t scr_r = env.screenWidth - 2;  // shortcut;
-	int32_t scr_b = env.screenHeight - 2; // ditto;
+	int32_t scr_r_x = env.screenWidth - 2;  // shortcut;
+	int32_t scr_b_y = env.screenHeight - 2; // ditto;
 
 	// If the debris is above the screen or directly on the floor,
 	// return at once:
-	if ( y <= MENUHEIGHT ) return false;
-	if ( y >= ( scr_b - radius ) ) return true;
+	if ( y <= MENUHEIGHT ) {
+		return false;
+	}
+	if ( y >= ( scr_b_y - radius ) ) {
+		return true;
+	}
 
 	// Use safe values:
-	int32_t round_x = ROUND( x );
-	int32_t round_y = ROUND( y );
+	auto round_x = ROUND( x );
+	auto round_y = ROUND( y );
 
 	// sanitize x value:
-	if ( round_x < 1 )
+	if ( round_x < 1 ) {
 		round_x = 1;
-	else if ( round_x > scr_r )
-		round_x = scr_r;
+	} else if ( round_x > scr_r_x ) {
+		round_x = scr_r_x;
+	}
 
 	// rounded boundaries, clipped to the screen:
 	int32_t left   = std::max( 1, round_x - radius );
 	int32_t top    = std::max( MENUHEIGHT, round_y - radius );
-	int32_t right  = std::min( scr_r, round_x + radius );
-	int32_t bottom = std::min( scr_b, round_y + radius );
+	int32_t right  = std::min( scr_r_x, round_x + radius );
+	int32_t bottom = std::min( scr_b_y, round_y + radius );
 
 	// Go from left to right and check whether the surface is above the bottom.
 	int32_t surf_hits = 0;
@@ -327,10 +364,14 @@ bool DECOR::isOnFloor() {
 			bool in_dirt = false;
 
 			for ( int32_t j = bottom; !in_dirt && ( j >= top ); --j ) {
-				if ( PINK != getpixel( global.terrain, i, j ) ) in_dirt = true;
+				if ( PINK != getpixel( global.terrain, i, j ) ) {
+					in_dirt = true;
+				}
 			}
 
-			if ( in_dirt && ( ++surf_hits >= radius ) ) on_floor = true;
+			if ( in_dirt && ( ++surf_hits >= radius ) ) {
+				on_floor = true;
+			}
 		}
 	}
 
@@ -370,7 +411,9 @@ void DECOR::updateDirt() {
 
 			// If this is a meteor and the terrain had no pixel
 			// there, take one out of the rock instead.
-			if ( ( PINK == tcol ) && meteor ) tcol = getpixel( meteor->bmp, grab_x, grab_y );
+			if ( ( PINK == tcol ) && meteor ) {
+				tcol = getpixel( meteor->bmp, grab_x, grab_y );
+			}
 
 			// If this is valid, scorch the colour and put it back.
 			if ( PINK != tcol ) {
@@ -383,9 +426,10 @@ void DECOR::updateDirt() {
 			}
 		} // End of position in range
 
-		else
+		else {
 			// If the position is not in range, erase the surplus pixel
 			putpixel( dirt->bmp, grab_x, grab_y, PINK );
+		}
 
 		// This point is done
 		--togo;

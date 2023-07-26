@@ -1,5 +1,5 @@
 #ifndef DECOR_DEFINE
-#define DECOR_DEFINE
+#define DECOR_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -84,22 +84,22 @@ private:
 	 * -----------------------------------
 	 */
 
-	int32_t             color        = BLACK;
-	double              curWind      = 0.;      //!< shortcut to help physics calculations.
-	int32_t             delay        = -1;      //!< How long until debris must be on its way.
-	int32_t             diameter     = 10;      //!< Pre-calculated shortcut for debris items.
-	item_t*             dirt         = nullptr; //!< The debris item to throw around if not smoke.
-	int32_t             gotPixels    = 0;       //!< Helper for phased debris creation.
-	int32_t             grab_x       = 0;       //!< Helper for phased debris creation.
-	int32_t             grab_y       = 0;       //!< Helper for phased debris creation.
-	int32_t             grabPerCall  = 0;       //!< Helper for phased debris creation.
-	double              maxGravAccel = 1.;      //!< Pre-calculated physics helper.
-	double              maxWind      = 8;       //!< env.windstrength cast to double.
-	double              maxWindAccel = 1.;      //!< Pre-calculated physics helper.
-	item_t*             meteor       = nullptr; //!< Metor data if not enough dirt was found, but a meteor stroke.
-	int32_t             radius       = 5;
-	bool                ready        = false;   //!< Whether a debris item is finished or not.
-	int32_t             type         = DECOR_SMOKE;
+	int32_t color        = BLACK;
+	double  curWind      = 0.;      //!< shortcut to help physics calculations.
+	int32_t delay        = -1;      //!< How long until debris must be on its way.
+	int32_t diameter     = 10;      //!< Pre-calculated shortcut for debris items.
+	item_t* dirt         = nullptr; //!< The debris item to throw around if not smoke.
+	int32_t gotPixels    = 0;       //!< Helper for phased debris creation.
+	int32_t grab_x       = 0;       //!< Helper for phased debris creation.
+	int32_t grab_y       = 0;       //!< Helper for phased debris creation.
+	int32_t grabPerCall  = 0;       //!< Helper for phased debris creation.
+	double  maxGravAccel = 1.;      //!< Pre-calculated physics helper.
+	double  maxWind      = 8;       //!< env.windstrength cast to double.
+	double  maxWindAccel = 1.;      //!< Pre-calculated physics helper.
+	item_t* meteor       = nullptr; //!< Metor data if not enough dirt was found, but a meteor stroke.
+	int32_t radius       = 5;
+	bool    ready        = false; //!< Whether a debris item is finished or not.
+	int32_t type         = DECOR_SMOKE;
 };
 
-#endif
+#endif // DECOR_DEFINE
