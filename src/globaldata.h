@@ -33,7 +33,7 @@
 #    include <dirent.h>
 #  endif // Linux
 #  define HAS_DIRENT 1
-#endif   // HAS_DIRENT
+#endif // HAS_DIRENT
 
 
 #ifdef USE_MUTEX_INSTEAD_OF_SPINLOCK
@@ -47,7 +47,10 @@
 #include "text.h"
 
 
+#ifndef EXTERNS_H_COLORS_DECLARED
 extern int32_t BLACK;
+#  define GLOBADATA_BLACK_DECLARED 1
+#endif // EXTERNS_H_COLORS_DECLARED
 
 
 /// Forwards that do not need to be known here
@@ -110,19 +113,19 @@ public:
 	 * --- Public methods ---
 	 * ----------------------
 	 */
-	void    addLandSlide( int32_t left, int32_t right, bool do_lock );
-	void    addLandSlide( double left, double right, bool do_lock) {
-		addLandSlide( ROUND(left), ROUND(right), do_lock);
-	}
-	void    addObject( vobj_t* object );
-	bool    areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
-	bool    areTanksInBox( double x1, double y1, double x2, double y2 );
-	bool    check_time_changed(); // check to see if one second has passed
-	void    clear_objects();
-	void    destroy();
-	void    do_updates();
-	void    first_init();
-	void    free_debris_item( item_t* item );
+	void addLandSlide( int32_t left, int32_t right, bool do_lock );
+
+	void addLandSlide( double left, double right, bool do_lock ) { addLandSlide( ROUND( left ), ROUND( right ), do_lock ); }
+
+	void addObject( vobj_t* object );
+	bool areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
+	bool areTanksInBox( double x1, double y1, double x2, double y2 );
+	bool check_time_changed(); // check to see if one second has passed
+	void clear_objects();
+	void destroy();
+	void do_updates();
+	void first_init();
+	void free_debris_item( item_t* item );
 	int32_t get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv );
 	int32_t get_command();
 	TANK*   get_curr_tank();
