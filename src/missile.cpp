@@ -556,8 +556,8 @@ void MISSILE::draw() {
 /// @brief little helper struct to fire SDI lasers in a fairer way
 struct sSDI {
 	int32_t am    = 0;
-	double  dist  = 0.;   // Distance used for sorting
-	double  lvl   = 0.;   // AI level, human players are counted as deadly.
+	double  dist  = 0.; // Distance used for sorting
+	double  lvl   = 0.; // AI level, human players are counted as deadly.
 	sSDI*   next  = nullptr;
 	double  range = 100.; // The more SDI, the further the shot
 	TANK*   tank  = nullptr;
@@ -663,7 +663,7 @@ void MISSILE::Check_SDI() {
 			} // end of in range
 		}         // End of having SDI
 		lt->getNext( &lt );
-	}                 // End of looping tanks
+	} // End of looping tanks
 
 	// Move through the sorted list of SDI stations and see whether anybody
 	// can shoot this one down.
@@ -702,26 +702,41 @@ void MISSILE::Check_SDI() {
 
 			// If the missile is destroyed, check whether the explosion would
 			// a) hit this tank,
-			// b) be nearer than the missile is now and
-			// c) will not kill the tank if shot down.
+			// b) be nearer than the missile is now, and
+			// c) will not kill the tank if shot down, and
+			// d) will not be repulsed.
 			// If so, shoot it down!
 			bool will_hit = false;
 			if ( mind_shot.destroy ) {
+				lt            = pSDI->tank;
 				int32_t x_rad = DRILLER == weapType ? weap->radius / 20 : weap->radius;
 				int32_t y_rad =
 					( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) ? weap->radius / 20 : weap->radius;
+				double tank_rad = lt->getDiameter() / 2.;
 
 				if ( ( std::abs( x_dist ) <= x_rad )             // tank in x range
 				     && ( std::abs( y_dist ) <= y_rad )          // tank in y range
 				     && ( ( std::abs( x - pSDI->x ) > x_rad )    // misses x radius now
 				          || ( std::abs( y - pSDI->y ) > y_rad ) // misses y radius now
-				                                                 // Is now farther away than when it goes off:
-				          || ( ABSDISTANCE2( x, y, pSDI->tank->x, pSDI->tank->y )
-				               >= ABSDISTANCE2( mind_shot.x, mind_shot.y, pSDI->tank->x, pSDI->tank->y ) ) ) ) {
+				                                                 // Is farther away than when it goes off:
+				          || ( ABSDISTANCE2( x, y, lt->x, lt->y )
+				               >= ABSDISTANCE2( mind_shot.x, mind_shot.y, lt->x, lt->y ) ) )
+				     // Not a direct hit with repulsors up while not being buried.
+				     && !( lt->isInBox(
+						   mind_shot.x - tank_rad,
+						   mind_shot.y - tank_rad,
+						   mind_shot.x + tank_rad,
+						   mind_shot.y + tank_rad
+					   )
+				           && lt->hasRepulsorActivated() && ( BURIED_LEVEL > lt->howBuried( nullptr, nullptr ) )
+				     ) ) {
 
 					// The point looks promising, but is it worth it?
-					double dmg = get_hit_damage( pSDI->tank, static_cast< weaponType >( weapType ), x, y );
-					if ( dmg < ( pSDI->tank->sh + pSDI->tank->l ) ) will_hit = true;
+					double dmg =
+						get_hit_damage( lt, static_cast< weaponType >( weapType ), ROUND( x ), ROUND( y ) );
+					if ( dmg < ( lt->sh + lt->l ) ) {
+						will_hit = true;
+					}
 				}
 			}
 
@@ -1028,8 +1043,8 @@ void MISSILE::triggerTest() {
 				// if the next pixel at the bottom is dirt.
 				if ( env.isBoxed && ( startY <= MENUHEIGHT ) // Base condition
 				     && ( ( ( WALL_WRAP == env.current_wallType )
-				            && ( !env.do_box_wrap            // <- No wrap makes it steel
-				                                             // \/ dirt makes the ceiling unwrapable
+				            && ( !env.do_box_wrap // <- No wrap makes it steel
+				                                  // \/ dirt makes the ceiling unwrapable
 				                 || ( global.surface[ ROUND( x ) ].load( ATOMIC_READ ) < env.screenHeight ) ) )
 				          || ( WALL_STEEL == env.current_wallType ) ) ) { // This always blasts
 					ceiling_crash = true;
