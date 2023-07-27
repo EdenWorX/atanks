@@ -107,8 +107,8 @@ IndentExternBlock: NoIndent
 IndentGotoLabels: false
 IndentPPDirectives: AfterHash
 PPIndentWidth: 2
-IndentRequires: true  # Name in clang-format 12, 13 and 14
-# IndentRequiresClause:       true  # Since clang-format 15
+IndentRequires:             true  # Name in clang-format 12, 13 and 14
+IndentRequiresClause:       true  # Since clang-format 15
 IndentWrappedFunctionNames: true
 
 # InsertBraces: true          # Needs clang-format version 15
@@ -191,11 +191,11 @@ SpacesInLineCommentPrefix:
 SpacesInParentheses: true
 SpacesInSquareBrackets: true
 
-ForEachMacros: [ 'RANGES_FOR', 'FOREACH' ]
-IfMacros: [ 'PDF_TRY','PDF_CATCH' ]
-MacroBlockBegin: '^\s*PDF_TRY'
-MacroBlockEnd: '^\s*PDF_CATCH'
-# Macros:                       (List of Strings)   # Needs clang-format version 17
-StatementAttributeLikeMacros: [ 'emit','_alloc_','_hidden_','_malloc_','_public_','_unlikely_' ]
-StatementMacros: [ 'Q_UNUSED','DECLARATIONS_BEGIN','DECLARATIONS_END','PDF_CATCH_AND_FINISH','PDF_CATCH_AND_LOG','PDF_CATCH_AND_RETURN','PDF_CATCH_AND_FAIL' ]
-TypenameMacros: [ 'STACK_OF', 'LIST' ]
+# ForEachMacros:                 (List of Strings)
+# IfMacros:                      (List of Strings)
+# MacroBlockBegin:               (List of Strings)
+# MacroBlockEnd:                 (List of Strings)
+# Macros:                        (List of Strings)   # Needs clang-format version 17
+# StatementAttributeLikeMacros:  (List of Strings)
+# StatementMacros:               (List of Strings)
+# TypenameMacros:                (List of Strings)

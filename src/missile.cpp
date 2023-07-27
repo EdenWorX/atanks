@@ -733,7 +733,7 @@ void MISSILE::Check_SDI() {
 
 					// The point looks promising, but is it worth it?
 					double dmg =
-						get_hit_damage( lt, static_cast< weaponType >( weapType ), ROUND( x ), ROUND( y ) );
+						get_hit_damage( lt, static_cast< weaponType >( weapType ), x, y );
 					if ( dmg < ( lt->sh + lt->l ) ) {
 						will_hit = true;
 					}

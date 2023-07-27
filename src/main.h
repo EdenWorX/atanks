@@ -105,7 +105,7 @@
 #    include <dirent.h>
 #  endif // Linux
 #  define HAS_DIRENT 1
-#endif   // HAS_DIRENT
+#endif // HAS_DIRENT
 
 
 // Some more workarounds to compile using visual studio:
@@ -239,16 +239,16 @@ using std::string;
 #define INGAMEBUTTONS 4
 #define SPREAD        10
 #define NAME_LEN      24
-#if 0                          /// REMOVEME: Nowhere used
+#if 0 /// REMOVEME: Nowhere used
 #  define ADDRESS_LENGTH 16
-#endif                         // 0
+#endif // 0
 
 #define WAIT_AT_END_OF_ROUND 1 // second (enough with the new live score board)
 
 #define MAX_ITEM_NAME_LEN    127
 #define MAX_ITEM_DESC_LEN    511
 #define MAX_ITEMS_IN_STOCK   999999
-#if 0  /// REMOVEME: Nowhere used
+#if 0 /// REMOVEME: Nowhere used
 #  define MAX_MONEY_IN_WALLET 1000000000
 #endif // 0
 
@@ -510,7 +510,7 @@ enum itemType {
 	ITEM_SDI                 = 23  // 79 (Last item)
 };
 
-#if 0  /// REMOVEME: Nowhere used
+#if 0 /// REMOVEME: Nowhere used
 #  define SHIELD_COUNT 6
 #endif // 0
 
@@ -559,24 +559,42 @@ double perlin2DPoint( double amplitude, double scale, double xo, double yo, doub
 void   quickChange( bool clearerror );
 
 /// === Helpful wrappers and overrides ===
-[[maybe_unused]] static void circlefill( BITMAP* bmp, double x, double y, double radius, int color ) {
+[[maybe_unused]] static inline void circle( BITMAP* bmp, double x, double y, int radius, int color ) {
+	circle( bmp, ROUND( x ), ROUND( y ), radius, color );
+}
+
+[[maybe_unused]] static inline void circlefill( BITMAP* bmp, double x, double y, double radius, int color ) {
 	return circlefill( bmp, ROUND( x ), ROUND( y ), ROUND( radius ), color );
 }
 
-[[maybe_unused]] static void circlefill( BITMAP* bmp, double x, double y, int32_t radius, int color ) {
+[[maybe_unused]] static inline void circlefill( BITMAP* bmp, double x, double y, int32_t radius, int color ) {
 	return circlefill( bmp, ROUND( x ), ROUND( y ), radius, color );
 }
 
-[[maybe_unused]] static int getpixel( BITMAP* bmp, double x, double y ) {
+[[maybe_unused]] static inline void ellipsefill( BITMAP* bmp, double x, double y, int32_t rx, int32_t ry, int color ) {
+	ellipsefill( bmp, ROUND( x ), ROUND( y ), rx, ry, color );
+}
+
+[[maybe_unused]] static inline int getpixel( BITMAP* bmp, double x, double y ) {
 	return getpixel( bmp, ROUND( x ), ROUND( y ) );
 }
 
-[[maybe_unused]] static int getpixel( BITMAP* bmp, int32_t x, double y ) {
+[[maybe_unused]] static inline int getpixel( BITMAP* bmp, int32_t x, double y ) {
 	return getpixel( bmp, x, ROUND( y ) );
 }
 
-[[maybe_unused]] static int getpixel( BITMAP* bmp, double x, int32_t y ) {
+[[maybe_unused]] static inline int getpixel( BITMAP* bmp, double x, int32_t y ) {
 	return getpixel( bmp, ROUND( x ), y );
+}
+
+[[maybe_unused]] static inline void
+	rotate_scaled_sprite( BITMAP* bmp, BITMAP* sprite, double x, double y, fixed angle, fixed scale ) {
+	rotate_scaled_sprite( bmp, sprite, ROUND( x ), ROUND( y ), angle, scale );
+}
+
+[[maybe_unused]] static inline void
+	triangle( BITMAP* bmp, double x1, double y_1, double x2, double y2, double x3, double y3, int color ) {
+	triangle( bmp, ROUND( x1 ), ROUND( y_1 ), ROUND( x2 ), ROUND( y2 ), ROUND( x3 ), ROUND( y3 ), color );
 }
 
 #include "externs.h"

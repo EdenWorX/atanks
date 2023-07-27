@@ -130,7 +130,7 @@ void sGfxData::first_init() {
 			ellipsefill( flameFront[ i ], 300, 15, y, y / 20, flame_col );
 		}
 		if ( ROUND( flmDisperse ) > 0 ) {
-			ellipsefill( flameFront[ i ], 300, 15, ROUND( flmDisperse ), ROUND( flmSize / 16. ), PINK );
+			ellipsefill( flameFront[ i ], 300, 15, flmDisperse, flmSize / 16., PINK );
 		}
 	}
 

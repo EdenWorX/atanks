@@ -4,8 +4,8 @@
 
 FLOATTEXT::FLOATTEXT(
 	char const* text_,
-	int32_t     xpos,
-	int32_t     ypos,
+	double     xpos,
+	double     ypos,
 	double      xv_,
 	double      yv_,
 	int32_t     color_,
@@ -18,8 +18,8 @@ FLOATTEXT::FLOATTEXT(
 	, color( color_ )
 	, is_fixed( is_fixed_ )
 	, is_pushed( !is_fixed )
-	, pos_x( xpos )
-	, pos_y( ypos ) {
+	, pos_x( ROUND(xpos) )
+	, pos_y( ROUND(ypos) ) {
 	int32_t sky_col = TURQUOISE;
 	if ( ( pos_x > -1 ) && ( pos_y > MENUHEIGHT ) && ( pos_x < env.screenWidth ) && ( pos_y < env.screenWidth ) ) {
 		sky_col = getpixel( env.sky, pos_x, pos_y - MENUHEIGHT );

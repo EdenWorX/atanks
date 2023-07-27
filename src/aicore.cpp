@@ -2882,7 +2882,7 @@ void AICore::showFeedback( char const* const feedback, int32_t col, double yv, e
 		while ( !textAllowed.load( ATOMIC_READ ) ) std::this_thread::yield();
 
 		auto y_pos = ROUND( y - ( 50. + ( get_rand() % 21 ) ) );
-		new FLOATTEXT( feedback, ROUND( x ), y_pos, .0, yv, col, CENTRE, text_sway, dur, false );
+		new FLOATTEXT( feedback, x, y_pos, .0, yv, col, CENTRE, text_sway, dur, false );
 		MSLEEP( ( dur / 10 ) + 1 );
 	}
 }
@@ -4945,8 +4945,8 @@ void AICore::operator() () {
 							// Now create the instance
 							new FLOATTEXT(
 								text,
-								ROUND( x ),
-								ROUND( y ) - 30,
+								x,
+								y - 30.,
 								.0,
 								-.4,
 								player->color,
@@ -5280,8 +5280,8 @@ void AICore::operator() () {
 					// Now create the instance
 					new FLOATTEXT(
 						text,
-						ROUND( x ),
-						ROUND( y - 30. ),
+						x,
+						y - 30.,
 						.0,
 						-.4,
 						player->color,
@@ -5309,8 +5309,8 @@ void AICore::operator() () {
 				// Now create it
 				new FLOATTEXT(
 					player->selectKamikazePhrase(),
-					ROUND( x ),
-					ROUND( y ) - 30,
+					x,
+					y - 30,
 					.0,
 					-.4,
 					player->color,

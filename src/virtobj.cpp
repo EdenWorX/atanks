@@ -30,24 +30,24 @@ VIRTUAL_OBJECT::~VIRTUAL_OBJECT() {
 	bitmap = nullptr;
 }
 
-void VIRTUAL_OBJECT::addUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height ) {
-	if ( left < dim_cur.x ) dim_cur.x = left;
-	if ( top < dim_cur.y ) dim_cur.y = top;
+void VIRTUAL_OBJECT::addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+	if ( left_ < dim_cur.x ) dim_cur.x = left_;
+	if ( top_ < dim_cur.y ) dim_cur.y = top_;
 	/* This is prone to the following error:
-	   If left is greater than dim_cur.x but the width is
-	   smaller than dim_cur.w, (left + width) can
+	   If left_ is greater than dim_cur.x but the width_ is
+	   smaller than dim_cur.w, (left_ + width_) can
 	   nevertheless end up right of (dim_cur.x + dim_cur.w).
-	   Setting dim_cur.w to 'width' in that case makes
+	   Setting dim_cur.w to 'width_' in that case makes
 	   the update area smaller not larger.
-	   The same applies to the height.
+	   The same applies to the height_.
 	   - Sven
-	if ((left + width) > (dim_cur.x + dim_cur.w))
-	        dim_cur.w = width;
-	if ((top + height) > (dim_cur.y + dim_cur.h))
-	        dim_cur.h = height;
+	if ((left_ + width_) > (dim_cur.x + dim_cur.w))
+	        dim_cur.w = width_;
+	if ((top_ + height_) > (dim_cur.y + dim_cur.h))
+	        dim_cur.h = height_;
 	*/
-	int32_t new_r = left + width;
-	int32_t new_b = top + height;
+	int32_t new_r = left_ + width_;
+	int32_t new_b = top_ + height_;
 	int32_t old_r = dim_cur.x + dim_cur.w;
 	int32_t old_b = dim_cur.y + dim_cur.h;
 	if ( new_r > old_r ) dim_cur.w = new_r - dim_cur.x + 1;
@@ -102,11 +102,11 @@ void VIRTUAL_OBJECT::setBitmap( BITMAP* bitmap_ ) {
 	}
 }
 
-void VIRTUAL_OBJECT::setUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height ) {
-	dim_cur.x = left;
-	dim_cur.y = top;
-	dim_cur.w = width;
-	dim_cur.h = height;
+void VIRTUAL_OBJECT::setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+	dim_cur.x = left_;
+	dim_cur.y = top_;
+	dim_cur.w = width_;
+	dim_cur.h = height_;
 }
 
 /** @brief update

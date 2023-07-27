@@ -111,6 +111,9 @@ public:
 	 * ----------------------
 	 */
 	void    addLandSlide( int32_t left, int32_t right, bool do_lock );
+	void    addLandSlide( double left, double right, bool do_lock) {
+		addLandSlide( ROUND(left), ROUND(right), do_lock);
+	}
 	void    addObject( vobj_t* object );
 	bool    areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
 	bool    areTanksInBox( double x1, double y1, double x2, double y2 );

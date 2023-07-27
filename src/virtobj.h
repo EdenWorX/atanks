@@ -60,12 +60,22 @@ public:
 	 */
 
 	/* --- non-inline methods --- */
-	void         addUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height );
+	void         addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 	virtual void applyPhysics();
 	virtual void draw();
 	virtual void initialise();
-	void         setUpdateArea( int32_t left, int32_t top, int32_t width, int32_t height );
-	void         update();
+	void         setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+
+	/* variable helpers to also allow double coordinates */
+	void addUpdateArea( double left_, double top_, int32_t width_, int32_t height_ ) {
+		addUpdateArea( ROUND( left_ ), ROUND( top_ ), width_, height_ );
+	}
+
+	void setUpdateArea( double left_, double top_, int32_t width_, int32_t height_ ) {
+		setUpdateArea( ROUND( left_ ), ROUND( top_ ), width_, height_ );
+	}
+
+	void update();
 
 	/* --- inline methods --- */
 	void requireUpdate() { needsUpdate.store( true, ATOMIC_WRITE ); }
@@ -112,7 +122,7 @@ protected:
 
 	[[nodiscard]] bool    hasBitmap() const { return ( bitmap != nullptr ); }
 
-	void    setBitmap( BITMAP* bitmap_ );
+	void                  setBitmap( BITMAP* bitmap_ );
 
 
 	/* -------------------------

@@ -42,8 +42,8 @@ public:
 
 	explicit FLOATTEXT(
 		const char* text_,
-		int32_t     xpos,
-		int32_t     ypos,
+		double      xpos,
+		double      ypos,
 		double      xv_,
 		double      yv_,
 		int32_t     color_,

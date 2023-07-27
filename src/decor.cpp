@@ -101,9 +101,9 @@ DECOR::DECOR(
 /// @brief default destructor
 DECOR::~DECOR() {
 	if ( DECOR_DIRT == type ) {
-		// Draw dirt on terrain and add land slide
+		// Draw dirt on terrain and add landslide
 		rotate_sprite( global.terrain, dirt->bmp, ROUND( x - radius ), ROUND( y - radius ), itofix( angle ) );
-		global.addLandSlide( ROUND( x - radius - 1 ), ROUND( x + radius + 1 ), false );
+		global.addLandSlide(x - radius - 1, x + radius + 1, false );
 	}
 
 	if ( dirt ) {
@@ -126,7 +126,7 @@ DECOR::~DECOR() {
 		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
 	}
 
-	setUpdateArea( ROUND( x - calcRadius - 1 ), ROUND( y - calcRadius - 1 ), ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
+	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
 	requireUpdate();
 	this->update();
 
@@ -310,7 +310,7 @@ void DECOR::draw() {
 
 	drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
 
-	setUpdateArea( ROUND( x - calcRadius - 1 ), ROUND( y - calcRadius - 1 ), ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
+	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
 	requireUpdate();
 }
 
