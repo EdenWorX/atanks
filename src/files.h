@@ -2,22 +2,13 @@
 #define FILE_HANDLING_HEADER_
 
 #define MAX_CONFIG_LINE   128
-#define MAX_INSULAND_LINE 256
+
 
 #include "debug.h"
-
-#ifndef HAS_DIRENT
-#  if defined( ATANKS_IS_MSVC )
-#    include "extern/dirent.h"
-#  else
-#    include <dirent.h>
-#  endif // Linux
-#  define HAS_DIRENT 1
-#endif   // HAS_DIRENT
-
 #include "environment.h"
 #include "globaldata.h"
 #include "text.h"
+#include "wrap_dirent.h"
 
 
 bool Save_Game();

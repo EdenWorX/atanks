@@ -93,8 +93,13 @@ FixNamespaceComments: true
 
 IncludeBlocks: Regroup
 IncludeCategories:
+  - Regex: '"*.h"'
+    Priority: 3
+    CaseSensitive: true
   - Regex: '<[[:alnum:].]+>'
     Priority: 6
+  - Regex: '<.+>'
+    Priority: 7
   - Regex: '.*'
     Priority: 2
     SortPriority: 0

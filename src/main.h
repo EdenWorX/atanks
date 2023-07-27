@@ -77,6 +77,7 @@
 
 
 #include "globaltypes.h"
+#include "wrap_dirent.h"
 
 #include <algorithm>
 #include <chrono>
@@ -96,16 +97,6 @@
 #define UP_ARROW_IMAGE        13
 #define DOWN_ARROW_IMAGE      14
 #define FAST_DOWN_ARROW_IMAGE 15
-
-
-#ifndef HAS_DIRENT
-#  if defined( ATANKS_IS_MSVC )
-#    include "extern/dirent.h"
-#  else
-#    include <dirent.h>
-#  endif // Linux
-#  define HAS_DIRENT 1
-#endif // HAS_DIRENT
 
 
 // Some more workarounds to compile using visual studio:

@@ -20,31 +20,21 @@
  *
  */
 
+#include "environment.h"
+#include "globaltypes.h"
 #include "main.h"
-#include <sys/types.h>
+#include "text.h"
+#include "wrap_dirent.h"
 
 #include <atomic>
 
-
-#ifndef HAS_DIRENT
-#  if defined( ATANKS_IS_MSVC )
-#    include "extern/dirent.h"
-#  else
-#    include <dirent.h>
-#  endif // Linux
-#  define HAS_DIRENT 1
-#endif // HAS_DIRENT
+#include <sys/types.h>
 
 
 #ifdef USE_MUTEX_INSTEAD_OF_SPINLOCK
 #  include <mutex>
 #  define CSpinLock std::mutex
 #endif // USE_MUTEX_INSTEAD_OF_SPINLOCK
-
-
-#include "environment.h"
-#include "globaltypes.h"
-#include "text.h"
 
 
 #ifndef EXTERNS_H_COLORS_DECLARED
