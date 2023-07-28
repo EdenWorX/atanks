@@ -125,7 +125,7 @@ PEDANDIC_FLAG := -Wpedantic
 # Flags for compiler and linker
 # ------------------------------------
 CPPFLAGS += -DDATA_DIR=\"${INSTALLDIR}\" -D$(PLATFORM) -DVERSION=\"${VERSION}\"
-CXXFLAGS += -Wall -Wextra $(PEDANDIC_FLAG) -std=c++$(GCC_CXXSTD)
+CXXFLAGS += -Wall -Wextra $(PEDANDIC_FLAG) -std=c++$(GCC_CXXSTD) -fexceptions
 LDFLAGS  +=
 
 # Depending on the platform, some values have to be appended:
