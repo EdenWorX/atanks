@@ -1,5 +1,5 @@
-#ifndef LAND_HEADER_FILE__
-#define LAND_HEADER_FILE__
+#ifndef ATANKS_SRC_LAND_H_INCLUDED
+#define ATANKS_SRC_LAND_H_INCLUDED 1
 
 #include "main.h"
 
@@ -134,4 +134,4 @@ class LevelCreator;
 
 void generate_land( LevelCreator* lcr, int32_t yoffset, int32_t heightx );
 
-#endif
+#endif // ATANKS_SRC_LAND_H_INCLUDED

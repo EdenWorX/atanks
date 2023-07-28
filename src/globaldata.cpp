@@ -804,9 +804,9 @@ void GLOBALDATA::make_fullUpdate() {
 
 	// They are split into 2 x 2 updates:
 	for ( int32_t x = 0; x < 2; ++x ) {
+		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, updates, updateCount );
+		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, updates, updateCount );
 		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
-		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
-		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
 		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
 	}
 

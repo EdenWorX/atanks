@@ -1,7 +1,6 @@
 #include "land.h"
 
 #include "externs.h"
-#include "files.h"
 #include "gameloop.h"
 #include "levelcreator.h"
 #include "random.h"
@@ -39,8 +38,8 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			lambda     = 0.65;
 			break;
 		case LAND_CANYONS:
-			smoothness = 50;
-			octaves    = 8;
+			smoothness = 100;
+			octaves    = 9;
 			lambda     = 0.25;
 			break;
 		case LAND_VALLEYS:
@@ -165,22 +164,38 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 				double a1      = RAD2DEG( atan2( under_l - under_r, 1.0 ) ) + 180.;
 				double a2      = RAD2DEG( atan2( surf_l - surf_r, 1.0 ) ) + 180.;
 
-				if ( std::isnan( i ) ) i = 0.;
-				if ( std::isinf( i ) ) i = 1.;
-				while ( i < 0. ) i += 1.;
-				while ( i > 1. ) i -= 1.;
+				if ( std::isnan( i ) ) {
+					i = 0.;
+				}
+				if ( std::isinf( i ) ) {
+					i = 1.;
+				}
+				while ( i < 0. ) {
+					i += 1.;
+				}
+				while ( i > 1. ) {
+					i -= 1.;
+				}
 
 				double angle = interpolate( a1, a2, i );
 
 				shade        = env.slope[ (int)angle ][ 0 ];
 			}
 
-			if ( env.ditherGradients ) offset += get_rand() % 10 - 5;
+			if ( env.ditherGradients ) {
+				offset += get_rand() % 10 - 5;
+			}
 
-			if ( env.detailedLandscape ) offset += ( env.screenHeight - depth ) * 0.5;
+			if ( env.detailedLandscape ) {
+				offset += ( env.screenHeight - depth ) * 0.5;
+			}
 
-			while ( ( y + offset ) < 0 ) offset /= 2;
-			while ( ( y + offset ) > env.screenHeight ) offset /= 2;
+			while ( ( y + offset ) < 0 ) {
+				offset /= 2;
+			}
+			while ( ( y + offset ) > env.screenHeight ) {
+				offset /= 2;
+			}
 
 			color = gradientColorPoint( land_gradients[ curland ], height, y + offset );
 
@@ -220,10 +235,16 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 	global.unlockLand();
 
 	// clean up
-	if ( temp_land ) destroy_bitmap( temp_land );
+	if ( temp_land ) {
+		destroy_bitmap( temp_land );
+	}
 	temp_land = nullptr;
 
-	if ( depthStrip[ 0 ] ) free( depthStrip[ 0 ] );
+	if ( depthStrip[ 0 ] ) {
+		free( depthStrip[ 0 ] );
+	}
 
-	if ( depthStrip[ 1 ] ) free( depthStrip[ 1 ] );
+	if ( depthStrip[ 1 ] ) {
+		free( depthStrip[ 1 ] );
+	}
 }
