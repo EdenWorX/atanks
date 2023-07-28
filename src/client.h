@@ -1,5 +1,5 @@
-#ifndef CLIENT_HEADER_FILE__
-#define CLIENT_HEADER_FILE__
+#ifndef ATANKS_SRC_CLIENT_H_INCLUDED
+#define ATANKS_SRC_CLIENT_H_INCLUDED 1
 
 #ifdef NETWORK
 
@@ -37,9 +37,9 @@
 
 #include <cstdint>
 
-#ifndef PLAYER_HEADER_
+#ifndef ATANKS_SRC_PLAYER_H_INCLUDED
 struct PLAYER;
-#endif // PLAYER_HEADER_
+#endif // ATANKS_SRC_PLAYER_H_INCLUDED
 
 // This function takes some data from the server
 // and tries to figure out what to do with it.
@@ -64,4 +64,4 @@ const char *Explain_Error( int32_t error_code );
 
 int         Game_Client( int socket_number );
 
-#endif
+#endif // ATANKS_SRC_CLIENT_H_INCLUDED

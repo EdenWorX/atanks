@@ -389,8 +389,6 @@ void *Send_And_Receive( void *all_the_data ) {
 	int                status, counter;
 
 	bool               found;
-	char               buffer[ 7 ] = { 0 };
-	int32_t            towrite, written;
 
 	// set up listening socket
 	server_socket = Setup_Server_Socket( send_receive_data->listening_port );
@@ -423,7 +421,7 @@ void *Send_And_Receive( void *all_the_data ) {
 			// in case we did not find a match
 			if ( !found ) {
 				printf( "Unable to assign new connection to player.\n" );
-				SAFE_WRITE( new_socket, "%s", "NOROOM" )
+				SAFE_WRITE( new_socket, "%s", "NOROOM" );
 				close( new_socket );
 			}
 		}
@@ -438,7 +436,7 @@ void *Send_And_Receive( void *all_the_data ) {
 	counter = 0;
 	while ( counter < env.numGamePlayers ) {
 		if ( env.players[ counter ]->type == NETWORK_CLIENT ) {
-			SAFE_WRITE( env.players[ counter ]->server_socket, "%s", "CLOSE" )
+			SAFE_WRITE( env.players[ counter ]->server_socket, "%s", "CLOSE" );
 			close( env.players[ counter ]->server_socket );
 		}
 		counter++;

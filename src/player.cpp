@@ -972,7 +972,6 @@ void PLAYER::drawIndicator( int32_t x, int32_t y, int32_t h ) {
 eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 	static int playerindex = -1;
 	static int fire_delay = 0, net_delay = 0;
-	int32_t    towrite, written;
 
 	if ( my_turn ) {
 		fire_delay++;
@@ -998,9 +997,8 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		}
 		else*/
 		if ( net_delay >= NET_DELAY_SHORT ) {
-			char buffer[ NET_COMMAND_SIZE ];
 			// prompt the client to respond
-			SAFE_WRITE( server_socket, "%s", "PING" )
+			SAFE_WRITE( server_socket, "%s", "PING" );
 		}
 		return CONTROL_NONE;
 	} // we did not get a command to process
@@ -1010,20 +1008,17 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 	}
 
 	if ( !strncmp( net_command, "VERSION", 7 ) ) {
-		char buffer[ NET_COMMAND_SIZE ];
-		SAFE_WRITE( server_socket, "SERVERVERSION %s", VERSION )
+		SAFE_WRITE( server_socket, "SERVERVERSION %s", VERSION );
 	} else if ( !strncmp( net_command, "CLOSE", 5 ) ) {
 		close( server_socket );
 		type = DEADLY_PLAYER;
 	} else if ( !strncmp( net_command, "BOXED", 5 ) ) {
-		char buffer[ 32 ];
 		SAFE_WRITE( server_socket, "BOXED %d", env.isBoxed ? 1 : 0 );
 	} else if ( !strncmp( net_command, "GOSSIP", 6 ) ) {
 		snprintf( global.tank_status, 127, "%s", &( net_command[ 7 ] ) );
 		global.updateMenu = TRUE;
 	} else if ( !strncmp( net_command, "HEALTH", 6 ) ) {
-		int  tankindex = 0;
-		char buffer[ 64 ];
+		int tankindex = 0;
 
 		SAFE_STOI( tankindex, &( net_command[ 7 ] ) );
 		if ( ( tankindex >= 0 ) && ( tankindex < env.numGamePlayers ) ) {
@@ -1035,16 +1030,15 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 					env.players[ tankindex ]->tank->l,
 					env.players[ tankindex ]->tank->sh,
 					env.players[ tankindex ]->tank->sht
-				)
+				);
 			}
 		}
 
 	} else if ( !strncmp( net_command, "ITEM", 4 ) ) {
-		char buffer[ 32 ];
-		int  itemindex = 0;
+		int itemindex = 0;
 		SAFE_STOI( itemindex, &( net_command[ 5 ] ) );
 		if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) ) {
-			SAFE_WRITE( server_socket, "ITEM %d %d", itemindex, ni[ itemindex ] )
+			SAFE_WRITE( server_socket, "ITEM %d %d", itemindex, ni[ itemindex ] );
 		}
 	} else if ( !strncmp( net_command, "MOVE", 4 ) ) {
 		if ( !my_turn ) {
@@ -1103,49 +1097,43 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 	// find out which player this is
 	else if ( !strncmp( net_command, "WHOAMI", 6 ) ) {
 		bool found = false;
-		char buffer[ 128 ];
 
 		while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
 			if ( env.players[ playerindex ] == this ) {
 				found = true;
-				SAFE_WRITE( server_socket, "YOUARE %d", playerindex )
+				SAFE_WRITE( server_socket, "YOUARE %d", playerindex );
 			} else {
 				playerindex++;
 			}
 		}
 		// check to see if something went very wrong
 		if ( !found ) {
-			SAFE_WRITE( server_socket, "YOUARE %d", -1 )
+			SAFE_WRITE( server_socket, "YOUARE %d", -1 );
 		}
 	}
 	// return wind speed
 	else if ( !strncmp( net_command, "WIND", 4 ) ) {
-		char buffer[ 64 ];
-		SAFE_WRITE( server_socket, "WIND %f", global.wind )
+		SAFE_WRITE( server_socket, "WIND %f", global.wind );
 	}
 
 	// find out how many players we have
 	else if ( !strncmp( net_command, "NUMPLAYERS", 10 ) ) {
-		char buffer[ 32 ];
-		SAFE_WRITE( server_socket, "NUMPLAYERS %d", env.numGamePlayers )
+		SAFE_WRITE( server_socket, "NUMPLAYERS %d", env.numGamePlayers );
 	} else if ( !strncmp( net_command, "PLAYERNAME", 10 ) ) {
-		int  my_number = 0;
-		char buffer[ 128 ];
+		int my_number = 0;
 		SAFE_STOI( my_number, &( net_command[ 11 ] ) );
 		if ( ( my_number >= 0 ) && ( my_number < env.numGamePlayers ) ) {
-			SAFE_WRITE( server_socket, "PLAYERNAME %d %s", my_number, env.players[ my_number ]->getName() )
+			SAFE_WRITE( server_socket, "PLAYERNAME %d %s", my_number, env.players[ my_number ]->getName() );
 		}
 	}
 
 	// how many rounds are we playing
 	else if ( !strncmp( net_command, "ROUNDS", 6 ) ) {
-		char buffer[ 64 ];
 		SAFE_WRITE( server_socket, "ROUNDS %d %d", env.rounds, global.currentround );
 	}
 	// send back the position of each tank
 	else if ( !strncmp( net_command, "TANKPOSITION", 12 ) ) {
-		char buffer[ 64 ];
-		int  count = 0;
+		int count = 0;
 
 		SAFE_STOI( count, &( net_command[ 13 ] ) );
 		if ( ( count >= 0 ) && ( count < env.numGamePlayers ) && ( env.players[ count ]->tank ) ) {
@@ -1155,42 +1143,34 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 				count,
 				(int)env.players[ count ]->tank->x,
 				(int)env.players[ count ]->tank->y
-			)
+			);
 		}
 	}
 
 	// send back the surface height of the dirt
 	else if ( !strncmp( net_command, "SURFACE", 7 ) ) {
-		char buffer[ 32 ];
-		int  x = 0;
+		int x = 0;
 
 		SAFE_STOI( x, &( net_command[ 8 ] ) );
-		if ( ( x >= 0 ) && ( x < env.screenWidth ) )
-#  if defined( ATANKS_IS_BSD )
-			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() )
-#  else
-			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() )
-#  endif // BSD
+		if ( ( x >= 0 ) && ( x < env.screenWidth ) ) {
+			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() );
+		}
 	} else if ( !strncmp( net_command, "SCREEN", 6 ) ) {
-		char buffer[ 64 ];
-		SAFE_WRITE( server_socket, "SCREEN %d %d", env.screenWidth, env.screenHeight )
+		SAFE_WRITE( server_socket, "SCREEN %d %d", env.screenWidth, env.screenHeight );
 	} else if ( !strncmp( net_command, "TEAMS", 5 ) ) {
-		int  count = 0;
-		char buffer[ 32 ];
+		int count = 0;
 
 		SAFE_STOI( count, &( net_command[ 6 ] ) );
 		if ( ( count < env.numGamePlayers ) && ( count >= 0 ) ) {
-			SAFE_WRITE( server_socket, "TEAM %d %d", count, (int)env.players[ count ]->team )
+			SAFE_WRITE( server_socket, "TEAM %d %d", count, (int)env.players[ count ]->team );
 		}
 	} else if ( !strncmp( net_command, "WALLTYPE", 8 ) ) {
-		char buffer[ 32 ];
-		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wallType )
+		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wallType );
 	} else if ( !strncmp( net_command, "WEAPON", 6 ) ) {
-		char buffer[ 32 ];
-		int  weapon_number = 0;
+		int weapon_number = 0;
 		SAFE_STOI( weapon_number, &( net_command[ 7 ] ) );
 		if ( ( weapon_number >= 0 ) && ( weapon_number < WEAPONS ) ) {
-			SAFE_WRITE( server_socket, "WEAPON %d %d", weapon_number, nm[ weapon_number ] )
+			SAFE_WRITE( server_socket, "WEAPON %d %d", weapon_number, nm[ weapon_number ] );
 		}
 	}
 

@@ -29,12 +29,6 @@
 #define BURIED_LEVEL         135
 #define BURIED_LEVEL_HALF    68
 
-#define NET_COMMAND_SIZE     64
-// if we do not get a command after this amount of seconds,
-// turn control over to the computer for a moment
-#define NET_DELAY            1000
-#define NET_DELAY_SHORT      500
-
 class TANK;
 class PLAYER;
 class AICore;
@@ -67,8 +61,8 @@ public:
 	~PLAYER();
 
 	// no copying, no assignments
-	PLAYER( const PLAYER& )              = delete;
-	PLAYER&  operator= ( const PLAYER& ) = delete;
+	PLAYER( const PLAYER& )             = delete;
+	PLAYER& operator= ( const PLAYER& ) = delete;
 
 
 	/* ----------------------
@@ -83,36 +77,36 @@ public:
 #ifdef NETWORK
 	eControl executeNetCmd( bool my_turn, AICore* aicore );
 #endif // NETWORK
-	void           exitShop();
-	void           generatePreferences();
-	int32_t        getBoostValue();
-	int32_t        getItemPref( int32_t idx );
-	int32_t        getMoneyToSave( bool first_look );
-	const char*    getName() const;
-	bool           getNetCmd();
-	sOpponent*     getOppMem( int32_t idx );
-	const char*    getTeamName() const;
-	int32_t        getWeapPref( int32_t idx );
-	void           initialise( bool loaded_game );
-	bool           load_from_file( FILE* file );
-	void           load_game_data( FILE* file, int32_t file_version );
-	void           newGame();
-	void           newRound();
-	void           noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed );
-	void           noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );
-	void           reclaimShield(); // restore unused shield
-	bool           reduceClock();
-	void           save_game_data( FILE* file );
-	void           save_to_file( FILE* file );
-	const char*    selectGloatPhrase();
-	const char*    selectPanicPhrase( PLAYER* shocker );
-	const char*    selectKamikazePhrase();
-	const char*    selectRetaliationPhrase();
-	const char*    selectRevengePhrase();
-	const char*    selectSuicidePhrase();
-	void           setLastOpponent( sOpponent* last_opp );
-	void           setName( const char* name_ );
-	void           updatePreferences( int32_t max_boost, int32_t max_score );
+	void        exitShop();
+	void        generatePreferences();
+	int32_t     getBoostValue();
+	int32_t     getItemPref( int32_t idx );
+	int32_t     getMoneyToSave( bool first_look );
+	char const* getName() const;
+	bool        getNetCmd();
+	sOpponent*  getOppMem( int32_t idx );
+	char const* getTeamName() const;
+	int32_t     getWeapPref( int32_t idx );
+	void        initialise( bool loaded_game );
+	bool        load_from_file( FILE* file );
+	void        load_game_data( FILE* file, int32_t file_version );
+	void        newGame();
+	void        newRound();
+	void        noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed );
+	void        noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );
+	void        reclaimShield(); // restore unused shield
+	bool        reduceClock();
+	void        save_game_data( FILE* file );
+	void        save_to_file( FILE* file );
+	char const* selectGloatPhrase();
+	char const* selectPanicPhrase( PLAYER* shocker );
+	char const* selectKamikazePhrase();
+	char const* selectRetaliationPhrase();
+	char const* selectRevengePhrase();
+	char const* selectSuicidePhrase();
+	void        setLastOpponent( sOpponent* last_opp );
+	void        setName( char const* name_ );
+	void        updatePreferences( int32_t max_boost, int32_t max_score );
 
 
 	/* ----------------------
@@ -170,14 +164,14 @@ private:
 	 * -----------------------
 	 */
 
-	void                  boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons );
-	bool                  buy_item( int32_t itemindex, int32_t max_boost );
-	eControl              computerControls( AICore* aicore, bool allow_fire );
-	int32_t               computerSelectPreBuyItem( int32_t max_boost );
-	int32_t               generateDesiredList();
-	int32_t               getAmpValue();
-	int32_t               getArmourValue();
-	eControl              humanControls( AICore* aicore );
+	void     boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons );
+	bool     buy_item( int32_t itemindex, int32_t max_boost );
+	eControl computerControls( AICore* aicore, bool allow_fire );
+	int32_t  computerSelectPreBuyItem( int32_t max_boost );
+	int32_t  generateDesiredList();
+	int32_t  getAmpValue();
+	int32_t  getArmourValue();
+	eControl humanControls( AICore* aicore );
 
 
 	/* -----------------------
@@ -185,20 +179,20 @@ private:
 	 * -----------------------
 	 */
 
-	int32_t               boostBought = -1;
-	int32_t               currPref[ THINGS ];     // current preferences, calculated for each round
-	int32_t               desired[ THINGS ];      // Shopping wish list
-	int32_t               saveMoneyFor[ THINGS ]; // List of items the AI wants to buy
-	opp_t*                last_opponent = nullptr;
-	char                  name[ NAME_LEN + 1 ];
-	bool                  needAmp      = false;
-	bool                  needArmour   = false;
-	bool                  needDamage   = false;
-	int32_t               oppCount     = 0;
-	opp_t*                opponents    = nullptr;
-	plStage_t             plStage      = PS_SELECT_WEAPON;
-	int32_t               shieldBought = -1;
-	int32_t               weapPref[ THINGS ]; // Static preferences, generated once
+	int32_t   boostBought = -1;
+	int32_t   currPref[ THINGS ];     // current preferences, calculated for each round
+	int32_t   desired[ THINGS ];      // Shopping wish list
+	int32_t   saveMoneyFor[ THINGS ]; // List of items the AI wants to buy
+	opp_t*    last_opponent = nullptr;
+	char      name[ NAME_LEN + 1 ];
+	bool      needAmp      = false;
+	bool      needArmour   = false;
+	bool      needDamage   = false;
+	int32_t   oppCount     = 0;
+	opp_t*    opponents    = nullptr;
+	plStage_t plStage      = PS_SELECT_WEAPON;
+	int32_t   shieldBought = -1;
+	int32_t   weapPref[ THINGS ]; // Static preferences, generated once
 };
 
 // For headers including player.h to know that the class is there:

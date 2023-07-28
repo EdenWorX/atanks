@@ -51,7 +51,6 @@ void update_data::operator() () {
 		char               buffer[ 1024 ];
 		char*              found = nullptr;
 		int                got_bytes;
-		int32_t            towrite, written;
 
 
 		socket_num = socket( AF_INET, SOCK_STREAM, 0 );
@@ -74,7 +73,7 @@ void update_data::operator() () {
 
 
 		// get HTTP data
-		SAFE_WRITE( socket_num, "GET /%s HTTP/1.1\nHost: %s\n\n", remote_file, host_name )
+		SAFE_WRITE( socket_num, "GET /%s HTTP/1.1\nHost: %s\n\n", remote_file, host_name );
 
 		got_bytes = read( socket_num, buffer, 1024 );
 

@@ -1,9 +1,7 @@
 #include "client.h"
 
 #include "beam.h"
-#include "button.h"
 #include "explosion.h"
-#include "files.h"
 #include "floattext.h"
 #include "item.h"
 #include "main.h"
@@ -11,12 +9,9 @@
 #include "network.h"
 #include "player.h"
 #include "random.h"
-#include "satellite.h"
 #include "sky.h"
 #include "tank.h"
 #include "teleport.h"
-#include "update.h"
-#include "weapon.h"
 
 // Note: Don't guard everything. Empty compilation units are invalid.
 #ifdef NETWORK
@@ -28,11 +23,11 @@ void draw_top_bar();
 // perform the action. Remember, this is a command from the server, so
 // it is either giving us some info or telling us to create something.
 int Parse_Client_Data( char *buffer ) {
-	char args[ CLIENT_ARGS ][ BUFFER_SIZE ];
-	char letter;
-	int  dest_string;
-	int  line_length = strlen( buffer );
-	int  sourceindex = 0, destindex = 0;
+	char   args[ CLIENT_ARGS ][ BUFFER_SIZE ];
+	char   letter;
+	int    dest_string;
+	size_t line_length = strlen( buffer );
+	size_t sourceindex = 0, destindex = 0;
 
 	// clear buffers
 	for ( dest_string = 0; dest_string < CLIENT_ARGS; dest_string++ ) {
@@ -75,7 +70,11 @@ int Parse_Client_Data( char *buffer ) {
 		SAFE_STOD( my_y, args[ 2 ] );
 		SAFE_STOI( my_angle, args[ 3 ] );
 		SAFE_STOI( my_type, args[ 4 ] );
-		new BEAM( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
+		try {
+			new BEAM( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
+		} catch ( std::bad_alloc &e ) {
+			printf( "Attempt to create beam failed in client code: %s\n", e.what() );
+		}
 	} else if ( !strcmp( args[ 0 ], "BOXED" ) ) {
 		int got_box = 0;
 		SAFE_STOI( got_box, args[ 1 ] );
@@ -91,7 +90,11 @@ int Parse_Client_Data( char *buffer ) {
 		SAFE_STOD( my_x, args[ 1 ] );
 		SAFE_STOD( my_y, args[ 2 ] );
 		SAFE_STOI( my_type, args[ 3 ] );
-		new EXPLOSION( nullptr, my_x, my_y, 0., 0., my_type, true );
+		try {
+			new EXPLOSION( nullptr, my_x, my_y, 0., 0., my_type, true );
+		} catch ( std::bad_alloc &e ) {
+			printf( "Attempt to create explosion failed in client code: %s\n", e.what() );
+		}
 		return FALSE;
 	} else if ( !strcmp( args[ 0 ], "ITEM" ) ) {
 		int itemindex = 0, amount = 0;
@@ -133,26 +136,33 @@ int Parse_Client_Data( char *buffer ) {
 		SAFE_STOD( ( global.wind ), args[ 1 ] );
 		return TRUE;
 	} else if ( !strcmp( args[ 0 ], "MISSILE" ) ) {
-		int      my_type = 0;
-		double   my_x = 0., my_y = 0., delta_x = 0., delta_y = 0.;
-		MISSILE *missile;
+		int    my_type = 0;
+		double my_x = 0., my_y = 0., delta_x = 0., delta_y = 0.;
 		SAFE_STOD( my_x, args[ 1 ] );
 		SAFE_STOD( my_y, args[ 2 ] );
 		SAFE_STOD( delta_x, args[ 3 ] );
 		SAFE_STOD( delta_y, args[ 4 ] );
 		SAFE_STOI( my_type, args[ 5 ] );
-		missile = new MISSILE( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
-		if ( !missile ) {
-			printf( "Attempted to create missile failed in client code.\n" );
+		try {
+			new MISSILE( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
+		} catch ( std::bad_alloc &e ) {
+			printf( "Attempt to create missile failed in client code: %s\n", e.what() );
 		}
 		return FALSE;
 	} else if ( !strcmp( args[ 0 ], "NUMPLAYERS" ) ) {
-		int counter = 0;
 		SAFE_STOI( ( env.numGamePlayers ), args[ 1 ] );
 		// create the players in question
-		for ( counter = 0; counter < env.numGamePlayers; counter++ ) {
-			env.players[ counter ]               = new PLAYER();
-			env.players[ counter ]->tank         = new TANK();
+		for ( int counter = 0; counter < env.numGamePlayers; counter++ ) {
+			try {
+				env.players[ counter ] = new PLAYER();
+			} catch ( std::bad_alloc &e ) {
+				printf( "Attempt to create PLAYER failed in client code: %s\n", e.what() );
+			}
+			try {
+				env.players[ counter ]->tank = new TANK();
+			} catch ( std::bad_alloc &e ) {
+				printf( "Attempt to create TANK failed in client code: %s\n", e.what() );
+			}
 			env.players[ counter ]->tank->player = env.players[ counter ];
 			env.players[ counter ]->tank->nameText.set_text( nullptr );
 		}
@@ -178,7 +188,7 @@ int Parse_Client_Data( char *buffer ) {
 			// make sure this tank exists before we get rid of it
 			if ( env.players[ index ]->tank ) {
 				delete env.players[ index ]->tank;
-				env.players[ index ]->tank = NULL;
+				env.players[ index ]->tank = nullptr;
 			}
 		}
 	} else if ( !strcmp( args[ 0 ], "ROUNDS" ) ) {
@@ -268,7 +278,11 @@ int Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( new_y, args[ 3 ] );
 		if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
 			TANK *lt = env.players[ player_num ]->tank;
-			new TELEPORT( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
+			try {
+				new TELEPORT( lt, new_x, new_y, ROUND( lt->getDiameter() ), 120, ITEM_TELEPORT );
+			} catch ( std::bad_alloc &e ) {
+				printf( "Attempt to create teleport failed in client code: %s\n", e.what() );
+			}
 		}
 
 	} else if ( !strcmp( args[ 0 ], "WALLTYPE" ) ) {
@@ -338,8 +352,6 @@ void Create_Sky() {
 
 // Send a shot command to the server
 int Client_Fire( PLAYER *my_player, int my_socket ) {
-	char buffer[ 256 ];
-
 	if ( !my_player ) {
 		return FALSE;
 	}
@@ -347,9 +359,7 @@ int Client_Fire( PLAYER *my_player, int my_socket ) {
 		return FALSE;
 	}
 
-	int32_t towrite, written;
-
-	SAFE_WRITE( my_socket, "FIRE %d %d %d", my_player->tank->cw, my_player->tank->a, my_player->tank->p )
+	SAFE_WRITE( my_socket, "FIRE %d %d %d", my_player->tank->cw, my_player->tank->a, my_player->tank->p );
 
 	return TRUE;
 }
@@ -422,18 +432,17 @@ int Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
 // This function takes an error number and returns a string
 // which contains useful information about that error.
 // On success, a pointer to char is returned.
-// On failure, a NULL is returned.
+// On failure, a nullptr is returned.
 // The returned pointer does NOT need to be freed.
 char const *Explain_Error( int32_t error_code ) {
 	switch ( error_code ) {
 		case CLIENT_ERROR_VERSION:
 			return env.ingame->Get_Line( 77 );
-			break;
 		case CLIENT_ERROR_SCREENSIZE:
 			return env.ingame->Get_Line( 78 );
-			break;
 		case CLIENT_ERROR_DISCONNECT:
 			return env.ingame->Get_Line( 79 );
+		default:
 			break;
 	}
 
@@ -465,7 +474,6 @@ int Game_Client( int socket_number ) {
 	VIRTUAL_OBJECT *my_object, *next_obj;
 	int32_t         class_ = 0;
 	bool            fired  = false;
-	int32_t         towrite, written;
 
 
 	clear_to_color( global.terrain, PINK ); // get terrain ready
@@ -475,18 +483,19 @@ int Game_Client( int socket_number ) {
 	global.getHeadOfClass( CLASS_FLOATTEXT, &my_object );
 	while ( my_object ) {
 		my_object->getNext( &next_obj );
-		static_cast< FLOATTEXT * >( my_object )->newRound();
+		dynamic_cast< FLOATTEXT * >( my_object )->newRound();
 		delete my_object;
 	}
 
 	Create_Sky(); // so we have a background
-	SAFE_WRITE( socket_number, "%s", "VERSION" )
+
+	SAFE_WRITE( socket_number, "%s", "VERSION" );
 
 	while ( !end_of_round ) {
 		// check for waiting input from the server
 		incoming = Check_For_Incoming_Data( socket_number );
 		if ( incoming ) {
-			int bytes_read;
+			ssize_t bytes_read;
 
 			memset( buffer, '\0', BUFFER_SIZE );
 			bytes_read = read( socket_number, buffer, BUFFER_SIZE );
@@ -573,16 +582,7 @@ int Game_Client( int socket_number ) {
 								default:
 									buffer[ 0 ] = '\0';
 							}
-							towrite = strlen( buffer );
-							written = write( socket_number, buffer, strlen( buffer ) );
-							if ( written < towrite ) {
-								fprintf( stderr,
-								         "%s:%d: Warning: Only %d/%d bytes sent to server\n",
-								         __FILE__,
-								         __LINE__,
-								         written,
-								         towrite );
-							}
+							SAFE_WRITE( socket_number, "%s", buffer );
 						} // end of getting more info
 					}         // our game stage went up
 					else      // we got data, but our game stage did not go up
@@ -595,41 +595,41 @@ int Game_Client( int socket_number ) {
 										socket_number,
 										"WEAPON %d",
 										global.client_player->tank->cw
-									)
+									);
 								} else {
 									SAFE_WRITE(
 										socket_number,
 										"ITEM %d",
 										global.client_player->tank->cw - WEAPONS
-									)
+									);
 								}
 							}
 						} else if ( game_stage == CLIENT_SURFACE ) {
-							SAFE_WRITE( socket_number, "SURFACE %d", surface_x )
+							SAFE_WRITE( socket_number, "SURFACE %d", surface_x );
 							surface_x++;
 						} else if ( game_stage == CLIENT_ITEMS ) {
-							SAFE_WRITE( socket_number, "ITEM %d", item_number )
+							SAFE_WRITE( socket_number, "ITEM %d", item_number );
 							item_number++;
 						} else if ( game_stage == CLIENT_TANK_POSITION ) {
-							SAFE_WRITE( socket_number, "TANKPOSITION %d", tank_position )
+							SAFE_WRITE( socket_number, "TANKPOSITION %d", tank_position );
 							tank_position++;
 							if ( tank_position >= env.numGamePlayers ) {
 								tank_position = 0;
 							}
 						} else if ( game_stage == CLIENT_TANK_HEALTH ) {
-							SAFE_WRITE( socket_number, "HEALTH %d", tank_health )
+							SAFE_WRITE( socket_number, "HEALTH %d", tank_health );
 							tank_health++;
 							if ( tank_health >= env.numGamePlayers ) {
 								tank_health = 0;
 							}
 						} else if ( game_stage == CLIENT_TEAMS ) {
-							SAFE_WRITE( socket_number, "TEAMS %d", team_number )
+							SAFE_WRITE( socket_number, "TEAMS %d", team_number );
 							team_number++;
 						} else if ( game_stage == CLIENT_NAME ) {
-							SAFE_WRITE( socket_number, "PLAYERNAME %d", name_number )
+							SAFE_WRITE( socket_number, "PLAYERNAME %d", name_number );
 							name_number++;
 						} else if ( game_stage == CLIENT_WEAPONS ) {
-							SAFE_WRITE( socket_number, "WEAPON %d", weapon_number )
+							SAFE_WRITE( socket_number, "WEAPON %d", weapon_number );
 							weapon_number++;
 						} else if ( game_stage == CLIENT_PLAYING ) {
 							time_clock++;
@@ -638,12 +638,12 @@ int Game_Client( int socket_number ) {
 								time_clock = 0;
 								if ( surface_x < env.screenWidth ) {
 									game_stage = CLIENT_SURFACE;
-									SAFE_WRITE( socket_number, "SURFACE %d", surface_x )
+									SAFE_WRITE( socket_number, "SURFACE %d", surface_x );
 									surface_x++;
 								} else {
 									game_stage    = CLIENT_TANK_POSITION;
 									tank_position = 1;
-									SAFE_WRITE( socket_number, "TANKPOSITION %d", 0 )
+									SAFE_WRITE( socket_number, "TANKPOSITION %d", 0 );
 								} // game stage stuff
 							}
 						} // end of playing commands
@@ -671,7 +671,7 @@ int Game_Client( int socket_number ) {
 				my_object->getNext( &next_obj );
 
 				if ( CLASS_EXPLOSION == class_ ) {
-					static_cast< EXPLOSION * >( my_object )->explode();
+					dynamic_cast< EXPLOSION * >( my_object )->explode();
 				}
 
 				my_object->applyPhysics();
@@ -768,7 +768,7 @@ int Game_Client( int socket_number ) {
 	for ( count = 0; count < env.numGamePlayers; count++ ) {
 		if ( env.players[ count ]->tank ) {
 			delete env.players[ count ]->tank;
-			env.players[ count ]->tank = NULL;
+			env.players[ count ]->tank = nullptr;
 		}
 	}
 
