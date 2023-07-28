@@ -320,7 +320,7 @@ void game() {
 
 		// For the chess-style clock and the AI clock in skipping computer
 		// play it is necessary to know when a second has passed.
-		second_passed = global.check_time_changed();
+		second_passed = check_time_changed();
 
 
 		// Check overtime and do frame display flipping

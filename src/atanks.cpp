@@ -20,6 +20,7 @@
  * */
 
 #include "button.h"
+#include "clock.h"
 #include "debug.h"
 #include "files.h"
 #include "gameloop.h"
@@ -915,7 +916,7 @@ static int32_t menu() {
 		// Extra loop to divide the handling and the drawing
 		while ( !done && !need_draw ) {
 			// Count seconds for demo mode to start after its wait time
-			if ( global.check_time_changed() ) {
+			if ( check_time_changed() ) {
 				if ( ++seconds_idle > DEMO_WAIT_TIME ) {
 					done = true;
 					global.set_command( GLOBAL_COMMAND_DEMO );

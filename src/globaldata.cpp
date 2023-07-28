@@ -27,7 +27,6 @@
 #include "tank.h"
 
 #include <cassert>
-#include <time.h>
 
 GLOBALDATA::GLOBALDATA() {
 	// memset initialization, because Visual C++ 2013 can't do lists, yet.
@@ -98,7 +97,7 @@ void GLOBALDATA::addObject( vobj_t* object ) {
 
 // Combine both make_update and make_bgupdate with safety checks for
 // the dimensions. This reduces code duplication.
-void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count ) {
+void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count ) const {
 	assert( target && "ERROR: addUpdate called with nullptr target!" );
 
 	bool combined = false;
@@ -140,7 +139,7 @@ void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* tar
 			// recalculate x2/y2 back into w/h
 			target[ target_count - 1 ].set( next.x, next.y, next.w - next.x, next.h - next.y );
 
-			// Make sure the target update is sane:
+			// Make sure the target update is correct:
 			assert( ( target[ target_count - 1 ].w > 0 ) && ( target[ target_count - 1 ].h > 0 ) );
 
 			combined = true;
@@ -176,27 +175,6 @@ bool GLOBALDATA::areTanksInBox( double x1, double y1, double x2, double y2 ) {
 	return areTanksInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
 }
 
-// This function checks to see if one full second has passed since the
-// last time the function was called.
-// The function returns true if time has passed. The function
-// returns false if time hasn't passed or it was unable to tell
-// how much time has passed.
-bool GLOBALDATA::check_time_changed() {
-	static time_t volatile last_second = 0;
-	static time_t current_second       = 0;
-
-	time( &current_second );
-
-	if ( current_second == last_second ) {
-		return false;
-	}
-
-	// time has changed
-	last_second = current_second;
-
-	return true;
-}
-
 /// @brief remove and delete *all* objects stored.
 void GLOBALDATA::clear_objects() {
 	int32_t class_ = 0;
@@ -226,37 +204,29 @@ void GLOBALDATA::destroy() {
 		destroy_bitmap( terrain );
 	}
 	terrain = nullptr;
-	if ( done ) {
-		delete[] done;
-	}
+
+	delete[] done;
 	done = nullptr;
-	if ( fp ) {
-		delete[] fp;
-	}
+
+	delete[] fp;
 	fp = nullptr;
-	if ( surface ) {
-		delete[] surface;
-	}
+
+	delete[] surface;
 	surface = nullptr;
-	if ( dropTo ) {
-		delete[] dropTo;
-	}
+
+	delete[] dropTo;
 	dropTo = nullptr;
-	if ( velocity ) {
-		delete[] velocity;
-	}
+
+	delete[] velocity;
 	velocity = nullptr;
-	if ( dropIncr ) {
-		delete[] dropIncr;
-	}
+
+	delete[] dropIncr;
 	dropIncr = nullptr;
-	if ( updates ) {
-		delete[] updates;
-	}
+
+	delete[] updates;
 	updates = nullptr;
-	if ( lastUpdates ) {
-		delete[] lastUpdates;
-	}
+
+	delete[] lastUpdates;
 	lastUpdates = nullptr;
 }
 
@@ -351,18 +321,18 @@ void GLOBALDATA::first_init() {
  * exists as a point where locking, if it becomes necessary, can be
  * added without having to rewrite a lot of code.
  **/
-void GLOBALDATA::free_debris_item( item_t* item ) {
-	debris_pool->free_item( item );
+void GLOBALDATA::free_debris_item( item_t* i ) {
+	debris_pool->free_item( i );
 }
 
-int32_t GLOBALDATA::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv ) {
+int32_t GLOBALDATA::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv ) const {
 	// Movement
-	int32_t mvx      = ROUND( 10. * xv ); // eliminate slow movement
-	int32_t mvy      = ROUND( 10. * yv ); // eliminate slow movement
-	bool    mv_left  = mvx < 0;
-	bool    mv_right = mvx > 0;
-	bool    mv_up    = mvy < 0;
-	bool    mv_down  = mvy > 0;
+	auto mvx      = ROUND( 10. * xv ); // eliminate slow movement
+	auto mvy      = ROUND( 10. * yv ); // eliminate slow movement
+	bool mv_left  = mvx < 0;
+	bool mv_right = mvx > 0;
+	bool mv_up    = mvy < 0;
+	bool mv_down  = mvy > 0;
 
 	// Boundaries
 	int32_t min_x = 1;
@@ -601,7 +571,7 @@ void GLOBALDATA::initialise() {
 
 // return true if the dirt reaches into the given box.
 // left/right and top/bottom are determined automatically.
-bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
+bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) const {
 	int32_t top = std::max( std::min( y1, y2 ), env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT );
 	// Exit early if the box is below the playing area
 	if ( top >= env.screenHeight ) {
@@ -627,10 +597,6 @@ bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	return false;
 }
 
-bool GLOBALDATA::isDirtInBox( double x1, double y1, double x2, double y2 ) {
-	return isDirtInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
-}
-
 /// @return true if the close button was pressed
 bool GLOBALDATA::isCloseBtnPressed() {
 	cbpLock.lock();
@@ -653,18 +619,18 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 
 	setlocale( LC_NUMERIC, "C" );
 
-	// read until we hit line "*GLOBAL*" or "***" or EOF
+	// read until we hit the line "*GLOBAL*" or "***" or EOF
 	do {
 		result = fgets( line, MAX_CONFIG_LINE, file );
 		if ( !result || !strncmp( line, "***", 3 ) ) {
 			// eof OR end of record
 			return;
 		}
-	} while ( strncmp( line, "*GLOBAL*", 8 ) );
+	} while ( strncmp( line, "*GLOBAL*", 8 ) != 0 );
 
-	bool done = false;
+	bool is_done = false;
 
-	while ( result && !done ) {
+	while ( result && !is_done ) {
 		// read a line
 		memset( line, '\0', MAX_CONFIG_LINE );
 		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
@@ -711,7 +677,7 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field, "checkupdates" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.check_for_updates = val > 0 ? true : false;
+				env.check_for_updates = val > 0;
 			} else if ( !strcasecmp( field, "colourtheme" ) ) {
 				SAFE_STOI( env.colourTheme, value );
 				if ( env.colourTheme < CT_REGULAR ) {
@@ -725,23 +691,23 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field, "detailedland" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.detailedLandscape = val > 0 ? true : false;
+				env.detailedLandscape = val > 0;
 			} else if ( !strcasecmp( field, "detailedsky" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.detailedSky = val > 0 ? true : false;
+				env.detailedSky = val > 0;
 			} else if ( !strcasecmp( field, "dither" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.ditherGradients = val > 0 ? true : false;
+				env.ditherGradients = val > 0;
 			} else if ( !strcasecmp( field, "dividemoney" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.divide_money = val > 0 ? true : false;
+				env.divide_money = val > 0;
 			} else if ( !strcasecmp( field, "enablesound" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.sound_enabled = val > 0 ? true : false;
+				env.sound_enabled = val > 0;
 			} else if ( !strcasecmp( field, "frames" ) ) {
 				int32_t new_fps = 0;
 				SAFE_STOI( new_fps, value );
@@ -761,17 +727,17 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field, "networking" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.network_enabled = val > 0 ? true : false;
+				env.network_enabled = val > 0;
 			} else if ( !strcasecmp( field, "numpermanentplayers" ) ) {
 				SAFE_STOI( env.numPermanentPlayers, value );
 			} else if ( !strcasecmp( field, "OSMOUSE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.osMouse = val > 0 ? true : false;
+				env.osMouse = val > 0;
 			} else if ( !strcasecmp( field, "playmusic" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.play_music = val > 0 ? true : false;
+				env.play_music = val > 0;
 			} else if ( !strcasecmp( field, "rounds" ) ) {
 				SAFE_STOUL( env.rounds, value );
 			} else if ( !strcasecmp( field, "screenwidth" ) && !env.temp_screenWidth ) {
@@ -806,7 +772,7 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 				SAFE_STOI( env.violent_death, value );
 			}
 		} // end of read a line properly
-	}         // end of while not done
+	}         // end of while not is_done
 }
 
 void GLOBALDATA::lockClass( eClass class_ ) {
@@ -831,17 +797,17 @@ void GLOBALDATA::make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h ) {
 }
 
 void GLOBALDATA::make_fullUpdate() {
-	// Replace Updates with a full screen update:
+	// Replace Updates with a full-screen update:
 	combineUpdates   = false;
 	updateCount      = 0;
 	lastUpdatesCount = 0;
 
 	// They are split into 2 x 2 updates:
 	for ( int32_t x = 0; x < 2; ++x ) {
-		make_update( env.halfWidth * x, 0, env.halfWidth, env.halfHeight );
-		make_bgupdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight );
-		make_update( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight );
-		make_bgupdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight );
+		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
+		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
+		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
+		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
 	}
 
 	combineUpdates = true;
@@ -853,7 +819,7 @@ void GLOBALDATA::make_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 		return;
 	}
 
-	// These asserts should catch screwed updates that make no sense
+	// These assertions should catch screwed updates that make no sense
 	assert( ( h <= env.screenHeight ) && ( w <= env.screenWidth ) );
 	assert( ( w > 0 ) && ( h > 0 ) );
 
@@ -891,8 +857,8 @@ void GLOBALDATA::newRound() {
 	}
 
 	// Init order array
-	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) {
-		order[ i ] = nullptr;
+	for ( auto& i : order ) {
+		i = nullptr;
 	}
 }
 
@@ -946,9 +912,9 @@ void GLOBALDATA::removeTank( TANK* tank ) {
 		return;
 	}
 
-	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) {
-		if ( tank == order[ i ] ) {
-			order[ i ] = nullptr;
+	for ( auto& i : order ) {
+		if ( tank == i ) {
+			i = nullptr;
 		}
 	}
 }
@@ -1112,7 +1078,7 @@ void GLOBALDATA::slideLand() {
 					velocity[ col ] += env.gravity;
 					dropIncr[ col ] += velocity[ col ];
 
-					int32_t dropAdd  = ROUND( dropIncr[ col ] );
+					auto    dropAdd  = ROUND( dropIncr[ col ] );
 					int32_t max_top  = MENUHEIGHT + ( env.isBoxed ? 1 : 0 );
 
 					if ( dropAdd > 0 ) {
@@ -1204,61 +1170,3 @@ void GLOBALDATA::unlockLandSlide( int32_t left, int32_t right ) {
 		}
 	}
 }
-
-#ifndef USE_MUTEX_INSTEAD_OF_SPINLOCK
-
-/// === Spin Lock Implementations ===
-
-/// @brief Default ctor
-CSpinLock::CSpinLock() : is_destroyed( ATOMIC_VAR_INIT( false ) ) {
-	lock_flag.clear(); // Done this way, because VC++ can't do it normally.
-	owner_id = std::thread::id();
-}
-
-/// @brief destructor - mark as destroyed, lock and go
-CSpinLock::~CSpinLock() {
-	std::thread::id this_id   = std::this_thread::get_id();
-	bool            need_lock = ( owner_id != this_id );
-
-	if ( need_lock ) {
-		lock();
-	}
-	is_destroyed.store( true );
-	if ( need_lock ) {
-		unlock();
-	}
-}
-
-/// @brief return true if this thread has an active lock
-bool CSpinLock::hasLock() {
-	// This works, because unlock() sets the owner_id to -1.
-	return ( std::this_thread::get_id() == owner_id );
-}
-
-/** @brief Get a lock
- * Warning: No recursive locking possible! Only lock once!
- **/
-void CSpinLock::lock() {
-	std::thread::id this_id = std::this_thread::get_id();
-	assert( ( owner_id != this_id ) && "ERROR: Lock already owned!" );
-
-	if ( false == is_destroyed.load( ATOMIC_READ ) ) {
-		while ( lock_flag.test_and_set() ) {
-			std::this_thread::yield();
-		}
-		owner_id = this_id;
-	}
-}
-
-/// @brief unlock if this thread owns the lock. Otherwise do nothing.
-void CSpinLock::unlock() {
-	std::thread::id this_id = std::this_thread::get_id();
-	assert( ( owner_id == this_id ) && "ERROR: Lock *NOT* owned!" );
-
-	if ( owner_id == this_id ) {
-		owner_id = std::thread::id();
-		lock_flag.clear( std::memory_order_release );
-	}
-}
-
-#endif // USE_MUTEX_INSTEAD_OF_SPINLOCK

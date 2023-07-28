@@ -28,8 +28,26 @@ static time_point_t game_us_start = CLOCK_NOW;
 static time_point_t menu_ms_end   = CLOCK_NOW;
 static time_point_t menu_ms_start = CLOCK_NOW;
 
-
 /// === Function implementations ===
+
+// This function checks to see if one full second has passed since the last time the function was called.
+// The function returns true if time has passed.
+// The function returns false if time hasn't passed, or it was unable to tell how much time has passed.
+bool check_time_changed() {
+	static thread_local time_t last_second    = 0;
+	static thread_local time_t current_second = 0;
+
+	time( &current_second );
+
+	if ( current_second == last_second ) {
+		return false;
+	}
+
+	// time has changed
+	last_second = current_second;
+
+	return true;
+}
 
 /// REMOVE_VS12_WORKAROUND
 #if 0 == ATANKS_HAS_MSVC12_BUG

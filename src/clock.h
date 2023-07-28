@@ -6,6 +6,7 @@
 
 #  include <cstdint>
 
+bool    check_time_changed(); // check to see if one second has passed
 int32_t game_us_get();
 void    game_us_reset();
 int32_t menu_ms_get();
