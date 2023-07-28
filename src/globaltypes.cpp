@@ -6,19 +6,24 @@
 
 /// @brief pre-increment for eDataStages
 eDataStage &operator++ ( eDataStage &ds ) {
-	if ( DS_DATA == ds )
+	if ( DS_DATA == ds ) {
 		ds = DS_NAME;
-	else if ( DS_DESC == ds )
+	} else if ( DS_DESC == ds ) {
 		ds = DS_DATA;
-	else
+	} else {
 		ds = DS_DESC;
+	}
 	return ds;
 }
 
 eLanguages &operator+= ( eLanguages &lang, int32_t val ) {
 	int32_t cur = static_cast< int32_t >( lang ) + val;
-	if ( cur > 0 ) cur %= EL_LANGUAGE_COUNT;
-	if ( cur < 0 ) cur = EL_LANGUAGE_COUNT - ( ( -1 * cur ) % EL_LANGUAGE_COUNT );
+	if ( cur > 0 ) {
+		cur %= EL_LANGUAGE_COUNT;
+	}
+	if ( cur < 0 ) {
+		cur = EL_LANGUAGE_COUNT - ( ( -1 * cur ) % EL_LANGUAGE_COUNT );
+	}
 	lang = static_cast< eLanguages >( cur );
 	return lang;
 }
@@ -33,9 +38,9 @@ eLanguages &operator++ ( eLanguages &lang ) {
 }
 
 /// @brief post-increment for the language type
-eLanguages operator++ ( eLanguages &lang, int ) {
-	eLanguages tmp  = lang;
-	lang           += 1;
+eLanguages operator++ ( eLanguages &lang, int ) { // NOLINT(cert-dcl21-cpp)
+	eLanguages const tmp  = lang;
+	lang                 += 1;
 	return tmp;
 }
 
@@ -45,8 +50,8 @@ eLanguages &operator-- ( eLanguages &lang ) {
 }
 
 /// @brief post-decrement for the language type
-eLanguages operator-- ( eLanguages &lang, int ) {
-	eLanguages tmp  = lang;
-	lang           += -1;
+eLanguages operator-- ( eLanguages &lang, int ) { // NOLINT(cert-dcl21-cpp)
+	eLanguages const tmp  = lang;
+	lang                 += -1;
 	return tmp;
 }

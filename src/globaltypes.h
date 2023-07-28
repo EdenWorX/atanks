@@ -31,8 +31,7 @@
 #    define MAX_AI_TIME 30 // DirectDraw is too slow, allow more time
 #  else
 #    define MAX_AI_TIME 10 // Standard with anything but windows
-#  endif                   // ATANKS_IS_MSVC
-#  define ALL_SOCKETS -1
+#  endif                   // ATANKS_IS_WINDOWS
 
 // Start enforcing unified integer typing
 #  include <cstdint>
@@ -144,9 +143,9 @@ enum eLanguages {
 
 // Helper operators to rotate languages:
 eLanguages &operator++ ( eLanguages &lang );
-eLanguages  operator++ ( eLanguages &lang, int );
+eLanguages  operator++ ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 eLanguages &operator-- ( eLanguages &lang );
-eLanguages  operator-- ( eLanguages &lang, int );
+eLanguages  operator-- ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp)
 eLanguages &operator+= ( eLanguages &lang, int32_t val );
 eLanguages &operator-= ( eLanguages &lang, int32_t val );
 

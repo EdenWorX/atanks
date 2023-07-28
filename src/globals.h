@@ -9,24 +9,24 @@ GLOBALDATA  global;
 ENVIRONMENT env;
 
 // === Defined colours used everywhere ===
-int32_t     BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED,
+int32_t BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED,
 	SILVER, TURQUOISE, WHITE, YELLOW;
 
 // === General values that are globally used ===
 char        buf[ 100 ]; // buffer for general use
-const char* errorMessage;
+char const* errorMessage;
 int32_t     errorX, errorY;
-int32_t     k, K;         // k = key pressed, K = Key Code from k
+int32_t     k, K; // k = key pressed, K = Key Code from k
 int32_t     fi, lx, ly;
 int32_t     game_version; // Used for update check and save file upgrades
 
 
 // === Gradients ===
-gradient    topbar_gradient[ 4 ] = {
-        {{ 200, 200, 200, 0 },  0.0},
-        { { 255, 255, 255, 0 }, 0.5},
-        { { 128, 128, 128, 0 }, 1.0},
-        { { 0, 0, 0, 0 },       -1 }
+gradient topbar_gradient[ 4 ] = {
+	{{ 200, 200, 200, 0 },  0.0},
+	{ { 255, 255, 255, 0 }, 0.5},
+	{ { 128, 128, 128, 0 }, 1.0},
+	{ { 0, 0, 0, 0 },       -1 }
 };
 
 gradient stuff_bar_gradient[ 11 ] = {
