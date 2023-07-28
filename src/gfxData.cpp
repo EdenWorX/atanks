@@ -3,15 +3,7 @@
 #include "main.h"
 #include "random.h"
 
-/** @brief explicit constructor, because Visual C++ needs one.
- **/
-sGfxData::sGfxData() {
-	memset( sky_gradient_strips, 0, sizeof( BITMAP * ) * ALL_SKIES );
-	memset( land_gradient_strips, 0, sizeof( BITMAP * ) * ALL_LANDS );
-	memset( stuff_bar, 0, sizeof( BITMAP * ) * 2 );
-	memset( explosions, 0, sizeof( BITMAP * ) * EXPLOSIONFRAMES );
-	memset( flameFront, 0, sizeof( BITMAP * ) * EXPLOSIONFRAMES );
-}
+sGfxData::sGfxData() = default;
 
 /** @brief sGfxData destructor - clean everything up
  */
@@ -22,13 +14,27 @@ sGfxData::~sGfxData() {
 /// @brief should be called from ENVIRONMENT::destroy();
 void sGfxData::destroy() {
 	if ( initDone ) {
-		if ( topbar ) destroy_bitmap( topbar );
-		if ( topbar_gradient_strip ) destroy_bitmap( topbar_gradient_strip );
-		if ( stuff_bar[ 0 ] ) destroy_bitmap( stuff_bar[ 0 ] );
-		if ( stuff_bar[ 1 ] ) destroy_bitmap( stuff_bar[ 1 ] );
-		if ( stuff_icon_base ) destroy_bitmap( stuff_icon_base );
-		if ( stuff_bar_gradient_strip ) destroy_bitmap( stuff_bar_gradient_strip );
-		if ( explosion_gradient_strip ) destroy_bitmap( explosion_gradient_strip );
+		if ( topbar ) {
+			destroy_bitmap( topbar );
+		}
+		if ( topbar_gradient_strip ) {
+			destroy_bitmap( topbar_gradient_strip );
+		}
+		if ( stuff_bar[ 0 ] ) {
+			destroy_bitmap( stuff_bar[ 0 ] );
+		}
+		if ( stuff_bar[ 1 ] ) {
+			destroy_bitmap( stuff_bar[ 1 ] );
+		}
+		if ( stuff_icon_base ) {
+			destroy_bitmap( stuff_icon_base );
+		}
+		if ( stuff_bar_gradient_strip ) {
+			destroy_bitmap( stuff_bar_gradient_strip );
+		}
+		if ( explosion_gradient_strip ) {
+			destroy_bitmap( explosion_gradient_strip );
+		}
 
 		topbar                   = nullptr;
 		topbar_gradient_strip    = nullptr;
@@ -38,44 +44,33 @@ void sGfxData::destroy() {
 		stuff_bar_gradient_strip = nullptr;
 		explosion_gradient_strip = nullptr;
 
-		// The following pointer checks are being removed because
-		// they are declared in the header and will always
-		// evaluate to true. -- Jesse
-		// if (sky_gradient_strips) {
-		for ( int32_t i = 0; i < ALL_SKIES; ++i ) {
-			if ( sky_gradient_strips[ i ] ) {
-				destroy_bitmap( sky_gradient_strips[ i ] );
-				sky_gradient_strips[ i ] = nullptr;
+		for ( auto &sky_gradient_strip : sky_gradient_strips ) {
+			if ( sky_gradient_strip ) {
+				destroy_bitmap( sky_gradient_strip );
+				sky_gradient_strip = nullptr;
 			}
 		}
-		// }
 
-		// if (land_gradient_strips) {
-		for ( int32_t i = 0; i < ALL_LANDS; ++i ) {
-			if ( land_gradient_strips[ i ] ) {
-				destroy_bitmap( land_gradient_strips[ i ] );
-				land_gradient_strips[ i ] = nullptr;
+		for ( auto &land_gradient_strip : land_gradient_strips ) {
+			if ( land_gradient_strip ) {
+				destroy_bitmap( land_gradient_strip );
+				land_gradient_strip = nullptr;
 			}
 		}
-		// }
 
-		// if (explosions) {
-		for ( int32_t i = 0; i < EXPLOSIONFRAMES; ++i ) {
-			if ( explosions[ i ] ) {
-				destroy_bitmap( explosions[ i ] );
-				explosions[ i ] = nullptr;
+		for ( auto &explosion : explosions ) {
+			if ( explosion ) {
+				destroy_bitmap( explosion );
+				explosion = nullptr;
 			}
 		}
-		// }
 
-		// if (flameFront) {
-		for ( int32_t i = 0; i < EXPLOSIONFRAMES; ++i ) {
-			if ( flameFront[ i ] ) {
-				destroy_bitmap( flameFront[ i ] );
-				flameFront[ i ] = nullptr;
+		for ( auto &front : flameFront ) {
+			if ( front ) {
+				destroy_bitmap( front );
+				front = nullptr;
 			}
 		}
-		// }
 
 		initDone = false;
 	}
@@ -86,9 +81,11 @@ void sGfxData::first_init() {
 	// Note: This method is mostly uncommented, because the original
 	// function that did this was uncommented.
 
-	if ( initDone ) return;
+	if ( initDone ) {
+		return;
+	}
 
-	int32_t colour_theme     = static_cast< int32_t >( env.colourTheme );
+	auto colour_theme        = static_cast< int32_t >( env.colourTheme );
 	explosion_gradient_strip = create_gradient_strip( explosion_gradients[ colour_theme ], 200 );
 	double expSize           = 25.;
 	double flmSize           = 10.;
@@ -116,7 +113,7 @@ void sGfxData::first_init() {
 		clear_to_color( flameFront[ i ], PINK );
 
 		for ( int32_t y = std::floor( expSize ); y > expDisperse; --y ) {
-			double  value   = pow( static_cast< double >( y ) / expSize, i / 4 + 1 );
+			double  value   = pow( static_cast< double >( y ) / expSize, i / 4. + 1 );
 			int32_t exp_col = getpixel( explosion_gradient_strip, 0, static_cast< int32_t >( value * 200. ) );
 			circlefill( explosions[ i ], 107, 107, y, exp_col );
 		}
@@ -125,7 +122,7 @@ void sGfxData::first_init() {
 		}
 
 		for ( int32_t y = std::floor( flmSize ); y > flmDisperse; --y ) {
-			double  value     = pow( static_cast< double >( y ) / flmSize, i / 4 + 1 );
+			double  value     = pow( static_cast< double >( y ) / flmSize, i / 4. + 1 );
 			int32_t flame_col = getpixel( explosion_gradient_strip, 0, static_cast< int32_t >( value * 200. ) );
 			ellipsefill( flameFront[ i ], 300, 15, y, y / 20, flame_col );
 		}
@@ -139,19 +136,21 @@ void sGfxData::first_init() {
 
 	if ( !env.ditherGradients ) {
 		for ( int32_t i = 0; i < MENUHEIGHT; ++i ) {
-			float   adjCount = ( 100. / MENUHEIGHT ) * i;
+			float   adjCount = ( 100.f / MENUHEIGHT ) * static_cast< float >( i );
 			int32_t col      = getpixel( topbar_gradient_strip, 0, adjCount );
 			line( topbar, 0, i, env.screenWidth - 1, i, col );
 		}
 	} else {
 		for ( int32_t x = 0; x < env.screenWidth; ++x ) {
 			for ( int32_t y = 0; y < MENUHEIGHT; ++y ) {
-				float adjY   = ( 100.0 / MENUHEIGHT ) * y;
+				float adjY   = ( 100.f / MENUHEIGHT ) * static_cast< float >( y );
 				int   offset = 0;
 
-				if ( ( adjY > 1 ) && ( adjY < 99 ) ) offset = get_rand() % 4 - 2;
+				if ( ( adjY > 1 ) && ( adjY < 99 ) ) {
+					offset = get_rand() % 4 - 2;
+				}
 
-				int32_t col = getpixel( topbar_gradient_strip, 0, adjY + offset );
+				int32_t col = getpixel( topbar_gradient_strip, 0, adjY + static_cast< float >( offset ) );
 
 				putpixel( topbar, x, y, col );
 			}
@@ -168,41 +167,54 @@ void sGfxData::first_init() {
 
 	stuff_bar_gradient_strip  = create_gradient_strip( stuff_bar_gradient, STUFF_BAR_WIDTH );
 
-	double halfStuffBarHeight = ( STUFF_BAR_HEIGHT / 2 ) - 2;
+	double halfStuffBarHeight = ( STUFF_BAR_HEIGHT / 2. ) - 2;
 
-	for ( double x = 0; x < STUFF_BAR_WIDTH; x += 1. ) {
-		for ( double y = 0; y < STUFF_BAR_HEIGHT; y += 1. ) {
+	for ( int32_t x = 0; x < STUFF_BAR_WIDTH; x++ ) {
+		for ( int32_t y = 0; y < STUFF_BAR_HEIGHT; y++ ) {
 			double sides_dist  = 0.1;
 			double circle_dist = FABSDISTANCE2( x, y, STUFF_BAR_WIDTH - 75, halfStuffBarHeight );
 
-			if ( circle_dist < 75. )
+			if ( circle_dist < 75. ) {
 				circle_dist = 1. - ( circle_dist / 75.0 );
-			else
+			} else {
 				circle_dist = 0.;
+			}
 
-			if ( x < ( STUFF_BAR_HEIGHT / 2 - 2 ) )
+			if ( x < ( STUFF_BAR_HEIGHT / 2 - 2 ) ) {
 				sides_dist -= 0.1 - ( x / 150. );
-			else if ( x > STUFF_BAR_WIDTH - ( STUFF_BAR_HEIGHT / 2 - 2 ) )
+			} else if ( x > STUFF_BAR_WIDTH - ( STUFF_BAR_HEIGHT / 2 - 2 ) ) {
 				sides_dist -= ( x - ( STUFF_BAR_WIDTH - halfStuffBarHeight ) ) / 150.;
+			}
 
-			if ( y < STUFF_BAR_HEIGHT / 2 - 2 )
+			if ( y < STUFF_BAR_HEIGHT / 2 - 2 ) {
 				sides_dist -= 0.1 - ( y / 150. );
-			else
+			} else {
 				sides_dist -= ( y - halfStuffBarHeight ) / 150.;
+			}
 
 			sides_dist -= circle_dist * circle_dist;
 
-			if ( sides_dist > ( x / 1000.0 ) ) sides_dist = x / 1000.0;
-			if ( sides_dist < 0 ) sides_dist = 0;
-			if ( circle_dist > 1 ) circle_dist = 1;
+			if ( sides_dist > ( x / 1000.0 ) ) {
+				sides_dist = x / 1000.0;
+			}
+			if ( sides_dist < 0 ) {
+				sides_dist = 0;
+			}
+			if ( circle_dist > 1 ) {
+				circle_dist = 1;
+			}
 
-			int32_t offset = ( sides_dist + circle_dist ) * ( STUFF_BAR_WIDTH - 1 );
-			if ( offset >= STUFF_BAR_WIDTH ) offset = STUFF_BAR_WIDTH - 1;
+			int32_t offset = ROUND( sides_dist + circle_dist ) * ( STUFF_BAR_WIDTH - 1 );
+			if ( offset >= STUFF_BAR_WIDTH ) {
+				offset = STUFF_BAR_WIDTH - 1;
+			}
 
 			int32_t col_a = getpixel( stuff_bar_gradient_strip, 0, offset );
 
-			offset        = ( sides_dist + circle_dist + 0.06 ) * ( STUFF_BAR_WIDTH - 1 );
-			if ( offset >= STUFF_BAR_WIDTH ) offset = STUFF_BAR_WIDTH - 1;
+			offset        = ROUND( sides_dist + circle_dist + 0.06 ) * ( STUFF_BAR_WIDTH - 1 );
+			if ( offset >= STUFF_BAR_WIDTH ) {
+				offset = STUFF_BAR_WIDTH - 1;
+			}
 
 			int32_t col_b = getpixel( stuff_bar_gradient_strip, 0, offset );
 
@@ -224,7 +236,9 @@ void sGfxData::first_init() {
 // ========================
 BITMAP *create_gradient_strip( gradient const *grad, int32_t len ) {
 	BITMAP *strip = create_bitmap( 1, len );
-	if ( !strip ) return nullptr;
+	if ( !strip ) {
+		return nullptr;
+	}
 
 	clear_to_color( strip, BLACK );
 
@@ -245,17 +259,17 @@ int32_t gradientColorPoint( gradient const *grad, double len, double line ) {
 		;
 	pointCount--;
 
-	if ( pointCount == -1 )
+	if ( pointCount == -1 ) {
 		color = makecol( grad[ 0 ].color.r, grad[ 0 ].color.g, grad[ 0 ].color.b );
-	else if ( grad[ pointCount + 1 ].point == -1 )
+	} else if ( grad[ pointCount + 1 ].point == -1 ) {
 		color = makecol( grad[ pointCount ].color.r, grad[ pointCount ].color.g, grad[ pointCount ].color.b );
-	else {
-		double  i = ( point - grad[ pointCount ].point ) / ( grad[ pointCount + 1 ].point - grad[ pointCount ].point );
-		int32_t r = ROUND( interpolate( grad[ pointCount ].color.r, grad[ pointCount + 1 ].color.r, i ) );
-		int32_t g = ROUND( interpolate( grad[ pointCount ].color.g, grad[ pointCount + 1 ].color.g, i ) );
-		int32_t b = ROUND( interpolate( grad[ pointCount ].color.b, grad[ pointCount + 1 ].color.b, i ) );
+	} else {
+		double i = ( point - grad[ pointCount ].point ) / ( grad[ pointCount + 1 ].point - grad[ pointCount ].point );
+		auto   r = ROUND( interpolate( grad[ pointCount ].color.r, grad[ pointCount + 1 ].color.r, i ) );
+		auto   g = ROUND( interpolate( grad[ pointCount ].color.g, grad[ pointCount + 1 ].color.g, i ) );
+		auto   b = ROUND( interpolate( grad[ pointCount ].color.b, grad[ pointCount + 1 ].color.b, i ) );
 
-		color     = makecol( r, g, b );
+		color    = makecol( r, g, b );
 	}
 
 	return color;

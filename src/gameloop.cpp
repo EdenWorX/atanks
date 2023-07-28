@@ -28,29 +28,29 @@
 class ObjectUpdater;
 
 /// === Helper functions ===
-static inline bool   advance_tank();
-static inline void   change_wind_strength();
-static inline void   check_fps( ObjectUpdater* upd );
-static inline void   check_overtime( AICore& aicore );
-static inline void   check_skiptime();
-static inline void   clear_voices();
-static inline void   check_winner();
-static inline void   delete_destroyed( AICore& aicore );
-static inline void   do_naturals();
-static inline void   draw_FPS_Counter();
-static inline void   draw_objects( AICore& aicore );
-static inline void   draw_eor_scoreboard();  // The [e]nd-[o]f-[r]ound score board
-static inline void   draw_mini_scoreboard(); // The ingame mini score board
-void                 draw_top_bar();
-static inline bool   explode_tanks();
-static inline void   fire_weapon();
-static inline void   graph_bar( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
-static inline void   graph_bar_center( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
-static inline void   init_new_round();
-static inline bool   manage_input( AICore& aicore );
-static inline void   set_tank_settings();
-static inline void   update_display();
-static inline void   update_objects( ObjectUpdater* upd );
+static inline bool advance_tank();
+static inline void change_wind_strength();
+static inline void check_fps( ObjectUpdater* upd );
+static inline void check_overtime( AICore& aicore );
+static inline void check_skiptime();
+static inline void clear_voices();
+static inline void check_winner();
+static inline void delete_destroyed( AICore& aicore );
+static inline void do_naturals();
+static inline void draw_FPS_Counter();
+static inline void draw_objects( AICore& aicore );
+static inline void draw_eor_scoreboard();  // The [e]nd-[o]f-[r]ound score board
+static inline void draw_mini_scoreboard(); // The ingame mini score board
+void               draw_top_bar();
+static inline bool explode_tanks();
+static inline void fire_weapon();
+static inline void graph_bar( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
+static inline void graph_bar_center( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
+static inline void init_new_round();
+static inline bool manage_input( AICore& aicore );
+static inline void set_tank_settings();
+static inline void update_display();
+static inline void update_objects( ObjectUpdater* upd );
 
 
 /// === Static helper values ===
@@ -844,7 +844,6 @@ static inline void check_winner() {
 	}
 }
 
-
 static inline void delete_destroyed( AICore& aicore ) {
 	vobj_t* next_obj = nullptr;
 	vobj_t* obj      = nullptr;
@@ -1486,7 +1485,6 @@ static inline bool manage_input( AICore& aicore ) {
 
 	return done;
 }
-
 
 /// @brief tank placement and player ordering
 static inline void set_tank_settings() {

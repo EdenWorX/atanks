@@ -606,6 +606,10 @@ void   quickChange( bool clearerror );
 	ellipsefill( bmp, ROUND( x ), ROUND( y ), rx, ry, color );
 }
 
+[[maybe_unused]] static inline void ellipsefill( BITMAP* bmp, int32_t x, int32_t y, double rx, double ry, int color ) {
+	ellipsefill( bmp, x, y, ROUND( rx ), ROUND( ry ), color );
+}
+
 [[maybe_unused]] static inline int getpixel( BITMAP* bmp, double x, double y ) {
 	return getpixel( bmp, ROUND( x ), ROUND( y ) );
 }
