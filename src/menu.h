@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_MENU_H_INCLUDED
-#  define ATANKS_SRC_MENU_H_INCLUDED
+#define ATANKS_SRC_MENU_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,13 +20,13 @@
  *
  */
 
-#  include "button.h"
-#  include "optionitem.h"
-#  include "optionitemmenu.h"
-#  include "optionitemplayer.h"
+#include "button.h"
+#include "optionitem.h"
+#include "optionitemmenu.h"
+#include "optionitemplayer.h"
 
-#  include <new> // for bad_alloc exception
-#  include <string>
+#include <new> // for bad_alloc exception
+#include <string>
 
 /** @file menu.h
  * @brief Declare Menu class for self managing menus
@@ -63,7 +62,7 @@ public:
 	// Add a button without action function.
 	int32_t addButton(
 		int32_t     title_idx,
-		const char* title_,
+		char const* title_,
 		int32_t     key_code,
 		BITMAP*     bmp,
 		BITMAP*     hover,
@@ -122,7 +121,7 @@ public:
 		int32_t     title_idx,
 		uint32_t    max_len,
 		int32_t     color,
-		const char* format,
+		char const* format,
 		int32_t     left,
 		int32_t     top,
 		int32_t     width,
@@ -153,7 +152,7 @@ public:
 		tgt_T*      target,
 		int32_t     title_idx,
 		int32_t     color,
-		const char* format,
+		char const* format,
 		int32_t     left,
 		int32_t     top,
 		int32_t     width,
@@ -182,8 +181,8 @@ public:
 					padding
 				);
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new TEXT OptionItem\n";
-				cerr << " [" << e.what() << "]" << endl;
+				cerr << __FUNCTION__ << " : failed to allocate new TEXT OptionItem\n"
+				     << " [" << e.what() << "]" << endl;
 			}
 		}
 
@@ -206,7 +205,7 @@ public:
 	// Special minimum variant for toggle types feeding a bool with fixed title
 	int32_t addToggle(
 		bool*       target,
-		const char* title_,
+		char const* title_,
 		int32_t     color,
 		int32_t     left,
 		int32_t     top,
@@ -248,7 +247,7 @@ public:
 		opt_T       minimum,
 		opt_T       maximum,
 		opt_T       increment,
-		const char* format,
+		char const* format,
 		int32_t     left,
 		int32_t     top,
 		int32_t     width,
@@ -278,8 +277,8 @@ public:
 					nullptr
 				);
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
-				cerr << " [" << e.what() << "]" << endl;
+				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n"
+				     << " [" << e.what() << "]" << endl;
 			}
 		}
 
@@ -310,7 +309,7 @@ public:
 	int32_t addValue(
 		tgt_T*       target,
 		int32_t      title_idx,
-		const char** texts,
+		char const** texts,
 		int32_t      color,
 		eTextClass   text_class,
 		opt_T        maximum,
@@ -377,7 +376,7 @@ public:
 	int32_t addValue(
 		tgt_T*       target,
 		int32_t      title_idx,
-		const char** texts,
+		char const** texts,
 		int32_t      color,
 		eTextClass   text_class,
 		opt_T        maximum,
@@ -446,7 +445,7 @@ public:
 		tgt_T* target,
 		int32_t ( *action_ )( tgt_T* target, int32_t val ),
 		int32_t      title_idx,
-		const char** texts,
+		char const** texts,
 		int32_t      color,
 		eTextClass   text_class,
 		opt_T        maximum,
@@ -491,18 +490,19 @@ public:
 	}
 
 	void    clearAll( bool full_clear );
-	int32_t count();
 	int32_t delete_entry( int32_t index );
 	void    displayAll( bool full_display );
 	void distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update );
 	OptionItemBase* getSelected();
-	const char*     getTitle() const;
 	void            move_entry( int32_t from_idx, int32_t to_idx );
 	void            redraw( int32_t index, bool update_full );
 	void            redrawAll( bool full_redraw );
 	void            setLanguage( bool autorefresh );
-	void            setTitle( const char* new_title, bool autorefresh );
+	void            setTitle( char const* new_title, bool autorefresh );
 
+	/* Information Getters */
+	[[nodiscard]] int32_t     count() const;
+	[[nodiscard]] char const* getTitle() const;
 
 	/* ------------------------
 	 * --- Public operators ---
@@ -510,7 +510,7 @@ public:
 	 */
 
 	// operator() to use a menu instance like a function
-	int32_t         operator() ();
+	int32_t operator() ();
 
 	// Get a stored option by index
 	OptionItemBase* operator[] ( int32_t index );
@@ -521,14 +521,14 @@ private:
 	 * -----------------------
 	 */
 
-	int32_t          insert_option( OptionItemBase* new_opt );
-	int32_t          insert_option( OptionItemBase* new_opt, int32_t title_idx, const char* title_ );
-	bool             is_title_idx_valid( int32_t title_idx );
-	int32_t          selectClicked( int32_t x, int32_t y );
-	void             selectNext();
-	void             selectPrev();
-	void             setTexts( OptionItemBase* item, const char** texts, eTextClass text_class );
-	void             unselect();
+	int32_t insert_option( OptionItemBase* new_opt );
+	int32_t insert_option( OptionItemBase* new_opt, int32_t title_idx, char const* title_ );
+	bool    is_title_idx_valid( int32_t title_idx );
+	int32_t selectClicked( int32_t x, int32_t y );
+	void    selectNext();
+	void    selectPrev();
+	void    setTexts( OptionItemBase* itm, char const** texts, eTextClass text_class );
+	void    unselect();
 
 	/* -----------------------
 	 * --- Private members ---
@@ -546,13 +546,13 @@ private:
 	int32_t          menu_y     = 0;          //!< Y-Pos where the menu background starts
 	OptionItemBase*  root       = nullptr;    //!< The first menu item
 	OptionItemBase*  tail       = nullptr;    //!< The last menu item
-	const char*      title      = nullptr;    //!< Name/Title of the menu
+	char const*      title      = nullptr;    //!< Name/Title of the menu
 	uint32_t         title_len  = 0;          //!< Length of the menu title with the current font.
 	bool             title_set  = false;      //!< Set to true if this has been changed to be an individual title
 	int32_t          title_x    = 0;
 };
 
-#  define MENU_CLASS_DECLARES 1
+#define MENU_CLASS_DECLARES 1
 
 
 // --- Helper functions for action/display usage that need optioncontent.h ---

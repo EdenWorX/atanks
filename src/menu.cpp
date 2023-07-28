@@ -13,8 +13,8 @@
 #include <exception>
 
 
-void           flush_inputs();           // From files.h
-void           init_mouse_cursor();      // from atanks.cpp to change the mouse cursor
+void           flush_inputs();      // From files.h
+void           init_mouse_cursor(); // from atanks.cpp to change the mouse cursor
 
 static int32_t MOUSE_RELEASE_DELAY = 20; // Slows down constant mouse presses
 static int32_t MOUSE_DELAY_REDUCT  = 5;  // Every so many rounds the delay is reduced
@@ -51,7 +51,9 @@ Menu::~Menu() {
 	}
 
 	// Delete title if it was set manually
-	if ( title_set && title ) free( const_cast< char* >( title ) );
+	if ( title_set && title ) {
+		free( const_cast< char* >( title ) );
+	}
 }
 
 /* ----------------------
@@ -104,7 +106,7 @@ int32_t Menu::addButton(
 
 	// 1) Create the button
 	try {
-		if ( bmp || hover || released )
+		if ( bmp || hover || released ) {
 			btn = new BUTTON(
 				title_        ? title_
 				: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
@@ -116,7 +118,7 @@ int32_t Menu::addButton(
 				hover,
 				released
 			);
-		else
+		} else {
 			btn = new BUTTON(
 				title_        ? title_
 				: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
@@ -127,6 +129,7 @@ int32_t Menu::addButton(
 				width,
 				height
 			);
+		}
 	} catch ( std::bad_alloc& e ) {
 		cerr << __FUNCTION__ << " : failed to allocate new BUTTON\n";
 		cerr << " [" << e.what() << "]" << endl;
@@ -143,8 +146,8 @@ int32_t Menu::addButton(
 				      : "",
 			title_idx,
 			btn,
-			left,
 			top,
+			left,
 			width,
 			height,
 			padding
@@ -514,7 +517,7 @@ void Menu::clearAll( bool full_clear ) {
 }
 
 /// @brief return number of menu elements
-int32_t Menu::count() {
+int32_t Menu::count() const {
 	return entry_cnt;
 }
 
@@ -523,8 +526,12 @@ int32_t Menu::delete_entry( int32_t index ) {
 	if ( ( index >= 0 ) && ( index < entry_cnt ) ) {
 		OptionItemBase* curr = this->operator[] ( index );
 		if ( curr ) {
-			if ( root == curr ) root = curr->getNext();
-			if ( tail == curr ) tail = curr->getPrev();
+			if ( root == curr ) {
+				root = curr->getNext();
+			}
+			if ( tail == curr ) {
+				tail = curr->getPrev();
+			}
 			delete curr; // This removes it from the list.
 			--entry_cnt;
 		}
@@ -539,7 +546,9 @@ void Menu::displayAll( bool full_display ) {
 	while ( curr ) {
 		// If a text field (ET_TEXT) is selected, it must be forced
 		// to redraw, so the cursor flipping can be in effect:
-		if ( curr->is_selected() && ( ET_TEXT == curr->getType() ) ) curr->cursor_flip();
+		if ( curr->is_selected() && ( ET_TEXT == curr->getType() ) ) {
+			curr->cursor_flip();
+		}
 
 		curr->display( full_display );
 		curr = curr->getNext();
@@ -568,7 +577,9 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 	// valid?
 	assert( ( last_idx >= first_idx ) && "ERROR: last_idx must not be smaller than first_idx!" );
 	assert( ( last_idx < entry_cnt ) && "ERROR: last_idx is out of range" );
-	if ( ( last_idx < first_idx ) || ( last_idx >= entry_cnt ) ) return;
+	if ( ( last_idx < first_idx ) || ( last_idx >= entry_cnt ) ) {
+		return;
+	}
 
 	// 1: Determine minimum width and height:
 	int32_t curr_w = 0, curr_h = 0;
@@ -577,13 +588,17 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 		OptionItemBase* curr = this->operator[] ( num );
 		if ( curr ) {
 			curr->getDimension( curr_w, curr_h );
-			if ( curr_w > item_width ) item_width = curr_w;
-			if ( curr_h > item_height ) item_height = curr_h;
+			if ( curr_w > item_width ) {
+				item_width = curr_w;
+			}
+			if ( curr_h > item_height ) {
+				item_height = curr_h;
+			}
 		}
 	}
 
 	// The width must be increased, as items might get selected:
-	item_width += select_text_len;
+	item_width += static_cast< int32_t >( select_text_len );
 
 	// Set base values
 	int32_t rows   = list_height / item_height;
@@ -604,7 +619,9 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 
 /// @brief return pointer to the currently selected entry or nullptr if none is selected
 OptionItemBase* Menu::getSelected() {
-	if ( ( entry_sel > -1 ) && ( entry_sel < entry_cnt ) ) return this->operator[] ( entry_sel );
+	if ( ( entry_sel > -1 ) && ( entry_sel < entry_cnt ) ) {
+		return this->operator[] ( entry_sel );
+	}
 	return nullptr;
 }
 
@@ -622,17 +639,20 @@ void Menu::move_entry( int32_t from_idx, int32_t to_idx ) {
 		OptionItemBase* toMove = operator[] ( from_idx );
 		assert( toMove && "ERROR: Something is completely FUBAR here!" );
 
-		if ( to_idx > from_idx )
+		if ( to_idx > from_idx ) {
 			// in this case the spot will move one down
 			--to_idx;
+		}
 
 		// Take it out:
-		if ( 0 == from_idx )
+		if ( 0 == from_idx ) {
 			// It is root
 			root = toMove->getNext();
-		if ( ( entry_cnt - 1 ) == from_idx )
+		}
+		if ( ( entry_cnt - 1 ) == from_idx ) {
 			// Or tail
 			tail = toMove->getPrev();
+		}
 		toMove->remove();
 		--entry_cnt;
 
@@ -643,8 +663,9 @@ void Menu::move_entry( int32_t from_idx, int32_t to_idx ) {
 		} else if ( entry_cnt == to_idx ) {
 			toMove->insert_after( tail );
 			tail = toMove;
-		} else
+		} else {
 			toMove->insert_before( this->operator[] ( to_idx ) );
+		}
 		++entry_cnt;
 	} // end of to_idx != from_idx
 }
@@ -668,7 +689,9 @@ void Menu::redrawAll( bool full_redraw ) {
 	// If this is a full redraw, the background and
 	// menu title must be drawn as well.
 	if ( full_redraw ) {
-		if ( ++bgOffset == INT_MAX ) bgOffset = 0;
+		if ( ++bgOffset == INT_MAX ) {
+			bgOffset = 0;
+		}
 		drawMenuBackground( bgType, bgOffset, bgItems );
 		textout_ex( global.canvas, font, title, title_x + 2, menu_y + 12, BLACK, -1 );
 		textout_ex( global.canvas, font, title, title_x + 5, menu_y + 14, WHITE, -1 );
@@ -677,23 +700,29 @@ void Menu::redrawAll( bool full_redraw ) {
 	this->displayAll( full_redraw );
 	SHOW_MOUSE( global.canvas )
 
-	if ( full_redraw ) quickChange( false );
+	if ( full_redraw ) {
+		quickChange( false );
+	}
 }
 
 void Menu::setLanguage( bool autorefresh ) {
 	if ( env.language != menu_lang ) {
 		menu_lang = env.language;
 
-		if ( !title_set ) title = MenuTitleText[ menu_class ][ menu_lang ][ 0 ];
+		if ( !title_set ) {
+			title = MenuTitleText[ menu_class ][ menu_lang ][ 0 ];
+		}
 
 		OptionItemBase*    curr   = root;
 		char const* const* titles = MenuTitleText[ menu_class ][ menu_lang ];
 
 		while ( curr ) {
-			int32_t title_idx = curr->getTitleIdx();
+			auto title_idx = static_cast< int32_t >( curr->getTitleIdx() );
 
 			// 1: Set new title (if not manually set)
-			if ( title_idx > -1 ) curr->setTitle( titles[ title_idx ] );
+			if ( title_idx > -1 ) {
+				curr->setTitle( titles[ title_idx ] );
+			}
 
 			// 2: Set new text array if based on a pre-set
 			if ( curr->needs_text() ) {
@@ -702,24 +731,32 @@ void Menu::setLanguage( bool autorefresh ) {
 			}
 
 			// 3: If this is a sub-menu, call an update dispatcher
-			if ( ET_MENU == curr->getType() ) static_cast< OptionItemMenu* >( curr )->setLanguage();
+			if ( ET_MENU == curr->getType() ) {
+				dynamic_cast< OptionItemMenu* >( curr )->setLanguage();
+			}
 
 			curr = curr->getNext();
 		}
 
-		if ( autorefresh ) this->redrawAll( true );
+		if ( autorefresh ) {
+			this->redrawAll( true );
+		}
 	}
 }
 
 void Menu::setTitle( char const* new_title, bool autorefresh ) {
 	if ( new_title ) {
 		// Delete old title if it was set already
-		if ( title_set && title ) free( const_cast< char* >( title ) );
+		if ( title_set && title ) {
+			free( const_cast< char* >( title ) );
+		}
 
 		title     = strdup( new_title );
 		title_set = true;
 
-		if ( autorefresh ) this->redrawAll( true );
+		if ( autorefresh ) {
+			this->redrawAll( true );
+		}
 	}
 }
 
@@ -812,8 +849,9 @@ int32_t Menu::operator() () {
 			} else if ( KEY_UP == key_code ) {
 				this->selectPrev();
 				key_code = -1;
-			} else if ( KEY_ENTER_PAD == key_code )
+			} else if ( KEY_ENTER_PAD == key_code ) {
 				key_code = KEY_ENTER;
+			}
 
 		} // End of having a pressed key
 
@@ -826,12 +864,16 @@ int32_t Menu::operator() () {
 		mlb_y = mouse_y;
 
 		// Set mouse button status anew
-		mlb_is_pressed = mouse_b & 1 ? true : false;
-		mrb_is_pressed = mouse_b & 2 ? true : false;
+		mlb_is_pressed = ( mouse_b & 1 ) != 0;
+		mrb_is_pressed = ( mouse_b & 2 ) != 0;
 
 		// Fix release status on mouse button states:
-		if ( !mlb_is_pressed ) mlb_is_released = true;
-		if ( !mrb_is_pressed ) mrb_is_released = true;
+		if ( !mlb_is_pressed ) {
+			mlb_is_released = true;
+		}
+		if ( !mrb_is_pressed ) {
+			mrb_is_released = true;
+		}
 
 		// reset mouse clock if both are released
 		if ( mlb_is_released && mrb_is_released ) {
@@ -841,21 +883,25 @@ int32_t Menu::operator() () {
 		}
 
 		// Be sure only new left mouse button presses are recorded
-		if ( mlb_is_released && mlb_is_pressed )
+		if ( mlb_is_released && mlb_is_pressed ) {
 			mlb_is_released = false;
-		else if ( mlb_is_pressed ) {
-			if ( ( --mouse_clock > 0 ) || ( ( ET_VALUE != last_clicked ) && ( ET_COLOR != last_clicked ) ) )
+		} else if ( mlb_is_pressed ) {
+			if ( ( --mouse_clock > 0 ) || ( ( ET_VALUE != last_clicked ) && ( ET_COLOR != last_clicked ) ) ) {
 				mlb_is_pressed = false;
+			}
 		}
 
 		// The same applies to the right button
-		if ( mrb_is_released && mrb_is_pressed && !mlb_is_pressed ) mrb_is_released = false;
+		if ( mrb_is_released && mrb_is_pressed && !mlb_is_pressed ) {
+			mrb_is_released = false;
+		}
 		// Note: But the release is set to false anyway, so pressing
 		// both buttons will not result in a right mouse button event
 		// if held and the left button is released.
 		else if ( mrb_is_pressed ) {
-			if ( ( --mouse_clock > 0 ) || ( ( ET_VALUE != last_clicked ) && ( ET_COLOR != last_clicked ) ) )
+			if ( ( --mouse_clock > 0 ) || ( ( ET_VALUE != last_clicked ) && ( ET_COLOR != last_clicked ) ) ) {
 				mrb_is_pressed = false;
+			}
 		}
 
 		// Handle the mouse delay:
@@ -863,11 +909,13 @@ int32_t Menu::operator() () {
 			if ( ( ET_VALUE == last_clicked ) || ( ET_COLOR == last_clicked ) ) {
 				if ( MOUSE_DELAY_REDUCT == ++mouse_round ) {
 					mouse_round = 0;
-					if ( ( ET_COLOR == last_clicked ) || ( ++mouse_reduct >= MOUSE_RELEASE_DELAY ) )
+					if ( ( ET_COLOR == last_clicked ) || ( ++mouse_reduct >= MOUSE_RELEASE_DELAY ) ) {
 						mouse_reduct = MOUSE_RELEASE_DELAY - 1;
+					}
 				}
-			} else
+			} else {
 				mouse_reduct = 0;
+			}
 			mouse_clock = MOUSE_RELEASE_DELAY - mouse_reduct;
 		}
 
@@ -886,27 +934,33 @@ int32_t Menu::operator() () {
 				bool       old_mouse = env.osMouse; // To catch mouse changes
 
 				// Note whether clicked on elements for the clock delay reduction
-				if ( event )
+				if ( event ) {
 					last_clicked = type;
-				else
+				} else {
 					last_clicked = ET_NONE;
+				}
 
 				// ET_VALUE needs handling for left/right keys:
 				if ( ET_VALUE == type ) {
-					if ( KEY_RIGHT == key_code )
+					if ( KEY_RIGHT == key_code ) {
 						event = 1;
-					else if ( KEY_LEFT == key_code )
+					} else if ( KEY_LEFT == key_code ) {
 						event = -1;
+					}
 					// If the right mouse button or ctrl key was pressed,
 					// multiply the event by 10
-					if ( mrb_is_pressed || has_ctrl_down ) event *= 10;
+					if ( mrb_is_pressed || has_ctrl_down ) {
+						event *= 10;
+					}
 				}
 
 				// Set key_code to activation result
 				key_code = curr->activate( event, mlb_x, mlb_y, allegro_key );
 
 				// If this was a sub menu, redraw the current menu:
-				if ( ET_MENU == type ) redrawAll( true );
+				if ( ET_MENU == type ) {
+					redrawAll( true );
+				}
 
 				// Some elements trigger end-events
 				if ( ( key_code > 0 )
@@ -914,14 +968,17 @@ int32_t Menu::operator() () {
 				     // it just means that the sub menu was closes:
 				     && ( ( ET_MENU != type ) || ( KEY_ESC != key_code ) ) ) {
 					end_event = key_code;
-				} else
+				} else {
 					key_code = -1;
+				}
 				allegro_key = 0;
 
 				// If the mouse was changed, the change must be performed
 				// at once. If we didn't do this here, switching back to
 				// standard mouse makes it invisible until the menu exits.
-				if ( old_mouse != env.osMouse ) init_mouse_cursor();
+				if ( old_mouse != env.osMouse ) {
+					init_mouse_cursor();
+				}
 
 			} // End of having a menu entry to handle
 		}         // End of having mouse button or key event
@@ -935,7 +992,9 @@ int32_t Menu::operator() () {
 
 	// As the menu does not clear error messages, a possible
 	// message must be cleared now:
-	if ( errorMessage ) errorMessage = nullptr;
+	if ( errorMessage ) {
+		errorMessage = nullptr;
+	}
 
 	return end_event;
 
@@ -1004,10 +1063,11 @@ int32_t Menu::insert_option( OptionItemBase* new_opt ) {
 /// @brief simple singly list insert with title setting
 int32_t Menu::insert_option( OptionItemBase* new_opt, int32_t title_idx, char const* title_ ) {
 	if ( new_opt ) {
-		if ( title_ )
+		if ( title_ ) {
 			new_opt->setTitle( title_ );
-		else if ( is_title_idx_valid( title_idx ) )
+		} else if ( is_title_idx_valid( title_idx ) ) {
 			new_opt->setTitle( MenuTitleText[ menu_class ][ menu_lang ][ title_idx ] );
+		}
 		return insert_option( new_opt );
 	}
 	return entry_cnt;
@@ -1018,7 +1078,9 @@ bool Menu::is_title_idx_valid( int32_t title_idx ) {
 	int32_t            curr_idx = 0;
 	char const* const* titles   = MenuTitleText[ menu_class ][ menu_lang ];
 
-	while ( ( curr_idx < title_idx ) && titles[ curr_idx ] ) ++curr_idx;
+	while ( ( curr_idx < title_idx ) && titles[ curr_idx ] ) {
+		++curr_idx;
+	}
 
 	return ( ( title_idx > -1 ) && ( curr_idx == title_idx ) && titles[ curr_idx ] );
 }
@@ -1049,10 +1111,11 @@ int32_t Menu::selectClicked( int32_t x, int32_t y ) {
 
 	while ( curr && !result ) {
 		++curr_idx;
-		if ( curr->is_click_in( x, y, retval ) )
+		if ( curr->is_click_in( x, y, retval ) ) {
 			result = curr;
-		else
+		} else {
 			curr = curr->getNext();
+		}
 	}
 
 	if ( result && !result->is_selected() ) {
@@ -1073,23 +1136,28 @@ void Menu::selectNext() {
 
 	if ( entry_sel > -1 ) {
 		curr = operator[] ( entry_sel );
-		if ( curr ) curr->unselect();
+		if ( curr ) {
+			curr->unselect();
+		}
 	}
 
 	// If this was the last entry, none is to be selected
-	if ( ++entry_sel >= entry_cnt )
+	if ( ++entry_sel >= entry_cnt ) {
 		entry_sel = -1;
-	else {
-		if ( curr )
+	} else {
+		if ( curr ) {
 			// The previous was unselected
 			curr = curr->getNext();
-		else
+		} else {
 			curr = operator[] ( entry_sel );
+		}
 
 		// Be sure the container works properly!
 		assert( curr && "ERROR: Something is wrong with the OptionEntry list!" );
 
-		if ( curr ) curr->select();
+		if ( curr ) {
+			curr->select();
+		}
 	}
 }
 
@@ -1102,38 +1170,45 @@ void Menu::selectPrev() {
 
 	if ( entry_sel > -1 ) {
 		curr = operator[] ( entry_sel );
-		if ( curr ) curr->unselect();
+		if ( curr ) {
+			curr->unselect();
+		}
 	}
 
 	// If this was the first entry, none is to be selected
 	if ( --entry_sel != -1 ) {
 		// Rotate to the end if none was selected
-		if ( entry_sel < -1 ) entry_sel = entry_cnt - 1;
+		if ( entry_sel < -1 ) {
+			entry_sel = entry_cnt - 1;
+		}
 
-		if ( curr )
+		if ( curr ) {
 			// The next was unselected
 			curr = curr->getPrev();
-		else
+		} else {
 			curr = operator[] ( entry_sel );
+		}
 
 		// Be sure the container works properly!
 		assert( curr && "ERROR: Something is wrong with the OptionEntry list!" );
 
-		if ( curr ) curr->select();
+		if ( curr ) {
+			curr->select();
+		}
 	}
 }
 
 /// @brief little helper to be able to add options from inside the header
-void Menu::setTexts( OptionItemBase* item, char const** texts, eTextClass text_class ) {
-	assert( item && ( texts || ( TC_FREETEXT != text_class ) ) && ( TC_NONE != text_class )
+void Menu::setTexts( OptionItemBase* itm, char const** texts, eTextClass text_class ) {
+	assert( itm && ( texts || ( TC_FREETEXT != text_class ) ) && ( TC_NONE != text_class )
 	        && "ERROR: This does not fit at all!" );
-	if ( item ) {
+	if ( itm ) {
 		if ( ( TC_FREETEXT == text_class ) && texts ) {
-			item->setTextClass( text_class );
-			item->setTexts( texts );
-		} else if ( TC_NONE != TC_FREETEXT ) {
-			item->setTextClass( text_class );
-			item->setTexts( const_cast< char const** >( OptionClassText[ text_class ][ menu_lang ] ) );
+			itm->setTextClass( text_class );
+			itm->setTexts( texts );
+		} else if ( TC_NONE != text_class ) {
+			itm->setTextClass( text_class );
+			itm->setTexts( const_cast< char const** >( OptionClassText[ text_class ][ menu_lang ] ) );
 		}
 	}
 }
@@ -1146,19 +1221,23 @@ void Menu::unselect() {
 
 	if ( entry_sel > -1 ) {
 		curr = operator[] ( entry_sel );
-		if ( curr ) curr->unselect();
+		if ( curr ) {
+			curr->unselect();
+		}
 		entry_sel = -1;
 	}
 }
 
 /// @brief display function for tank bitmaps plus tank type text
-bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y ) {
+bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y ) { // NOLINT(*-non-const-parameter)
 	assert( tanknum && "ERROR: tanknum must be set" );
 
 	assert( *tanknum > -1 && "ERROR: tanknum too low" );
 	assert( *tanknum < TT_TANK_COUNT && "ERROR: tanknum too high" );
 
-	if ( !tanknum || ( *tanknum < 0 ) || ( *tanknum >= TT_TANK_COUNT ) ) return false;
+	if ( !tanknum || ( *tanknum < 0 ) || ( *tanknum >= TT_TANK_COUNT ) ) {
+		return false;
+	}
 
 	BITMAP*     tank_bmp   = env.tank[ *tanknum ? *tanknum + TO_TANK : *tanknum ];
 	BITMAP*     turr_bmp   = env.tankgun[ *tanknum ? *tanknum + TO_TURRET : *tanknum ];
