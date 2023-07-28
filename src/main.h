@@ -292,14 +292,6 @@ using std::string;
 #define ATOMIC_READ  std::memory_order_acquire
 #define ATOMIC_WRITE std::memory_order_release
 
-struct POINT_t {
-	int32_t x          = 0;
-	int32_t y          = 0;
-
-	explicit POINT_t() = default;
-};
-
-
 struct gradient {
 	RGB   color;
 	float point;

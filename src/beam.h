@@ -34,6 +34,13 @@ enum eBeamType {
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
+struct POINT_t {
+	int32_t x          = 0;
+	int32_t y          = 0;
+
+	explicit POINT_t() = default;
+};
+
 class BEAM final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
