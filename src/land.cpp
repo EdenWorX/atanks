@@ -3,6 +3,7 @@
 #include "externs.h"
 #include "files.h"
 #include "gameloop.h"
+#include "levelcreator.h"
 #include "random.h"
 
 

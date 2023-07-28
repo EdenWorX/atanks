@@ -1,7 +1,7 @@
 #include "shop.h"
 
 #include "files.h"
-#include "gameloop.h" // For the LevelCreator declaration.
+#include "levelcreator.h"
 #include "player.h"
 #include "text.h"     // for draw_text_in_box()
 

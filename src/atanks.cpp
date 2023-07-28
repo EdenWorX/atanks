@@ -27,6 +27,7 @@
 #include "optionscreens.h"
 #include "player.h"
 #include "random.h"
+#include "score.h"
 #include "tank.h"
 #include "update.h"
 

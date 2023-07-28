@@ -36,6 +36,7 @@ TODO
 #include "files.h"
 #include "gameloop.h"
 #include "gfxData.h"
+#include "levelcreator.h"
 #include "main.h"
 #include "random.h"
 
