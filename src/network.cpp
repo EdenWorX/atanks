@@ -36,10 +36,14 @@ MESSAGE_QUEUE::~MESSAGE_QUEUE() {
 bool MESSAGE_QUEUE::Add( char *some_text, int to ) {
 	MESSAGE *new_message;
 
-	if ( !some_text ) return false;
+	if ( !some_text ) {
+		return false;
+	}
 
 	new_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
-	if ( !new_message ) return false;
+	if ( !new_message ) {
+		return false;
+	}
 	new_message->text = (char *)calloc( strlen( some_text ) + 1, sizeof( char ) );
 	if ( !new_message->text ) {
 		free( new_message );
@@ -70,8 +74,10 @@ bool MESSAGE_QUEUE::Add( char *some_text, int to ) {
 MESSAGE *MESSAGE_QUEUE::Read() {
 	MESSAGE *my_message;
 
-	my_message = Peek();       // grab next message
-	if ( my_message ) Erase(); // clear it from the queue
+	my_message = Peek(); // grab next message
+	if ( my_message ) {
+		Erase(); // clear it from the queue
+	}
 
 	return my_message;
 }
@@ -82,11 +88,15 @@ MESSAGE *MESSAGE_QUEUE::Peek() {
 	MESSAGE *my_message;
 
 	// see if there is a message to get
-	if ( ( !first_message ) || ( !first_message->text ) ) return NULL;
+	if ( ( !first_message ) || ( !first_message->text ) ) {
+		return NULL;
+	}
 
 	// we want to make a copy of the message, not just pass back a pointer
 	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
-	if ( !my_message ) return NULL;
+	if ( !my_message ) {
+		return NULL;
+	}
 	my_message->text = (char *)calloc( strlen( first_message->text ) + 1, sizeof( char ) );
 	if ( !my_message->text ) {
 		free( my_message );
@@ -111,19 +121,23 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 	// search for matching to field
 	current = first_message;
 	while ( ( current ) && ( !found ) ) {
-		if ( current->to == my_to )
+		if ( current->to == my_to ) {
 			found = true;
-		else {
+		} else {
 			previous = current;
 			current  = (MESSAGE *)current->next;
 		}
 	}
 
-	if ( !found ) return NULL;
+	if ( !found ) {
+		return NULL;
+	}
 
 	// found match, create a copy and erase the original
 	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
-	if ( !my_message ) return NULL;
+	if ( !my_message ) {
+		return NULL;
+	}
 
 	my_message->text = (char *)calloc( strlen( current->text ) + 1, sizeof( char ) );
 	if ( !my_message->text ) {
@@ -133,12 +147,15 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 
 	my_message->to = current->to;
 	strncpy( my_message->text, current->text, strlen( current->text ) );
-	if ( previous )
+	if ( previous ) {
 		previous->next = current->next;
-	else
+	} else {
 		first_message = (MESSAGE *)current->next;
+	}
 
-	if ( last_message == current ) last_message = previous;
+	if ( last_message == current ) {
+		last_message = previous;
+	}
 
 	free( current->text );
 	free( current );
@@ -159,7 +176,9 @@ void MESSAGE_QUEUE::Erase() {
 		free( first_message );
 
 		// see if we are at the end of the list
-		if ( last_message == first_message ) last_message = next_in_line;
+		if ( last_message == first_message ) {
+			last_message = next_in_line;
+		}
 
 		first_message = next_in_line;
 	}
@@ -172,7 +191,9 @@ void MESSAGE_QUEUE::Erase_All() {
 	current = first_message;
 	while ( current ) {
 		coming_up = (MESSAGE *)current->next;
-		if ( current->text ) free( current->text );
+		if ( current->text ) {
+			free( current->text );
+		}
 		free( current );
 		current = coming_up;
 	}
@@ -211,22 +232,28 @@ int Setup_Server_Socket( int port ) {
 // Connect to a remote server. Returns -1 on failure or
 // a socket (int) on success.
 int Setup_Client_Socket( char *server_name, char *port ) {
-	int                socket_num, port_number;
+	int                socket_num, port_number = 4711;
 	struct sockaddr_in server_address;
 	struct hostent    *server;
 
-	sscanf( port, "%d", &port_number );
+	SAFE_STOI( port_number, port );
 	socket_num = socket( AF_INET, SOCK_STREAM, 0 );
-	if ( socket_num < 0 ) return -1;
+	if ( socket_num < 0 ) {
+		return -1;
+	}
 	server = gethostbyname( server_name );
-	if ( !server ) return -1;
+	if ( !server ) {
+		return -1;
+	}
 	bzero( (char *)&server_address, sizeof( server_address ) );
 	server_address.sin_family = AF_INET;
 	bcopy( (char *)server->h_addr, (char *)&server_address.sin_addr.s_addr, server->h_length );
 	server_address.sin_port = htons( port_number );
 
 	// try to connect
-	if ( connect( socket_num, (sockaddr *)&server_address, sizeof( server_address ) ) < 0 ) return -1;
+	if ( connect( socket_num, (sockaddr *)&server_address, sizeof( server_address ) ) < 0 ) {
+		return -1;
+	}
 
 	return socket_num;
 }
@@ -266,7 +293,9 @@ MESSAGE *Receive_Message( int from_socket ) {
 	char     buffer[ MAX_MESSAGE_LENGTH ];
 
 	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
-	if ( !my_message ) return NULL;
+	if ( !my_message ) {
+		return NULL;
+	}
 
 	memset( buffer, '\0', MAX_MESSAGE_LENGTH );
 	bytes_read = read( from_socket, buffer, MAX_MESSAGE_LENGTH );
@@ -311,14 +340,17 @@ int Check_For_Incoming_Data( int socket_number ) {
 
 	retval     = select( socket_number + 1, &rfds, NULL, NULL, &tv );
 
-	if ( retval == -1 )
+	if ( retval == -1 ) {
 		return -1;
+	}
 
-	else if ( retval )
+	else if ( retval ) {
 		return TRUE;
+	}
 
-	else
+	else {
 		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -338,12 +370,13 @@ int Check_For_Errors( int socket_number ) {
 
 	expval     = select( socket_number + 1, NULL, NULL, &exds, &tv );
 
-	if ( expval == -1 )
+	if ( expval == -1 ) {
 		return TRUE;
-	else if ( expval )
+	} else if ( expval ) {
 		return TRUE;
-	else
+	} else {
 		return FALSE;
+	}
 }
 
 // This function will probably be called as a separate thread at the
@@ -383,8 +416,9 @@ void *Send_And_Receive( void *all_the_data ) {
 					env.players[ counter ]->previous_type = env.players[ counter ]->type;
 					env.players[ counter ]->type          = NETWORK_CLIENT;
 					printf( "Assigned connection to %s\n", env.players[ counter ]->getName() );
-				} else
+				} else {
 					counter++;
+				}
 			}
 			// in case we did not find a match
 			if ( !found ) {

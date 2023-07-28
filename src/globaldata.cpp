@@ -44,24 +44,37 @@ GLOBALDATA::~GLOBALDATA() {
 /// @brief goes through the columns from @a left to @a right and sets slide type according to @a do_lock
 void GLOBALDATA::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
 	// Opt out soon if no landslide is to be done
-	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) return;
+	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) {
+		return;
+	}
 
 	int32_t minX = std::min( left, right );
 	int32_t maxX = std::max( left, right );
 
-	if ( minX < 1 ) minX = 1;
-	if ( minX > ( env.screenWidth - 1 ) ) minX = env.screenWidth - 1;
-	if ( maxX < 1 ) maxX = 1;
-	if ( maxX > ( env.screenWidth - 1 ) ) maxX = env.screenWidth - 1;
+	if ( minX < 1 ) {
+		minX = 1;
+	}
+	if ( minX > ( env.screenWidth - 1 ) ) {
+		minX = env.screenWidth - 1;
+	}
+	if ( maxX < 1 ) {
+		maxX = 1;
+	}
+	if ( maxX > ( env.screenWidth - 1 ) ) {
+		maxX = env.screenWidth - 1;
+	}
 
-	if ( do_lock )
+	if ( do_lock ) {
 		memset( &done[ minX ], 3, sizeof( char ) * ( maxX - minX + 1 ) );
-	else
+	} else {
 		memset( &done[ minX ], 2, sizeof( char ) * ( maxX - minX + 1 ) );
+	}
 }
 
 void GLOBALDATA::addObject( vobj_t* object ) {
-	if ( nullptr == object ) return;
+	if ( nullptr == object ) {
+		return;
+	}
 
 	eClass class_ = object->getClass();
 
@@ -99,8 +112,9 @@ void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* tar
 
 	// If the update is outside the screen, it is not needed:
 	if ( ( bottom <= 0 ) /* most common case */
-	     || ( left >= env.screenWidth ) || ( right <= 0 ) || ( top >= env.screenHeight ) )
+	     || ( left >= env.screenWidth ) || ( right <= 0 ) || ( top >= env.screenHeight ) ) {
 		return;
+	}
 
 	assert( ( left < right ) );
 	assert( ( top < bottom ) );
@@ -133,10 +147,13 @@ void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* tar
 		}
 	}
 
-	if ( !combined ) target[ target_count++ ].set( left, top, right - left, bottom - top );
+	if ( !combined ) {
+		target[ target_count++ ].set( left, top, right - left, bottom - top );
+	}
 
-	if ( !stopwindow && ( target_count <= env.max_screen_updates ) )
+	if ( !stopwindow && ( target_count <= env.max_screen_updates ) ) {
 		env.window_update( left, top, right - left, bottom - top );
+	}
 }
 
 // return true if any living tank is in the given box.
@@ -146,7 +163,9 @@ bool GLOBALDATA::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 )
 
 	while ( lt ) {
 		// Tank found, is it in the box?
-		if ( ( !lt->destroy ) && lt->isInBox( x1, y1, x2, y2 ) ) return true;
+		if ( ( !lt->destroy ) && lt->isInBox( x1, y1, x2, y2 ) ) {
+			return true;
+		}
 		lt->getNext( &lt );
 	}
 
@@ -163,12 +182,14 @@ bool GLOBALDATA::areTanksInBox( double x1, double y1, double x2, double y2 ) {
 // returns false if time hasn't passed or it was unable to tell
 // how much time has passed.
 bool GLOBALDATA::check_time_changed() {
-	volatile static time_t last_second    = 0;
-	static time_t          current_second = 0;
+	static time_t volatile last_second = 0;
+	static time_t current_second       = 0;
 
 	time( &current_second );
 
-	if ( current_second == last_second ) return false;
+	if ( current_second == last_second ) {
+		return false;
+	}
 
 	// time has changed
 	last_second = current_second;
@@ -181,7 +202,9 @@ void GLOBALDATA::clear_objects() {
 	int32_t class_ = 0;
 
 	while ( class_ < CLASS_COUNT ) {
-		while ( tails[ class_ ] ) delete tails[ class_ ];
+		while ( tails[ class_ ] ) {
+			delete tails[ class_ ];
+		}
 		++class_;
 	}
 }
@@ -251,7 +274,9 @@ void GLOBALDATA::do_updates() {
 		      updates[ i ].w,
 		      updates[ i ].h );
 
-		if ( isBgUpdNeeded ) make_bgupdate( updates[ i ].x, updates[ i ].y, updates[ i ].w, updates[ i ].h );
+		if ( isBgUpdNeeded ) {
+			make_bgupdate( updates[ i ].x, updates[ i ].y, updates[ i ].w, updates[ i ].h );
+		}
 	}
 	release_bitmap( screen );
 	if ( !isBgUpdNeeded ) {
@@ -365,23 +390,41 @@ int32_t GLOBALDATA::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t
 	/*---------------------
 	  --- Left side ---
 	  ---------------------*/
-	if ( PINK == ( col_tl = getpixel( terrain, left, top ) ) ) col_tl = getpixel( env.sky, left, top );
-	if ( PINK == ( col_ml = getpixel( terrain, left, middle ) ) ) col_ml = getpixel( env.sky, left, middle );
-	if ( PINK == ( col_bl = getpixel( terrain, left, bottom ) ) ) col_bl = getpixel( env.sky, left, bottom );
+	if ( PINK == ( col_tl = getpixel( terrain, left, top ) ) ) {
+		col_tl = getpixel( env.sky, left, top );
+	}
+	if ( PINK == ( col_ml = getpixel( terrain, left, middle ) ) ) {
+		col_ml = getpixel( env.sky, left, middle );
+	}
+	if ( PINK == ( col_bl = getpixel( terrain, left, bottom ) ) ) {
+		col_bl = getpixel( env.sky, left, bottom );
+	}
 
 	/*---------------------
 	  --- The Center ---
 	---------------------*/
-	if ( PINK == ( col_tc = getpixel( terrain, centre, top ) ) ) col_tc = getpixel( env.sky, centre, top );
-	if ( PINK == ( col_mc = getpixel( terrain, centre, middle ) ) ) col_mc = getpixel( env.sky, centre, middle );
-	if ( PINK == ( col_bc = getpixel( terrain, centre, bottom ) ) ) col_bc = getpixel( env.sky, centre, bottom );
+	if ( PINK == ( col_tc = getpixel( terrain, centre, top ) ) ) {
+		col_tc = getpixel( env.sky, centre, top );
+	}
+	if ( PINK == ( col_mc = getpixel( terrain, centre, middle ) ) ) {
+		col_mc = getpixel( env.sky, centre, middle );
+	}
+	if ( PINK == ( col_bc = getpixel( terrain, centre, bottom ) ) ) {
+		col_bc = getpixel( env.sky, centre, bottom );
+	}
 
 	/*----------------------
 	  --- Right side ---
 	----------------------*/
-	if ( PINK == ( col_tr = getpixel( terrain, right, top ) ) ) col_tr = getpixel( env.sky, right, top );
-	if ( PINK == ( col_mr = getpixel( terrain, right, middle ) ) ) col_mr = getpixel( env.sky, right, middle );
-	if ( PINK == ( col_br = getpixel( terrain, right, bottom ) ) ) col_br = getpixel( env.sky, right, bottom );
+	if ( PINK == ( col_tr = getpixel( terrain, right, top ) ) ) {
+		col_tr = getpixel( env.sky, right, top );
+	}
+	if ( PINK == ( col_mr = getpixel( terrain, right, middle ) ) ) {
+		col_mr = getpixel( env.sky, right, middle );
+	}
+	if ( PINK == ( col_br = getpixel( terrain, right, bottom ) ) ) {
+		col_br = getpixel( env.sky, right, bottom );
+	}
 
 
 	// Fetch the rgb parts, according to movement:
@@ -499,14 +542,17 @@ TANK* GLOBALDATA::get_next_tank( bool* wrapped_around ) {
 	while ( !found && ( wrapped < 2 ) ) {
 		if ( index >= MAXPLAYERS ) {
 			index = 0;
-			if ( wrapped_around ) *wrapped_around = true;
+			if ( wrapped_around ) {
+				*wrapped_around = true;
+			}
 			wrapped++;
 		}
 
-		if ( order[ index ] && ( index != oldindex ) && !order[ index ]->destroy )
+		if ( order[ index ] && ( index != oldindex ) && !order[ index ]->destroy ) {
 			found = true;
-		else
+		} else {
 			++index;
+		}
 	}
 
 	tankindex = index;
@@ -514,10 +560,14 @@ TANK* GLOBALDATA::get_next_tank( bool* wrapped_around ) {
 	// If this tank is valid, the currently selected weapon must be checked
 	// first and changed if depleted
 	TANK* next_tank = order[ index ];
-	if ( next_tank && next_tank->player ) next_tank->check_weapon();
+	if ( next_tank && next_tank->player ) {
+		next_tank->check_weapon();
+	}
 
 	// Whatever happened, the status bar needs an update:
-	if ( oldindex != index ) updateMenu = true;
+	if ( oldindex != index ) {
+		updateMenu = true;
+	}
 
 	return next_tank;
 }
@@ -554,18 +604,24 @@ void GLOBALDATA::initialise() {
 bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	int32_t top = std::max( std::min( y1, y2 ), env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT );
 	// Exit early if the box is below the playing area
-	if ( top >= env.screenHeight ) return false;
+	if ( top >= env.screenHeight ) {
+		return false;
+	}
 
 	int32_t bottom = std::min( std::max( y1, y2 ), env.screenHeight - 2 );
 	// Exit early if the box is over the playing area
-	if ( bottom <= MENUHEIGHT ) return false;
+	if ( bottom <= MENUHEIGHT ) {
+		return false;
+	}
 
 	int32_t left  = std::max( std::min( x1, x2 ), 1 );
 	int32_t right = std::min( std::max( x1, x2 ), env.screenWidth - 2 );
 
 	// If the box is outside the playing area, this loop won't do anything
 	for ( int32_t x = left; x <= right; ++x ) {
-		if ( surface[ x ].load( ATOMIC_READ ) <= bottom ) return true;
+		if ( surface[ x ].load( ATOMIC_READ ) <= bottom ) {
+			return true;
+		}
 	}
 
 	return false;
@@ -600,9 +656,10 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 	// read until we hit line "*GLOBAL*" or "***" or EOF
 	do {
 		result = fgets( line, MAX_CONFIG_LINE, file );
-		if ( !result || !strncmp( line, "***", 3 ) )
+		if ( !result || !strncmp( line, "***", 3 ) ) {
 			// eof OR end of record
 			return;
+		}
 	} while ( strncmp( line, "*GLOBAL*", 8 ) );
 
 	bool done = false;
@@ -613,7 +670,9 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
 
 			// if we hit end of the record, stop
-			if ( !strncmp( line, "***", 3 ) ) return;
+			if ( !strncmp( line, "***", 3 ) ) {
+				return;
+			}
 
 			// strip newline character
 			size_t line_length = strlen( line );
@@ -624,10 +683,14 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 
 			// find equal sign
 			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) equal_position++;
+			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
+				equal_position++;
+			}
 
 			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) continue; // Go to next line
+			if ( line[ equal_position ] != '=' ) {
+				continue; // Go to next line
+			}
 
 			// seperate field from value
 			memset( field, '\0', MAX_CONFIG_LINE );
@@ -641,100 +704,107 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 			// save will put them into the correct section anyway.
 			// So these can eventually be removed.
 			if ( !strcasecmp( field, "acceleratedai" ) ) {
-				sscanf( value, "%d", &env.skipComputerPlay );
-				if ( env.skipComputerPlay > SKIP_HUMANS_DEAD ) env.skipComputerPlay = SKIP_HUMANS_DEAD;
+				SAFE_STOI( env.skipComputerPlay, value );
+				if ( env.skipComputerPlay > SKIP_HUMANS_DEAD ) {
+					env.skipComputerPlay = SKIP_HUMANS_DEAD;
+				}
 			} else if ( !strcasecmp( field, "checkupdates" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.check_for_updates = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "colourtheme" ) ) {
-				sscanf( value, "%d", &env.colourTheme );
-				if ( env.colourTheme < CT_REGULAR ) env.colourTheme = CT_REGULAR;
-				if ( env.colourTheme > CT_CRISPY ) env.colourTheme = CT_CRISPY;
-			} else if ( !strcasecmp( field, "debrislevel" ) )
-				sscanf( value, "%d", &env.debris_level );
-			else if ( !strcasecmp( field, "detailedland" ) ) {
+				SAFE_STOI( env.colourTheme, value );
+				if ( env.colourTheme < CT_REGULAR ) {
+					env.colourTheme = CT_REGULAR;
+				}
+				if ( env.colourTheme > CT_CRISPY ) {
+					env.colourTheme = CT_CRISPY;
+				}
+			} else if ( !strcasecmp( field, "debrislevel" ) ) {
+				SAFE_STOI( env.debris_level, value );
+			} else if ( !strcasecmp( field, "detailedland" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.detailedLandscape = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "detailedsky" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.detailedSky = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "dither" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.ditherGradients = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "dividemoney" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.divide_money = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "enablesound" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.sound_enabled = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "frames" ) ) {
 				int32_t new_fps = 0;
-				sscanf( value, "%d", &new_fps );
+				SAFE_STOI( new_fps, value );
 				env.set_fps( new_fps );
-			} else if ( !strcasecmp( field, "fullscreen" ) )
-				sscanf( value, "%d", &env.full_screen );
-			else if ( !strcasecmp( field, "interest" ) )
-				sscanf( value, "%lf", &env.interest );
-			else if ( !strcasecmp( field, "language" ) ) {
+			} else if ( !strcasecmp( field, "fullscreen" ) ) {
+				SAFE_STOI( env.full_screen, value );
+			} else if ( !strcasecmp( field, "interest" ) ) {
+				SAFE_STOD( env.interest, value );
+			} else if ( !strcasecmp( field, "language" ) ) {
 				uint32_t stored_lang = 0;
-				sscanf( value, "%u", &stored_lang );
+				SAFE_STOUL( stored_lang, value );
 				env.language = static_cast< eLanguages >( stored_lang );
-			} else if ( !strcasecmp( field, "listenport" ) )
-				sscanf( value, "%d", &env.network_port );
-			else if ( !strcasecmp( field, "maxfiretime" ) )
-				sscanf( value, "%d", &env.maxFireTime );
-			else if ( !strcasecmp( field, "networking" ) ) {
+			} else if ( !strcasecmp( field, "listenport" ) ) {
+				SAFE_STOI( env.network_port, value );
+			} else if ( !strcasecmp( field, "maxfiretime" ) ) {
+				SAFE_STOI( env.maxFireTime, value );
+			} else if ( !strcasecmp( field, "networking" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.network_enabled = val > 0 ? true : false;
-			} else if ( !strcasecmp( field, "numpermanentplayers" ) )
-				sscanf( value, "%d", &env.numPermanentPlayers );
-			else if ( !strcasecmp( field, "OSMOUSE" ) ) {
+			} else if ( !strcasecmp( field, "numpermanentplayers" ) ) {
+				SAFE_STOI( env.numPermanentPlayers, value );
+			} else if ( !strcasecmp( field, "OSMOUSE" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.osMouse = val > 0 ? true : false;
 			} else if ( !strcasecmp( field, "playmusic" ) ) {
 				int32_t val = 0;
-				sscanf( value, "%d", &val );
+				SAFE_STOI( val, value );
 				env.play_music = val > 0 ? true : false;
-			} else if ( !strcasecmp( field, "rounds" ) )
-				sscanf( value, "%u", &env.rounds );
-			else if ( !strcasecmp( field, "screenwidth" ) && !env.temp_screenWidth ) {
-				sscanf( value, "%d", &env.screenWidth );
+			} else if ( !strcasecmp( field, "rounds" ) ) {
+				SAFE_STOUL( env.rounds, value );
+			} else if ( !strcasecmp( field, "screenwidth" ) && !env.temp_screenWidth ) {
+				SAFE_STOI( env.screenWidth, value );
 				env.halfWidth        = env.screenWidth / 2;
 				env.temp_screenWidth = env.screenWidth;
 			} else if ( !strcasecmp( field, "screenheight" ) && !env.temp_screenHeight ) {
-				sscanf( value, "%d", &env.screenHeight );
+				SAFE_STOI( env.screenHeight, value );
 				env.halfHeight        = env.screenHeight / 2;
 				env.temp_screenHeight = env.screenHeight;
-			} else if ( !strcasecmp( field, "scorehitunit" ) )
-				sscanf( value, "%d", &env.scoreHitUnit );
-			else if ( !strcasecmp( field, "scoreselfhit" ) )
-				sscanf( value, "%d", &env.scoreSelfHit );
-			else if ( !strcasecmp( field, "scoreroundwinbonus" ) )
-				sscanf( value, "%d", &env.scoreRoundWinBonus );
-			else if ( !strcasecmp( field, "scoreteamhit" ) )
-				sscanf( value, "%d", &env.scoreTeamHit );
-			else if ( !strcasecmp( field, "scoreunitdestroybonus" ) )
-				sscanf( value, "%d", &env.scoreUnitDestroyBonus );
-			else if ( !strcasecmp( field, "scoreunitselfdestroy" ) )
-				sscanf( value, "%d", &env.scoreUnitSelfDestroy );
-			else if ( !strcasecmp( field, "sellpercent" ) )
-				sscanf( value, "%lf", &env.sellpercent );
-			else if ( !strcasecmp( field, "sounddriver" ) )
-				sscanf( value, "%d", &env.sound_driver );
-			else if ( !strcasecmp( field, "startmoney" ) )
-				sscanf( value, "%d", &env.startmoney );
-			else if ( !strcasecmp( field, "turntype" ) )
-				sscanf( value, "%d", &env.turntype );
-			else if ( !strcasecmp( field, "violentdeath" ) )
-				sscanf( value, "%d", &env.violent_death );
+			} else if ( !strcasecmp( field, "scorehitunit" ) ) {
+				SAFE_STOI( env.scoreHitUnit, value );
+			} else if ( !strcasecmp( field, "scoreselfhit" ) ) {
+				SAFE_STOI( env.scoreSelfHit, value );
+			} else if ( !strcasecmp( field, "scoreroundwinbonus" ) ) {
+				SAFE_STOI( env.scoreRoundWinBonus, value );
+			} else if ( !strcasecmp( field, "scoreteamhit" ) ) {
+				SAFE_STOI( env.scoreTeamHit, value );
+			} else if ( !strcasecmp( field, "scoreunitdestroybonus" ) ) {
+				SAFE_STOI( env.scoreUnitDestroyBonus, value );
+			} else if ( !strcasecmp( field, "scoreunitselfdestroy" ) ) {
+				SAFE_STOI( env.scoreUnitSelfDestroy, value );
+			} else if ( !strcasecmp( field, "sellpercent" ) ) {
+				SAFE_STOD( env.sellpercent, value );
+			} else if ( !strcasecmp( field, "sounddriver" ) ) {
+				SAFE_STOI( env.sound_driver, value );
+			} else if ( !strcasecmp( field, "startmoney" ) ) {
+				SAFE_STOI( env.startmoney, value );
+			} else if ( !strcasecmp( field, "turntype" ) ) {
+				SAFE_STOI( env.turntype, value );
+			} else if ( !strcasecmp( field, "violentdeath" ) ) {
+				SAFE_STOI( env.violent_death, value );
+			}
 		} // end of read a line properly
 	}         // end of while not done
 }
@@ -755,7 +825,9 @@ void GLOBALDATA::make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h ) {
 
 	assert( ( w > 0 ) && ( h > 0 ) );
 
-	if ( ( w > 0 ) && ( h > 0 ) ) addUpdate( x, y, w, h, lastUpdates, lastUpdatesCount );
+	if ( ( w > 0 ) && ( h > 0 ) ) {
+		addUpdate( x, y, w, h, lastUpdates, lastUpdatesCount );
+	}
 }
 
 void GLOBALDATA::make_fullUpdate() {
@@ -785,11 +857,15 @@ void GLOBALDATA::make_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	assert( ( h <= env.screenHeight ) && ( w <= env.screenWidth ) );
 	assert( ( w > 0 ) && ( h > 0 ) );
 
-	if ( ( h > 0 ) && ( w > 0 ) ) addUpdate( x, y, w, h, updates, updateCount );
+	if ( ( h > 0 ) && ( w > 0 ) ) {
+		addUpdate( x, y, w, h, updates, updateCount );
+	}
 }
 
 void GLOBALDATA::newRound() {
-	if ( ( currentround > 0 ) && ( currentround-- < env.nextCampaignRound ) ) env.nextCampaignRound -= env.campaign_rounds;
+	if ( ( currentround > 0 ) && ( currentround-- < env.nextCampaignRound ) ) {
+		env.nextCampaignRound -= env.campaign_rounds;
+	}
 
 	tankindex          = 0;
 	naturals_activated = 0;
@@ -799,7 +875,9 @@ void GLOBALDATA::newRound() {
 	int32_t class_ = 0;
 	while ( class_ < CLASS_COUNT ) {
 		if ( ( CLASS_FLOATTEXT != class_ ) && ( CLASS_TANK != class_ ) ) {
-			while ( tails[ class_ ] ) delete tails[ class_ ];
+			while ( tails[ class_ ] ) {
+				delete tails[ class_ ];
+			}
 		}
 		++class_;
 	}
@@ -813,7 +891,9 @@ void GLOBALDATA::newRound() {
 	}
 
 	// Init order array
-	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) order[ i ] = nullptr;
+	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) {
+		order[ i ] = nullptr;
+	}
 }
 
 /// @brief Tell global that the close button was pressed
@@ -825,24 +905,36 @@ void GLOBALDATA::pressCloseButton() {
 }
 
 void GLOBALDATA::removeObject( vobj_t* object ) {
-	if ( nullptr == object ) return;
+	if ( nullptr == object ) {
+		return;
+	}
 
 	eClass class_ = object->getClass();
 
 	/// --- 1: Is the list empty? ---
-	if ( nullptr == heads[ class_ ] ) return;
+	if ( nullptr == heads[ class_ ] ) {
+		return;
+	}
 
 	objLocks[ class_ ].lock();
 
 	/// --- 2: If the object is head, set it anew:
-	if ( object == heads[ class_ ] ) heads[ class_ ] = object->next;
+	if ( object == heads[ class_ ] ) {
+		heads[ class_ ] = object->next;
+	}
 
 	/// --- 4: If the object is tail, set it anew:
-	if ( object == tails[ class_ ] ) tails[ class_ ] = object->prev;
+	if ( object == tails[ class_ ] ) {
+		tails[ class_ ] = object->prev;
+	}
 
 	/// --- 5: Take it out of the list:
-	if ( object->prev ) object->prev->next = object->next;
-	if ( object->next ) object->next->prev = object->prev;
+	if ( object->prev ) {
+		object->prev->next = object->next;
+	}
+	if ( object->next ) {
+		object->next->prev = object->prev;
+	}
 	object->prev = nullptr;
 	object->next = nullptr;
 
@@ -850,10 +942,14 @@ void GLOBALDATA::removeObject( vobj_t* object ) {
 }
 
 void GLOBALDATA::removeTank( TANK* tank ) {
-	if ( nullptr == tank ) return;
+	if ( nullptr == tank ) {
+		return;
+	}
 
 	for ( int32_t i = 0; i < MAXPLAYERS; ++i ) {
-		if ( tank == order[ i ] ) order[ i ] = nullptr;
+		if ( tank == order[ i ] ) {
+			order[ i ] = nullptr;
+		}
 	}
 }
 
@@ -887,12 +983,14 @@ void GLOBALDATA::replace_canvas() {
 	int32_t t = MENUHEIGHT;
 	int32_t b = env.screenHeight - 1;
 
-	vline( canvas, l, t, b, env.wallColour );                    // Left edge
-	vline( canvas, l + 1, t, b, env.wallColour );                // Left edge
-	vline( canvas, r, t, b, env.wallColour );                    // right edge
-	vline( canvas, r - 1, t, b, env.wallColour );                // right edge
-	hline( canvas, l, b, r, env.wallColour );                    // bottom edge
-	if ( env.isBoxed ) hline( canvas, l, t, r, env.wallColour ); // top edge
+	vline( canvas, l, t, b, env.wallColour );     // Left edge
+	vline( canvas, l + 1, t, b, env.wallColour ); // Left edge
+	vline( canvas, r, t, b, env.wallColour );     // right edge
+	vline( canvas, r - 1, t, b, env.wallColour ); // right edge
+	hline( canvas, l, b, r, env.wallColour );     // bottom edge
+	if ( env.isBoxed ) {
+		hline( canvas, l, t, r, env.wallColour ); // top edge
+	}
 
 	lastUpdatesCount = 0;
 }
@@ -906,9 +1004,13 @@ void GLOBALDATA::set_command( int32_t cmd ) {
 
 void GLOBALDATA::set_curr_tank( TANK* tank_ ) {
 	if ( tank_ != currTank ) {
-		if ( currTank ) currTank->deactivate();
+		if ( currTank ) {
+			currTank->deactivate();
+		}
 		currTank = tank_;
-		if ( currTank ) currTank->activate();
+		if ( currTank ) {
+			currTank->activate();
+		}
 	}
 }
 
@@ -922,13 +1024,16 @@ void GLOBALDATA::set_curr_tank( TANK* tank_ ) {
 void GLOBALDATA::slideLand() {
 	// Opt out soon if no landslide is to be done
 	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType )
-	     || ( ( SLIDE_CARTOON == env.landSlideType ) && ( env.time_to_fall > 0 ) ) )
+	     || ( ( SLIDE_CARTOON == env.landSlideType ) && ( env.time_to_fall > 0 ) ) ) {
 		return;
+	}
 
 	for ( int32_t col = 1; col < ( env.screenWidth - 1 ); ++col ) {
 
 		// Skip this column if it is done or locked
-		if ( !done[ col ] || ( 3 == done[ col ] ) ) continue;
+		if ( !done[ col ] || ( 3 == done[ col ] ) ) {
+			continue;
+		}
 
 		// Set base settings if this hasn't happen, yet
 		if ( 2 == done[ col ] ) {
@@ -964,8 +1069,9 @@ void GLOBALDATA::slideLand() {
 
 			// Otherwise this column is done
 			else {
-				if ( !skippingComputerPlay && ( velocity[ col ] > .5 ) && ( fp[ col ] > 1 ) )
+				if ( !skippingComputerPlay && ( velocity[ col ] > .5 ) && ( fp[ col ] > 1 ) ) {
 					play_natural_sound( DIRT_FRAGMENT, col, 64, 1000 - ( fp[ col ] * 800 / env.screenHeight ) );
+				}
 				done[ col ] = 0; // Nothing to do
 				fp[ col ]   = 0;
 			}
@@ -977,16 +1083,18 @@ void GLOBALDATA::slideLand() {
 			// Only slide if no neighbours are locked
 			bool can_slide = true;
 			for ( int32_t j = col - 1; can_slide && ( j > 0 ); --j ) {
-				if ( 3 == done[ j ] )
+				if ( 3 == done[ j ] ) {
 					can_slide = false;
-				else if ( !done[ j ] )
+				} else if ( !done[ j ] ) {
 					j = 0; // no further look needed.
+				}
 			}
 			for ( int32_t j = col + 1; can_slide && ( j < ( env.screenWidth - 1 ) ); ++j ) {
-				if ( 3 == done[ j ] )
+				if ( 3 == done[ j ] ) {
 					can_slide = false;
-				else if ( !done[ j ] )
+				} else if ( !done[ j ] ) {
 					j = env.screenWidth; // no further look needed.
+				}
 			}
 
 			if ( can_slide ) {
@@ -1076,16 +1184,24 @@ void GLOBALDATA::unlockLand() {
 /// @brief goes through the columns from @a left to @a right and unlocks what is locked.
 void GLOBALDATA::unlockLandSlide( int32_t left, int32_t right ) {
 	// Opt out soon if no landslide is to be done
-	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) return;
+	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) {
+		return;
+	}
 
 	int32_t minX = std::min( left, right );
 	int32_t maxX = std::max( left, right );
 
-	if ( minX < 1 ) minX = 1;
-	if ( maxX > ( env.screenWidth - 1 ) ) maxX = env.screenWidth - 1;
+	if ( minX < 1 ) {
+		minX = 1;
+	}
+	if ( maxX > ( env.screenWidth - 1 ) ) {
+		maxX = env.screenWidth - 1;
+	}
 
 	for ( int32_t col = minX; col <= maxX; ++col ) {
-		if ( ( done[ col ] > 2 ) || !done[ col ] ) done[ col ] = 2;
+		if ( ( done[ col ] > 2 ) || !done[ col ] ) {
+			done[ col ] = 2;
+		}
 	}
 }
 
@@ -1104,9 +1220,13 @@ CSpinLock::~CSpinLock() {
 	std::thread::id this_id   = std::this_thread::get_id();
 	bool            need_lock = ( owner_id != this_id );
 
-	if ( need_lock ) lock();
+	if ( need_lock ) {
+		lock();
+	}
 	is_destroyed.store( true );
-	if ( need_lock ) unlock();
+	if ( need_lock ) {
+		unlock();
+	}
 }
 
 /// @brief return true if this thread has an active lock

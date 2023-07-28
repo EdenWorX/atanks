@@ -27,8 +27,6 @@
 #include "text.h"
 #include "wrap_dirent.h"
 
-#include <string>
-using std::string;
 
 // As everything depends on environment.h, PLAYER, TANK and VIRTUAL_OBJECT
 // Must be forwarded here, and included before the ENVIRONMENT definition

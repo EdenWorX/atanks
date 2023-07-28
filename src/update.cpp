@@ -1,19 +1,19 @@
 #include "debug.h"
-#include <sys/types.h>
 
-#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
+#include <sys/types.h>
+
 #if defined( ATANKS_IS_MSVC )
 /// What is needed here?
 #else
-#  include <netinet/in.h>
-#  include <sys/socket.h>
-
 #  include <netdb.h>
 #  include <unistd.h>
+
+#  include <netinet/in.h>
+#  include <sys/socket.h>
 #endif // MSVC++ versus gcc/clang
 
 #include "externs.h"
@@ -21,7 +21,7 @@
 #include "update.h"
 
 /// @brief update_data default ctor
-update_data::update_data( const char* server_, const char* remote_, const char* host_ )
+update_data::update_data( char const* server_, char const* remote_, char const* host_ )
 	: server_name( server_ ? strdup( server_ ) : strdup( "" ) )
 	, host_name( host_ ? strdup( host_ ) : strdup( "" ) )
 	, remote_file( remote_ ? strdup( remote_ ) : strdup( "" ) ) {
@@ -30,9 +30,15 @@ update_data::update_data( const char* server_, const char* remote_, const char* 
 
 /// @brief update_data default dtor
 update_data::~update_data() {
-	if ( server_name ) free( server_name );
-	if ( host_name ) free( host_name );
-	if ( remote_file ) free( remote_file );
+	if ( server_name ) {
+		free( server_name );
+	}
+	if ( host_name ) {
+		free( host_name );
+	}
+	if ( remote_file ) {
+		free( remote_file );
+	}
 }
 
 void update_data::operator() () {
@@ -49,16 +55,22 @@ void update_data::operator() () {
 
 
 		socket_num = socket( AF_INET, SOCK_STREAM, 0 );
-		if ( socket_num < 0 ) return;
+		if ( socket_num < 0 ) {
+			return;
+		}
 		server = gethostbyname( server_name );
-		if ( !server ) return;
+		if ( !server ) {
+			return;
+		}
 		bzero( (char*)&server_address, sizeof( server_address ) );
 		server_address.sin_family = AF_INET;
 		bcopy( (char*)server->h_addr, (char*)&server_address.sin_addr.s_addr, server->h_length );
 		server_address.sin_port = htons( port_number );
 
 		// try to connect
-		if ( connect( socket_num, (sockaddr*)&server_address, sizeof( server_address ) ) < 0 ) return;
+		if ( connect( socket_num, (sockaddr*)&server_address, sizeof( server_address ) ) < 0 ) {
+			return;
+		}
 
 
 		// get HTTP data
@@ -67,10 +79,14 @@ void update_data::operator() () {
 		got_bytes = read( socket_num, buffer, 1024 );
 
 		// search for version number in return data
-		if ( got_bytes > 1 ) found = strstr( buffer, "Version: " );
+		if ( got_bytes > 1 ) {
+			found = strstr( buffer, "Version: " );
+		}
 		while ( ( got_bytes > 1 ) && ( !found ) ) {
 			got_bytes = read( socket_num, buffer, 1024 );
-			if ( got_bytes > 1 ) found = strstr( buffer, "Version: " );
+			if ( got_bytes > 1 ) {
+				found = strstr( buffer, "Version: " );
+			}
 		}
 
 		// compare version number
@@ -79,12 +95,13 @@ void update_data::operator() () {
 			found[ 5 ]          = '\0';
 
 			double web_version  = 0.;
-			sscanf( found, "%lf", &web_version );
+			SAFE_STOD( web_version, found );
 
 			int32_t ext_version = static_cast< int32_t >( web_version * 10 );
 
-			if ( ext_version > game_version )
+			if ( ext_version > game_version ) {
 				snprintf( update_string, 1024, "A new version, %2.1lf, is ready for download.", web_version );
+			}
 		}
 
 		close( socket_num );

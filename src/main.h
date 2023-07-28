@@ -104,7 +104,6 @@
 #  define snprintf           atanks_snprintf
 #  define strncpy( d, s, c ) strncpy_s( d, c + 1, s, c )
 #  define strncat( d, s, c ) strncat_s( d, c + 1, s, c )
-#  define sscanf             sscanf_s
 #  define access             _access
 #  define F_OK               02
 #  define R_OK               04
@@ -172,6 +171,47 @@ using std::string;
 #define DEG2RAD( degree_ )                     static_cast< double >( degree_ * M_PIl / 180. )
 #define RAD2DEG( radian_ )                     static_cast< double >( radian_ * 180. / M_PIl )
 
+
+// Helpers to turn strings into integer/float without the need to use
+// sscanf(), which is considered unsecure these days.
+#define SAFE_STOI( target_, source_ )                                                           \
+	{                                                                                       \
+		try {                                                                           \
+			target_ = std::stoi( source_ );                                         \
+		} catch ( std::invalid_argument const& ex ) {                                   \
+			cerr << "ERROR parsing " << #source_ << ": " << ex.what() << endl;      \
+		} catch ( std::out_of_range const& ex ) {                                       \
+			cerr << "ERROR " << #source_ << " out of range: " << ex.what() << endl; \
+		}                                                                               \
+	}                                                                                       \
+	do {                                                                                    \
+	} while ( 0 )
+
+#define SAFE_STOD( target_, source_ )                                                           \
+	{                                                                                       \
+		try {                                                                           \
+			target_ = std::stod( source_ );                                         \
+		} catch ( std::invalid_argument const& ex ) {                                   \
+			cerr << "ERROR parsing " << #source_ << ": " << ex.what() << endl;      \
+		} catch ( std::out_of_range const& ex ) {                                       \
+			cerr << "ERROR " << #source_ << " out of range: " << ex.what() << endl; \
+		}                                                                               \
+	}                                                                                       \
+	do {                                                                                    \
+	} while ( 0 )
+
+#define SAFE_STOUL( target_, source_ )                                                          \
+	{                                                                                       \
+		try {                                                                           \
+			target_ = std::stoul( source_ );                                        \
+		} catch ( std::invalid_argument const& ex ) {                                   \
+			cerr << "ERROR parsing " << #source_ << ": " << ex.what() << endl;      \
+		} catch ( std::out_of_range const& ex ) {                                       \
+			cerr << "ERROR " << #source_ << " out of range: " << ex.what() << endl; \
+		}                                                                               \
+	}                                                                                       \
+	do {                                                                                    \
+	} while ( 0 )
 
 /** @brief show or hide the custom mouse cursor
  *

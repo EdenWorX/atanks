@@ -1,7 +1,7 @@
 #ifndef FILE_HANDLING_HEADER_
 #define FILE_HANDLING_HEADER_
 
-#define MAX_CONFIG_LINE   128
+#define MAX_CONFIG_LINE 128
 
 
 #include "debug.h"

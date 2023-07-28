@@ -36,9 +36,6 @@
 #  include <thread>
 #endif
 
-#include <string>
-using std::string;
-
 #define HELP_REQUESTED     ( -100 )
 #define SWITCH_HELP        "-h"
 #define SWITCH_FULL_SCREEN "-fs"
@@ -116,16 +113,21 @@ static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtec
 	if ( old_sound != env.sound_enabled ) {
 		if ( env.sound_enabled ) {
 			if ( detect_digi_driver( DIGI_AUTODETECT ) ) {
-				if ( install_sound( DIGI_AUTODETECT, MIDI_NONE, nullptr ) < 0 )
+				if ( install_sound( DIGI_AUTODETECT, MIDI_NONE, nullptr ) < 0 ) {
 					fprintf( stderr, "install_sound: failed turning on sound\n" );
-			} else
+				}
+			} else {
 				fprintf( stderr, "detect_digi_driver found no sound device\n" );
-		} else
+			}
+		} else {
 			remove_sound();
+		}
 	} // End of sound checking
 
 	// Check for tech level changes
-	if ( ( old_itech != env.itemtechLevel ) || ( old_wtech != env.weapontechLevel ) ) env.genItemsList();
+	if ( ( old_itech != env.itemtechLevel ) || ( old_wtech != env.weapontechLevel ) ) {
+		env.genItemsList();
+	}
 }
 
 /** @brief Close Button Handler
@@ -150,7 +152,9 @@ static void createConfig() {
 	env.numPermanentPlayers = 0;
 
 	// Override full screen settings from command line
-	if ( ( full_screen == FULL_SCREEN_TRUE ) || ( full_screen == FULL_SCREEN_FALSE ) ) env.full_screen = full_screen;
+	if ( ( full_screen == FULL_SCREEN_TRUE ) || ( full_screen == FULL_SCREEN_FALSE ) ) {
+		env.full_screen = full_screen;
+	}
 
 	// Determine basic screen settings
 	env.temp_screenWidth  = env.screenWidth;
@@ -158,7 +162,9 @@ static void createConfig() {
 	env.halfWidth         = env.screenWidth / 2;
 	env.halfHeight        = env.screenHeight / 2;
 	env.menuBeginY        = ( env.screenHeight - 400 ) / 2;
-	if ( env.menuBeginY < 0 ) env.menuBeginY = 0;
+	if ( env.menuBeginY < 0 ) {
+		env.menuBeginY = 0;
+	}
 	env.menuEndY = env.screenHeight - env.menuBeginY;
 
 	// Perform game initialization
@@ -244,38 +250,48 @@ static char const* do_winner() {
 
 		// Check the length of the name
 		int32_t curLen = text_length( font, players[ z ]->getName() );
-		if ( curLen > namLen ) namLen = curLen;
+		if ( curLen > namLen ) {
+			namLen = curLen;
+		}
 
 		// Sum up weapons worth
 		for ( int32_t j = 0; j < WEAPONS; ++j ) {
-			if ( weapon[ j ].amt && players[ z ]->nm[ j ] )
+			if ( weapon[ j ].amt && players[ z ]->nm[ j ] ) {
 				pl_money[ z ] += ( weapon[ j ].cost / weapon[ j ].amt ) * players[ z ]->nm[ j ];
+			}
 		}
 
 		// Sum up items worth
 		for ( int32_t j = 0; j < ITEMS; ++j ) {
-			if ( item[ j ].amt && players[ z ]->ni[ j ] )
+			if ( item[ j ].amt && players[ z ]->ni[ j ] ) {
 				pl_money[ z ] += ( item[ j ].cost / item[ j ].amt ) * players[ z ]->ni[ j ];
+			}
 		}
 
 		// Check value length
 		char valTxt[ 32 ] = { 0 };
 		snprintf( valTxt, 16, " %14s", Add_Comma( pl_money[ z ] ) );
 		curLen = text_length( font, valTxt );
-		if ( curLen > valLen ) valLen = curLen;
+		if ( curLen > valLen ) {
+			valLen = curLen;
+		}
 
 		// Check the length of the score
 		char    scoTxt[ 30 ] = { 0 };
 		int32_t kill_diff    = players[ z ]->kills - players[ z ]->killed;
 		snprintf( scoTxt, 29, " %6d %6d %6d %6d", players[ z ]->kills, players[ z ]->killed, kill_diff, players[ z ]->score );
 		curLen = text_length( font, scoTxt );
-		if ( curLen > scoLen ) scoLen = curLen;
+		if ( curLen > scoLen ) {
+			scoLen = curLen;
+		}
 
 		// Determine whether a new winner or a draw situation is found
 		if ( ( players[ z ]->score == maxscore ) && ( players[ z ]->kills == maxkills )
 		     && ( players[ z ]->killed == minkilled ) ) {
 			multiwinner = true;
-			if ( TEAM_NEUTRAL == players[ z ]->team ) idx_neutral = z;
+			if ( TEAM_NEUTRAL == players[ z ]->team ) {
+				idx_neutral = z;
+			}
 		} else if ( (players[z]->score > maxscore)
 		         || ( (players[z]->score == maxscore)
 		           && (kill_diff > maxdiff) )
@@ -291,11 +307,17 @@ static char const* do_winner() {
 			minkilled   = players[ z ]->killed;
 			idx_winner  = z;
 			multiwinner = false;
-			if ( TEAM_NEUTRAL == players[ z ]->team ) idx_neutral = z;
+			if ( TEAM_NEUTRAL == players[ z ]->team ) {
+				idx_neutral = z;
+			}
 		}
 
-		if ( TEAM_JEDI == players[ z ]->team ) idx_jedi = z;
-		if ( TEAM_SITH == players[ z ]->team ) idx_sith = z;
+		if ( TEAM_JEDI == players[ z ]->team ) {
+			idx_jedi = z;
+		}
+		if ( TEAM_SITH == players[ z ]->team ) {
+			idx_sith = z;
+		}
 	} // end of checking players
 
 	// Now calculate the dimensions of our score board.
@@ -329,25 +351,29 @@ static char const* do_winner() {
 		// check for team win
 		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
 			if ( ( ( idx_sith >= 0 ) && ( players[ idx_sith ]->score == players[ idx_winner ]->score ) )
-			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) )
+			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
 				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
-			else
+			} else {
 				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 45 ) );
+			}
 		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
 			if ( ( ( idx_jedi >= 0 ) && ( players[ idx_jedi ]->score == players[ idx_winner ]->score ) )
-			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) )
+			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
 				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
-			else
+			} else {
 				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
-		} else
+			}
+		} else {
 			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+		}
 	} else {
-		if ( TEAM_JEDI == players[ idx_winner ]->team )
+		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 45 ) );
-		else if ( TEAM_SITH == players[ idx_winner ]->team )
+		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
-		else
+		} else {
 			snprintf( return_string, 256, "%s: %s", env.ingame->Get_Line( 47 ), players[ idx_winner ]->getName() );
+		}
 	}
 
 	// Print the title lines
@@ -374,7 +400,9 @@ static char const* do_winner() {
 
 	// And get the head entry:
 	sScore* score = score_array;
-	while ( score->prev ) score = score->prev;
+	while ( score->prev ) {
+		score = score->prev;
+	}
 
 
 	// Eventually the player scores can be displayed:
@@ -413,7 +441,9 @@ static char const* do_winner() {
 
 	// Add a war quote:
 	char const* quote = env.war_quotes->Get_Random_Line();
-	if ( quote ) draw_text_in_box( &qarea, quote, false );
+	if ( quote ) {
+		draw_text_in_box( &qarea, quote, false );
+	}
 
 	// Clean up
 	delete[] score_array;
@@ -430,7 +460,9 @@ static void endgame_cleanup() {
 
 		// make sure networked clients say good-bye and return
 		// to old AI level
-		if ( env.players[ 0 ]->type >= NETWORK_CLIENT ) env.players[ 0 ]->type = env.players[ 0 ]->previous_type;
+		if ( env.players[ 0 ]->type >= NETWORK_CLIENT ) {
+			env.players[ 0 ]->type = env.players[ 0 ]->previous_type;
+		}
 
 		env.removeGamePlayer( env.players[ 0 ] );
 	}
@@ -456,16 +488,18 @@ BOOL WINAPI ctrlHandler( DWORD CtrlType ) {
 
 
 void init_mouse_cursor() {
-	if ( env.osMouse )
+	if ( env.osMouse ) {
 		show_os_cursor( MOUSE_CURSOR_ARROW );
-	else {
+	} else {
 		set_mouse_sprite( env.misc[ 0 ] );
 		set_mouse_sprite_focus( 0, 0 );
 	}
 }
 
 static void init_game_settings() {
-	if ( env.full_screen == FULL_SCREEN_TRUE ) env.osMouse = false;
+	if ( env.full_screen == FULL_SCREEN_TRUE ) {
+		env.osMouse = false;
+	}
 
 	int32_t status = allegro_init();
 
@@ -498,9 +532,13 @@ static void init_game_settings() {
 	set_close_button_callback( close_button_handler );
 
 	// Ensure sane colour depth
-	if ( !env.colourDepth ) env.colourDepth = desktop_color_depth();
+	if ( !env.colourDepth ) {
+		env.colourDepth = desktop_color_depth();
+	}
 
-	if ( ( env.colourDepth != 16 ) && ( env.colourDepth != 32 ) ) env.colourDepth = 16;
+	if ( ( env.colourDepth != 16 ) && ( env.colourDepth != 32 ) ) {
+		env.colourDepth = 16;
+	}
 	set_color_depth( env.colourDepth );
 
 	// Now the screen mode can be set
@@ -509,7 +547,9 @@ static void init_game_settings() {
 
 		status = set_gfx_mode( screen_mode, 800, 600, 0, 0 );
 
-		if ( status < 0 ) exit( 1 );
+		if ( status < 0 ) {
+			exit( 1 );
+		}
 		env.screenWidth  = 800;
 		env.screenHeight = 600;
 	}
@@ -522,10 +562,11 @@ static void init_game_settings() {
 #  if defined( ATANKS_DEBUG )
 	SetConsoleCtrlHandler( ctrlHandler, TRUE );
 #  endif // DEBUG
-	if ( env.full_screen == FULL_SCREEN_TRUE )
+	if ( env.full_screen == FULL_SCREEN_TRUE ) {
 		set_display_switch_mode( SWITCH_BACKAMNESIA );
-	else
+	} else {
 		set_display_switch_mode( SWITCH_BACKGROUND );
+	}
 #endif // ATANKS_IS_MSVC
 
 	if ( install_keyboard() < 0 ) {
@@ -533,7 +574,9 @@ static void init_game_settings() {
 		exit( 1 );
 	}
 
-	if ( install_mouse() < 0 ) perror( "install_mouse failed" );
+	if ( install_mouse() < 0 ) {
+		perror( "install_mouse failed" );
+	}
 
 	// check to see if we want sound
 	if ( env.sound_enabled ) {
@@ -561,7 +604,9 @@ static void init_game_settings() {
 				break;
 		}
 #  ifdef UBUNTU
-		if ( DIGI_AUTODETECT == sound_type ) sound_type = DIGI_OSS;
+		if ( DIGI_AUTODETECT == sound_type ) {
+			sound_type = DIGI_OSS;
+		}
 #  endif // UBUNTU
 #endif   // ATANKS_IS_LINUX
 
@@ -599,7 +644,9 @@ static void init_game_settings() {
 				int32_t set_voices = get_mixer_voices();
 				DEBUG_LOG( "Sound Init", "Mixer has %d voices", set_voices )
 
-				if ( set_voices < env.voices ) env.voices = set_voices;
+				if ( set_voices < env.voices ) {
+					env.voices = set_voices;
+				}
 
 				// Set the mixer quality:
 				int32_t mixq = get_mixer_quality();
@@ -608,11 +655,12 @@ static void init_game_settings() {
 					set_mixer_quality( 2 );
 				}
 			}
-		} else
+		} else {
 			fprintf( stderr, "detect_digi_driver detected no sound device\n" );
+		}
 	} // End of sound initialization
 
-	  // Colour initialization, must be done here when allegro is initialized.
+	// Colour initialization, must be done here when allegro is initialized.
 	BLACK       = makecol( 0x00, 0x00, 0x00 );
 	BLUE        = makecol( 0x00, 0x00, 0xff );
 	DARK_GREEN  = makecol( 0x00, 0x50, 0x00 );
@@ -663,8 +711,9 @@ static void initialisePlayers() {
 	for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
 		env.players[ z ]->money = env.startmoney;
 		env.players[ z ]->score = 0;
-		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->preftype ) )
+		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->preftype ) ) {
 			env.players[ z ]->generatePreferences();
+		}
 		env.players[ z ]->initialise( false );
 		env.players[ z ]->type_saved = env.players[ z ]->type;
 	}
@@ -682,8 +731,9 @@ static bool loadConfig() {
 			env.load_from_file( old_config_file );
 
 			// over-ride full screen setting with command line
-			if ( ( full_screen == FULL_SCREEN_TRUE ) || ( full_screen == FULL_SCREEN_FALSE ) )
+			if ( ( full_screen == FULL_SCREEN_TRUE ) || ( full_screen == FULL_SCREEN_FALSE ) ) {
 				env.full_screen = full_screen;
+			}
 
 			// Initialize after loading
 			init_game_settings();
@@ -706,7 +756,9 @@ static bool loadPlayers( FILE* file ) {
 
 	if ( env.allPlayers ) {
 		for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
-			if ( env.allPlayers[ i ] ) delete env.allPlayers[ i ];
+			if ( env.allPlayers[ i ] ) {
+				delete env.allPlayers[ i ];
+			}
 			env.allPlayers[ i ] = nullptr;
 		}
 		free( env.allPlayers );
@@ -720,7 +772,9 @@ static bool loadPlayers( FILE* file ) {
 		return false;
 	}
 
-	for ( int32_t i = 0; i < max_pl; ++i ) env.allPlayers[ i ] = nullptr;
+	for ( int32_t i = 0; i < max_pl; ++i ) {
+		env.allPlayers[ i ] = nullptr;
+	}
 
 	int32_t pl_count = 0;
 	bool    status   = true;
@@ -734,7 +788,9 @@ static bool loadPlayers( FILE* file ) {
 			status = false;
 		}
 
-		if ( status ) status = player_new->load_from_file( file );
+		if ( status ) {
+			status = player_new->load_from_file( file );
+		}
 
 		if ( status ) {
 			player_new->index            = pl_count;
@@ -745,7 +801,9 @@ static bool loadPlayers( FILE* file ) {
 				if ( new_player_list ) {
 					env.allPlayers = new_player_list;
 				}
-				for ( int32_t i = pl_count; i < max_pl; ++i ) env.allPlayers[ i ] = nullptr;
+				for ( int32_t i = pl_count; i < max_pl; ++i ) {
+					env.allPlayers[ i ] = nullptr;
+				}
 			}
 		} else {
 			delete player_new;
@@ -841,7 +899,9 @@ static int32_t menu() {
 	int32_t lastmouse_y  = 0;
 
 	// Clear key buffer and erase mouse button presses
-	while ( keypressed() ) readkey();
+	while ( keypressed() ) {
+		readkey();
+	}
 	mouse_b = 0;
 
 	// Enable first background drawing:
@@ -887,19 +947,19 @@ static int32_t menu() {
 					if ( button[ z ]->isPressed() ) {
 						need_draw = true;
 						done      = true;
-						if ( z == 0 )
+						if ( z == 0 ) {
 							global.set_command( GLOBAL_COMMAND_PLAY );
-						else if ( z == 1 )
+						} else if ( z == 1 ) {
 							global.set_command( GLOBAL_COMMAND_HELP );
-						else if ( z == 2 )
+						} else if ( z == 2 ) {
 							global.set_command( GLOBAL_COMMAND_OPTIONS );
-						else if ( z == 3 )
+						} else if ( z == 3 ) {
 							global.set_command( GLOBAL_COMMAND_PLAYERS );
-						else if ( z == 4 )
+						} else if ( z == 4 ) {
 							global.set_command( GLOBAL_COMMAND_CREDITS );
-						else if ( z == 5 )
+						} else if ( z == 5 ) {
 							global.set_command( GLOBAL_COMMAND_NETWORK );
-						else if ( z == 6 ) {
+						} else if ( z == 6 ) {
 							global.set_command( GLOBAL_COMMAND_QUIT );
 							result = SIG_QUIT_GAME;
 						}
@@ -916,13 +976,17 @@ static int32_t menu() {
 
 			// Move selection down
 			if ( ( K == KEY_DOWN ) || ( K == KEY_S ) ) {
-				if ( ++currentindex >= maxindex ) currentindex = 0;
+				if ( ++currentindex >= maxindex ) {
+					currentindex = 0;
+				}
 				need_draw = true;
 			}
 
 			// Move selection up
 			else if ( ( K == KEY_UP ) || ( K == KEY_W ) ) {
-				if ( --currentindex < 0 ) currentindex = maxindex - 1;
+				if ( --currentindex < 0 ) {
+					currentindex = maxindex - 1;
+				}
 				need_draw = true;
 			}
 
@@ -930,20 +994,21 @@ static int32_t menu() {
 			else if ( ( KEY_ENTER == K ) || ( KEY_ENTER_PAD == K ) || ( KEY_SPACE == K ) ) {
 				need_draw = true;
 				done      = true;
-				if ( currentindex == 0 )
+				if ( currentindex == 0 ) {
 					global.set_command( GLOBAL_COMMAND_PLAY );
-				else if ( currentindex == 1 )
+				} else if ( currentindex == 1 ) {
 					global.set_command( GLOBAL_COMMAND_HELP );
-				else if ( currentindex == 2 )
+				} else if ( currentindex == 2 ) {
 					global.set_command( GLOBAL_COMMAND_OPTIONS );
-				else if ( currentindex == 3 )
+				} else if ( currentindex == 3 ) {
 					global.set_command( GLOBAL_COMMAND_PLAYERS );
-				else if ( currentindex == 4 )
+				} else if ( currentindex == 4 ) {
 					global.set_command( GLOBAL_COMMAND_CREDITS );
-				else if ( currentindex == 5 )
+				} else if ( currentindex == 5 ) {
 					global.set_command( GLOBAL_COMMAND_NETWORK );
-				else if ( currentindex == 6 )
+				} else if ( currentindex == 6 ) {
 					global.set_command( GLOBAL_COMMAND_QUIT );
+				}
 			}
 
 			// Quick keys to exit and handle close button of the window
@@ -1009,7 +1074,9 @@ static int32_t menu() {
 					int32_t right  = env.halfWidth + move_btn + 5;
 					int32_t bottom = env.halfHeight - 192 + ( 50 * currentindex ) + shift_menu;
 					global.make_update( left, top, right - left, bottom - top );
-					if ( z == currentindex ) rect( global.canvas, left, top, right, bottom, YELLOW );
+					if ( z == currentindex ) {
+						rect( global.canvas, left, top, right, bottom, YELLOW );
+					}
 				}
 			} // end of looping buttons
 
@@ -1032,10 +1099,14 @@ static void newgame() {
 	global.initialise();
 
 	// if a game should be loaded, try it or deny loading of the game
-	if ( ( env.loadGame ) && ( !Load_Game() ) ) env.loadGame = false;
+	if ( ( env.loadGame ) && ( !Load_Game() ) ) {
+		env.loadGame = false;
+	}
 
 	// Now check back whether to load a game
-	if ( !env.loadGame ) initialisePlayers();
+	if ( !env.loadGame ) {
+		initialisePlayers();
+	}
 
 	// There must not be any tanks!
 	TANK* tank      = nullptr;
@@ -1072,21 +1143,26 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 		} else if ( ( arg == "-d" ) || ( arg == "--depth" ) ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
-				int32_t     val = std::stoi( next_arg );
+				int32_t     val = 32;
 
-				if ( ( 16 == val ) || ( 32 == val ) )
+				SAFE_STOI( val, next_arg );
+
+				if ( ( 16 == val ) || ( 32 == val ) ) {
 					env.colourDepth = val;
-				else {
+				} else {
 					cerr << "ERROR: Invalid graphics depth!\n"
 					     << "       Only 16 or 32 bit are supported!" << endl;
 					return EXIT_FAILURE;
 				}
-			} else
+			} else {
 				has_value = false;
+			}
 		} else if ( ( arg == "-w" ) || ( arg == "--width" ) ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
-				int32_t     val = std::stoi( next_arg );
+				int32_t     val = 512;
+
+				SAFE_STOI( val, next_arg );
 
 				if ( 512 <= val ) {
 					env.screenWidth      = val;
@@ -1096,12 +1172,15 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 					cerr << "ERROR: Width too small (minimum 512)\n" << endl;
 					return EXIT_FAILURE;
 				}
-			} else
+			} else {
 				has_value = false;
+			}
 		} else if ( ( arg == "-t" ) || ( arg == "--tall" ) || ( arg == "--height" ) ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
-				int32_t     val = stoi( next_arg );
+				int32_t     val = 320;
+
+				SAFE_STOI( val, next_arg );
 
 				if ( 320 <= val ) {
 					env.screenHeight      = val;
@@ -1111,50 +1190,54 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 					cerr << "ERROR: Height too small (minimum 320)\n" << endl;
 					return EXIT_FAILURE;
 				}
-			} else
+			} else {
 				has_value = false;
+			}
 		} else if ( arg == "--datadir" ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
 
-				if ( next_arg.length() <= PATH_MAX )
+				if ( next_arg.length() <= PATH_MAX ) {
 					env.dataDir = next_arg;
-				else {
+				} else {
 					cerr << "ERROR: Datadir path too long:\n"
 					     << "\"" << next_arg << "\"\n\n"
 					     << "Maximum length:" << PATH_MAX << " characters" << endl;
 					return EXIT_FAILURE;
 				}
-			} else
+			} else {
 				has_value = false;
+			}
 		} else if ( arg == "-c" ) {
 			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
 				std::string next_arg( argv[ ++c ] );
 
-				if ( next_arg.length() <= PATH_MAX )
+				if ( next_arg.length() <= PATH_MAX ) {
 					env.configDir = next_arg;
-				else {
+				} else {
 					cerr << "ERROR: Configuration path too long:\n"
 					     << "\"" << next_arg << "\"\n\n"
 					     << "Maximum length:" << PATH_MAX << " characters" << endl;
 					return EXIT_FAILURE;
 				}
-			} else
+			} else {
 				has_value = false;
-		} else if ( arg == "--noconfig" )
+			}
+		} else if ( arg == "--noconfig" ) {
 			load_config_file = false;
-		else if ( arg == "--nosound" )
+		} else if ( arg == "--nosound" ) {
 			env.sound_enabled = false;
-		else if ( arg == "--noname" )
+		} else if ( arg == "--noname" ) {
 			env.nameAboveTank = false;
-		else if ( arg == "--nonetwork" )
+		} else if ( arg == "--nonetwork" ) {
 			allow_network = false;
-		else if ( arg == "--nobackground" )
+		} else if ( arg == "--nobackground" ) {
 			env.drawBackground = false;
-		else if ( arg == "--nothread" )
+		} else if ( arg == "--nothread" ) {
 			cout << "--nothread is deprecated and will be ignored." << endl;
-		else if ( arg == "--thread" )
+		} else if ( arg == "--thread" ) {
 			cout << "--thread is deprecated and will be ignored." << endl;
+		}
 
 		// If a required argument is missing, print out a message
 		if ( !has_value ) {
@@ -1179,10 +1262,14 @@ static void play_demo() {
 	global.currentround = env.rounds - ( get_rand() % env.rounds );
 
 	// Be sure to have at least 10 rounds left
-	if ( global.currentround < 10 ) global.currentround = 10;
+	if ( global.currentround < 10 ) {
+		global.currentround = 10;
+	}
 
 	// And at least 10 rounds must have been played, or it'll be a bit boring
-	if ( global.currentround > ( env.rounds - 10 ) ) global.currentround = env.rounds - 10;
+	if ( global.currentround > ( env.rounds - 10 ) ) {
+		global.currentround = env.rounds - 10;
+	}
 
 	env.skipComputerPlay = SKIP_NONE;
 
@@ -1206,7 +1293,9 @@ static void play_demo() {
 
 	while ( ( global.currentround > 0 ) && ( !global.isCloseBtnPressed() ) ) {
 		game();
-		if ( ( global.get_command() == GLOBAL_COMMAND_QUIT ) || ( global.get_command() == GLOBAL_COMMAND_MENU ) ) break;
+		if ( ( global.get_command() == GLOBAL_COMMAND_QUIT ) || ( global.get_command() == GLOBAL_COMMAND_MENU ) ) {
+			break;
+		}
 	}
 
 	endgame_cleanup();
@@ -1228,7 +1317,9 @@ static void play_local() {
 
 		if ( !env.loadGame ) {
 			global.currentround = env.rounds;
-			for ( int32_t i = 0; i < env.numGamePlayers; ++i ) env.players[ i ]->newGame();
+			for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
+				env.players[ i ]->newGame();
+			}
 		}
 
 		// play the game for the selected number of rounds
@@ -1239,7 +1330,9 @@ static void play_local() {
 				stop_sample( env.background_music );
 			}
 
-			if ( global.isCloseBtnPressed() ) global.set_command( GLOBAL_COMMAND_QUIT );
+			if ( global.isCloseBtnPressed() ) {
+				global.set_command( GLOBAL_COMMAND_QUIT );
+			}
 
 			// if user selected to quit or return to main menu during game play
 			if ( ( global.get_command() == GLOBAL_COMMAND_QUIT )
@@ -1248,9 +1341,10 @@ static void play_local() {
 				break;
 			}
 
-			if ( global.currentround != 0 )
+			if ( global.currentround != 0 ) {
 				// end of the round
 				env.sendToClients( "ROUNDEND" );
+			}
 		}
 
 		// only show winner if finished all rounds and not broken off the last
@@ -1260,9 +1354,12 @@ static void play_local() {
 			char const* winner        = do_winner();
 
 			if ( winner ) {
-				if ( 0 > snprintf( buffer, 255, "GAMEEND The game went to %s.", winner ) ) abort();
-			} else
+				if ( 0 > snprintf( buffer, 255, "GAMEEND The game went to %s.", winner ) ) {
+					abort();
+				}
+			} else {
 				strncpy( buffer, "GAMEEND", 255 );
+			}
 
 			env.sendToClients( buffer );
 
@@ -1270,7 +1367,9 @@ static void play_local() {
 			quickChange( true );
 			readkey();
 
-			for ( int i = 0; i < env.numGamePlayers; i++ ) env.players[ i ]->type = env.players[ i ]->type_saved;
+			for ( int i = 0; i < env.numGamePlayers; i++ ) {
+				env.players[ i ]->type = env.players[ i ]->type_saved;
+			}
 		}
 		endgame_cleanup();
 	} // end of start new game
@@ -1283,11 +1382,14 @@ static void play_networked() {
 		bool keep_playing = true;
 		cout << "Ready to play networked" << endl;
 
-		while ( keep_playing ) keep_playing = Game_Client( client_socket );
+		while ( keep_playing ) {
+			keep_playing = Game_Client( client_socket );
+		}
 
 		Clean_Up_Client_Socket( client_socket );
-	} else
+	} else {
 		cerr << "ERROR: Unable to connect to server " << env.server_name << ", port " << env.server_port << endl;
+	}
 #else
 	char noNetworkMsg[ 200 ] = { 0 };
 	snprintf(
@@ -1347,7 +1449,9 @@ static bool Save_Game_Settings( char const* path ) {
 
 	env.save_to_file( file );
 
-	for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) env.allPlayers[ i ]->save_to_file( file );
+	for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
+		env.allPlayers[ i ]->save_to_file( file );
+	}
 
 	fclose( file );
 	return true;
@@ -1388,8 +1492,12 @@ int32_t main( int32_t argc, char** argv ) {
 	// Parse arguments and exit early if needed
 	int32_t result = parse_args( argc, argv );
 
-	if ( EXIT_FAILURE == result ) return EXIT_FAILURE;
-	if ( HELP_REQUESTED == result ) return EXIT_SUCCESS;
+	if ( EXIT_FAILURE == result ) {
+		return EXIT_FAILURE;
+	}
+	if ( HELP_REQUESTED == result ) {
+		return EXIT_SUCCESS;
+	}
 
 	// try to find data dir
 	if ( !env.find_data_dir() ) {
@@ -1409,10 +1517,14 @@ int32_t main( int32_t argc, char** argv ) {
 	env.find_config_dir();
 
 	// load or create a configuration
-	if ( !loadConfig() ) createConfig();
+	if ( !loadConfig() ) {
+		createConfig();
+	}
 
 	// Load game files
-	if ( !env.loadGameFiles() ) return EXIT_FAILURE; // message already out
+	if ( !env.loadGameFiles() ) {
+		return EXIT_FAILURE; // message already out
+	}
 
 
 #ifdef NETWORK /// new networking area
@@ -1423,12 +1535,16 @@ int32_t main( int32_t argc, char** argv ) {
 	update_data updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
 
 	std::thread updateThread( std::ref( updateData ) );
-	if ( env.check_for_updates ) global.update_string = updateData.update_string;
+	if ( env.check_for_updates ) {
+		global.update_string = updateData.update_string;
+	}
 
 	// Initialize network if allowed and wanted
 	if ( env.network_enabled && allow_network ) {
 		send_receive = (SEND_RECEIVE_TYPE*)calloc( 1, sizeof( SEND_RECEIVE_TYPE ) );
-		if ( !send_receive ) cerr << "ERROR: Could not create networking data." << endl;
+		if ( !send_receive ) {
+			cerr << "ERROR: Could not create networking data." << endl;
+		}
 	}
 
 	// If a SEND_RECEIVE_TYPE instance was created, start the networking thread
@@ -1457,7 +1573,9 @@ int32_t main( int32_t argc, char** argv ) {
 		}
 
 		// did the user signal to quit the game?
-		if ( ( signal == SIG_QUIT_GAME ) || global.isCloseBtnPressed() ) global.set_command( GLOBAL_COMMAND_QUIT );
+		if ( ( signal == SIG_QUIT_GAME ) || global.isCloseBtnPressed() ) {
+			global.set_command( GLOBAL_COMMAND_QUIT );
+		}
 
 		// determine which menu item is selected
 		switch ( global.get_command() ) {
