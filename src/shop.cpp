@@ -1,5 +1,6 @@
 #include "shop.h"
 
+#include "box.h"
 #include "files.h"
 #include "levelcreator.h"
 #include "player.h"

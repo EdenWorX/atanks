@@ -20,6 +20,8 @@
  *
  */
 
+
+#include "box.h"
 #include "environment.h"
 #include "globaltypes.h"
 #include "main.h"

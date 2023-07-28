@@ -1,4 +1,4 @@
-obj/atanks.o dep/atanks.d : src/atanks.cpp src/button.h src/main.h src/debug.h \
+obj/atanks.o dep/atanks.d : src/atanks.cpp src/box.h src/button.h src/main.h src/debug.h \
  src/globaltypes.h src/wrap_dirent.h src/externs.h src/globaldata.h \
  src/environment.h src/gfxData.h src/bitmap.h src/network.h src/text.h \
  src/spinlock.h src/clock.h src/files.h src/gameloop.h src/player.h \

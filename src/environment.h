@@ -21,6 +21,7 @@
  * */
 
 
+#include "box.h"
 #include "gfxData.h"
 #include "main.h"
 #include "network.h"

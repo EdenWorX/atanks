@@ -11,12 +11,13 @@
  * -- Jesse
  */
 
+#include "box.h"
+
 #include <cstdint>
 
 #define MAX_LINE_LENGTH   512
 #define MAX_LINES_IN_FILE 1024
 
-struct BOX;
 
 /// @brief alignment of texts
 enum alignType { CENTRE = 0, LEFT, RIGHT };

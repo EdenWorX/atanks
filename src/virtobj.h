@@ -24,6 +24,7 @@
 #  define _PURE = 0
 #endif // _PURE
 
+#include "box.h"
 #include "main.h"
 #include "text.h"
 

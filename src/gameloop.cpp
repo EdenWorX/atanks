@@ -2,6 +2,7 @@
 
 #include "aicore.h"
 #include "beam.h"
+#include "box.h"
 #include "clock.h"
 #include "decor.h"
 #include "explosion.h"

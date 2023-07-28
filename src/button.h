@@ -1,6 +1,7 @@
 #ifndef ATANKS_SRC_BUTTON_H_INCLUDED
 #define ATANKS_SRC_BUTTON_H_INCLUDED 1
 
+#include "box.h"
 #include "main.h"
 
 class BUTTON {
