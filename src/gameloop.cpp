@@ -5,26 +5,25 @@
 #include "clock.h"
 #include "decor.h"
 #include "explosion.h"
-#include "files.h"
 #include "floattext.h"
 #include "land.h"
 #include "main.h"
 #include "missile.h"
-#include "network.h"
 #include "player.h"
 #include "random.h"
 #include "satellite.h"
+#include "score.h"
 #include "shop.h"
 #include "sky.h"
 #include "sound.h"
 #include "tank.h"
-#include "teleport.h"
-#include "update.h"
-#include <condition_variable>
 
 #include <cassert>
 #include <cstdio>
 #include <thread>
+
+#include <condition_variable>
+
 
 /// Forwarding for function arguments
 class ObjectUpdater;
@@ -58,29 +57,29 @@ static inline void   update_objects( ObjectUpdater* upd );
 
 
 /// === Static helper values ===
-static int32_t          AI_time_change   = 0;
-static TANK*            curr_tank        = nullptr;
-static bool             death_substitute = false;
-static bool             fire             = false;
-static int32_t          FPS_counter      = 0;
-static int32_t          FPS_last         = 0;
-static int32_t          FPS_pos          = 0;
-static int32_t          game_us_needed   = 0;
-volatile static abool_t has_action       = ATOMIC_VAR_INIT( false );
-volatile static abool_t has_deco         = ATOMIC_VAR_INIT( false );
-volatile static abool_t has_explosion    = ATOMIC_VAR_INIT( false );
-static int32_t          human_players    = 0;
-static TANK*            next_tank        = nullptr;
-static bool             order_wrapped    = false;
-static int32_t          score_name_pos   = 0;
-static int32_t          score_money_pos  = 0;
-volatile static bool    second_passed    = false;
-volatile static bool    show_frame       = true;
-static int32_t          skip_health      = 0;
-static int32_t          smkIdx           = -1;
-static bool             update_screen    = true;
-static int32_t          us_per_frame     = 0;
-volatile static int32_t winner           = WINNER_NO_WIN;
+static int32_t AI_time_change         = 0;
+static TANK*   curr_tank              = nullptr;
+static bool    death_substitute       = false;
+static bool    fire                   = false;
+static int32_t FPS_counter            = 0;
+static int32_t FPS_last               = 0;
+static int32_t FPS_pos                = 0;
+static int32_t game_us_needed         = 0;
+static abool_t volatile has_action    = ATOMIC_VAR_INIT( false );
+static abool_t volatile has_deco      = ATOMIC_VAR_INIT( false );
+static abool_t volatile has_explosion = ATOMIC_VAR_INIT( false );
+static int32_t human_players          = 0;
+static TANK*   next_tank              = nullptr;
+static bool    order_wrapped          = false;
+static int32_t score_name_pos         = 0;
+static int32_t score_money_pos        = 0;
+static bool volatile second_passed    = false;
+static bool volatile show_frame       = true;
+static int32_t skip_health            = 0;
+static int32_t smkIdx                 = -1;
+static bool    update_screen          = true;
+static int32_t us_per_frame           = 0;
+static int32_t volatile winner        = WINNER_NO_WIN;
 
 
 // Note: Here mutexes must be used, condition_variable
@@ -90,19 +89,19 @@ std::condition_variable updCondition;
 
 /// Helper Class to multi-thread object updating
 class ObjectUpdater {
-	eClass   class_ = CLASS_COUNT;
-	abool_t  doExit;
-	abool_t  doStart;
-	abool_t  isDone;
-	abool_t  isExited;
-	int32_t  force_age = 0; // Only used for CLASS_DECOR_SMOKE to force more aging
+	eClass  class_ = CLASS_COUNT;
+	abool_t doExit;
+	abool_t doStart;
+	abool_t isDone;
+	abool_t isExited;
+	int32_t force_age = 0; // Only used for CLASS_DECOR_SMOKE to force more aging
 
 public:
 	explicit ObjectUpdater()
-		: doExit( ATOMIC_VAR_INIT( false ) )
-		, doStart( ATOMIC_VAR_INIT( false ) )
-		, isDone( ATOMIC_VAR_INIT( false ) )
-		, isExited( ATOMIC_VAR_INIT( false ) ) { /* nothing to see here */
+		: doExit( false )
+		, doStart( false )
+		, isDone( false )
+		, isExited( false ) { /* nothing to see here */
 	}
 
 	/// @brief the main thread handler.
@@ -122,13 +121,16 @@ public:
 			} );
 
 			// Early quit if this is a call to do so:
-			if ( doExit.load() ) continue;
+			if ( doExit.load() ) {
+				continue;
+			}
 
 			// If this is the TANK class, yield once if
 			// there is no known explosion, yet.
-			if ( ( CLASS_TANK == class_ ) && ( false == has_explosion.load() ) )
+			if ( ( CLASS_TANK == class_ ) && !has_explosion.load() ) {
 				// Note: No argument to load(), use the most strict default!
 				std::this_thread::yield();
+			}
 
 
 			// Okay, do the updating for this class:
@@ -136,35 +138,41 @@ public:
 
 			// If this is the floating text class, lock it, or AI
 			// feedback might lead to data races.
-			if ( CLASS_FLOATTEXT == class_ ) global.lockClass( class_ );
+			if ( CLASS_FLOATTEXT == class_ ) {
+				global.lockClass( class_ );
+			}
 
 			while ( obj ) {
 
 				// Explosions must be known at once:
-				if ( ( false == has_explosion.load( ATOMIC_READ ) ) && ( CLASS_EXPLOSION == class_ ) ) {
+				if ( !has_explosion.load( ATOMIC_READ ) && ( CLASS_EXPLOSION == class_ ) ) {
 					has_explosion.store( true );
 					has_action.store( true );
 				}
 
 				// Make sure we know when stuff is happening!
-				if ( ( false == has_action.load( ATOMIC_READ ) )
+				if ( !has_action.load( ATOMIC_READ )
 				     && ( ( ( ( CLASS_BEAM == class_ ) || ( CLASS_MISSILE == class_ ) )
-				            && static_cast< PHYSICAL_OBJECT* >( obj )->isWeapon() )
-				          || ( CLASS_TELEPORT == class_ ) ) )
+				            && dynamic_cast< PHYSICAL_OBJECT* >( obj )->isWeapon() )
+				          || ( CLASS_TELEPORT == class_ ) ) ) {
 					has_action.store( true );
+				}
 
 				obj->getNext( &next_obj );
 
 				// Trigger Explosion progress
-				if ( CLASS_EXPLOSION == class_ ) static_cast< EXPLOSION* >( obj )->explode();
+				if ( CLASS_EXPLOSION == class_ ) {
+					dynamic_cast< EXPLOSION* >( obj )->explode();
+				}
 
 				// Apply forced smoke ageing
-				if ( ( CLASS_DECOR_SMOKE == class_ ) && force_age )
-					static_cast< DECOR* >( obj )->force_aging( force_age );
+				if ( ( CLASS_DECOR_SMOKE == class_ ) && force_age ) {
+					dynamic_cast< DECOR* >( obj )->force_aging( force_age );
+				}
 
 				// Do tank special handling
 				if ( CLASS_TANK == class_ ) {
-					tmp_tank = static_cast< TANK* >( obj );
+					tmp_tank = dynamic_cast< TANK* >( obj );
 
 					if ( !tmp_tank->destroy ) {
 						// Activate next volley shot if applicable
@@ -179,7 +187,9 @@ public:
 						// Move and possibly apply pending damage
 						tmp_tank->applyPhysics();
 						tmp_tank->resetFlashDamage();
-						if ( tmp_tank->isFlying() ) has_action.store( true );
+						if ( tmp_tank->isFlying() ) {
+							has_action.store( true );
+						}
 					}
 
 
@@ -196,15 +206,18 @@ public:
 					}
 
 					tmp_tank = nullptr;
-				} else
+				} else {
 					// All others need to apply physics
 					obj->applyPhysics();
+				}
 
 				obj = next_obj;
 			} // End of looping objects of one class
 
 			// If this is the floating text class, unlock it again.
-			if ( CLASS_FLOATTEXT == class_ ) global.unlockClass( class_ );
+			if ( CLASS_FLOATTEXT == class_ ) {
+				global.unlockClass( class_ );
+			}
 
 			// All done
 			isDone.store( true, ATOMIC_WRITE );
@@ -216,10 +229,6 @@ public:
 
 	void finish() { doExit.store( true ); }
 
-	bool hasDone() const { return isDone.load( ATOMIC_READ ); }
-
-	bool hasExited() const { return isExited.load( ATOMIC_READ ); }
-
 	void setClass( eClass aClass_ ) { class_ = aClass_; }
 
 	void setForceAge( int32_t ageing_ ) { force_age = ageing_; }
@@ -228,15 +237,20 @@ public:
 		isDone.store( false, ATOMIC_WRITE );
 		doStart.store( true, ATOMIC_WRITE );
 	}
+
+	/* State Getters */
+	[[nodiscard]] bool hasDone() const { return isDone.load( ATOMIC_READ ); }
+
+	[[nodiscard]] bool hasExited() const { return isExited.load( ATOMIC_READ ); }
 };
 
 /// The main game loop. Everything happens here.
 void game() {
-	bool volatile done                = false;
-	volatile int32_t round_end_count  = 0;
-	SATELLITE*       satellite        = nullptr;
-	const int32_t    EndOfRoundFrames = env.frames_per_second * WAIT_AT_END_OF_ROUND;
-	AICore           aicore;
+	bool volatile done               = false;
+	int32_t volatile round_end_count = 0;
+	SATELLITE*    satellite          = nullptr;
+	int32_t const EndOfRoundFrames   = env.frames_per_second * WAIT_AT_END_OF_ROUND;
+	AICore        aicore;
 
 	// Check whether the AI Core is in any state to do work:
 	if ( !aicore.can_work() ) {
@@ -250,7 +264,9 @@ void game() {
 
 	// Only prepare the game if the player did not close
 	// the window in the buy screen
-	if ( ( global.get_command() == GLOBAL_COMMAND_QUIT ) || ( global.isCloseBtnPressed() ) ) return;
+	if ( ( global.get_command() == GLOBAL_COMMAND_QUIT ) || ( global.isCloseBtnPressed() ) ) {
+		return;
+	}
 
 	// Now that everybody has done their shopping, initialize the tanks
 	set_tank_settings();
@@ -266,14 +282,18 @@ void game() {
 	// of the SMOKE. The smoke decoration index is used to force faster
 	// ageing when rendering a frame takes too long.
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
-		if ( CLASS_DECOR_SMOKE == class_ ) smkIdx = class_;
+		if ( CLASS_DECOR_SMOKE == class_ ) {
+			smkIdx = class_;
+		}
 
 		updater[ class_ ].setClass( static_cast< eClass >( class_ ) );
 		threads[ class_ ] = new std::thread( std::ref( updater[ class_ ] ) );
 	}
 
 	// create satellite
-	if ( env.satellite ) satellite = new SATELLITE();
+	if ( env.satellite ) {
+		satellite = new SATELLITE();
+	}
 
 	// get some mood music
 	play_music();
@@ -308,7 +328,9 @@ void game() {
 
 		// Check overtime and do frame display flipping
 		if ( global.skippingComputerPlay ) {
-			if ( winner != WINNER_DRAW ) check_overtime( aicore );
+			if ( winner != WINNER_DRAW ) {
+				check_overtime( aicore );
+			}
 
 			// End skipping play if the game is over:
 			if ( global.stage >= STAGE_SCOREBOARD ) {
@@ -332,7 +354,9 @@ void game() {
 
 
 		// Move that flying saucer
-		if ( satellite ) satellite->move();
+		if ( satellite ) {
+			satellite->move();
+		}
 
 
 		// move land
@@ -344,11 +368,12 @@ void game() {
 
 
 		// Drop some naturals if applicable
-		if ( ( false == has_action.load( ATOMIC_READ ) ) && !global.skippingComputerPlay
-		     && ( winner == WINNER_NO_WIN ) ) {
+		if ( !has_action.load( ATOMIC_READ ) && !global.skippingComputerPlay && ( winner == WINNER_NO_WIN ) ) {
 			do_naturals();
 
-			if ( satellite ) satellite->shoot();
+			if ( satellite ) {
+				satellite->shoot();
+			}
 		}
 
 		// Now update / prepare the display for drawing
@@ -356,27 +381,36 @@ void game() {
 
 
 		// draw top bar
-		if ( global.updateMenu ) draw_top_bar();
+		if ( global.updateMenu ) {
+			draw_top_bar();
+		}
 
 
 		// draw all this cool stuff
 		draw_objects( aicore );
 
 
-		if ( satellite ) satellite->draw();
+		if ( satellite ) {
+			satellite->draw();
+		}
 
 
 		// If requested, show the mini scoreboard
-		if ( global.showScoreBoard ) draw_mini_scoreboard();
+		if ( global.showScoreBoard ) {
+			draw_mini_scoreboard();
+		}
 
 
 		// If wanted, an FPS Counter is shown
-		if ( env.showFPS ) draw_FPS_Counter();
+		if ( env.showFPS ) {
+			draw_FPS_Counter();
+		}
 
 		// Show the end of round scoreboard if it is needed
 		if ( !global.skippingComputerPlay && ( STAGE_SCOREBOARD == global.stage )
-		     && ( global.get_command() != GLOBAL_COMMAND_QUIT ) )
+		     && ( global.get_command() != GLOBAL_COMMAND_QUIT ) ) {
 			draw_eor_scoreboard();
+		}
 
 
 		// Now update what has been drawn
@@ -387,14 +421,18 @@ void game() {
 		}
 
 		// Let bots do their thinking and perform synchronized input reaction
-		if ( curr_tank || ( STAGE_SCOREBOARD > global.stage ) ) done = manage_input( aicore );
+		if ( curr_tank || ( STAGE_SCOREBOARD > global.stage ) ) {
+			done = manage_input( aicore );
+		}
 
 
 		// Fire selected stuff (if any) and check skipping time
 		if ( fire && ( STAGE_AIM == global.stage ) ) {
 			fire_weapon();
 
-			if ( global.skippingComputerPlay && order_wrapped ) check_skiptime();
+			if ( global.skippingComputerPlay && order_wrapped ) {
+				check_skiptime();
+			}
 		}
 
 #ifdef NETWORK
@@ -409,33 +447,37 @@ void game() {
 
 
 		// Advance to next tank ?
-		if ( !advance_tank() && ( STAGE_ENDGAME > global.stage ) )
+		if ( !advance_tank() && ( STAGE_ENDGAME > global.stage ) ) {
 			// In this case at least check for exploding tanks.
 			explode_tanks();
+		}
 
 
 		// check for winner
-		if ( ( false == has_explosion.load( ATOMIC_READ ) ) && ( global.stage < STAGE_ENDGAME ) ) check_winner();
+		if ( !has_explosion.load( ATOMIC_READ ) && ( global.stage < STAGE_ENDGAME ) ) {
+			check_winner();
+		}
 
 
 		// manage the end of the round
 		if ( global.stage == STAGE_SCOREBOARD ) {
-			if ( !explode_tanks() && ( false == has_explosion.load() ) && ( false == has_action.load() )
+			if ( !explode_tanks() && !has_explosion.load() && !has_action.load()
 			     && ( ( ++round_end_count >= EndOfRoundFrames ) || ( WINNER_DRAW == winner ) ) ) {
-				if ( false == has_deco.load( ATOMIC_READ ) ) {
+				if ( !has_deco.load( ATOMIC_READ ) ) {
 					done         = true;
 					global.stage = STAGE_ENDGAME;
 				}
-			} else if ( has_explosion.load() )
+			} else if ( has_explosion.load() ) {
 				// recheck for winner
 				check_winner();
-			else if ( has_action.load() )
+			} else if ( has_action.load() ) {
 				round_end_count = 0;
+			}
 		}
 
 
 		// Possibly enter AI skipping mode
-		if ( !human_players && env.skipComputerPlay && !global.skippingComputerPlay && ( false == has_action.load() )
+		if ( !human_players && env.skipComputerPlay && !global.skippingComputerPlay && !has_action.load()
 		     && ( global.numTanks > 1 ) && ( STAGE_SCOREBOARD > global.stage ) && ( WINNER_NO_WIN == winner ) ) {
 			global.skippingComputerPlay = true;
 			global.AI_clock             = 0;
@@ -443,7 +485,9 @@ void game() {
 
 
 		// Quit if the close button was pressed
-		if ( global.isCloseBtnPressed() ) done = true;
+		if ( global.isCloseBtnPressed() ) {
+			done = true;
+		}
 	}
 
 	/* ==========================
@@ -456,7 +500,9 @@ void game() {
 	aicore.stop();
 
 	// Stop the updater threads:
-	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) updater[ class_ ].finish();
+	for ( auto& class_ : updater ) {
+		class_.finish();
+	}
 	updMutex.lock();
 	updCondition.notify_all(); // <-- That's hilariously simple, isn't it?
 	updMutex.unlock();
@@ -474,8 +520,9 @@ void game() {
 			if ( aicore.hasExited() ) {
 				aithread.join();
 				has_aicore = false;
-			} else
+			} else {
 				has_thread = true;
+			}
 		}
 
 		// Object updaters:
@@ -485,23 +532,27 @@ void game() {
 					threads[ class_ ]->join();
 					delete threads[ class_ ];
 					threads[ class_ ] = nullptr;
-				} else
+				} else {
 					has_thread = true;
+				}
 			}
 		}
-		if ( has_thread ) std::this_thread::yield();
+		if ( has_thread ) {
+			std::this_thread::yield();
+		}
 	} // end of waiting for all threads to join
 
 
 	// Show end of round score board and credit winner(s)
-	if ( ( global.get_command() != GLOBAL_COMMAND_QUIT ) ) draw_eor_scoreboard();
+	if ( ( global.get_command() != GLOBAL_COMMAND_QUIT ) ) {
+		draw_eor_scoreboard();
+	}
 
 	// Ensure full window clipping rectangle
 	set_clip_rect( global.canvas, 0, 0, env.window.w, env.window.h );
 
 	// clean up
-
-	if ( satellite ) delete satellite;
+	delete satellite;
 
 	// remove existing tanks etc
 	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
@@ -526,15 +577,15 @@ static inline bool advance_tank() {
 	 * b) The current tanks has exploded, a substitute must be found.
 	 */
 
-	if ( ( ( false == has_action.load( ATOMIC_READ ) ) && ( STAGE_FIRE == global.stage ) )
+	if ( ( !has_action.load( ATOMIC_READ ) && ( STAGE_FIRE == global.stage ) )
 	     || ( ( global.stage < STAGE_SCOREBOARD ) && ( !curr_tank || !curr_tank->player || curr_tank->destroy ) ) ) {
 
 		bool need_update = false;
 
-		if ( ( STAGE_FIRE == global.stage ) && !explode_tanks() && ( false == has_explosion.load( ATOMIC_READ ) )
-		     && ( false == has_action.load( ATOMIC_READ ) ) ) {
+		if ( ( STAGE_FIRE == global.stage ) && !explode_tanks() && !has_explosion.load( ATOMIC_READ )
+		     && !has_action.load( ATOMIC_READ ) ) {
 			// Note: has_action is checked last, so dead tanks can
-			//       explode even if others are still falling/flying
+			//       explode, even if others are still falling/flying
 			//       around.
 
 			// Normal tank advancement after firing stage
@@ -543,10 +594,11 @@ static inline bool advance_tank() {
 			change_wind_strength();
 
 			if ( !death_substitute ) {
-				if ( next_tank && !next_tank->destroy && ( next_tank != curr_tank ) )
+				if ( next_tank && !next_tank->destroy && ( next_tank != curr_tank ) ) {
 					curr_tank = next_tank;
-				else
+				} else {
 					curr_tank = global.get_next_tank( &order_wrapped );
+				}
 			}
 
 			death_substitute = false;
@@ -560,10 +612,11 @@ static inline bool advance_tank() {
 			}
 		} else if ( !curr_tank || !curr_tank->player || curr_tank->destroy ) {
 			// We need a death substitute
-			if ( next_tank && !next_tank->destroy )
+			if ( next_tank && !next_tank->destroy ) {
 				curr_tank = next_tank;
-			else
+			} else {
 				curr_tank = global.get_next_tank( &order_wrapped );
+			}
 			death_substitute = true;
 			next_tank        = nullptr;
 			need_update      = true;
@@ -583,15 +636,16 @@ static inline bool advance_tank() {
 }
 
 static inline void change_wind_strength() {
-	if ( !env.windvariation || !env.windstrength )
+	if ( !env.windvariation || !env.windstrength ) {
 		return;
-	else {
+	} else {
 		global.wind = global.lastwind + static_cast< double >( get_rand() % ( env.windvariation * 100 ) ) / 100
 		            - static_cast< double >( env.windvariation ) / 2.;
-		if ( global.wind > ( env.windstrength / 2 ) )
+		if ( global.wind > ( env.windstrength / 2. ) ) {
 			global.wind = static_cast< double >( env.windstrength ) / 2.;
-		else if ( global.wind < ( -env.windstrength / 2 ) )
+		} else if ( global.wind < ( -env.windstrength / 2. ) ) {
 			global.wind = static_cast< double >( env.windstrength ) / -2.;
+		}
 
 		global.lastwind = global.wind;
 	}
@@ -613,7 +667,9 @@ static inline void check_fps( ObjectUpdater* upd ) {
 
 		if ( us_unused < 500 ) {
 			// Stop adding decoration:
-			if ( !global.hasTooMuchDeco ) global.hasTooMuchDeco = true;
+			if ( !global.hasTooMuchDeco ) {
+				global.hasTooMuchDeco = true;
+			}
 
 			// If more us where needed than available, there is already
 			// too much deco on the screen.
@@ -623,7 +679,9 @@ static inline void check_fps( ObjectUpdater* upd ) {
 				int32_t agemod = ( us_unused / -1000 ) + 1;
 
 				// Don't age more than 5 frames:
-				if ( agemod > 5 ) agemod = 5;
+				if ( agemod > 5 ) {
+					agemod = 5;
+				}
 				upd[ smkIdx ].setForceAge( agemod );
 			}
 		} else if ( global.hasTooMuchDeco && ( us_unused > 1000 ) ) {
@@ -664,7 +722,9 @@ static inline void check_overtime( AICore& aicore ) {
 
 		// Stop the ai first:
 		aicore.stop();
-		while ( !aicore.hasExited() ) std::this_thread::yield();
+		while ( !aicore.hasExited() ) {
+			std::this_thread::yield();
+		}
 
 		// in over-time, kill all tanks
 		TANK* tank = nullptr;
@@ -675,7 +735,9 @@ static inline void check_overtime( AICore& aicore ) {
 			// is only "for the effect".
 			// And if they bought vengeance items, they'll loose
 			// one now. Expensive enough.
-			if ( tank->player ) tank->player->reclaimShield();
+			if ( tank->player ) {
+				tank->player->reclaimShield();
+			}
 			tank->addDamage( nullptr, tank->sh + tank->l + 1 );
 			tank->applyDamage();
 			tank->resetFlashDamage();
@@ -710,15 +772,16 @@ static inline void check_skiptime() {
 
 	int32_t health_delta = skip_health - cur_health;
 
-	if ( !skip_health || ( health_delta < ( bots_alive * 5 ) ) )
+	if ( !skip_health || ( health_delta < ( bots_alive * 5 ) ) ) {
 		// No (real) damage done, raise AI_Clock
 		++AI_time_change;
-	else if ( health_delta > ( bots_alive * 25 ) )
+	} else if ( health_delta > ( bots_alive * 25 ) ) {
 		// Lots of damage, halve the clock
 		global.AI_clock /= 2;
-	else if ( global.AI_clock && ( health_delta > ( bots_alive * 10 ) ) )
+	} else if ( global.AI_clock && ( health_delta > ( bots_alive * 10 ) ) ) {
 		// Moderate damage, decrease the AI_clock
 		--AI_time_change;
+	}
 	// No else, it would be a little damage and that means
 	// do not change the AI_clock at all.
 	skip_health = cur_health;
@@ -730,11 +793,14 @@ static inline void clear_voices() {
 	///         control over the voices used. The auto-mixing
 	///         of allegro 4 is just too inefficient.
 	/// However, this way it is a lot better than without any control...
-	if ( game_us_needed >= 1000 )
+	if ( game_us_needed >= 1000 ) {
 		global.used_voices -= game_us_needed / 500;
-	else
+	} else {
 		--global.used_voices;
-	if ( global.used_voices < 0 ) global.used_voices = 0;
+	}
+	if ( global.used_voices < 0 ) {
+		global.used_voices = 0;
+	}
 }
 
 static inline void check_winner() {
@@ -747,28 +813,35 @@ static inline void check_winner() {
 		TANK* tank = env.players[ i ]->tank;
 		if ( tank && tank->l && !tank->destroy && tank->player ) {
 			eTeamTypes team = tank->player->team;
-			if ( TEAM_SITH != team ) all_sith = false;
-			if ( TEAM_JEDI != team ) all_jedi = false;
+			if ( TEAM_SITH != team ) {
+				all_sith = false;
+			}
+			if ( TEAM_JEDI != team ) {
+				all_jedi = false;
+			}
 
 			last_alive = i;
 			player_count++;
 		}
 	}
 
-	if ( !player_count )
+	if ( !player_count ) {
 		winner = WINNER_DRAW;
-	else if ( all_jedi )
+	} else if ( all_jedi ) {
 		winner = WINNER_JEDI;
-	else if ( all_sith )
+	} else if ( all_sith ) {
 		winner = WINNER_SITH;
-	else if ( 1 == player_count )
+	} else if ( 1 == player_count ) {
 		winner = last_alive;
-	else
+	} else {
 		winner = WINNER_NO_WIN;
+	}
 
 	// End skipping play if a winner is known:
 	if ( WINNER_NO_WIN != winner ) {
-		if ( global.stage < STAGE_SCOREBOARD ) global.stage = STAGE_SCOREBOARD;
+		if ( global.stage < STAGE_SCOREBOARD ) {
+			global.stage = STAGE_SCOREBOARD;
+		}
 		global.skippingComputerPlay = false;
 		show_frame                  = true;
 	}
@@ -803,9 +876,11 @@ static inline void delete_destroyed( AICore& aicore ) {
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
 		// Skip tank class, the tanks must be deleted in their special
 		// function explode_tanks() as there is more to do.
-		if ( CLASS_TANK == class_ ) continue;
+		if ( CLASS_TANK == class_ ) {
+			continue;
+		}
 
-		eClass e_class = static_cast< eClass >( class_ );
+		auto e_class = static_cast< eClass >( class_ );
 
 		global.getHeadOfClass( e_class, &obj );
 		global.lockClass( e_class );
@@ -836,7 +911,9 @@ static inline void delete_destroyed( AICore& aicore ) {
 }
 
 void do_naturals() {
-	if ( global.naturals_activated >= 5 ) return;
+	if ( global.naturals_activated >= 5 ) {
+		return;
+	}
 
 	if ( env.lightning ) {
 		int32_t chance = ( 600 / env.lightning ) + 100;
@@ -859,7 +936,9 @@ void do_naturals() {
 	} // end of lightning
 
 	// only create meteors and dirt balls if we are not in aim mode on simul turn type
-	if ( ( env.turntype == TURN_SIMUL ) && ( global.stage == STAGE_AIM ) ) return;
+	if ( ( env.turntype == TURN_SIMUL ) && ( global.stage == STAGE_AIM ) ) {
+		return;
+	}
 
 	if ( env.meteors ) {
 		int32_t chance = ( 600 / env.meteors ) + 100;
@@ -958,14 +1037,15 @@ static inline void draw_objects( AICore& aicore ) {
 				obj->update();
 			}
 
-			if ( ( false == has_deco.load( ATOMIC_READ ) )
-			     && ( ( CLASS_DECOR_DIRT == class_ ) || ( CLASS_DECOR_SMOKE == class_ ) ) )
+			if ( !has_deco.load( ATOMIC_READ )
+			     && ( ( CLASS_DECOR_DIRT == class_ ) || ( CLASS_DECOR_SMOKE == class_ ) ) ) {
 				has_deco.store( true, ATOMIC_WRITE );
+			}
 
 			obj->getNext( &obj );
 		} // End of looping objects
 
-	}         // End of looping classes
+	} // End of looping classes
 
 	// Eventually re-allow AICore to create FLOATTEXT instances again
 	aicore.allowText();
@@ -988,7 +1068,9 @@ static inline void draw_mini_scoreboard() {
 			int32_t     mid_y = line + ( env.fontHeight / 2 ) + 1;
 
 			// Strike through dead players (BLACK background *before* the name)
-			if ( !player->tank || player->tank->destroy ) hline( global.canvas, 17, mid_y + 1, 276, BLACK );
+			if ( !player->tank || player->tank->destroy ) {
+				hline( global.canvas, 17, mid_y + 1, 276, BLACK );
+			}
 
 			// Display team
 			textprintf_ex( global.canvas, font, 16, line + 1, BLACK, -1, "(%-7s)", team );
@@ -1012,7 +1094,9 @@ static inline void draw_mini_scoreboard() {
 			}
 
 			// Strike through dead players (color)
-			if ( !player->tank || player->tank->destroy ) hline( global.canvas, 16, mid_y, 275, color );
+			if ( !player->tank || player->tank->destroy ) {
+				hline( global.canvas, 16, mid_y, 275, color );
+			}
 
 			line += env.fontHeight;
 		}
@@ -1034,7 +1118,7 @@ void draw_top_bar() {
 	int32_t        y3            = 26;
 	static int32_t change_colour = RED;
 
-	// Copy empty top bar background
+	// Copy an empty top bar background
 	global.updateMenu = false;
 
 	// copy backdrop:
@@ -1070,13 +1154,14 @@ void draw_top_bar() {
 			if ( tank->player->changed_weapon ) {
 				col = change_colour;
 
-				if ( RED == change_colour )
+				if ( RED == change_colour ) {
 					change_colour = WHITE;
-				else
+				} else {
 					change_colour = RED;
+				}
 			}
 			textprintf_ex( global.canvas, font, 180, y1, col, -1, "%s: %d", weapon[ tank->cw ].getName(), amt );
-		} else
+		} else {
 			textprintf_ex(
 				global.canvas,
 				font,
@@ -1088,6 +1173,7 @@ void draw_top_bar() {
 				item[ tank->cw - WEAPONS ].getName(),
 				tank->player->ni[ tank->cw - WEAPONS ]
 			);
+		}
 
 		// Show the weapon / item icon
 		draw_sprite( global.canvas, env.stock[ ( tank->cw > 0 ) ? tank->cw : 1 ], 700, 1 );
@@ -1124,8 +1210,9 @@ void draw_top_bar() {
 	);
 
 	// If a tank status is set, display it
-	if ( global.tank_status[ 0 ] )
+	if ( global.tank_status[ 0 ] ) {
 		textprintf_ex( global.canvas, font, 350, y3, global.tank_status_colour, -1, "%s", global.tank_status );
+	}
 
 	// Show the wind blowing (if configured)
 	if ( env.windstrength > 0 ) {
@@ -1139,29 +1226,32 @@ void draw_top_bar() {
 			global.canvas,
 			541 + ( env.windstrength * 2 ),
 			y2 + 5,
-			541 + ( global.wind * 4 ) + ( env.windstrength * 2 ),
+			541 + ROUND( global.wind * 4 ) + ( env.windstrength * 2 ),
 			y2 + 11,
 			makecol( 200 * wcol1, 200 * wcol2, 0 )
 		);
 	}
 
 	// Print AI Skip time or chess style clock if set
-	if ( ( global.AI_clock > -1 ) && ( global.AI_clock <= MAX_AI_TIME ) )
+	if ( ( global.AI_clock > -1 ) && ( global.AI_clock <= MAX_AI_TIME ) ) {
 		textprintf_ex( global.canvas, font, 500, y3, BLACK, -1, "AI Time: %d", MAX_AI_TIME - global.AI_clock );
-	else if ( env.maxFireTime )
+	} else if ( env.maxFireTime ) {
 		textprintf_ex( global.canvas, font, 500, y3, BLACK, -1, "Time: %d", time_to_fire );
+	}
 
 	// Update and be done
-	global.stopwindow = 1;
+	global.stopwindow = true;
 	global.make_update( 0, 0, env.screenWidth, MENUHEIGHT );
-	global.stopwindow = 0;
+	global.stopwindow = false;
 }
 
 /// Let all tanks explode that are destroyed
 /// @return true if at least one tank goes bye bye
 static inline bool explode_tanks() {
 	// return if something is exploding already
-	if ( has_explosion.load( ATOMIC_READ ) ) return true; // true, because an explosion is present.
+	if ( has_explosion.load( ATOMIC_READ ) ) {
+		return true; // true, because an explosion is present.
+	}
 
 	TANK* tank       = nullptr;
 	TANK* tmp        = nullptr;
@@ -1180,25 +1270,36 @@ static inline bool explode_tanks() {
 
 	while ( tank ) {
 		// Look for teams for any tanks including exploding ones
-		if ( tank->player && ( TEAM_JEDI != tank->player->team ) ) all_jedi = false;
-		if ( tank->player && ( TEAM_SITH != tank->player->team ) ) all_sith = false;
+		if ( tank->player && ( TEAM_JEDI != tank->player->team ) ) {
+			all_jedi = false;
+		}
+		if ( tank->player && ( TEAM_SITH != tank->player->team ) ) {
+			all_sith = false;
+		}
 
 		// Look for alive tanks
 		if ( ( tank->l > 0 ) && !tank->destroy ) {
 			tanks_left = true;
 
 			// Note down if alive tanks are from other teams
-			if ( tank->player && ( TEAM_JEDI != tank->player->team ) ) all_jedi_alive = false;
-			if ( tank->player && ( TEAM_SITH != tank->player->team ) ) all_sith_alive = false;
+			if ( tank->player && ( TEAM_JEDI != tank->player->team ) ) {
+				all_jedi_alive = false;
+			}
+			if ( tank->player && ( TEAM_SITH != tank->player->team ) ) {
+				all_sith_alive = false;
+			}
 
-		} else
+		} else {
 			do_explode = true;
+		}
 
 		tank->getNext( &tank );
 	}
 
 	// Return if no tank is about to explode:
-	if ( !do_explode ) return false;
+	if ( !do_explode ) {
+		return false;
+	}
 
 	// If tanks are left that are only jedi or sith, vengeance is disallowed:
 	bool allow_vengeance = ( tanks_left && !all_jedi && !all_sith );
@@ -1222,8 +1323,9 @@ static inline bool explode_tanks() {
 			bool do_vengeance = allow_vengeance;
 			if ( do_vengeance
 			     && ( ( all_jedi_alive && ( TEAM_JEDI == tank->player->team ) )
-			          || ( all_sith_alive && ( TEAM_SITH == tank->player->team ) ) ) )
+			          || ( all_sith_alive && ( TEAM_SITH == tank->player->team ) ) ) ) {
 				do_vengeance = false;
+			}
 
 			tank->explode( do_vengeance );
 
@@ -1233,13 +1335,18 @@ static inline bool explode_tanks() {
 
 			// count human player reduction
 			if ( ( tank->player )
-			     && ( ( HUMAN_PLAYER == tank->player->type ) || ( NETWORK_CLIENT == tank->player->type ) ) )
+			     && ( ( HUMAN_PLAYER == tank->player->type ) || ( NETWORK_CLIENT == tank->player->type ) ) ) {
 				--human_players;
+			}
 
 			// Now the tank has to be removed, but take care
 			// of the current and next tank if they are this
-			if ( curr_tank == tank ) curr_tank = nullptr;
-			if ( next_tank == tank ) next_tank = nullptr;
+			if ( curr_tank == tank ) {
+				curr_tank = nullptr;
+			}
+			if ( next_tank == tank ) {
+				next_tank = nullptr;
+			}
 
 			// Remove from order array
 			global.removeTank( tank );
@@ -1271,9 +1378,9 @@ static inline void fire_weapon() {
 
 		global.getHeadOfClass( CLASS_TANK, &tank );
 		while ( tank ) {
-			if ( tank->player->skip_me )
+			if ( tank->player->skip_me ) {
 				tank->player->skip_me = false;
-			else {
+			} else {
 				has_action.store( true );
 				tank->activateCurrentSelection();
 			}
@@ -1305,7 +1412,9 @@ static inline void init_new_round() {
 	env.newRound();
 
 	// then the players in case the campaign mode rise kicks in
-	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) env.players[ i ]->newRound();
+	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
+		env.players[ i ]->newRound();
+	}
 
 	// finally global, so campaign mode round is changed after the players.
 	global.newRound();
@@ -1345,15 +1454,17 @@ static inline void init_new_round() {
 	// End each players shopping and count the number of human players
 	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
 		env.players[ i ]->exitShop();
-		if ( ( env.players[ i ]->type == HUMAN_PLAYER ) || ( env.players[ i ]->type == NETWORK_CLIENT ) )
+		if ( ( env.players[ i ]->type == HUMAN_PLAYER ) || ( env.players[ i ]->type == NETWORK_CLIENT ) ) {
 			human_players++;
+		}
 	}
 
 	// set wind
-	if ( env.windstrength )
-		global.wind = ( get_rand() % env.windstrength ) - ( env.windstrength / 2 );
-	else
+	if ( env.windstrength ) {
+		global.wind = ( get_rand() % env.windstrength ) - ( env.windstrength / 2. );
+	} else {
 		global.wind = 0;
+	}
 	global.lastwind = global.wind;
 
 	// finalize preparation
@@ -1373,20 +1484,24 @@ static inline bool manage_input( AICore& aicore ) {
 		bool    can_fire  = !( has_action.load( ATOMIC_READ ) || has_explosion.load( ATOMIC_READ ) );
 		int32_t result    = player->controlTank( &aicore, can_fire );
 
-		if ( CONTROL_QUIT == result )
+		if ( CONTROL_QUIT == result ) {
 			done = true;
-		else if ( CONTROL_FIRE == result ) {
+		} else if ( CONTROL_FIRE == result ) {
 			has_action.store( true );
 			next_tank = global.get_next_tank( &order_wrapped );
 
-			if ( order_wrapped || ( env.turntype != TURN_SIMUL ) ) fire = true;
+			if ( order_wrapped || ( env.turntype != TURN_SIMUL ) ) {
+				fire = true;
+			}
 		} else if ( ( CONTROL_SKIP == result ) && !human_players && env.skipComputerPlay && !global.skippingComputerPlay && ( STAGE_SCOREBOARD > global.stage ) && ( WINNER_NO_WIN == winner ) ) {
 			global.skippingComputerPlay = true;
 			global.AI_clock             = 0;
 		}
 
 		update_screen = false;
-		if ( result ) global.updateMenu = true;
+		if ( result ) {
+			global.updateMenu = true;
+		}
 	}
 
 	return done;
@@ -1439,7 +1554,9 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 	// === Rendering Landscape ===
 	//=============================
 	lcr->working_on( 2 );
-	if ( lcr->can_work() ) generate_land( lcr, get_rand() % env.screenWidth, env.screenHeight );
+	if ( lcr->can_work() ) {
+		generate_land( lcr, get_rand() % env.screenWidth, env.screenHeight );
+	}
 
 
 	//  -------------------------
@@ -1469,8 +1586,9 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 					     getpixel( sky_gradient_strip, 0, bottom - y ),
 					     getpixel( global.terrain, 0, env.screenHeight - y )
 				     )
-				     < min_dist )
+				     < min_dist ) {
 					has_colours = false;
+				}
 			}
 
 			if ( !has_colours && lcr->can_work() ) {
@@ -1495,7 +1613,9 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 					min_dist /= 2;
 
 					// Break if min_dist is reduced to 1:
-					if ( min_dist < 2 ) has_colours = true;
+					if ( min_dist < 2 ) {
+						has_colours = true;
+					}
 				} // end of advancing tries
 			}         // end of handling wrong colours
 		}                 // End of searching suitable sky colours
@@ -1515,7 +1635,9 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 		// see if we want a custom background
 		if ( env.custom_background && env.bitmap_filenames ) {
 			global.lockLand();
-			if ( env.sky ) destroy_bitmap( env.sky );
+			if ( env.sky ) {
+				destroy_bitmap( env.sky );
+			}
 			env.sky = load_bitmap( env.bitmap_filenames[ get_rand() % env.number_of_bitmaps ], nullptr );
 			global.unlockLand();
 		}
@@ -1524,7 +1646,9 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 		if ( !env.custom_background || !env.sky ) {
 			global.lockLand();
 
-			if ( !env.sky ) env.sky = create_bitmap( env.screenWidth, env.screenHeight - MENUHEIGHT );
+			if ( !env.sky ) {
+				env.sky = create_bitmap( env.screenWidth, env.screenHeight - MENUHEIGHT );
+			}
 
 			global.unlockLand();
 
@@ -1553,9 +1677,13 @@ static inline void set_tank_settings() {
 	while ( curr_tank ) {
 		int32_t x = get_rand() % global.numTanks;
 		while ( taken[ x ] ) {
-			bool go_up = x < middle ? true : false;
-			while ( taken[ x ] && ( x > 0 ) && ( x < ( global.numTanks - 1 ) ) ) x += go_up ? 1 : -1;
-			if ( taken[ x ] ) x = get_rand() % global.numTanks;
+			bool go_up = x < middle;
+			while ( taken[ x ] && ( x > 0 ) && ( x < ( global.numTanks - 1 ) ) ) {
+				x += go_up ? 1 : -1;
+			}
+			if ( taken[ x ] ) {
+				x = get_rand() % global.numTanks;
+			}
 		}
 
 		/* Note: this is a lot faster than the previous approach, because
@@ -1614,11 +1742,13 @@ static inline void set_tank_settings() {
 			for ( int32_t index = 0; index < env.maxNumTanks - 1; ++index ) {
 				bool swap = false;
 				if ( env.turntype == TURN_HIGH ) {
-					if ( global.order[ index ]->player->score < global.order[ index + 1 ]->player->score )
+					if ( global.order[ index ]->player->score < global.order[ index + 1 ]->player->score ) {
 						swap = true;
+					}
 				} else if ( env.turntype == TURN_LOW ) {
-					if ( global.order[ index ]->player->score > global.order[ index + 1 ]->player->score )
+					if ( global.order[ index ]->player->score > global.order[ index + 1 ]->player->score ) {
 						swap = true;
+					}
 				}
 				if ( swap ) {
 					TANK* tempTank            = global.order[ index ];
@@ -1643,8 +1773,12 @@ static inline void set_tank_settings() {
 		int32_t name_len     = text_length( font, env.playerOrder[ i ]->getName() );
 		int32_t team_len     = text_length( font, env.playerOrder[ i ]->getTeamName() );
 
-		if ( name_len > max_name_len ) max_name_len = name_len;
-		if ( team_len > max_team_len ) max_team_len = team_len;
+		if ( name_len > max_name_len ) {
+			max_name_len = name_len;
+		}
+		if ( team_len > max_team_len ) {
+			max_team_len = team_len;
+		}
 
 		// Reset tank flash damage and activate their first shields:
 		if ( env.playerOrder[ i ]->tank ) {
@@ -1667,7 +1801,9 @@ static inline void set_tank_settings() {
 static inline void draw_eor_scoreboard() {
 	// Clear key buffer
 	if ( STAGE_ENDGAME == global.stage ) {
-		while ( keypressed() ) readkey();
+		while ( keypressed() ) {
+			readkey();
+		}
 	}
 
 	// check to see if we have a winner or we just got out early
@@ -1697,7 +1833,9 @@ static inline void draw_eor_scoreboard() {
 
 		for ( int32_t z = 0; z < env.numGamePlayers; z++ ) {
 			int32_t curLen = text_length( font, env.players[ z ]->getName() );
-			if ( curLen > namLen ) namLen = curLen;
+			if ( curLen > namLen ) {
+				namLen = curLen;
+			}
 			char scoTxt[ 30 ] = { 0 };
 			snprintf(
 				scoTxt,
@@ -1709,7 +1847,9 @@ static inline void draw_eor_scoreboard() {
 				env.players[ z ]->score
 			);
 			curLen = text_length( font, scoTxt );
-			if ( curLen > scoLen ) scoLen = curLen;
+			if ( curLen > scoLen ) {
+				scoLen = curLen;
+			}
 		}
 
 		// Now calculate the dimensions of our score board.
@@ -1739,13 +1879,13 @@ static inline void draw_eor_scoreboard() {
 		h -= 2 * pd;
 
 		// First title line, the winner
-		if ( winner == WINNER_JEDI )
+		if ( winner == WINNER_JEDI ) {
 			textout_centre_ex( global.canvas, font, "Jedi Win!", env.halfWidth, y, WHITE, -1 );
-		else if ( winner == WINNER_SITH )
+		} else if ( winner == WINNER_SITH ) {
 			textout_centre_ex( global.canvas, font, "Sith Win!", env.halfWidth, y, WHITE, -1 );
-		else if ( winner == WINNER_DRAW )
+		} else if ( winner == WINNER_DRAW ) {
 			textout_centre_ex( global.canvas, font, "Draw", env.halfWidth, y, WHITE, -1 );
-		else
+		} else {
 			textprintf_centre_ex(
 				global.canvas,
 				font,
@@ -1757,6 +1897,7 @@ static inline void draw_eor_scoreboard() {
 				env.ingame->Get_Line( 47 ),
 				env.players[ winner ]->getName()
 			);
+		}
 
 		// Second title line: The score is to follow. (Is this needed?)
 		textout_right_ex( global.canvas, font, env.ingame->Get_Line( 50 ), env.halfWidth, y + ( 2 * lh ), WHITE, -1 );
@@ -1782,7 +1923,9 @@ static inline void draw_eor_scoreboard() {
 
 		// And get the head entry:
 		sScore* score = score_array;
-		while ( score->prev ) score = score->prev;
+		while ( score->prev ) {
+			score = score->prev;
+		}
 
 
 		// Eventually the player scores can be displayed:
@@ -1840,75 +1983,19 @@ static inline void draw_eor_scoreboard() {
 			global.do_updates();
 
 			// Wait until a key is pressed
-			while ( !keypressed() && !mouse_b ) LINUX_REST;
+			while ( !keypressed() && !mouse_b ) {
+				LINUX_REST;
+			}
 
 			// Clear key buffer
-			while ( keypressed() ) readkey();
+			while ( keypressed() ) {
+				readkey();
+			}
 		}
 
 		// Clean up
 		delete[] score_array;
 	} // End of handling winner display
-}
-
-/** @brief sort players by scores.
- *
- * The return value is the pointer to the allocated array, users
- * must use its prev() pointer to find the head entry.
- *
- * @return a pointer to the scores array. This must be deleted.
- **/
-sScore* sort_scores() {
-	sScore* scores     = new sScore[ env.numGamePlayers ];
-	sScore* score_head = scores;
-	sScore* score_tail = scores;
-	sScore* curr       = nullptr;
-
-	for ( int32_t z = 0; z < env.numGamePlayers; z++ ) {
-		curr            = score_head;
-		scores[ z ]     = *( env.players[ z ] );
-		scores[ z ].idx = z; // The game index is needed.
-
-		// Walk to find a lower score:
-		while ( curr && ( curr->score > scores[ z ].score ) ) curr = curr->next;
-
-		// Walk to find a lower diff:
-		while ( curr && ( curr->score == scores[ z ].score ) && ( curr->diff > scores[ z ].diff ) ) curr = curr->next;
-
-		// Walk to find a lower kills value:
-		while ( curr && ( curr->score == scores[ z ].score ) && ( curr->diff == scores[ z ].diff )
-		        && ( curr->kills > scores[ z ].kills ) )
-			curr = curr->next;
-
-		// Walk to find a higher killed value:
-		while ( curr && ( curr->score == scores[ z ].score ) && ( curr->diff == scores[ z ].diff )
-		        && ( curr->kills == scores[ z ].kills ) && ( curr->killed < scores[ z ].killed ) )
-			curr = curr->next;
-
-		// Walk to find a higher name value:
-		while ( curr && ( curr->score == scores[ z ].score ) && ( curr->diff == scores[ z ].diff )
-		        && ( curr->kills == scores[ z ].kills ) && ( curr->killed == scores[ z ].killed )
-		        && ( strcmp( curr->name, scores[ z ].name ) < 0 ) )
-			curr = curr->next;
-
-		// If there is a curr, sort the new score before it.
-		if ( curr && ( curr != &scores[ z ] ) ) {
-			scores[ z ].prev = curr->prev;
-			scores[ z ].next = curr;
-			if ( scores[ z ].prev ) scores[ z ].prev->next = &scores[ z ];
-			curr->prev = &scores[ z ];
-			if ( score_head == curr ) score_head = &scores[ z ];
-		}
-
-		// Otherwise this is the new tail:
-		else if ( score_tail != &scores[ z ] ) {
-			scores[ z ].prev = score_tail;
-			score_tail->next = &scores[ z ];
-			score_tail       = &scores[ z ];
-		}
-	} // End of sorting scores
-
-	return scores;
 }
 
 static inline void update_display() {
@@ -1929,7 +2016,9 @@ static inline void update_display() {
 
 static inline void update_objects( ObjectUpdater* upd ) {
 	// Start all updater threads
-	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) upd[ class_ ].start();
+	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
+		upd[ class_ ].start();
+	}
 
 	// Wakeup all at once:
 	updMutex.lock();
@@ -1941,24 +2030,28 @@ static inline void update_objects( ObjectUpdater* upd ) {
 	while ( has_thread ) {
 		has_thread = false;
 		for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
-			if ( !upd[ class_ ].hasDone() ) has_thread = true;
+			if ( !upd[ class_ ].hasDone() ) {
+				has_thread = true;
+			}
 		}
-		if ( has_thread ) std::this_thread::yield();
+		if ( has_thread ) {
+			std::this_thread::yield();
+		}
 	}
 
 	// Reset SDI shot status on all tanks
 	TANK* lt = nullptr;
 	global.getHeadOfClass( CLASS_TANK, &lt );
 	while ( lt ) {
-		if ( lt->player ) lt->player->sdi_has_fired.store( false, ATOMIC_WRITE );
+		if ( lt->player ) {
+			lt->player->sdi_has_fired.store( false, ATOMIC_WRITE );
+		}
 		lt->getNext( &lt );
 	}
 }
 
 /// Level Creator Methods implementation
-LevelCreator::LevelCreator() {
-	for ( int32_t i = 0; i < 4; ++i ) in_progress[ i ] = false;
-}
+LevelCreator::LevelCreator() = default;
 
 /// The operator is just a wrapper.
 void LevelCreator::operator() () {
@@ -2029,5 +2122,7 @@ void LevelCreator::working_on( int32_t what ) {
 
 /// @brief yield if it is not working alone
 void LevelCreator::yield() {
-	if ( i_must_yield ) std::this_thread::yield();
+	if ( i_must_yield ) {
+		std::this_thread::yield();
+	}
 }
