@@ -6,6 +6,73 @@
 
 #include "main.h"
 
+enum weaponType {
+	SML_MIS           = 0,
+	MED_MIS           = 1,
+	LRG_MIS           = 2,
+	SML_NUKE          = 3,
+	NUKE              = 4,
+	DTH_HEAD          = 5,
+	SML_SPREAD        = 6,
+	MED_SPREAD        = 7,
+	LRG_SPREAD        = 8,
+	SUP_SPREAD        = 9,
+	DTH_SPREAD        = 10,
+	ARMAGEDDON        = 11,
+	CHAIN_MISSILE     = 12,
+	CHAIN_GUN         = 13,
+	JACK_HAMMER       = 14,
+	SHAPED_CHARGE     = 15,
+	WIDE_BOY          = 16,
+	CUTTER            = 17,
+	SML_ROLLER        = 18,
+	LRG_ROLLER        = 19,
+	DTH_ROLLER        = 20,
+	SMALL_MIRV        = 21,
+	ARMOUR_PIERCING   = 22,
+	CLUSTER           = 23,
+	SUP_CLUSTER       = 24,
+	FUNKY_BOMB        = 25,
+	FUNKY_DEATH       = 26,
+	FUNKY_BOMBLET     = 27,
+	FUNKY_DEATHLET    = 28,
+	BOMBLET           = 29,
+	SUP_BOMBLET       = 30,
+	BURROWER          = 31,
+	PENETRATOR        = 32,
+	SML_NAPALM        = 33,
+	MED_NAPALM        = 34,
+	LRG_NAPALM        = 35,
+	NAPALM_JELLY      = 36,
+	DRILLER           = 37,
+	TREMOR            = 38,
+	SHOCKWAVE         = 39,
+	TECTONIC          = 40,
+	RIOT_BOMB         = 41,
+	HVY_RIOT_BOMB     = 42,
+	RIOT_CHARGE       = 43,
+	RIOT_BLAST        = 44,
+	DIRT_BALL         = 45,
+	LRG_DIRT_BALL     = 46,
+	SUP_DIRT_BALL     = 47,
+	SMALL_DIRT_SPREAD = 48,
+	CLUSTER_MIRV      = 49,
+	PERCENT_BOMB      = 50,
+	REDUCER           = 51,
+	THEFT_BOMB        = 52, // Last ballistic (BALLISTICS == 53)
+	SML_LAZER         = 53,
+	MED_LAZER         = 54,
+	LRG_LAZER         = 55, // Last weapon (WEAPONS == 56)
+	SML_METEOR        = 56,
+	MED_METEOR        = 57,
+	LRG_METEOR        = 58,
+	SML_LIGHTNING     = 59,
+	MED_LIGHTNING     = 60,
+	LRG_LIGHTNING     = 61 // Last natural
+};
+
+#define LAST_EXPLOSIVE DRILLER
+
 class WEAPON {
 public:
 	/* -----------------------------------

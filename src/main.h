@@ -246,38 +246,33 @@ using std::string;
 		}                                                                                           \
 	}
 
-#define MAXPLAYERS    10
-#define MAX_POWER     2000
-#define MIN_POWER     100
-#define MAX_ROUNDS    10000
+#define MAXPLAYERS        10
+#define MAX_POWER         2000
+#define MIN_POWER         100
+#define MAX_ROUNDS        10000
 
-#define MENUHEIGHT    40
-#define BOXED_TOP     41 // This is the highest non-border pixel in boxed mode
-#define BALLISTICS    53
-#define BEAMWEAPONS   3
-#define WEAPONS       ( BALLISTICS + BEAMWEAPONS )
-#define ITEMS         24
-#define THINGS        ( WEAPONS + ITEMS )
-#define NATURALS      6
-#define DIRT_FRAGMENT ( -1 )
-#if 0 /// REMOVEME: Nowhere used
-#  define RADII        6
-#  define MAXRADIUS    200
-#  define BUTTONFRAMES 2
-#endif // 0
+#define MENUHEIGHT        40
+#define BOXED_TOP         41 // This is the highest non-border pixel in boxed mode
+#define BALLISTICS        53
+#define BEAMWEAPONS       3
+#define WEAPONS           ( BALLISTICS + BEAMWEAPONS )
+#define ITEMS             24
+#define THINGS            ( WEAPONS + ITEMS )
+#define NATURALS          6
+#define DIRT_FRAGMENT     ( -1 )
+#define MAX_ITEM_DESC_LEN 511
+#define MAX_ITEM_NAME_LEN 127
 
-#define MENUBUTTONS   7
-#define INGAMEBUTTONS 4
-#define SPREAD        10
-#define NAME_LEN      24
+#define MENUBUTTONS       7
+#define INGAMEBUTTONS     4
+#define SPREAD            10
+#define NAME_LEN          24
 #if 0 /// REMOVEME: Nowhere used
 #  define ADDRESS_LENGTH 16
 #endif // 0
 
 #define WAIT_AT_END_OF_ROUND 1 // second (enough with the new live score board)
 
-#define MAX_ITEM_NAME_LEN    127
-#define MAX_ITEM_DESC_LEN    511
 #define MAX_ITEMS_IN_STOCK   999999
 #if 0 /// REMOVEME: Nowhere used
 #  define MAX_MONEY_IN_WALLET 1000000000
@@ -295,156 +290,6 @@ using std::string;
 struct gradient {
 	RGB   color;
 	float point;
-};
-
-
-#define MAX_ITEMVALS 10
-
-class ITEM {
-public:
-	/* -----------------------------------
-	 * --- Constructors and destructor ---
-	 * -----------------------------------
-	 */
-
-	explicit ITEM();
-
-
-	/* -----------------------------------
-	 * --- Public methods              ---
-	 * -----------------------------------
-	 */
-
-	/* Getters */
-	[[nodiscard]] char const* getDesc() const;
-	[[nodiscard]] char const* getName() const;
-
-	/* Setters */
-	void setDesc( char const* desc_ );
-	void setName( char const* name_ );
-
-
-	/* -----------------------------------
-	 * --- Public members              ---
-	 * -----------------------------------
-	 */
-
-	int32_t cost       = 0;
-	int32_t amt        = 0;
-	int32_t selectable = 0;
-	int32_t techLevel  = 0;
-	int32_t sound      = 0;
-	double  vals[ MAX_ITEMVALS ];
-
-
-private:
-	/* -----------------------------------
-	 * --- Private members             ---
-	 * -----------------------------------
-	 */
-
-	char desc[ MAX_ITEM_DESC_LEN + 1 ];
-	char name[ MAX_ITEM_NAME_LEN + 1 ];
-};
-
-enum shieldVals { SHIELD_ENERGY, SHIELD_REPULSION, SHIELD_RED, SHIELD_GREEN, SHIELD_BLUE, SHIELD_THICKNESS };
-
-enum selfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
-
-enum weaponType {
-	SML_MIS           = 0,
-	MED_MIS           = 1,
-	LRG_MIS           = 2,
-	SML_NUKE          = 3,
-	NUKE              = 4,
-	DTH_HEAD          = 5,
-	SML_SPREAD        = 6,
-	MED_SPREAD        = 7,
-	LRG_SPREAD        = 8,
-	SUP_SPREAD        = 9,
-	DTH_SPREAD        = 10,
-	ARMAGEDDON        = 11,
-	CHAIN_MISSILE     = 12,
-	CHAIN_GUN         = 13,
-	JACK_HAMMER       = 14,
-	SHAPED_CHARGE     = 15,
-	WIDE_BOY          = 16,
-	CUTTER            = 17,
-	SML_ROLLER        = 18,
-	LRG_ROLLER        = 19,
-	DTH_ROLLER        = 20,
-	SMALL_MIRV        = 21,
-	ARMOUR_PIERCING   = 22,
-	CLUSTER           = 23,
-	SUP_CLUSTER       = 24,
-	FUNKY_BOMB        = 25,
-	FUNKY_DEATH       = 26,
-	FUNKY_BOMBLET     = 27,
-	FUNKY_DEATHLET    = 28,
-	BOMBLET           = 29,
-	SUP_BOMBLET       = 30,
-	BURROWER          = 31,
-	PENETRATOR        = 32,
-	SML_NAPALM        = 33,
-	MED_NAPALM        = 34,
-	LRG_NAPALM        = 35,
-	NAPALM_JELLY      = 36,
-	DRILLER           = 37,
-	TREMOR            = 38,
-	SHOCKWAVE         = 39,
-	TECTONIC          = 40,
-	RIOT_BOMB         = 41,
-	HVY_RIOT_BOMB     = 42,
-	RIOT_CHARGE       = 43,
-	RIOT_BLAST        = 44,
-	DIRT_BALL         = 45,
-	LRG_DIRT_BALL     = 46,
-	SUP_DIRT_BALL     = 47,
-	SMALL_DIRT_SPREAD = 48,
-	CLUSTER_MIRV      = 49,
-	PERCENT_BOMB      = 50,
-	REDUCER           = 51,
-	THEFT_BOMB        = 52, // Last ballistic (BALLISTICS == 53)
-	SML_LAZER         = 53,
-	MED_LAZER         = 54,
-	LRG_LAZER         = 55, // Last weapon (WEAPONS == 56)
-	SML_METEOR        = 56,
-	MED_METEOR        = 57,
-	LRG_METEOR        = 58,
-	SML_LIGHTNING     = 59,
-	MED_LIGHTNING     = 60,
-	LRG_LIGHTNING     = 61 // Last natural
-};
-
-#define LAST_EXPLOSIVE DRILLER
-
-#define ITEM_NO_SHIELD ( -1 )
-
-enum itemType {
-	ITEM_TELEPORT            = 0, // 56 (weap_idx - WEAPONS)
-	ITEM_SWAPPER             = 1, // 57
-	ITEM_MASS_TELEPORT       = 2, // 58
-	ITEM_FAN                 = 3, // 59
-	ITEM_VENGEANCE           = 4, // 60
-	ITEM_DYING_WRATH         = 5, // 61
-	ITEM_FATAL_FURY          = 6, // 62
-	ITEM_LGT_SHIELD          = 7,
-	ITEM_MED_SHIELD          = 8,
-	ITEM_HVY_SHIELD          = 9,
-	ITEM_LGT_REPULSOR_SHIELD = 10,
-	ITEM_MED_REPULSOR_SHIELD = 11,
-	ITEM_HVY_REPULSOR_SHIELD = 12,
-	ITEM_ARMOUR              = 13,
-	ITEM_PLASTEEL            = 14,
-	ITEM_INTENSITY_AMP       = 15,
-	ITEM_VIOLENT_FORCE       = 16,
-	ITEM_SLICKP              = 17,
-	ITEM_DIMPLEP             = 18,
-	ITEM_PARACHUTE           = 19,
-	ITEM_REPAIRKIT           = 20,
-	ITEM_FUEL                = 21, // 77
-	ITEM_ROCKET              = 22, // 78
-	ITEM_SDI                 = 23  // 79 (Last item)
 };
 
 // signals

@@ -23,6 +23,7 @@
 
 #include "main.h"
 #include "physobj.h"
+#include "weapon.h"
 
 class EXPLOSION final : public PHYSICAL_OBJECT {
 public:

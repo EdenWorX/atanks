@@ -22,6 +22,7 @@
 
 #include "environment.h"
 #include "random.h"
+#include "weapon.h"
 
 PHYSICAL_OBJECT::PHYSICAL_OBJECT( bool is_weapon ) : VIRTUAL_OBJECT(), isWeaponFire( is_weapon ) { /* nothing to do here */
 }
@@ -57,11 +58,15 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	yv += env.gravity * env.FPS_mod;
 
 	// Barrier test:
-	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) yv *= -1.0;
+	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) {
+		yv *= -1.0;
+	}
 
 	bool isMoving = ( std::abs( xv ) + std::abs( yv ) ) >= 0.01;
 
-	if ( !isMoving ) return; // early out
+	if ( !isMoving ) {
+		return; // early out
+	}
 
 	/* There are 6 steps:
 	 * 1. Does the object hit a wall?
@@ -174,10 +179,14 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				// Modify rxv/ryv, this is no full bounce:
 				if ( std::abs( rxv ) > std::abs( ryv ) ) {
 					rxv *= 0.66;
-					if ( ryv < 0. ) ryv *= 0.5;
+					if ( ryv < 0. ) {
+						ryv *= 0.5;
+					}
 				} else {
 					rxv *= 0.5;
-					if ( ryv < 0. ) ryv *= 0.66;
+					if ( ryv < 0. ) {
+						ryv *= 0.66;
+					}
 				}
 
 				// See how much of the current movement is left
@@ -245,10 +254,11 @@ void PHYSICAL_OBJECT::applyPhysics() {
 						break;
 					case WALL_WRAP:
 						if ( hitWall ) {
-							if ( hitLeft )
+							if ( hitLeft ) {
 								nextX = right;
-							else
+							} else {
 								nextX = left;
+							}
 						} else if ( env.isBoxed && env.do_box_wrap ) {
 							if ( hitTop ) {
 								// Some weapons do not warp through the
@@ -257,16 +267,18 @@ void PHYSICAL_OBJECT::applyPhysics() {
 								int32_t bX = ROUNDu( nextX );
 								bool    floor_free =
 									global.surface[ bX ].load( ATOMIC_READ ) >= bottom;
-								if ( allowDirtyWrap || floor_free )
+								if ( allowDirtyWrap || floor_free ) {
 									nextY = bottom;
-								else {
+								} else {
 									yv           *= -1.;
 									hitSomething  = true;
 								}
-							} else
+							} else {
 								nextY = top;
-						} else
+							}
+						} else {
 							hitSomething = true;
+						}
 						break;
 					case WALL_STEEL:
 					default:
@@ -289,24 +301,31 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				// (unless the current veocity is infinite of course
 				double velMod = 1.0 + ( (double)( get_rand() % 40 ) / 10.0 );
 				// This produces something between 1.0 and 5.0
-				if ( !std::isinf( xv_cur ) ) nextX = x + ( xv_cur / velMod );
-				if ( !std::isinf( yv_cur ) ) nextY = y + ( yv_cur / velMod );
+				if ( !std::isinf( xv_cur ) ) {
+					nextX = x + ( xv_cur / velMod );
+				}
+				if ( !std::isinf( yv_cur ) ) {
+					nextY = y + ( yv_cur / velMod );
+				}
 				xv = 0.0;
 				yv = 0.0;
-				if ( nextY < top )
+				if ( nextY < top ) {
 					nextY = top;
-				else if ( nextY > bottom )
+				} else if ( nextY > bottom ) {
 					nextY = bottom;
+				}
 				if ( nextX < left ) {
-					if ( WALL_WRAP == env.current_wallType )
+					if ( WALL_WRAP == env.current_wallType ) {
 						nextX = right - ( static_cast< int32_t >( std::abs( nextX ) ) % right );
-					else
+					} else {
 						nextX = left;
+					}
 				} else if ( nextX > right ) {
-					if ( WALL_WRAP == env.current_wallType )
+					if ( WALL_WRAP == env.current_wallType ) {
 						nextX = static_cast< int32_t >( nextX ) % right;
-					else
+					} else {
 						nextX = right;
+					}
 				}
 				hitSomething = true;
 				lacerated    = true; // oh dear...
@@ -314,18 +333,21 @@ void PHYSICAL_OBJECT::applyPhysics() {
 
 			// If the velocities were not only partly applied due to
 			// some wall/floor hit, all movement has been used up now.
-			if ( !( hitWall || hitFloor ) ) isMoving = false;
+			if ( !( hitWall || hitFloor ) ) {
+				isMoving = false;
+			}
 		} // End of velocity check
 
 		// === 4. If nothing is hit and if movement is left, check ===
 		// ===    remaining movement and prepare for 1. or exit    ===
 		// ===========================================================
-		if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) )
+		if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) ) {
 			// If the movement has slowed down too much, take it as a hit
 			hitSomething = true;
-		else if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv_cur ) + std::abs( yv_cur ) ) < 0.01 ) )
+		} else if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv_cur ) + std::abs( yv_cur ) ) < 0.01 ) ) {
 			// Just stop, wall bouncing/wrapping didn't leave enough rest
 			isMoving = false;
+		}
 
 		// Finally set x/y
 		x = nextX;
@@ -371,7 +393,9 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 				// false if the distance is not used up.
 				if ( hasDelay ) {
 					*has_delayed += length;
-					if ( can_delay > *has_delayed ) result = false;
+					if ( can_delay > *has_delayed ) {
+						result = false;
+					}
 				}
 			}
 
@@ -386,7 +410,9 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 	double iDist = ABSDISTANCE2( 0.0, 0.0, xInc, yInc ); // [i]ncrease[Dist]ance
 
 	// sanity check
-	if ( length > ( env.screenWidth + env.screenHeight ) ) length = env.screenWidth + env.screenHeight;
+	if ( length > ( env.screenWidth + env.screenHeight ) ) {
+		length = env.screenWidth + env.screenHeight;
+	}
 
 	// check all pixels along the line for land
 
@@ -413,7 +439,9 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 				// as the allowed distance through dirt is used up.
 				if ( hasDelay ) {
 					*has_delayed += iDist;
-					if ( can_delay > *has_delayed ) result = false;
+					if ( can_delay > *has_delayed ) {
+						result = false;
+					}
 				}
 			}
 
@@ -511,13 +539,14 @@ void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, 
 	int32_t PA = 0, HA = 0, RA = 0;
 
 	// Look for the special case of a vertical wall first:
-	if ( ( y_map[ 2 ] < 2 ) && ( y_map[ 2 + from_x ] > 3 ) )
-		if ( MA )
+	if ( ( y_map[ 2 ] < 2 ) && ( y_map[ 2 + from_x ] > 3 ) ) {
+		if ( MA ) {
 			RA = 0 - MA;
-		else
+		} else {
 			// Just let it drip off
 			RA = 5 * ( y_map[ 3 ] ? 1 : -1 );
-	else {
+		}
+	} else {
 		// Here a plane must be determined.
 		double x1 = 2., y1 = y_map[ 2 ];
 		double x2 = 2., y2 = y_map[ 2 ];
@@ -581,17 +610,24 @@ void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, 
 		RA = PA + ( PA - HA );
 
 		// Secure against vertical drop traps:
-		if ( !MA && !PA && !HA )
+		if ( !MA && !PA && !HA ) {
 			// RA is now 0 but must be 180
 			RA = 180;
+		}
 
-		if ( RA > 180 ) RA -= 360;
-		if ( RA < -180 ) RA += 360;
+		if ( RA > 180 ) {
+			RA -= 360;
+		}
+		if ( RA < -180 ) {
+			RA += 360;
+		}
 	} // End of plane determination
 
 	// The [R]eaction [A]angle now has to be translated into
 	// atanks compatible velocity values:
-	if ( RA < 0 ) RA += 360; // atanks range
+	if ( RA < 0 ) {
+		RA += 360; // atanks range
+	}
 
 	rxv = env.slope[ RA ][ 0 ] * vel;
 	ryv = env.slope[ RA ][ 1 ] * vel;

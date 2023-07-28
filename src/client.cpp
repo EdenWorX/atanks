@@ -5,6 +5,7 @@
 #include "explosion.h"
 #include "files.h"
 #include "floattext.h"
+#include "item.h"
 #include "main.h"
 #include "missile.h"
 #include "network.h"

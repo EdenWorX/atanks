@@ -1,5 +1,6 @@
 #include "sound.h"
 
+#include "item.h"
 #include "random.h"
 #include "weapon.h"
 

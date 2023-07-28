@@ -6,6 +6,7 @@
 #endif
 
 #include "files.h"
+#include "item.h"
 #include "player.h"
 #include "random.h"
 #include "text.h"

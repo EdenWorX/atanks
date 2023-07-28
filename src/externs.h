@@ -34,9 +34,13 @@ class ENVIRONMENT;
 class ITEM;
 #endif // HAS_ITEM
 
-#ifndef HAS_WEAPON
+#  ifndef HAS_ITEM
+class ITEM;
+#  endif // HAS_ITEM
+
+#  ifndef HAS_WEAPON
 class WEAPON;
-#endif // HAS_WEAPON
+#  endif // HAS_WEAPON
 
 #ifndef ATANKS_SRC_ATANKS_CPP
 

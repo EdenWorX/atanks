@@ -44,7 +44,10 @@
 
 #  include "floattext.h"
 #  include "globaltypes.h"
+#  include "item.h"
 #  include "player_types.h"
+#  include "weapon.h"
+
 #  include <condition_variable>
 
 // Init and check for round scores
@@ -54,7 +57,9 @@
 class PLAYER;
 struct sOpponent;
 #  endif // HAS_PLAYER
-class TANK;
+#  ifndef HAS_TANK
+class TANK; // forwarding if not known
+#  endif    // HAS_TANK
 
 // These are restricted to aicore.cpp, as
 // they are of no use anywhere else. - sed
@@ -894,18 +899,18 @@ private:
 	int32_t    weap_idx      = SML_MIS;
 
 	// Values taken from the player and their tank
-	int32_t    ai_level    = 0;       //!< To not having to cast from player type.
-	double     ai_level_d  = 0.;      //!< To not having to cast from ai_level.
-	double     ai_over_mod = 0.;      //!< modifier for overkills and similar
-	double     ai_type_mod = 0.;      //!< modifier for important decisions
-	int32_t    angle       = 90;      //!< The currently determined best angle
-	double     blast_min   = 0.;      //!< Damage done by small missile
-	double     blast_med   = 0.;      //!< Damage done by medium or large missile
-	double     blast_big   = 0.;      //!< Damage done by small nuke or nuke
-	double     blast_max   = 0.;      //!< Damage done by death head
-	int32_t    buried      = 0;       //!< Full buried level
-	int32_t    buried_l    = 0;       //!< left side buried level
-	int32_t    buried_r    = 0;       //!< right side buried level
+	int32_t    ai_level    = 0;  //!< To not having to cast from player type.
+	double     ai_level_d  = 0.; //!< To not having to cast from ai_level.
+	double     ai_over_mod = 0.; //!< modifier for overkills and similar
+	double     ai_type_mod = 0.; //!< modifier for important decisions
+	int32_t    angle       = 90; //!< The currently determined best angle
+	double     blast_min   = 0.; //!< Damage done by small missile
+	double     blast_med   = 0.; //!< Damage done by medium or large missile
+	double     blast_big   = 0.; //!< Damage done by small nuke or nuke
+	double     blast_max   = 0.; //!< Damage done by death head
+	int32_t    buried      = 0;  //!< Full buried level
+	int32_t    buried_l    = 0;  //!< left side buried level
+	int32_t    buried_r    = 0;  //!< right side buried level
 	double     currLife    = 0.;
 	bool       hasFlipped  = false;   //!< Used by calcStandard() and aim() to check for flipping errors.
 	itEntry_t* item_curr   = nullptr; //!< Currently selected entry
@@ -921,7 +926,7 @@ private:
 	opEntry_t* mem_last    = nullptr; //!< Entry with highest score
 	bool       needMoney   = false;   //!< Might alter some decisions
 	PLAYER*    player      = nullptr;
-	int32_t    power       = 0;       //!< The currently determined best power
+	int32_t    power       = 0; //!< The currently determined best power
 	TANK*      tank        = nullptr;
 	double     type_mod    = 1.;
 	weEntry_t* weap_curr   = nullptr; //!< Currently selected entry
@@ -934,7 +939,7 @@ private:
 	int32_t best_angle      = 0;
 	int32_t best_overshoot  = MAX_OVERSHOOT; //!< Overshoot value of currently best angle and power
 	int32_t best_power      = 0;
-	bool    best_prime_hit  = false;         //!< Whether the bes aiming round values hit the primary target.
+	bool    best_prime_hit  = false; //!< Whether the bes aiming round values hit the primary target.
 	int32_t best_score      = NEUTRAL_ROUND_SCORE;
 	bool    hill_detected   = false;
 	int32_t last_ang_mod    = 0;

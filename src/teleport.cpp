@@ -21,7 +21,7 @@
 #include "teleport.h"
 
 #include "environment.h"
-#include "globaldata.h"
+#include "item.h"
 #include "sound.h"
 #include "tank.h"
 
@@ -32,8 +32,12 @@
 TELEPORT::~TELEPORT() {
 	requireUpdate();
 	update();
-	if ( dim_cur.w > 0 ) global.make_bgupdate( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
-	if ( dim_old.w > 0 ) global.make_bgupdate( dim_old.x, dim_old.y, dim_old.w, dim_old.h );
+	if ( dim_cur.w > 0 ) {
+		global.make_bgupdate( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
+	}
+	if ( dim_old.w > 0 ) {
+		global.make_bgupdate( dim_old.x, dim_old.y, dim_old.w, dim_old.h );
+	}
 
 	if ( remote ) {
 		remote->destroy = true;
@@ -80,19 +84,23 @@ TELEPORT::TELEPORT(
 
 				// Maybe move left
 				if ( ( ( destinationX > ( objRadius * 2 ) ) && ( destinationX <= lt->x ) )
-				     || ( destinationX >= ( env.screenWidth - ( objRadius * 2 ) ) ) )
+				     || ( destinationX >= ( env.screenWidth - ( objRadius * 2 ) ) ) ) {
 					destinationX -= std::abs( lt->x - destinationX );
+				}
 				// Or move right
-				else if ( destinationX < ( env.screenWidth - ( objRadius * 2 ) ) )
+				else if ( destinationX < ( env.screenWidth - ( objRadius * 2 ) ) ) {
 					destinationX += std::abs( lt->x - destinationX );
+				}
 
 				// Maybe move up
 				if ( ( ( destinationY > ( MENUHEIGHT + ( objRadius * 2 ) ) ) && ( destinationY <= lt->y ) )
-				     || ( destinationY >= ( env.screenHeight - ( objRadius * 2 ) ) ) )
+				     || ( destinationY >= ( env.screenHeight - ( objRadius * 2 ) ) ) ) {
 					destinationY -= std::abs( lt->y - destinationY );
+				}
 				// Or move down
-				else if ( destinationY < ( env.screenHeight - ( objRadius * 2 ) ) )
+				else if ( destinationY < ( env.screenHeight - ( objRadius * 2 ) ) ) {
 					destinationY += std::abs( lt->y - destinationY );
+				}
 			}
 
 
@@ -116,10 +124,11 @@ TELEPORT::TELEPORT(
 
 	// match the player with the tank
 	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
-		if ( ( env.players[ playerindex ]->tank ) && ( env.players[ playerindex ]->tank == the_tank ) )
+		if ( ( env.players[ playerindex ]->tank ) && ( env.players[ playerindex ]->tank == the_tank ) ) {
 			found = true;
-		else
+		} else {
 			++playerindex;
+		}
 	}
 
 	if ( found ) {
@@ -155,14 +164,19 @@ void TELEPORT::applyPhysics() {
 			object         = nullptr;
 			remote->clock--;
 		}
-	} else
+	} else {
 		clock = remote->clock;
+	}
 
-	if ( clock-- < -startClock / 2 ) destroy = true;
+	if ( clock-- < -startClock / 2 ) {
+		destroy = true;
+	}
 }
 
 void TELEPORT::draw() {
-	if ( !remote ) return;
+	if ( !remote ) {
+		return;
+	}
 
 	double  pClock   = clock;
 	int32_t blobSize = 8;
@@ -171,13 +185,16 @@ void TELEPORT::draw() {
 
 	// When the teleporting finishes, the blobs enlarge and disperse
 	// using this then growing factor:
-	if ( pClock < 1.0 ) pClock = 1.0 + ( 1.0 - ( pClock * 2.0 ) );
+	if ( pClock < 1.0 ) {
+		pClock = 1.0 + ( 1.0 - ( pClock * 2.0 ) );
+	}
 
 	int32_t transMod = 255 - ( pClock / startClock * 255 );
-	if ( transMod > 255 )
+	if ( transMod > 255 ) {
 		transMod = 255;
-	else if ( transMod < 0 )
+	} else if ( transMod < 0 ) {
 		transMod = 0;
+	}
 
 	blobSize           -= round( 8 / ( startClock / pClock ) ) + 1;
 	pRadius            -= round( radius / ( startClock / pClock ) ) + 1;
@@ -186,7 +203,9 @@ void TELEPORT::draw() {
 	BITMAP* tempBitmap  = create_bitmap( radius * 2, radius * 2 );
 	blit( global.canvas, tempBitmap, remote->x - radius, remote->y - radius, 0, 0, radius * 2, radius * 2 );
 
-	if ( object && remote ) remote->draw();
+	if ( object && remote ) {
+		remote->draw();
+	}
 
 	drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
 	set_trans_blender( 0, 0, 0, transMod );

@@ -26,6 +26,7 @@
 #include "files.h"
 #include "gameloop.h"
 #include "globals.h"
+#include "item.h"
 #include "optionscreens.h"
 #include "player.h"
 #include "random.h"

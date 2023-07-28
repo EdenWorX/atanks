@@ -21,6 +21,7 @@
 #include "environment.h"
 
 #include "files.h"
+#include "item.h"
 #include "main.h"
 #include "missile.h"
 #include "player.h"
