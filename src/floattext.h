@@ -33,7 +33,7 @@ enum eTextSway {
 	TS_HORIZONTAL = 22  //!< Horizontal swaying text, if turned on, used for damage and money.
 };
 
-class FLOATTEXT : public VIRTUAL_OBJECT {
+class FLOATTEXT final : public VIRTUAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -41,7 +41,7 @@ public:
 	 */
 
 	explicit FLOATTEXT(
-		const char* text_,
+		char const* text_,
 		double      xpos,
 		double      ypos,
 		double      xv_,
@@ -52,7 +52,7 @@ public:
 		int32_t     max_age,
 		bool        is_fixed_
 	);
-	~FLOATTEXT();
+	~FLOATTEXT() final;
 
 
 	/* ----------------------
@@ -60,15 +60,15 @@ public:
 	 * ----------------------
 	 */
 
-	void     applyPhysics();
-	void     draw();
-	void     newRound();
-	void     set_color( int32_t color_ );
-	void     set_pos( int32_t xpos, int32_t ypos );
-	void     set_sway_type( eTextSway sway_type );
-	void     set_text( const char* text_ );
+	void   applyPhysics() final;
+	void   draw() final;
+	void   newRound();
+	void   set_color( int32_t color_ );
+	void   set_pos( int32_t xpos, int32_t ypos );
+	void   set_sway_type( eTextSway sway_type );
+	void   set_text( char const* text_ );
 
-	eClass   getClass() { return CLASS_FLOATTEXT; }
+	eClass getClass() final { return CLASS_FLOATTEXT; }
 
 
 private:
@@ -77,11 +77,11 @@ private:
 	 * -----------------------
 	 */
 
-	void      check_pos( bool is_new );
-	int32_t   overlaps_by( const FLOATTEXT* other );
-	void      push_down( int32_t ydiff, bool is_new );
-	void      reset_sway();
-	void      set_speed( double xv_, double yv_ );
+	void    check_pos( bool is_new );
+	int32_t overlaps_by( const FLOATTEXT* other );
+	void    push_down( int32_t ydiff, bool is_new );
+	void    reset_sway();
+	void    set_speed( double xv_, double yv_ );
 
 
 	/* -----------------------
