@@ -149,6 +149,16 @@ eLanguages  operator-- ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp)
 eLanguages &operator+= ( eLanguages &lang, int32_t val );
 eLanguages &operator-= ( eLanguages &lang, int32_t val );
 
+/** @enum eStages
+ * @brief General stages for the game flow.
+ **/
+enum eRoundStages {
+	STAGE_AIM = 0,
+	STAGE_FIRE,
+	STAGE_SCOREBOARD, // The scoreboard is displayed
+	STAGE_ENDGAME     // All actions have ceased, the round has ended.
+};
+
 /** @enum eSatelliteLaser
  * @brief Size of satellite laser
  **/
@@ -220,15 +230,8 @@ enum eSounds {
 
 };
 
-/** @enum eStages
- * @brief General stages for the game flow.
- **/
-enum eRoundStages {
-	STAGE_AIM = 0,
-	STAGE_FIRE,
-	STAGE_SCOREBOARD, // The scoreboard is displayed
-	STAGE_ENDGAME     // All actions have ceased, the round has ended.
-};
+// turns
+enum eTurnTypes { TURN_HIGH = 0, TURN_LOW, TURN_RANDOM, TURN_SIMUL };
 
 /** @enum eViolentDeath
  * @brief Level of automatic violent death option.

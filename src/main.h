@@ -292,9 +292,6 @@ using std::string;
 #define ATOMIC_READ  std::memory_order_acquire
 #define ATOMIC_WRITE std::memory_order_release
 
-// turns
-enum turnTypes { TURN_HIGH = 0, TURN_LOW, TURN_RANDOM, TURN_SIMUL };
-
 struct POINT_t {
 	int32_t x          = 0;
 	int32_t y          = 0;
