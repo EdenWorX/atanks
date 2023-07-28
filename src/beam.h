@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "externs.h"
 #include "main.h"
 #include "physobj.h"
+#include "weapon.h"
 
 /** @enum eBeamType
  * @brief Determines what kind of beam is generated

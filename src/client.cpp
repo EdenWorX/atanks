@@ -15,6 +15,7 @@
 #include "tank.h"
 #include "teleport.h"
 #include "update.h"
+#include "weapon.h"
 
 // Note: Don't guard everything. Empty compilation units are invalid.
 #ifdef NETWORK

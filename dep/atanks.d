@@ -6,4 +6,4 @@ obj/atanks.o dep/atanks.d : src/atanks.cpp src/box.h src/button.h src/main.h src
  src/optionitem.h src/optionitembase.h src/optiontypes.h \
  src/optionitemmenu.h src/optionitemplayer.h src/random.h src/score.h \
  src/tank.h src/floattext.h src/virtobj.h src/physobj.h src/update.h \
- src/client.h
+ src/weapon.h src/client.h

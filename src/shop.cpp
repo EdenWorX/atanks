@@ -5,6 +5,7 @@
 #include "levelcreator.h"
 #include "player.h"
 #include "text.h"     // for draw_text_in_box()
+#include "weapon.h"
 
 #define SHOP_BAR_HEIGHT 29
 

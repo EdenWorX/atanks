@@ -32,6 +32,7 @@
 #include "score.h"
 #include "tank.h"
 #include "update.h"
+#include "weapon.h"
 
 #ifdef NETWORK
 #  include "client.h"

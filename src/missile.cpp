@@ -28,6 +28,7 @@
 #include "random.h"
 #include "sound.h"
 #include "tank.h"
+#include "weapon.h"
 
 #include <cassert>
 

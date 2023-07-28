@@ -9,6 +9,7 @@
 #include "player.h"
 #include "random.h"
 #include "text.h"
+#include "weapon.h"
 
 #include <cstdio>
 #include <cstdlib>

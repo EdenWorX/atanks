@@ -1,6 +1,7 @@
 #include "sound.h"
 
 #include "random.h"
+#include "weapon.h"
 
 // max volume factor: means that the interval 0% -> 100% is split in 5
 int32_t MAX_VOLUME_FACTOR = 5;

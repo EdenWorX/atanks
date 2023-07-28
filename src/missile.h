@@ -23,6 +23,7 @@
 
 #include "main.h"
 #include "physobj.h"
+#include "weapon.h"
 
 // The ages are *seconds* and transformed to frames in the ctor.
 #define MAX_JELLY_AGE   1

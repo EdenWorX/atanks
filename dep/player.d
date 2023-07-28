@@ -5,4 +5,4 @@ obj/player.o dep/player.d : src/player.cpp src/player.h src/globaltypes.h \
  src/floattext.h src/virtobj.h src/files.h src/menu.h src/button.h \
  src/optionitem.h src/optionitembase.h src/optiontypes.h \
  src/optionitemmenu.h src/optionitemplayer.h src/missile.h src/physobj.h \
- src/random.h src/tank.h
+ src/weapon.h src/random.h src/tank.h

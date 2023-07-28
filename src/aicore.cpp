@@ -6,6 +6,7 @@
 #include "player.h"
 #include "random.h"
 #include "tank.h"
+#include "weapon.h"
 
 #include <cassert>
 
