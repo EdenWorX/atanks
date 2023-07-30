@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_OPTIONCONTENT_H_INCLUDED
-#  define ATANKS_SRC_OPTIONCONTENT_H_INCLUDED
+#define ATANKS_SRC_OPTIONCONTENT_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,8 +20,8 @@
  *
  */
 
-#  include "globaltypes.h"
-#  include "optiontypes.h"
+#include "globaltypes.h"
+#include "optiontypes.h"
 
 /** @file optioncontent.h
  *
@@ -35,11 +34,11 @@
 
 
 // Maximum number of entries including Title and 0x0 termination per menu
-const uint32_t    maxEntriesPerMenu                                                             = 18;
+uint32_t const maxEntriesPerMenu = 18;
 
 
 // Maximum text entries per text class including 0x0 termination
-const uint32_t    maxEntriesPerClass                                                            = 11;
+uint32_t const maxEntriesPerClass = 11;
 
 
 /** @brief string array for the menu content
@@ -58,7 +57,7 @@ const uint32_t    maxEntriesPerClass                                            
  * listed with two entries per line. Unless a possible third entry is the
  * finalizing 0x0 entry, it does not need its own line.
  **/
-const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerMenu ] = {
+char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerMenu ] = {
 	{/* -------------------- *
          * --- AREYOUSURE   --- *
          * -------------------- */
@@ -66,49 +65,49 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    /* ===== Needs to be translated ===== */
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    /* ===== Needs to be translated ===== */
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Sind Sie sicher?",
 	    "Ja",
 	    "Nein",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    /* ===== Needs to be translated ===== */
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Are you sure?",
 	    "Yes",
 	    "No",
-	    0x0 } },
-	{       /* -------------------- *
+	    nullptr } },
+	{           /* -------------------- *
          * --- FINANCE      --- *
          * -------------------- */
 	  { /* === EL_ENGLISH === */
@@ -124,7 +123,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Item Sell Multiplier",
 	    "Teams Share",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Dinheiro",
 	    "Dinheiro inicial",
@@ -138,7 +137,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Multiplicador de Item Vendido",
 	    "Parte das equipes",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    "Finances",
 	    "Somme de départ",
@@ -152,7 +151,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Coeff. vente item",
 	    "Part d'equipes",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Geld",
 	    "Startgeld",
@@ -166,7 +165,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Verkaufsmultiplikator",
 	    "Mannschaftanteil",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Peniaze",
 	    "Peniaze na začiatku",
@@ -180,7 +179,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Násobiteľ pri predaji položiek",
 	    "Teamy zdieľajú peniaze",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Экономика",
 	    "Начальные деньги",
@@ -194,7 +193,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Коэфф. продажи снаряжения",
 	    "Командные боеприпасы",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Money",
@@ -209,7 +208,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Item Sell Multiplier",
 	    "Teams Share",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Money",
@@ -224,7 +223,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Item Sell Multiplier",
 	    "Teams Share",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{ /* -------------------- *
          * --- GRAPHICS     --- *
          * -------------------- */
@@ -246,7 +245,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Gráficos",
 	    "Tela Cheia",
@@ -265,7 +264,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    "Graphismes",
 	    "Full Screen",
@@ -284,7 +283,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Grafik",
 	    "Vollbild",
@@ -303,7 +302,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Zeige AI Feedback",
 	    "Dynamischer Menühintergrund",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Grafika",
 	    "Na celú obrazovku",
@@ -322,7 +321,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Графика",
 	    "Full Screen",
@@ -341,7 +340,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Graphics",
@@ -361,7 +360,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Graphics",
@@ -381,7 +380,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show AI Feedback",
 	    "Dynamic Menu Background",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{ /* -------------------- *
          * --- MAIN         --- *
          * -------------------- */
@@ -402,7 +401,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Language",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Menu Principal",
 	    "Reset All",
@@ -420,7 +419,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Língua",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    "Menu principal",
 	    "Reset All",
@@ -438,7 +437,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Langue",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Hauptmenü",
 	    "Alles zurücksetzen",
@@ -456,7 +455,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "FPS anzeigen",
 	    "Sprache",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Hlavné menu",
 	    "Reset All",
@@ -474,7 +473,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Jazyk",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Главное меню",
 	    "Reset All",
@@ -492,7 +491,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Язык (Language)",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Main Menu",
@@ -511,7 +510,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Language",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Main Menu",
@@ -530,7 +529,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Show FPS",
 	    "Language",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{ /* -------------------- *
          * --- NETWORK      --- *
          * -------------------- */
@@ -542,7 +541,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Network",
 	    "Procurar actualizações",
@@ -551,7 +550,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    /* ===== Needs to be translated ===== */
 	    "Network",
@@ -561,7 +560,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Netzwerk",
 	    "Auf Aktualisierungen prüfen",
@@ -570,7 +569,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Serveraddresse",
 	    "Server Port",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Sieť",
 	    "Kontrola aktualizácii",
@@ -579,7 +578,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Настройки сети",
 	    "Проверять обновления",
@@ -588,7 +587,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Network",
@@ -598,7 +597,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Network",
@@ -608,7 +607,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Server Address",
 	    "Server Port",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{ /* -------------------- *
          * --- PHYSICS      --- *
          * -------------------- */
@@ -626,7 +625,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Física",
 	    "Gravidade",
@@ -641,7 +640,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    "Physique",
 	    "Gravité",
@@ -656,7 +655,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Physik",
 	    "Gravitation",
@@ -671,7 +670,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Mehrfachschussverzögerung",
 	    "Explosionsschrott",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Fyzika",
 	    "Gravitácia",
@@ -686,7 +685,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Физика",
 	    "Гравитация",
@@ -701,7 +700,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Physics",
@@ -717,7 +716,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Physics",
@@ -733,8 +732,8 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Volley Delay",
 	    "Explosion Debris",
 	    "Back",
-	    0x0 } },
-	{       /* -------------------- *
+	    nullptr } },
+	{           /* -------------------- *
          * --- PLAY         --- *
          * -------------------- */
 	  { /* === EL_ENGLISH === */
@@ -746,7 +745,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Campaign",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    /* ===== Needs to be translated ===== */
 	    "Select Players",
@@ -757,7 +756,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Campaign",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    /* ===== Needs to be translated ===== */
 	    "Select Players",
@@ -768,7 +767,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Campaign",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Spieler auswählen",
 	    "Rundenanzahl",
@@ -778,7 +777,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Kampagne",
 	    "Starten",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Výber hráčov",
 	    "Kolá",
@@ -788,7 +787,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Kampaň",
 	    "OK",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Выберите игроков",
 	    "Кол-во раундов",
@@ -798,7 +797,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Кампания",
 	    "OK",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Select Players",
@@ -809,7 +808,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Campaign",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Select Players",
@@ -820,7 +819,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Campaign",
 	    "Okay",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{   /* -------------------- *
          * --- PLAYER       --- *
          * -------------------- *
@@ -843,7 +842,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    /* ===== Needs to be translated ===== */
 	    "New Player",
@@ -858,7 +857,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    /* ===== Needs to be translated ===== */
 	    "New Player",
@@ -873,7 +872,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Neuer Spieler",
 	    "Name",
@@ -887,7 +886,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Diesen Spieler Löschen",
 	    "Anlegen",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    /* ===== Needs to be translated ===== */
 	    "New Player",
@@ -902,7 +901,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "OK",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "New Player",
@@ -917,7 +916,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "OK",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "New Player",
@@ -932,7 +931,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "Okay",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "New Player",
@@ -947,7 +946,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Delete This Player",
 	    "Okay",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{   /* -------------------- *
          * --- PLAYERS      --- *
          * -------------------- */
@@ -955,48 +954,48 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Players",
 	    "Create New",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    /* ===== Needs to be translated ===== */
 	    "Players",
 	    "Create New",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    /* ===== Needs to be translated ===== */
 	    "Players",
 	    "Create New",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Spieler",
 	    "Neuer Spieler",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    /* ===== Needs to be translated ===== */
 	    "Players",
 	    "Create New",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Players",
 	    "Create New",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Players",
 	    "Create New",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Players",
 	    "Create New",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{   /* -------------------- *
          * --- RESET        --- *
          * -------------------- */
@@ -1004,48 +1003,48 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    /* ===== Needs to be translated ===== */
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    /* ===== Needs to be translated ===== */
 	    "Optionen zurücksetzen?",
 	    "Zurücksetzen",
 	    "Abbruch",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    /* ===== Needs to be translated ===== */
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Reset Options?",
 	    "Reset",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{   /* -------------------- *
          * --- SOUND        --- *
          * -------------------- */
@@ -1056,7 +1055,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Music",
 	    "Volume Factor",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Som",
 	    "Efeitos de Som",
@@ -1064,7 +1063,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Música",
 	    "Volume Factor",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    "Sound",
 	    "Effets Sonores",
@@ -1072,7 +1071,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Musique",
 	    "Volume Factor",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Sounds",
 	    "Alle Sounds",
@@ -1080,7 +1079,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Musik",
 	    "Lautstärkefaktor",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Zvuk",
 	    "Všetky zvuky",
@@ -1088,7 +1087,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Hudba",
 	    "Volume Factor",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Sound",
@@ -1097,7 +1096,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Music",
 	    "Volume Factor",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Sound",
@@ -1106,7 +1105,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Music",
 	    "Volume Factor",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Sound",
@@ -1115,7 +1114,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Music",
 	    "Volume Factor",
 	    "Back",
-	    0x0 } },
+	    nullptr } },
 	{   /* -------------------- *
          * --- WEATHER      --- *
          * -------------------- */
@@ -1129,7 +1128,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Max Wind Strength",
 	    "Wind Variation",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_PORTUGUESE === */
 	    "Condições Meteorológicas",
 	    "Chuvas de Meteoro",
@@ -1140,7 +1139,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Velocidade Max do Vento",
 	    "Variação do Vento",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_FRENCH === */
 	    "Météo",
 	    "Orages de météorites",
@@ -1151,7 +1150,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Force maxi du vent",
 	    "Variation du vent",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_GERMAN === */
 	    "Wetter",
 	    "Meteoritenregen",
@@ -1162,7 +1161,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Max Windstärke",
 	    "Windveränderung",
 	    "Zurück",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SLOVAK === */
 	    "Počasie",
 	    "Dážď meteorov",
@@ -1173,7 +1172,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Maximálna sila vetra",
 	    "Zmena vetra",
 	    "Späť",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_RUSSIAN === */
 	    "Погода",
 	    "Метеоритный дождь",
@@ -1184,7 +1183,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Макс. сила ветра",
 	    "Изменения силы ветра",
 	    "Назад",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
 	    "Weather",
@@ -1196,7 +1195,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Max Wind Strength",
 	    "Wind Variation",
 	    "Back",
-	    0x0 },
+	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
 	    "Weather",
@@ -1208,7 +1207,7 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Max Wind Strength",
 	    "Wind Variation",
 	    "Back",
-	    0x0 } }
+	    nullptr } }
 };
 
 
@@ -1224,75 +1223,75 @@ const char* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
  * All text arrays end with a zero 0x0 entry. It is therefore not needed to
  * hard code any option value sizes.
  **/
-const char* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerClass ] = {
+char const* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerClass ] = {
 	{ /* -------------------- *
          * --- TC_COLOUR   --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Regular", "Crispy", 0x0 },
+	  { "Regular", "Crispy", nullptr },
          /* ===	EL_PORTUGUESE === */
 	  /* ===== Needs to be translated ===== */
-	  { "Regular", "Crispy", 0x0 },
+	  { "Regular", "Crispy", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Régulier", "Croustillant", 0x0 },
+	  { "Régulier", "Croustillant", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Normal", "Kontrastreich", 0x0 },
+	  { "Normal", "Kontrastreich", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Normálna", "Svieža", 0x0 },
+	  { "Normálna", "Svieža", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Обычная", "Четкая", 0x0 },
+	  { "Обычная", "Четкая", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Regular", "Crispy", 0x0 },
+	  { "Regular", "Crispy", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Regular", "Crispy", 0x0 }
+	  { "Regular", "Crispy", nullptr }
 
 	},
 	{ /* --------------------- *
          * --- TC_LANDSLIDE --- *
          * --------------------- */
 	  /* === EL_ENGLISH === */
-	  { "None", "Tank Only", "Instant", "Gravity", "Cartoon", 0x0 },
+	  { "None", "Tank Only", "Instant", "Gravity", "Cartoon", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Nenhum", "Tanque Somente", "Instantâneo", "Gravidade", "Cartoon", 0x0 },
+	  { "Nenhum", "Tanque Somente", "Instantâneo", "Gravidade", "Cartoon", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Aucun", "Réservoir Seulement", "Instantané", "Gravité", "Dessin animé", 0x0 },
+	  { "Aucun", "Réservoir Seulement", "Instantané", "Gravité", "Dessin animé", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Keine", "Nur Panzer", "Sofort", "Schwerkraft", "Cartoon", 0x0 },
+	  { "Keine", "Nur Panzer", "Sofort", "Schwerkraft", "Cartoon", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Žiaden", "Iba tank", "Okamžitý", "Gravitácia", "Kresl.film", 0x0 },
+	  { "Žiaden", "Iba tank", "Okamžitý", "Gravitácia", "Kresl.film", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Выкл.", "Только танки", "Сразу же", "По умолчанию", "Как в мультиках", 0x0 },
+	  { "Выкл.", "Только танки", "Сразу же", "По умолчанию", "Как в мультиках", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "None", "Tank Only", "Instant", "Gravity", "Cartoon", 0x0 },
+	  { "None", "Tank Only", "Instant", "Gravity", "Cartoon", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "None", "Tank Only", "Instant", "Gravity", "Cartoon", 0x0 }
+	  { "None", "Tank Only", "Instant", "Gravity", "Cartoon", nullptr }
 
 	},
 	{ /* -------------------- *
          * --- TC_LANDTYPE --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Random", "Canyons", "Mountains", "Valleys", "Hills", "Foothills", "Plains", "None", 0x0 },
+	  { "Random", "Canyons", "Mountains", "Valleys", "Hills", "Foothills", "Plains", "None", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Aleatório", "Canyons", "Montanhas", "Vales", "Colinas", "Morros", "Planos", "Nenhum", 0x0 },
+	  { "Aleatório", "Canyons", "Montanhas", "Vales", "Colinas", "Morros", "Planos", "Nenhum", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Aléatoire", "Canyons", "Montagnes", "Vallées", "Collines", "Contreforts", "Plaines", "Aucun", 0x0 },
+	  { "Aléatoire", "Canyons", "Montagnes", "Vallées", "Collines", "Contreforts", "Plaines", "Aucun", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Zufällig", "Canyons", "Berge", "Täler", "Hügel", "Flache Hügel", "Ebene", "Nichts", 0x0 },
+	  { "Zufällig", "Canyons", "Berge", "Täler", "Hügel", "Flache Hügel", "Ebene", "Nichts", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Náhodná", "Kaňony", "Hory", "Údolia", "Kopce", "Úpätia", "Nížiny", "Žiadna", 0x0 },
+	  { "Náhodná", "Kaňony", "Hory", "Údolia", "Kopce", "Úpätia", "Nížiny", "Žiadna", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Случайный", "Каньоны", "Горы", "Возвышенность", "Холмы", "Предгорья", "Равнины", "Выкл.", 0x0 },
+	  { "Случайный", "Каньоны", "Горы", "Возвышенность", "Холмы", "Предгорья", "Равнины", "Выкл.", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Random", "Canyons", "Mountains", "Valleys", "Hills", "Foothills", "Plains", "None", 0x0 },
+	  { "Random", "Canyons", "Mountains", "Valleys", "Hills", "Foothills", "Plains", "None", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Random", "Canyons", "Mountains", "Valleys", "Hills", "Foothills", "Plains", "None", 0x0 }
+	  { "Random", "Canyons", "Mountains", "Valleys", "Hills", "Foothills", "Plains", "None", nullptr }
 
 	},
 	{ /* -------------------- *
@@ -1300,139 +1299,139 @@ const char* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
          * -------------------- */
 
 	  /* === EL_ENGLISH === */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", 0x0 },
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", 0x0 },
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", nullptr },
          /* ===	EL_FRENCH === */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", 0x0 },
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", nullptr },
          /* ===	EL_GERMAN === */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", 0x0 },
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Anglicky", "Portugalsky", "Francúzsky", "Nemecky", "Slovensky", "Rusky", "Spanish", "Italian", 0x0 },
+	  { "Anglicky", "Portugalsky", "Francúzsky", "Nemecky", "Slovensky", "Rusky", "Spanish", "Italian", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Русский", "Spanish", "Italian", 0x0 },
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Русский", "Spanish", "Italian", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", 0x0 },
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", 0x0 }
+	  { "English", "Português", "Français", "Deutsch", "Slovak", "Russian", "Spanish", "Italian", nullptr }
 
 	},
 	{ /* --------------------- *
          * --- TC_LIGHTNING --- *
          * --------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Off", "Weak", "Energetic", "Violent", 0x0 },
+	  { "Off", "Weak", "Energetic", "Violent", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Desligado", "Fraco", "Energético", "Violento", 0x0 },
+	  { "Desligado", "Fraco", "Energético", "Violento", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Aucun", "Faible", "Energique", "Violent", 0x0 },
+	  { "Aucun", "Faible", "Energique", "Violent", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Aus", "Schwach", "Energetisch", "Brutal", 0x0 },
+	  { "Aus", "Schwach", "Energetisch", "Brutal", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vypnuté", "Slabé", "Energetické", "Kruté", 0x0 },
+	  { "Vypnuté", "Slabé", "Energetické", "Kruté", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Нет", "Слабые", "Сильные", "Мощные", 0x0 },
+	  { "Нет", "Слабые", "Сильные", "Мощные", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Weak", "Energetic", "Violent", 0x0 },
+	  { "Off", "Weak", "Energetic", "Violent", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Weak", "Energetic", "Violent", 0x0 }
+	  { "Off", "Weak", "Energetic", "Violent", nullptr }
 
 	},
 	{ /* -------------------- *
          * --- TC_METEOR   --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Off", "Light", "Heavy", "Lethal", 0x0 },
+	  { "Off", "Light", "Heavy", "Lethal", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Desligado", "Fraco", "Forte", "Letal", 0x0 },
+	  { "Desligado", "Fraco", "Forte", "Letal", nullptr },
          /* ===	EL_FRENCH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Light", "Heavy", "Lethal", 0x0 },
+	  { "Off", "Light", "Heavy", "Lethal", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Aus", "Leicht", "Schwer", "Tödlich", 0x0 },
+	  { "Aus", "Leicht", "Schwer", "Tödlich", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vypnuté", "Ľahké", "Ťažké", "Smrteľné", 0x0 },
+	  { "Vypnuté", "Ľahké", "Ťažké", "Smrteľné", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Нет", "Слабый", "Сильный", "Смертельный", 0x0 },
+	  { "Нет", "Слабый", "Сильный", "Смертельный", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Light", "Heavy", "Lethal", 0x0 },
+	  { "Off", "Light", "Heavy", "Lethal", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Light", "Heavy", "Lethal", 0x0 }
+	  { "Off", "Light", "Heavy", "Lethal", nullptr }
 
 	},
 	{ /* -------------------- *
          * --- TC_MOUSE    --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Custom", "Default", 0x0 },
+	  { "Custom", "Default", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Personalizado", "Padrão", 0x0 },
+	  { "Personalizado", "Padrão", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Pesonnel", "Défaut", 0x0 },
+	  { "Pesonnel", "Défaut", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Angepasst", "Standard", 0x0 },
+	  { "Angepasst", "Standard", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vlastné", "Východzie", 0x0 },
+	  { "Vlastné", "Východzie", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Собственный", "По умолчанию", 0x0 },
+	  { "Собственный", "По умолчанию", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Custom", "Default", 0x0 },
+	  { "Custom", "Default", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Custom", "Default", 0x0 }
+	  { "Custom", "Default", nullptr }
 
 	},
 	{ /* -------------------- *
          * --- TC_OFFON    --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Off", "On", 0x0 },
+	  { "Off", "On", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Desligado", "Ligado", 0x0 },
+	  { "Desligado", "Ligado", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Non", "Oui", 0x0 },
+	  { "Non", "Oui", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Aus", "An", 0x0 },
+	  { "Aus", "An", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vypnuté", "Zapnuté", 0x0 },
+	  { "Vypnuté", "Zapnuté", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Выкл.", "Вкл.", 0x0 },
+	  { "Выкл.", "Вкл.", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "On", 0x0 },
+	  { "Off", "On", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "On", 0x0 }
+	  { "Off", "On", nullptr }
 
 	},
 	{ /* ----------------------- *
          * --- TC_OFFONRANDOM --- *
          * ----------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Off", "On", "Random", 0x0 },
+	  { "Off", "On", "Random", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Desligado", "Ligado", "Aleatório", 0x0 },
+	  { "Desligado", "Ligado", "Aleatório", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Non", "Oui", "Hasard", 0x0 },
+	  { "Non", "Oui", "Hasard", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Aus", "An", "Zufällig", 0x0 },
+	  { "Aus", "An", "Zufällig", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vypnuté", "Zapnuté", "Náhodný", 0x0 },
+	  { "Vypnuté", "Zapnuté", "Náhodný", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Выкл.", "Вкл.", "Случайно", 0x0 },
+	  { "Выкл.", "Вкл.", "Случайно", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "On", "Random", 0x0 },
+	  { "Off", "On", "Random", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "On", "Random", 0x0 }
+	  { "Off", "On", "Random", nullptr }
 
 	},
 	{
@@ -1440,23 +1439,23 @@ const char* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
          * --- TC_PLAYERPREF  --- *
          * ----------------------- */
 		/* === EL_ENGLISH === */
-		{ "Per Game", "Only Once", 0x0 },
+		{ "Per Game", "Only Once", nullptr },
          /* ===	EL_PORTUGUESE === */
 		/* ===== Needs to be translated ===== */
-		{ "Per Game", "Only Once", 0x0 },
+		{ "Per Game", "Only Once", nullptr },
          /* ===	EL_FRENCH === */
 		/* ===== Needs to be translated ===== */
-		{ "Per Game", "Only Once", 0x0 },
+		{ "Per Game", "Only Once", nullptr },
          /* ===	EL_GERMAN === */
-		{ "Pro Spiel", "Nur einmal", 0x0 },
+		{ "Pro Spiel", "Nur einmal", nullptr },
          /* ===	EL_SLOVAK === */
-		{ "Na hru", "Iba raz", 0x0 },
+		{ "Na hru", "Iba raz", nullptr },
          /* ===	EL_RUSSIAN === */
-		{ "Каждую игру заново", "Только один раз", 0x0 },
+		{ "Каждую игру заново", "Только один раз", nullptr },
          /* ===	EL_SPANISH === */
-		{ "Por Juego", "Solo una vez", 0x0 },
+		{ "Por Juego", "Solo una vez", nullptr },
          /* ===	EL_ITALIAN === */
-		{ "Per Gioco", "Only Once", 0x0 },
+		{ "Per Gioco", "Only Once", nullptr },
 
 	 },
 	{
@@ -1464,24 +1463,24 @@ const char* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
          * --- TC_PLAYERTEAM  --- *
          * ----------------------- */
 		/* === EL_ENGLISH === */
-		{ "Sith", "Neutral", "Jedi", 0x0 },
+		{ "Sith", "Neutral", "Jedi", nullptr },
          /* ===	EL_PORTUGUESE === */
 		/* ===== Needs to be translated ===== */
-		{ "Sith", "Neutral", "Jedi", 0x0 },
+		{ "Sith", "Neutral", "Jedi", nullptr },
          /* ===	EL_FRENCH === */
 		/* ===== Needs to be translated ===== */
-		{ "Sith", "Neutral", "Jedi", 0x0 },
+		{ "Sith", "Neutral", "Jedi", nullptr },
          /* ===	EL_GERMAN === */
-		{ "Sith", "Neutral", "Jedi", 0x0 },
+		{ "Sith", "Neutral", "Jedi", nullptr },
          /* ===	EL_SLOVAK === */
-		{ "Sith", "Neutrálny", "Jedi", 0x0 },
+		{ "Sith", "Neutrálny", "Jedi", nullptr },
          /* ===	EL_RUSSIAN === */
-		{ "Ситх", "Нейтральный", "Джедай", 0x0 },
+		{ "Ситх", "Нейтральный", "Джедай", nullptr },
          /* ===	EL_SPANISH === */
 		/* ===== Needs to be translated ===== */
-		{ "Sith", "Neutral", "Jedi", 0x0 },
+		{ "Sith", "Neutral", "Jedi", nullptr },
          /* ===	EL_ITALIAN === */
-		{ "Sith", "Neutrale", "Jedi", 0x0 },
+		{ "Sith", "Neutrale", "Jedi", nullptr },
 
 	 },
 	{
@@ -1489,100 +1488,100 @@ const char* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
          * --- TC_PLAYERTYPE  --- *
          * ----------------------- */
 		/* === EL_ENGLISH === */
-		{ "Human", "Useless", "Guesser", "Range", "Targetter", "Deadly", 0x0 },
+		{ "Human", "Useless", "Guesser", "Range", "Targetter", "Deadly", nullptr },
          /* ===	EL_PORTUGUESE === */
 		/* ===== Needs to be translated ===== */
-		{ "Human", "Useless", "Guesser", "Range", "Targetter", "Deadly", 0x0 },
+		{ "Human", "Useless", "Guesser", "Range", "Targetter", "Deadly", nullptr },
          /* ===	EL_FRENCH === */
 		/* ===== Needs to be translated ===== */
-		{ "Human", "Useless", "Guesser", "Range", "Targetter", "Deadly", 0x0 },
+		{ "Human", "Useless", "Guesser", "Range", "Targetter", "Deadly", nullptr },
          /* ===	EL_GERMAN === */
-		{ "Mensch", "Nutzlos", "Ratlos", "Schütze", "Scharfschütze", "Tödlich", 0x0 },
+		{ "Mensch", "Nutzlos", "Ratlos", "Schütze", "Scharfschütze", "Tödlich", nullptr },
          /* ===	EL_SLOVAK === */
-		{ "Človek", "Nepoužiteľný", "Ten, čo háda", "Ten, čo hľadá správnu silu", "Ten, čo mieri", "Ten, čo prináša smrť", 0x0 },
+		{ "Človek", "Nepoužiteľný", "Ten, čo háda", "Ten, čo hľadá správnu silu", "Ten, čo mieri", "Ten, čo prináša smrť", nullptr },
          /* ===	EL_RUSSIAN === */
-		{ "Человек", "Ноль", "Слабый ИИ", "Средний ИИ", "Сильный ИИ", "Терминатор", 0x0 },
+		{ "Человек", "Ноль", "Слабый ИИ", "Средний ИИ", "Сильный ИИ", "Терминатор", nullptr },
          /* ===	EL_SPANISH === */
 		/* ===== Needs to be translated ===== */
-		{ "Humano", "Inservible", "Guesser", "Rango", "Targetter", "Mortal", 0x0 },
+		{ "Humano", "Inservible", "Guesser", "Rango", "Targetter", "Mortal", nullptr },
          /* ===	EL_ITALIAN === */
-		{ "Umano", "Sottodotato", "Mediocre", "Medio", "Elevato", "Mortale", 0x0 },
+		{ "Umano", "Sottodotato", "Mediocre", "Medio", "Elevato", "Mortale", nullptr },
 
 	 },
 	{ /* --------------------- *
          * --- TC_SATELLITE --- *
          * --------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Off", "Weak", "Strong", "Super", 0x0 },
+	  { "Off", "Weak", "Strong", "Super", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Desligado", "Fraco", "Forte", "Super", 0x0 },
+	  { "Desligado", "Fraco", "Forte", "Super", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Aucun", "Faible", "Fort", "Super", 0x0 },
+	  { "Aucun", "Faible", "Fort", "Super", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Aus", "Schwach", "Stark", "Super", 0x0 },
+	  { "Aus", "Schwach", "Stark", "Super", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vypnutý", "Slabý", "Silný", "Super", 0x0 },
+	  { "Vypnutý", "Slabý", "Silný", "Super", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Нет", "Слабые", "Сильные", "Супер!!", 0x0 },
+	  { "Нет", "Слабые", "Сильные", "Супер!!", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Weak", "Strong", "Super", 0x0 },
+	  { "Off", "Weak", "Strong", "Super", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Weak", "Strong", "Super", 0x0 }
+	  { "Off", "Weak", "Strong", "Super", nullptr }
 
 	},
 	{ /* -------------------- *
          * --- TC_SKIPTYPE --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Off", "Humans Dead", 0x0 },
+	  { "Off", "Humans Dead", nullptr },
          /* ===	EL_PORTUGUESE === */
 	  /* ===== Wrong translation ? ===== */
-	  { "Desligado", "Ligado", 0x0 },
+	  { "Desligado", "Ligado", nullptr },
          /* ===	EL_FRENCH === */
 	  /* ===== Wrong translation ? ===== */
-	  { "Non", "Oui", 0x0 },
+	  { "Non", "Oui", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Aus", "Menschen Tot", 0x0 },
+	  { "Aus", "Menschen Tot", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vypnuté", "Smrť ľudí", 0x0 },
+	  { "Vypnuté", "Smrť ľudí", nullptr },
          /* ===	EL_RUSSIAN === */
 	  /* ===== Wrong translation ? ===== */
-	  { "Выкл.", "Вкл.", 0x0 },
+	  { "Выкл.", "Вкл.", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Humans Dead", 0x0 },
+	  { "Off", "Humans Dead", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Off", "Humans Dead", 0x0 }
+	  { "Off", "Humans Dead", nullptr }
 
 	},
 	{ /* ----------------------- *
          * --- TC_SOUNDDRIVER --- *
          * ----------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_PORTUGUESE === */
 	  /* ===== Needs to be translated ===== */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_FRENCH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Automatisch", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Automatisch", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_SLOVAK === */
 	  /* ===== Needs to be translated ===== */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_RUSSIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 },
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", 0x0 }
+	  { "Auto Detect", "OSS", "ESD", "ARTS", "ALSA", "JACK", nullptr }
 
 	},
 	{
@@ -1590,69 +1589,69 @@ const char* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
          * --- TC_TANKTYPE --- *
          * -------------------- */
 		/* === EL_ENGLISH === */
-		{ "Normal", "Classic", "Big Grey", "T34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", 0x0 },
+		{ "Normal", "Classic", "Big Grey", "T34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", nullptr },
          /* ===	EL_PORTUGUESE === */
 		/* ===== Needs to be translated ===== */
-		{ "Normal", "Classic", "Big Grey", "T34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", 0x0 },
+		{ "Normal", "Classic", "Big Grey", "T34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", nullptr },
          /* ===	EL_FRENCH === */
 		/* ===== Needs to be translated ===== */
-		{ "Normal", "Classic", "Big Grey", "T34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", 0x0 },
+		{ "Normal", "Classic", "Big Grey", "T34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", nullptr },
          /* ===	EL_GERMAN === */
-		{ "Normal", "Klassisch", "Der Große Graue", "T34", "Schwergewicht", "Futuristisch", "UFO", "Spinne", "Big Foot", "Mini", 0x0 },
+		{ "Normal", "Klassisch", "Der Große Graue", "T34", "Schwergewicht", "Futuristisch", "UFO", "Spinne", "Big Foot", "Mini", nullptr },
          /* ===	EL_SLOVAK === */
-		{ "Bežný", "Klasický", "Veľký šedý", "T34", "Ťažký", "Futuristický", "UFO", "Spider", "Big Foot", "Mini", 0x0 },
+		{ "Bežný", "Klasický", "Veľký šedý", "T34", "Ťažký", "Futuristický", "UFO", "Spider", "Big Foot", "Mini", nullptr },
          /* ===	EL_RUSSIAN === */
-		{ "Обычный", "В старом стиле", "Большой Серый Танк", "Т-34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", 0x0 },
+		{ "Обычный", "В старом стиле", "Большой Серый Танк", "Т-34", "Heavy", "Future", "UFO", "Spider", "Big Foot", "Mini", nullptr },
          /* ===	EL_SPANISH === */
-		{ "Normal", "Clasico", "Big Grey", "T34", "Pesado", "Futuro", "UFO", "Araña", "Big Foot", "Mini", 0x0 },
+		{ "Normal", "Clasico", "Big Grey", "T34", "Pesado", "Futuro", "UFO", "Araña", "Big Foot", "Mini", nullptr },
          /* ===	EL_ITALIAN === */
-		{ "Normale", "Classico", "Big Grey", "T34", "Pesante", "Futuro", "UFO", "Spider", "Big Foot", "Mini", 0x0 },
+		{ "Normale", "Classico", "Big Grey", "T34", "Pesante", "Futuro", "UFO", "Spider", "Big Foot", "Mini", nullptr },
 
 	 },
 	{ /* -------------------- *
          * --- TC_TURNTYPE --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "High+", "Low+", "Random", "Simul", 0x0 },
+	  { "High+", "Low+", "Random", "Simul", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Melhores+", "Piores+", "Aleatório", "Simular", 0x0 },
+	  { "Melhores+", "Piores+", "Aleatório", "Simular", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Haut", "Bas", "Aléatoire", "Similaire", 0x0 },
+	  { "Haut", "Bas", "Aléatoire", "Similaire", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Hoch+", "Niedrig+", "Zufällig", "Simul", 0x0 },
+	  { "Hoch+", "Niedrig+", "Zufällig", "Simul", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Vysoký+", "Nízky+", "Náhodný", "Simul", 0x0 },
+	  { "Vysoký+", "Nízky+", "Náhodný", "Simul", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Сильные +", "Слабые +", "Случайно", "Все сразу", 0x0 },
+	  { "Сильные +", "Слабые +", "Случайно", "Все сразу", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "High+", "Low+", "Random", "Simul", 0x0 },
+	  { "High+", "Low+", "Random", "Simul", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "High+", "Low+", "Random", "Simul", 0x0 }
+	  { "High+", "Low+", "Random", "Simul", nullptr }
 
 	},
 	{ /* -------------------- *
          * --- TC_WALLTYPE --- *
          * -------------------- */
 	  /* === EL_ENGLISH === */
-	  { "Rubber", "Steel", "Spring", "Wrap", "Random", 0x0 },
+	  { "Rubber", "Steel", "Spring", "Wrap", "Random", nullptr },
          /* ===	EL_PORTUGUESE === */
-	  { "Elástico", "Aço", "Mola", "Envoltório", "Aleatório", 0x0 },
+	  { "Elástico", "Aço", "Mola", "Envoltório", "Aleatório", nullptr },
          /* ===	EL_FRENCH === */
-	  { "Elastique", "Acier", "Mou", "Enveloppe", "Aléatoire", 0x0 },
+	  { "Elastique", "Acier", "Mou", "Enveloppe", "Aléatoire", nullptr },
          /* ===	EL_GERMAN === */
-	  { "Gummi", "Stahl", "Federnd", "Verbunden", "Zufällig", 0x0 },
+	  { "Gummi", "Stahl", "Federnd", "Verbunden", "Zufällig", nullptr },
          /* ===	EL_SLOVAK === */
-	  { "Guma", "Oceľ", "Pružina", "Prikrývka", "Náhodný", 0x0 },
+	  { "Guma", "Oceľ", "Pružina", "Prikrývka", "Náhodný", nullptr },
          /* ===	EL_RUSSIAN === */
-	  { "Резиновые", "Непробиваемые", "Пружинящие", "Бесконечность", "Случайные", 0x0 },
+	  { "Резиновые", "Непробиваемые", "Пружинящие", "Бесконечность", "Случайные", nullptr },
          /* ===	EL_SPANISH === */
 	  /* ===== Needs to be translated ===== */
-	  { "Rubber", "Steel", "Spring", "Wrap", "Random", 0x0 },
+	  { "Rubber", "Steel", "Spring", "Wrap", "Random", nullptr },
          /* ===	EL_ITALIAN === */
 	  /* ===== Needs to be translated ===== */
-	  { "Rubber", "Steel", "Spring", "Wrap", "Random", 0x0 }
+	  { "Rubber", "Steel", "Spring", "Wrap", "Random", nullptr }
 
 	}
 }; // End of MenuClassText
