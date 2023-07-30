@@ -30,7 +30,7 @@
 OptionItemPlayer::OptionItemPlayer(
 	PLAYER** player_,
 	int32_t ( *action_ )( PLAYER** player_, int32_t ),
-	const char* title_,
+	char const* title_,
 	int32_t     titleIdx_,
 	int32_t     top_,
 	int32_t     left_,
@@ -69,9 +69,12 @@ OptionItemPlayer::OptionItemPlayer(
 		this->type = ET_MENU;
 
 		// If this is a regular player, no menu indicator is needed.
-		if ( nullptr == title_ ) this->show_menu = false;
-	} else if ( player && *player )
+		if ( nullptr == title_ ) {
+			this->show_menu = false;
+		}
+	} else if ( *player ) {
 		this->type = ET_TOGGLE;
+	}
 }
 
 /// @brief default dtor only setting nullptr values. No further action needed.
@@ -97,13 +100,16 @@ OptionItemPlayer::~OptionItemPlayer() {
 int32_t OptionItemPlayer::activate( int32_t, int32_t, int32_t, int32_t ) {
 	int32_t result = -1;
 
-	if ( ET_MENU == this->type )
+	if ( ET_MENU == this->type ) {
 		result = actionFunc( player, 0 );
-	else if ( ET_TOGGLE == this->type )
+	} else if ( ET_TOGGLE == this->type ) {
 		this->activateToggle( &( *player )->selected );
+	}
 
 	// Changes are displayed at once:
-	if ( ET_NONE != this->type ) this->clear_display( true );
+	if ( ET_NONE != this->type ) {
+		this->clear_display( true );
+	}
 
 	return result;
 }
@@ -123,17 +129,17 @@ bool OptionItemPlayer::canGoUp() {
  * @param[in] show_full If set to true, title and buttons are redrawn.
  **/
 void OptionItemPlayer::display( bool show_full ) {
-	static const int32_t team_col_hi         = 0xc0;
-	static const int32_t team_col_mi         = 0x40;
-	static const int32_t team_col_lo         = 0x18;
-	static const char*   team_Indicator[ 4 ] = { "S", "N", "J", "?" };
-	static const int32_t team_color_bg[ 4 ]  = {
+	static int32_t const team_col_hi         = 0xc0;
+	static int32_t const team_col_mi         = 0x40;
+	static int32_t const team_col_lo         = 0x18;
+	static char const*   team_Indicator[ 4 ] = { "S", "N", "J", "?" };
+	static int32_t const team_color_bg[ 4 ]  = {
                 makecol( team_col_mi, team_col_lo, team_col_lo ),
                 makecol( team_col_lo, team_col_mi, team_col_lo ),
                 makecol( team_col_lo, team_col_lo, team_col_mi ),
                 makecol( team_col_mi, team_col_mi, team_col_mi )
 	};
-	static const int32_t team_color_fg[ 4 ] = {
+	static int32_t const team_color_fg[ 4 ] = {
 		makecol( team_col_hi, team_col_mi, team_col_mi ),
 		makecol( team_col_mi, team_col_hi, team_col_mi ),
 		makecol( team_col_mi, team_col_mi, team_col_hi ),
@@ -143,8 +149,9 @@ void OptionItemPlayer::display( bool show_full ) {
 	if ( !drawn ) {
 		// Be sure to have the current name and color:
 		color = player && *player ? ( *player )->color : color;
-		if ( player && *player && ( !title || ( strcmp( ( *player )->getName(), title ) ) ) )
+		if ( player && *player && ( !title || ( 0 != strcmp( ( *player )->getName(), title ) ) ) ) {
 			setTitle( ( *player )->getName() );
+		}
 
 		// Now display the player
 		int32_t tWidth   = -1 == titleIdx ? text_length( font, "W" ) + padding + 4 : 0;
@@ -184,7 +191,7 @@ void OptionItemPlayer::display( bool show_full ) {
 		if ( title && title[ 0 ] ) {
 
 			// Is the text shadowed, then create one:
-			if ( env.shadowedText )
+			if ( env.shadowedText ) {
 				textout_ex(
 					global.canvas,
 					font,
@@ -194,6 +201,7 @@ void OptionItemPlayer::display( bool show_full ) {
 					GetShadeColor( txtColor, true, PINK ),
 					-1
 				);
+			}
 
 			textout_ex( global.canvas, font, title, txtLeft + 1, xTop + 1, txtColor, -1 );
 		}
@@ -226,7 +234,9 @@ void OptionItemPlayer::display( bool show_full ) {
 	}
 
 	// Show decorations if wanted:
-	if ( show_full ) this->displayDeco();
+	if ( show_full ) {
+		this->displayDeco();
+	}
 }
 
 /// @brief return true, the action function must be able to return an exit code.

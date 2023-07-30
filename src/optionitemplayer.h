@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_OPTIONITEMPLAYER_H_INCLUDED
-#  define ATANKS_SRC_OPTIONITEMPLAYER_H_INCLUDED
+#define ATANKS_SRC_OPTIONITEMPLAYER_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,7 +20,7 @@
  *
  */
 
-#  include "optionitembase.h"
+#include "optionitembase.h"
 
 /** @file optionitemplayer.h
  * @brief declaration of the option entry class specialized on handling
@@ -37,7 +36,7 @@
  *
  * The the only entry type supported is the ET_MENU.
  **/
-class OptionItemPlayer : public OptionItemBase {
+class OptionItemPlayer final : public OptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -47,7 +46,7 @@ public:
 	explicit OptionItemPlayer(
 		PLAYER** player_,
 		int32_t ( *action_ )( PLAYER** player_, int32_t ),
-		const char* title_,
+		char const* title_,
 		int32_t     titleIdx_,
 		int32_t     top_,
 		int32_t     left_,
@@ -55,19 +54,18 @@ public:
 		int32_t     height_,
 		int32_t     padding_
 	);
-	virtual ~OptionItemPlayer();
+	~OptionItemPlayer() final;
 
 	/* ----------------------
 	 * --- Public methods ---
 	 * ----------------------
 	 */
 
-	virtual int32_t activate( int32_t, int32_t, int32_t, int32_t );
-	virtual bool    canGoDown();
-	virtual bool    canGoUp();
-	virtual void    display( bool show_full );
-	virtual bool    isExitButton();
-	void            setLanguage();
+	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	bool    canGoDown() final;
+	bool    canGoUp() final;
+	void    display( bool show_full ) final;
+	bool    isExitButton() final;
 
 private:
 	/* ----------------------------------------------
@@ -83,7 +81,7 @@ private:
 	 * -----------------------
 	 */
 
-	PLAYER** player                                     = nullptr; //!< PLAYER instance to handle
+	PLAYER** player = nullptr; //!< PLAYER instance to handle
 };
 
 

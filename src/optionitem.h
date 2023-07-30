@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_OPTIONITEM_H_INCLUDED
-#  define ATANKS_SRC_OPTIONITEM_H_INCLUDED
+#define ATANKS_SRC_OPTIONITEM_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,7 +20,7 @@
  *
  */
 
-#  include "optionitembase.h"
+#include "optionitembase.h"
 
 /** @file optionitem.h
  * @brief declaration of the option entry template
@@ -69,7 +68,7 @@
  * As an example, if the target is a double, minimum, maximum and increment
  * values can be set to -1.0, 1.0 and 0.1 without the need for a postfix 'L'.
  **/
-template< typename tgt_T, typename opt_T = int32_t > class OptionItem : public OptionItemBase {
+template< typename tgt_T, typename opt_T = int32_t > class OptionItem final : public OptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -98,9 +97,9 @@ public:
 		opt_T       max_,
 		int32_t     color_,
 		eEntryType  type_,
-		const char* title_,
+		char const* title_,
 		int32_t     titleIdx_,
-		const char* format_,
+		char const* format_,
 		int32_t     top_,
 		int32_t     left_,
 		int32_t     width_,
@@ -113,7 +112,9 @@ public:
 		// The value of max_ determines whether this
 		// is read only or not. If it is set, it is writable.
 		// The default is true, so only if it maxVal is 0, something has to be done.
-		if ( maxVal ) read_only = false;
+		if ( maxVal ) {
+			read_only = false;
+		}
 	}
 
 	/** @brief ctor for ET_VALUE with optional display function.
@@ -139,15 +140,15 @@ public:
 	 **/
 	explicit OptionItem(
 		tgt_T*       target_,
-		const char*  title_,
+		char const*  title_,
 		int32_t      titleIdx_,
-		const char** text_,
+		char const** text_,
 		int32_t      color_,
 		eTextClass   class_,
 		opt_T        min_,
 		opt_T        max_,
 		opt_T        decinc_,
-		const char*  format_,
+		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
 		int32_t      width_,
@@ -208,15 +209,15 @@ public:
 		tgt_T* target_,
 		int32_t ( *action_ )( tgt_T* target, int32_t val ),
 		eEntryType   type_,
-		const char*  title_,
+		char const*  title_,
 		int32_t      titleIdx_,
-		const char** text_,
+		char const** text_,
 		int32_t      color_,
 		eTextClass   class_,
 		opt_T        min_,
 		opt_T        max_,
 		opt_T        decinc_,
-		const char*  format_,
+		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
 		int32_t      width_,
@@ -286,7 +287,7 @@ public:
 		int32_t keyCode_,
 		tgt_T*  target_,
 		int32_t ( *action_ )( tgt_T* target, int32_t val ),
-		const char* title_,
+		char const* title_,
 		int32_t     titleIdx_,
 		BUTTON*     button_,
 		int32_t     top_,
@@ -301,7 +302,9 @@ public:
 		// Either action or keyCode must be set
 		assert( ( actionFunc || keyCode_ ) && "Either action_ or keyCode_ must be set" );
 
-		if ( keyCode_ ) this->keyCode = keyCode_;
+		if ( keyCode_ ) {
+			this->keyCode = keyCode_;
+		}
 		if ( button_ ) {
 			this->button = button_;
 			this->button->getLocation( this->left, this->top, this->width, this->height );
@@ -309,7 +312,7 @@ public:
 	}
 
 	/// @brief default dtor only setting nullptr values. No further action needed.
-	~OptionItem() {
+	~OptionItem() final {
 		actionFunc  = nullptr;
 		displayFunc = nullptr;
 		target      = nullptr;
@@ -333,11 +336,11 @@ public:
 	 * @param[in] val Used for ET_VALUE: <0 = decrement, >0 = increment.
 	 * @param[in] ignored (see OptionItemColour)
 	 * @param[in] ignored (see OptionItemColour)
-	 * @param[in] k The latest key press to use on an ET_TEXT.
+	 * @param[in] last_key The latest last_key press to use on an ET_TEXT.
 	 * @return normally 0, but ET_BUTTON and ET_MENU can return key_codes
 	 * assigned with exit buttons.
 	 **/
-	int32_t activate( int32_t val, int32_t, int32_t, int32_t k ) {
+	int32_t activate( int32_t val, int32_t, int32_t, int32_t last_key ) final {
 		int32_t result = 0;
 
 		if ( actionFunc ) {
@@ -345,7 +348,9 @@ public:
 
 			// Here it is important that the action function does the right
 			// thing with the target if this is an ET_VALUE and val<>0
-			if ( ( ET_VALUE == type ) && val && texts ) entryNum = static_cast< int32_t >( *target );
+			if ( ( ET_VALUE == type ) && val && texts ) {
+				entryNum = static_cast< int32_t >( *target );
+			}
 
 		} else {
 			// Here a target must be set as there is no action function.
@@ -373,7 +378,9 @@ public:
 					result = this->activateMenu( target );
 					break;
 				case ET_TEXT:
-					if ( !read_only ) this->activateText( target, k );
+					if ( !read_only ) {
+						this->activateText( target, last_key );
+					}
 					break;
 				case ET_TOGGLE:
 					this->activateToggle( target );
@@ -402,17 +409,19 @@ public:
 	}
 
 	/// @brief return true if the target has not reached its minimum, yet
-	virtual bool canGoDown() {
-		if ( ( ET_VALUE == this->type ) && this->format )
+	bool canGoDown() final {
+		if ( ( ET_VALUE == this->type ) && this->format ) {
 			// Check format, because texts[] based options are rotated.
-			return ( *target > static_cast< tgt_T >( minVal ) ? true : false );
+			return *target > static_cast< tgt_T >( minVal );
+		}
 		return true;
 	}
 
 	/// @brief return true if the target has not reached its maximum, yet
-	virtual bool canGoUp() {
-		if ( ( ET_VALUE == this->type ) && this->format )
-			return ( *target < static_cast< tgt_T >( maxVal ) ? true : false );
+	bool canGoUp() final {
+		if ( ( ET_VALUE == this->type ) && this->format ) {
+			return *target < static_cast< tgt_T >( maxVal );
+		}
 		return true;
 	}
 
@@ -430,7 +439,7 @@ public:
 	 *
 	 * @param[in] show_full If set to true, title and buttons are redrawn.
 	 **/
-	void display( bool show_full ) {
+	void display( bool show_full ) final {
 		if ( displayFunc ) {
 			clear_display( false );
 			displayFunc( target, left, top );
@@ -465,11 +474,13 @@ public:
 		}         // end of having no display function
 
 		// Show decorations if wanted: (ET_COLOR does that in displayColor())
-		if ( show_full && ( ET_COLOR != type ) ) this->displayDeco();
+		if ( show_full && ( ET_COLOR != type ) ) {
+			this->displayDeco();
+		}
 	}
 
 	/// @brief return true if this is an ET_BUTTON with a key code and no action function.
-	bool isExitButton() { return ( ( ET_BUTTON == type ) && ( nullptr == actionFunc ) && ( -1 < keyCode ) ); }
+	bool isExitButton() final { return ( ( ET_BUTTON == type ) && ( nullptr == actionFunc ) && ( -1 < keyCode ) ); }
 
 	/// @brief Quickly change (or set) the action function
 	void setAction( int32_t ( *action_ )( tgt_T* target, int32_t val ) ) { actionFunc = action_; }
@@ -487,9 +498,9 @@ private:
 	/// @brief templated ET_VALUE activation handling
 	void activateValue( int32_t val ) {
 		// A few short-cuts that make reading the following a lot easier:
-		tgt_T t_val = static_cast< tgt_T >( ( decinc * val ) );
-		tgt_T t_max = static_cast< tgt_T >( maxVal );
-		tgt_T t_min = static_cast< tgt_T >( minVal );
+		auto t_val = static_cast< tgt_T >( ( decinc * val ) );
+		auto t_max = static_cast< tgt_T >( maxVal );
+		auto t_min = static_cast< tgt_T >( minVal );
 
 		if ( format ) {
 			// If a format is set, this is just a simple adding/substracting
@@ -497,15 +508,17 @@ private:
 			// val == 0 is simply ignored.
 			tgt_T oldTgt = *target;
 			if ( val > 0 ) {
-				if ( *target <= ( t_max - t_val ) )
+				if ( *target <= ( t_max - t_val ) ) {
 					*target += t_val;
-				else
+				} else {
 					*target = t_max;
+				}
 			} else if ( val < 0 ) {
-				if ( *target >= ( t_min - t_val ) )
+				if ( *target >= ( t_min - t_val ) ) {
 					*target += t_val;
-				else
+				} else {
 					*target = t_min;
+				}
 			}
 			// If a maximum or minimum is reached, clear the decoration
 			if ( ( oldTgt != *target ) && ( ( *target == t_min ) || ( *target == t_max ) ) ) {
@@ -515,15 +528,17 @@ private:
 		} else if ( texts ) {
 			// Otherwise entryNum is used and checked against texts[]
 			if ( val > 0 ) {
-				if ( texts[ entryNum + 1 ] && ( *target < t_max ) )
+				if ( texts[ entryNum + 1 ] && ( *target < t_max ) ) {
 					++entryNum;
-				else
+				} else {
 					entryNum = 0;
+				}
 			} else if ( val < 0 ) {
-				if ( entryNum > 0 && ( *target > static_cast< tgt_T >( 0 ) ) )
+				if ( entryNum > 0 && ( *target > static_cast< tgt_T >( 0 ) ) ) {
 					--entryNum;
-				else
+				} else {
 					entryNum = t_max;
+				}
 			}
 			*target = static_cast< tgt_T >( entryNum );
 		}

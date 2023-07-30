@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_OPTIONITEMCOLOUR_H_INCLUDED
-#  define ATANKS_SRC_OPTIONITEMCOLOUR_H_INCLUDED
+#define ATANKS_SRC_OPTIONITEMCOLOUR_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -37,7 +36,7 @@
  *
  * The the only entry type supported is the ET_COLOR.
  **/
-class OptionItemColour : public OptionItemBase {
+class OptionItemColour final : public OptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -46,7 +45,7 @@ public:
 
 	explicit OptionItemColour(
 		int32_t*    color_,
-		const char* title_,
+		char const* title_,
 		int32_t     titleIdx_,
 		int32_t     top_,
 		int32_t     left_,
@@ -55,19 +54,19 @@ public:
 		int32_t     padding_,
 		int32_t     show_size_
 	);
-	virtual ~OptionItemColour();
+	~OptionItemColour() final;
 
 	/* ----------------------
 	 * --- Public methods ---
 	 * ----------------------
 	 */
 
-	virtual int32_t activate( int32_t, int32_t, int32_t, int32_t );
-	virtual bool    canGoDown();
-	virtual bool    canGoUp();
-	virtual void    display( bool show_full );
-	virtual bool    isExitButton();
-	void            setLanguage();
+	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	bool    canGoDown() final;
+	bool    canGoUp() final;
+	void    display( bool show_full ) final;
+	bool    isExitButton() final;
+
 
 private:
 	/* ----------------------------------------------
@@ -76,7 +75,7 @@ private:
 	 */
 
 
-	void     displayCross();
+	void displayCross();
 
 
 	/* -----------------------

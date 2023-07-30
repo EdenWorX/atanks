@@ -22,7 +22,7 @@
  **/
 OptionItemMenu::OptionItemMenu(
 	Menu*       menu_,
-	const char* title_,
+	char const* title_,
 	int32_t     titleIdx_,
 	int32_t     color_,
 	int32_t     top_,
@@ -81,7 +81,7 @@ int32_t OptionItemMenu::activate( int32_t, int32_t, int32_t, int32_t ) {
 	int32_t result = ( *menu )();
 
 	// Changes are displayed at once:
-	this->drawn    = false;
+	this->drawn = false;
 	this->display( false );
 
 	// Re-add parent menu timer
@@ -108,7 +108,9 @@ void OptionItemMenu::display( bool show_full ) {
 	this->displayMenu( menu );
 
 	// Show decorations if wanted:
-	if ( show_full ) this->displayDeco();
+	if ( show_full ) {
+		this->displayDeco();
+	}
 }
 
 /// @brief return true, the menu must be able to return an exit code.
@@ -118,5 +120,7 @@ bool OptionItemMenu::isExitButton() {
 
 /// @brief simply calls setLanguage(false) on the target menu
 void OptionItemMenu::setLanguage() {
-	if ( menu ) menu->setLanguage( false );
+	if ( menu ) {
+		menu->setLanguage( false );
+	}
 }

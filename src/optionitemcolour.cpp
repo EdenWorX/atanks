@@ -16,7 +16,7 @@
  **/
 OptionItemColour::OptionItemColour(
 	int32_t*    color_,
-	const char* title_,
+	char const* title_,
 	int32_t     titleIdx_,
 	int32_t     top_,
 	int32_t     left_,
@@ -42,7 +42,7 @@ OptionItemColour::OptionItemColour(
 	) {
 	// For ET_COLOR, only the color_ is needed
 	assert( color_ && "ERROR: color_ must be set" );
-	tgt_color  = color_;
+	tgt_color = color_;
 
 	// Create the rainbow box:
 	tgt_bitmap = create_bitmap( width, height );
@@ -70,7 +70,7 @@ OptionItemColour::OptionItemColour(
 			assert( ( s >= 0. ) && ( s <= 1. ) && "s out of range" );
 			assert( ( v >= 0. ) && ( v <= 1. ) && "v out of range" );
 
-			hsv_to_rgb( h, s, v, &r, &g, &b );
+			hsv_to_rgb( ROUND( h ), ROUND( s ), ROUND( v ), &r, &g, &b );
 
 			putpixel( tgt_bitmap, x + 1, y + 1, makecol( r, g, b ) );
 		}
@@ -155,7 +155,9 @@ void OptionItemColour::display( bool show_full ) {
 		drawn = true;
 	}
 
-	if ( show_full ) this->displayDeco( *tgt_color );
+	if ( show_full ) {
+		this->displayDeco( *tgt_color );
+	}
 }
 
 /// @brief Draw the selector cross
@@ -173,17 +175,33 @@ void OptionItemColour::displayCross() {
 		int32_t yb     = y + 5;
 
 		// Do not overdraw:
-		if ( xl <= left ) xl = x > left ? left + 1 : 0;
-		if ( yt <= top ) yt = y > top ? top + 1 : 0;
-		if ( xr >= right ) xr = x < right ? right - 1 : 0;
-		if ( yb >= bottom ) yb = y < bottom ? bottom - 1 : 0;
+		if ( xl <= left ) {
+			xl = x > left ? left + 1 : 0;
+		}
+		if ( yt <= top ) {
+			yt = y > top ? top + 1 : 0;
+		}
+		if ( xr >= right ) {
+			xr = x < right ? right - 1 : 0;
+		}
+		if ( yb >= bottom ) {
+			yb = y < bottom ? bottom - 1 : 0;
+		}
 
 		// If a coordinate is zero, the line is not drawn.
 		int32_t cross_col = makecol( 255 - getr( *tgt_color ), 255 - getg( *tgt_color ), 255 - getb( *tgt_color ) );
-		if ( xl ) hline( global.canvas, xl, y, x - 1, cross_col );
-		if ( xr ) hline( global.canvas, x + 1, y, xr, cross_col );
-		if ( yt ) vline( global.canvas, x, yt, y - 1, cross_col );
-		if ( yb ) vline( global.canvas, x, y + 1, yb, cross_col );
+		if ( xl ) {
+			hline( global.canvas, xl, y, x - 1, cross_col );
+		}
+		if ( xr ) {
+			hline( global.canvas, x + 1, y, xr, cross_col );
+		}
+		if ( yt ) {
+			vline( global.canvas, x, yt, y - 1, cross_col );
+		}
+		if ( yb ) {
+			vline( global.canvas, x, y + 1, yb, cross_col );
+		}
 	}
 }
 

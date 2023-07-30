@@ -4,14 +4,14 @@
 #include "floattext.h"
 #include "menu.h"
 
-static const char menu_hint_text[]   = "-> ";
-static uint32_t   menu_hint_text_len = 0; // Set by ctor when "font" is set
-static const char select_text[]      = "* ";
-uint32_t          select_text_len    = 0; // Set by ctor when "font" is set
+static char const menu_hint_text[]   = "-> ";
+static int32_t    menu_hint_text_len = 0; // Set by ctor when "font" is set
+static char const select_text[]      = "* ";
+int32_t           select_text_len    = 0; // Set by ctor when "font" is set
 
 // Note: Direct setting is not a good idea, font might be anything when
 //       the static initialization is done.
-static int32_t    CURSOR_FLIP_TIME   = 25; // Delays cursor flipping
+static int32_t CURSOR_FLIP_TIME = 25; // Delays cursor flipping
 
 /** @brief default and only constructor
  * @param[in] type_ Type of the option.
@@ -30,12 +30,12 @@ static int32_t    CURSOR_FLIP_TIME   = 25; // Delays cursor flipping
  **/
 OptionItemBase::OptionItemBase(
 	eEntryType   type_,
-	const char*  title_,
+	char const*  title_,
 	int32_t      titleIdx_,
-	const char** text_,
+	char const** text_,
 	int32_t      color_,
 	eTextClass   class_,
-	const char*  format_,
+	char const*  format_,
 	int32_t      top_,
 	int32_t      left_,
 	int32_t      width_,
@@ -62,14 +62,18 @@ OptionItemBase::OptionItemBase(
 	titleLen = text_length( font, title );
 
 	// Set static globals
-	if ( 0 == menu_hint_text_len ) menu_hint_text_len = text_length( font, menu_hint_text );
-	if ( 0 == select_text_len ) select_text_len = text_length( font, select_text );
+	if ( 0 == menu_hint_text_len ) {
+		menu_hint_text_len = text_length( font, menu_hint_text );
+	}
+	if ( 0 == select_text_len ) {
+		select_text_len = text_length( font, select_text );
+	}
 }
 
 /// @brief simple default destructor
 OptionItemBase::~OptionItemBase() {
 	this->remove();
-	if ( this->button ) delete this->button;
+	delete this->button;
 }
 
 /* =====================================
@@ -122,13 +126,17 @@ void OptionItemBase::clear_display( bool update_full ) {
 			}
 
 			// Third: The ET_VALUE wheel buttons
-			if ( ET_VALUE == type ) xWidth += 2 * padding + 20;
+			if ( ET_VALUE == type ) {
+				xWidth += 2 * padding + 20;
+			}
 		}
 
 		rectfill( global.canvas, xLeft, xTop, xLeft + xWidth, xTop + xHeight, makecol( 0, 79, 0 ) );
 		global.make_update( xLeft, xTop, xWidth, xHeight );
 		drawn = false;
-		if ( update_full ) decorated = false;
+		if ( update_full ) {
+			decorated = false;
+		}
 	}
 }
 
@@ -150,8 +158,12 @@ void OptionItemBase::getDimension( int32_t& tgt_width, int32_t& tgt_height ) {
 	tgt_width  = width + padding;
 	tgt_height = height + padding + 2;
 
-	if ( ET_COLOR == type ) tgt_width += padding + show_size;
-	if ( ET_MENU == type ) tgt_width += menu_hint_text_len;
+	if ( ET_COLOR == type ) {
+		tgt_width += padding + show_size;
+	}
+	if ( ET_MENU == type ) {
+		tgt_width += menu_hint_text_len;
+	}
 	if ( ET_TOGGLE == type ) {
 		tgt_width  += 4;
 		tgt_height += 2;
@@ -159,7 +171,7 @@ void OptionItemBase::getDimension( int32_t& tgt_width, int32_t& tgt_height ) {
 }
 
 /// @brief return currently set key code
-int32_t OptionItemBase::getKeyCode() {
+int32_t OptionItemBase::getKeyCode() const {
 	return keyCode;
 }
 
@@ -179,7 +191,7 @@ uint32_t OptionItemBase::getTextClass() {
 }
 
 /// @brief return the index value of the displayed title
-uint32_t OptionItemBase::getTitleIdx() {
+uint32_t OptionItemBase::getTitleIdx() const {
 	return titleIdx;
 }
 
@@ -195,7 +207,9 @@ eEntryType OptionItemBase::getType() {
  * @param[in,out] new_prev (Optional) pointer to the option that becomes the new prev.
  */
 void OptionItemBase::insert_after( OptionItemBase* new_prev ) {
-	if ( prev || next ) this->remove();
+	if ( prev || next ) {
+		this->remove();
+	}
 
 	prev = new_prev;
 	if ( prev ) {
@@ -203,7 +217,9 @@ void OptionItemBase::insert_after( OptionItemBase* new_prev ) {
 		prev->next = this;
 	}
 
-	if ( next ) next->prev = this;
+	if ( next ) {
+		next->prev = this;
+	}
 }
 
 /** @brief Insert option before @a new_next
@@ -213,7 +229,9 @@ void OptionItemBase::insert_after( OptionItemBase* new_prev ) {
  * @param[in,out] new_next (Optional) pointer to the option that becomes the new next.
  */
 void OptionItemBase::insert_before( OptionItemBase* new_next ) {
-	if ( prev || next ) this->remove();
+	if ( prev || next ) {
+		this->remove();
+	}
 
 	next = new_next;
 	if ( next ) {
@@ -221,7 +239,9 @@ void OptionItemBase::insert_before( OptionItemBase* new_next ) {
 		next->prev = this;
 	}
 
-	if ( prev ) prev->next = this;
+	if ( prev ) {
+		prev->next = this;
+	}
 }
 
 /** @brief return true if @a x and @a y are in this options clickable area
@@ -247,14 +267,16 @@ bool OptionItemBase::is_click_in( int32_t x, int32_t y, int32_t& ret ) {
 	bool    result  = false;
 
 	// reset ret
-	ret             = 0;
+	ret = 0;
 
 	// Note: No need to check anything if y is somewhere else
 	if ( ( y >= xTop ) && ( y <= xBottom ) ) {
 		bool hasWheelresult = false;
 
 		// Check direct display area:
-		if ( ( x >= xLeft ) && ( x <= xRight ) ) result = true;
+		if ( ( x >= xLeft ) && ( x <= xRight ) ) {
+			result = true;
+		}
 
 		// If this is an ET_VALUE, check wheel buttons
 		if ( !result && ( ET_VALUE == type ) ) {
@@ -279,19 +301,22 @@ bool OptionItemBase::is_click_in( int32_t x, int32_t y, int32_t& ret ) {
 		} // End of checking ET_VALUE wheel buttons
 
 		// Is there a return code to send?
-		if ( result && !hasWheelresult )
+		if ( result && !hasWheelresult ) {
 			// simply activate it
 			ret = KEY_ENTER;
+		}
 
 		// If a result is found, this must be updated:
-		if ( result && ( ET_COLOR != type ) ) this->clear_display( false );
+		if ( result && ( ET_COLOR != type ) ) {
+			this->clear_display( false );
+		}
 	} // End of y in range
 
 	return result;
 }
 
 /// @brief returns true if this entry is selected
-bool OptionItemBase::is_selected() {
+bool OptionItemBase::is_selected() const {
 	return selected;
 }
 
@@ -306,7 +331,9 @@ bool OptionItemBase::is_selected() {
  */
 void OptionItemBase::move( int32_t new_left, int32_t new_top, bool do_update ) {
 	if ( ( new_left != left ) || ( new_top != top ) ) {
-		if ( do_update ) clear_display( true );
+		if ( do_update ) {
+			clear_display( true );
+		}
 		left = new_left;
 		top  = new_top;
 	}
@@ -322,8 +349,12 @@ bool OptionItemBase::needs_text() {
  * This is a standard remove from a doubly linked list.
  */
 void OptionItemBase::remove() {
-	if ( next ) next->prev = prev;
-	if ( prev ) prev->next = next;
+	if ( next ) {
+		next->prev = prev;
+	}
+	if ( prev ) {
+		prev->next = next;
+	}
 	prev = nullptr;
 	next = nullptr;
 }
@@ -373,12 +404,14 @@ void OptionItemBase::setPadding( int32_t new_padding ) {
  *
  * @param[in] new_title Pointer to the new title to display
  */
-void OptionItemBase::setTitle( const char* new_title ) {
+void OptionItemBase::setTitle( char const* new_title ) {
 	if ( new_title != title ) {
 		clear_display( true );
 		title    = new_title;
 		titleLen = text_length( font, title );
-		if ( ( ET_BUTTON == type ) && button ) button->setText( title );
+		if ( ( ET_BUTTON == type ) && button ) {
+			button->setText( title );
+		}
 	}
 }
 
@@ -399,7 +432,7 @@ void OptionItemBase::setTextClass( eTextClass new_class ) {
  * This method clears the current display without decorations and changes the
  * used texts array. Use this to switch languages.
  */
-void OptionItemBase::setTexts( const char** new_texts ) {
+void OptionItemBase::setTexts( char const** new_texts ) {
 	if ( new_texts != texts ) {
 		clear_display( false );
 		texts = new_texts;
@@ -427,30 +460,35 @@ void OptionItemBase::unselect() {
  * @return Result of Menu::operator()
  **/
 int32_t OptionItemBase::activateMenu( Menu* target ) {
-	if ( target ) return target->operator() ();
+	if ( target ) {
+		return target->operator() ();
+	}
 	return 0;
 }
 
-/** @brief Add the result of key press @a k to @a target.
+/** @brief Add the result of key press @a raw_key to @a target.
  *
  * Please make sure that @a has at least one byte free space excluding
  * null character termination!
  *
  * @param[out] target The char array (or string) to receive the result.
- * @param[in] k Allegro 4 raw key code, or the allegro 5 unichar field
+ * @param[in] raw_key Allegro 4 raw key code, or the allegro 5 unichar field
  */
-void OptionItemBase::activateText( char* target, int32_t k ) {
-	if ( target && ( k > 0 ) ) {
-		int32_t oldTextLen = static_cast< int32_t >( strlen( target ) );
-		char    chr        = static_cast< char >( k & 0xff );
-		textLen            = oldTextLen;
+void OptionItemBase::activateText( char* target, int32_t raw_key ) {
+	if ( target && ( raw_key > 0 ) ) {
+		auto oldTextLen = static_cast< int32_t >( strlen( target ) );
+		char chr        = static_cast< char >( raw_key & 0xff );
+		textLen         = oldTextLen;
 
-		if ( ( ( 0x08 == chr ) || ( 0x7f == chr ) ) && textLen )
+		if ( ( ( 0x08 == chr ) || ( 0x7f == chr ) ) && textLen ) {
 			target[ --textLen ] = 0x0;
-		else if ( isprint( chr ) )
+		} else if ( isprint( chr ) ) {
 			target[ textLen++ ] = chr;
+		}
 
-		if ( oldTextLen != textLen ) clear_display( false );
+		if ( oldTextLen != textLen ) {
+			clear_display( false );
+		}
 	}
 }
 
@@ -469,7 +507,9 @@ void OptionItemBase::activateToggle( bool* target ) {
  **/
 void OptionItemBase::displayButton() {
 	if ( !drawn ) {
-		if ( this->button ) button->draw();
+		if ( this->button ) {
+			button->draw();
+		}
 		drawn = true;
 	}
 }
@@ -498,7 +538,7 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 			xWidth          = titleLen + padding;
 
 			// Add a nice shadow if wanted
-			if ( env.shadowedText )
+			if ( env.shadowedText ) {
 				textout_ex(
 					global.canvas,
 					font,
@@ -508,6 +548,7 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 					GetShadeColor( tColor, true, PINK ),
 					-1
 				);
+			}
 
 			textout_ex( global.canvas, font, title, xLeft, text_top, tColor, -1 );
 		}
@@ -537,7 +578,9 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 
 		// If an actual width could be determined, add an update
 		// for the text region:
-		if ( xWidth > 0 ) global.make_update( xLeft, xTop, xWidth, xHeight );
+		if ( xWidth > 0 ) {
+			global.make_update( xLeft, xTop, xWidth, xHeight );
+		}
 
 		// Third: The ET_VALUE wheel buttons / ET_COLOR display box
 		if ( ET_VALUE == type ) {
@@ -545,8 +588,12 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 			int32_t dn_left = left + width + padding;
 			int32_t up_left = dn_left + padding + 10;
 
-			if ( this->canGoDown() ) draw_sprite_v_flip( global.canvas, arrow, dn_left, deco_top );
-			if ( this->canGoUp() ) draw_sprite( global.canvas, arrow, up_left, deco_top );
+			if ( this->canGoDown() ) {
+				draw_sprite_v_flip( global.canvas, arrow, dn_left, deco_top );
+			}
+			if ( this->canGoUp() ) {
+				draw_sprite( global.canvas, arrow, up_left, deco_top );
+			}
 
 			global.make_update( up_left, top, 10, height );
 		} else if ( ET_COLOR == type ) {
@@ -566,12 +613,13 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
  * @param[in] target pointer to the menu to display
  */
 void OptionItemBase::displayMenu( Menu* target ) {
-	if ( title && ( titleIdx > -1 ) )
+	if ( title && ( titleIdx > -1 ) ) {
 		this->displayText( title );
-	else if ( target )
+	} else if ( target ) {
 		this->displayText( target->getTitle() );
-	else
+	} else {
 		this->displayText( "Oh no! No Menu Title!" );
+	}
 }
 
 /** @brief Display the @a target as text.
@@ -579,14 +627,14 @@ void OptionItemBase::displayMenu( Menu* target ) {
  * @param[in] target (optional) pointer to the text to display
  */
 void OptionItemBase::displayText( char* target ) {
-	this->displayText( static_cast< const char* >( target ) );
+	this->displayText( static_cast< char const* >( target ) );
 }
 
 /** @brief Display the @a target as text.
  *
  * @param[in] target (optional) pointer to the text to display
  */
-void OptionItemBase::displayText( const char* target ) {
+void OptionItemBase::displayText( char const* target ) {
 	if ( !drawn ) {
 		if ( !textOnly ) {
 			rect( global.canvas, left, top, left + width, top + height, BLACK );
@@ -594,7 +642,7 @@ void OptionItemBase::displayText( const char* target ) {
 		}
 
 		// First display the text
-		const char* txt_p   = target;
+		char const* txt_p   = target;
 		int32_t     txt_len = txt_p ? text_length( font, txt_p ) : 0;
 
 		if ( txt_p ) {
@@ -604,16 +652,20 @@ void OptionItemBase::displayText( const char* target ) {
 
 			// If this is a read/write selected ET_TEXT, it has a cursor being
 			// drawn, and thus less space to display the text:
-			if ( ( ET_TEXT == type ) && selected && !read_only ) len_available -= text_length( font, "W" );
+			if ( ( ET_TEXT == type ) && selected && !read_only ) {
+				len_available -= text_length( font, "W" );
+			}
 
 			// Scroll text until it fits.
-			while ( txt_p && txt_p[ 0 ] && ( txt_len > len_available ) ) txt_len = text_length( font, ++txt_p );
+			while ( txt_p && txt_p[ 0 ] && ( txt_len > len_available ) ) {
+				txt_len = text_length( font, ++txt_p );
+			}
 
 			// Now print the result
 			if ( txt_p && txt_p[ 0 ] ) {
 
 				// With a shadow? But not in text field mode
-				if ( env.shadowedText && textOnly )
+				if ( env.shadowedText && textOnly ) {
 					textout_ex(
 						global.canvas,
 						font,
@@ -623,6 +675,7 @@ void OptionItemBase::displayText( const char* target ) {
 						GetShadeColor( color, true, PINK ),
 						-1
 					);
+				}
 
 				textout_ex( global.canvas, font, txt_p, left + 3, text_top, textOnly ? color : BLACK, -1 );
 			}
@@ -654,12 +707,12 @@ void OptionItemBase::displayText( uint32_t* target ) {
  * @param[in] target (optional) pointer to the toggle option.
  * to be set by OptionItemPlayer only.
  */
-void OptionItemBase::displayToggle( bool* target ) {
+void OptionItemBase::displayToggle( bool const* target ) {
 	if ( !drawn ) {
 		int32_t fg_color = color;
 		int32_t bg_color = BLACK;
 		int32_t sh_color = DARK_GREY;
-		int32_t x_radius = ( titleLen / 1.8 ) + padding + 5;
+		int32_t x_radius = ROUND( titleLen / 1.8 ) + padding + 5;
 		int32_t y_radius = height / 2;
 		int32_t xLeft    = left + ( width / 2 );
 		int32_t xTop     = top + ( height / 2 );
