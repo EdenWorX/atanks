@@ -33,6 +33,8 @@
 #define SDI_DISTANCE    100
 #define TRIGGER_HEIGHT  300
 
+struct sSDI;
+
 /** @enum eMissileType
  * @brief Determines what kind of weapon is shot
  **/
@@ -43,7 +45,7 @@ enum eMissileType {
 	MT_MIND_SHOT   //!< AI thinking.
 };
 
-class MISSILE : public PHYSICAL_OBJECT {
+class MISSILE final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -61,7 +63,7 @@ public:
 		int32_t      ai_level_,
 		int32_t      delay_idx_
 	);
-	~MISSILE();
+	~MISSILE() final;
 
 
 	/* ----------------------
@@ -69,14 +71,15 @@ public:
 	 * ----------------------
 	 */
 
-	void     applyPhysics();
-	int32_t  bounced() const;
-	int32_t  direction() const;
-	void     draw();
+	void   applyPhysics() final;
+	void   draw() final;
+	void   update_submun( ePhysType p_type, int32_t cnt_down );
 
-	eClass   getClass() { return CLASS_MISSILE; }
+	eClass getClass() final { return CLASS_MISSILE; }
 
-	void     update_submun( ePhysType p_type, int32_t cnt_down );
+	/* Status Getters */
+	[[nodiscard]] int32_t bounced() const;
+	[[nodiscard]] int32_t direction() const;
 
 
 private:
@@ -85,11 +88,20 @@ private:
 	 * -----------------------
 	 */
 
-	void         Check_SDI(); // see if missile should be shot down
-	int32_t      Height_Above_Ground();
-	void         Repulse_Missile();
-	void         trigger();
-	void         triggerTest();
+	void    applyPhysicsFunky();   // Handle funky projectiles
+	void    applyPhysicsNormal();  // Handle standard physics projectiles
+	void    applyPhysicsOther();   // Handle what is not normal, funky or rolling
+	void    applyPhysicsRolling(); // Handle rolling projectiles
+	sSDI*   Build_SDI_List( sSDI* sdi );
+	void    Check_Cluster();                    // Check/Launch weapons with submunition
+	bool    Check_Missile_Hit( sSDI* sdi );     // Check whether the missile will hit a certain target
+	bool    Check_Roller( double old_delta_x ); // Check whether a roller triggers
+	void    Check_SDI();                        // see if missile should be shot down
+	void    Check_Tanks();                      // see whether any tank is hit
+	int32_t Height_Above_Ground();
+	void    Repulse_Missile();
+	void    trigger();
+	void    triggerTest();
 
 
 	/* -----------------------
