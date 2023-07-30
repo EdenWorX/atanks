@@ -23,7 +23,7 @@
 
 // init the object
 MESSAGE_QUEUE::MESSAGE_QUEUE() {
-	first_message = last_message = NULL;
+	first_message = last_message = nullptr;
 }
 
 // do clean up on all messages
@@ -70,7 +70,7 @@ bool MESSAGE_QUEUE::Add( char *some_text, int to ) {
 }
 
 // retreive a message and erase it from the queue
-// returns a message on success and NULL on failure
+// returns a message on success and nullptr on failure
 MESSAGE *MESSAGE_QUEUE::Read() {
 	MESSAGE *my_message;
 
@@ -83,24 +83,24 @@ MESSAGE *MESSAGE_QUEUE::Read() {
 }
 
 // returns a message from the queue without removing it from the line
-// Returns a message on success or a NULL on failure
+// Returns a message on success or a nullptr on failure
 MESSAGE *MESSAGE_QUEUE::Peek() {
 	MESSAGE *my_message;
 
 	// see if there is a message to get
 	if ( ( !first_message ) || ( !first_message->text ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// we want to make a copy of the message, not just pass back a pointer
 	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
 	if ( !my_message ) {
-		return NULL;
+		return nullptr;
 	}
 	my_message->text = (char *)calloc( strlen( first_message->text ) + 1, sizeof( char ) );
 	if ( !my_message->text ) {
 		free( my_message );
-		return NULL;
+		return nullptr;
 	}
 
 	// we have an empty message. Now fill it
@@ -113,9 +113,9 @@ MESSAGE *MESSAGE_QUEUE::Peek() {
 // Finds the next message destined "to" a given player
 // This function returns the first message it finds and
 // erases it. The message is returned on success or a
-// NULL is returned if no message is found.
+// nullptr is returned if no message is found.
 MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
-	MESSAGE *current, *previous = NULL, *my_message = NULL;
+	MESSAGE *current, *previous = nullptr, *my_message = nullptr;
 	bool     found = false;
 
 	// search for matching to field
@@ -130,19 +130,19 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 	}
 
 	if ( !found ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// found match, create a copy and erase the original
 	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
 	if ( !my_message ) {
-		return NULL;
+		return nullptr;
 	}
 
 	my_message->text = (char *)calloc( strlen( current->text ) + 1, sizeof( char ) );
 	if ( !my_message->text ) {
 		free( my_message );
-		return NULL;
+		return nullptr;
 	}
 
 	my_message->to = current->to;
@@ -171,7 +171,7 @@ void MESSAGE_QUEUE::Erase() {
 		// clean up
 		if ( first_message->text ) {
 			free( first_message->text );
-			first_message->text = NULL;
+			first_message->text = nullptr;
 		}
 		free( first_message );
 
@@ -198,7 +198,7 @@ void MESSAGE_QUEUE::Erase_All() {
 		current = coming_up;
 	}
 
-	first_message = last_message = NULL;
+	first_message = last_message = nullptr;
 }
 
 //
@@ -285,7 +285,7 @@ int Send_Message( MESSAGE *mess, int to_socket ) {
 }
 
 // Read data from a socket and put it in a message
-// Returns the message on success and NULL on failure.
+// Returns the message on success and nullptr on failure.
 // Note: the "to" field of the message is not set.
 MESSAGE *Receive_Message( int from_socket ) {
 	MESSAGE *my_message;
@@ -294,7 +294,7 @@ MESSAGE *Receive_Message( int from_socket ) {
 
 	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
 	if ( !my_message ) {
-		return NULL;
+		return nullptr;
 	}
 
 	memset( buffer, '\0', MAX_MESSAGE_LENGTH );
@@ -304,14 +304,14 @@ MESSAGE *Receive_Message( int from_socket ) {
 		my_message->text                 = (char *)calloc( strlen( buffer ), sizeof( char ) );
 		if ( !my_message->text ) {
 			free( my_message );
-			return NULL;
+			return nullptr;
 		}
 		strcpy( my_message->text, buffer );
 		return my_message;
 	} else // error while reading
 	{
 		free( my_message );
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -324,12 +324,14 @@ void Clean_Up_Client_Socket( int my_socket ) {
 }
 
 // This function checks the socket to see if there is data ready to
-// be read. If there is data ready, then the function returns TRUE. If
+// be read. If there is data ready, then the function returns true. If
 // an error occures, the function returns -1. If there is no data
-// and no error, the function returns FALSE.
+// and no error, the function returns false.
 int Check_For_Incoming_Data( int socket_number ) {
 	fd_set         rfds;
-	struct timeval tv;
+
+	struct timeval tv {};
+
 	int            retval;
 
 	FD_ZERO( &rfds );
@@ -338,29 +340,23 @@ int Check_For_Incoming_Data( int socket_number ) {
 	tv.tv_sec  = 0;
 	tv.tv_usec = 0;
 
-	retval     = select( socket_number + 1, &rfds, NULL, NULL, &tv );
+	retval     = select( socket_number + 1, &rfds, nullptr, nullptr, &tv );
 
 	if ( retval == -1 ) {
 		return -1;
 	}
 
-	else if ( retval ) {
-		return TRUE;
-	}
-
-	else {
-		return FALSE;
-	}
-
-	return TRUE;
+	return retval ? 1 : 0;
 }
 
 // This function checks the passed socket for errors. If the socket
-// is error-free, the function returns FALSE. If an exception
-// has occured, the function returns TRUE.
-int Check_For_Errors( int socket_number ) {
+// is error-free, the function returns false. If an exception
+// has occured, the function returns true.
+bool Check_For_Errors( int socket_number ) {
 	fd_set         exds;
-	struct timeval tv;
+
+	struct timeval tv {};
+
 	int            expval;
 
 	FD_ZERO( &exds );
@@ -368,15 +364,13 @@ int Check_For_Errors( int socket_number ) {
 	tv.tv_sec  = 0;
 	tv.tv_usec = 0;
 
-	expval     = select( socket_number + 1, NULL, NULL, &exds, &tv );
+	expval     = select( socket_number + 1, nullptr, nullptr, &exds, &tv );
 
 	if ( expval == -1 ) {
-		return TRUE;
-	} else if ( expval ) {
-		return TRUE;
-	} else {
-		return FALSE;
+		return true;
 	}
+
+	return expval == 0;
 }
 
 // This function will probably be called as a separate thread at the

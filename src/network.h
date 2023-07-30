@@ -1,5 +1,5 @@
-#ifndef NETWORK_HEADER_FILE__
-#define NETWORK_HEADER_FILE__
+#ifndef ATANKS_NETWORK_H_INCLUDED
+#define ATANKS_NETWORK_H_INCLUDED
 
 /*
 This file will contain two sets of headers and data. One for dealing with queued message
@@ -9,13 +9,6 @@ updated to run on other operating systems.
 -- Jesse
 */
 
-
-#ifndef TRUE
-#  define TRUE 1
-#endif
-#ifndef FALSE
-#  define FALSE 0
-#endif
 
 #define MAX_MESSAGE_LENGTH 256
 
@@ -52,7 +45,7 @@ public:
 
 struct SEND_RECEIVE_TYPE {
 	int listening_port;
-	int shut_down;
+	bool shut_down;
 };
 
 #define DEFAULT_NETWORK_PORT 25645
@@ -102,7 +95,7 @@ MESSAGE *Receive_Message( int from_socket );
 void     Clean_Up_Server_Socket( int my_socket );
 void     Clean_Up_Client_Socket( int my_socket );
 int      Check_For_Incoming_Data( int socket_number );
-int      Check_For_Errors( int socket_number );
+bool      Check_For_Errors( int socket_number );
 void    *Send_And_Receive( void *data_we_need );
 
 #else

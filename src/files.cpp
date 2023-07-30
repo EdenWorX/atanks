@@ -100,8 +100,8 @@ bool Save_Game() {
 /*
 This function attempts to load a saved
 game.
-The function returns TRUE on success and
-FALSE if an error occurs.
+The function returns true on success and
+false if an error occurs.
 -- Jesse
 */
 bool Load_Game() {
@@ -502,7 +502,7 @@ void flush_inputs() {
 
 // This file loads weapons, naturals and items
 // from a text file
-// Returns TRUE on success and FALSE on failure
+// Returns true on success and false on failure
 bool Load_Weapons_Text() {
 	// Be sure that numbers are understood right:
 	char const* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );

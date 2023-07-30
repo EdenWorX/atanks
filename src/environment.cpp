@@ -637,7 +637,7 @@ bool ENVIRONMENT::isItemAvailable( int32_t itemNum ) const {
 
 /*
 This function loads environment settings from a text
-file. The function returns TRUE on success and FALSE if
+file. The function returns true on success and false if
 any erors are encountered.
 -- Jesse
 */

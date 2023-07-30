@@ -1016,7 +1016,7 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		SAFE_WRITE( server_socket, "BOXED %d", env.isBoxed ? 1 : 0 );
 	} else if ( !strncmp( net_command, "GOSSIP", 6 ) ) {
 		snprintf( global.tank_status, 127, "%s", &( net_command[ 7 ] ) );
-		global.updateMenu = TRUE;
+		global.updateMenu = true;
 	} else if ( !strncmp( net_command, "HEALTH", 6 ) ) {
 		int tankindex = 0;
 

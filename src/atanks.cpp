@@ -487,7 +487,7 @@ BOOL WINAPI ctrlHandler( DWORD CtrlType ) {
 		remove_keyboard();
 	}
 
-	return FALSE;
+	return 0;
 }
 #endif // Microsoft Visual C++ and Debug
 
@@ -565,7 +565,7 @@ static void init_game_settings() {
 
 #ifdef ATANKS_IS_MSVC
 #  if defined( ATANKS_DEBUG )
-	SetConsoleCtrlHandler( ctrlHandler, TRUE );
+	SetConsoleCtrlHandler( ctrlHandler, 1 );
 #  endif // DEBUG
 	if ( env.full_screen == FULL_SCREEN_TRUE ) {
 		set_display_switch_mode( SWITCH_BACKAMNESIA );
@@ -1442,7 +1442,7 @@ static void print_text_initmsg() {
 This function calls the functions which save data to a text file.
 The function requires the global data, environment and the path to
 the config file name.
-The function returns TRUE on success and FALSE on failure.
+The function returns true on success and false on failure.
 -- Jesse
 */
 static bool Save_Game_Settings( char const* path ) {
@@ -1621,7 +1621,7 @@ int32_t main( int32_t argc, char** argv ) {
 	// Clean up network stuff
 #ifdef NETWORK
 	if ( send_receive ) {
-		send_receive->shut_down = TRUE;
+		send_receive->shut_down = true;
 		LINUX_REST;
 		network_thread->join();
 		delete network_thread;

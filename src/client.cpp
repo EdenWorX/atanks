@@ -22,7 +22,7 @@ void draw_top_bar();
 // Here we try to match the buffer with an action. We then attempt to
 // perform the action. Remember, this is a command from the server, so
 // it is either giving us some info or telling us to create something.
-int Parse_Client_Data( char *buffer ) {
+bool Parse_Client_Data( char *buffer ) {
 	char   args[ CLIENT_ARGS ][ BUFFER_SIZE ];
 	char   letter;
 	int    dest_string;
@@ -57,7 +57,7 @@ int Parse_Client_Data( char *buffer ) {
 		} else {
 			printf( "Server version is %s, we are %s. This is likely to cause problems.\n", args[ 1 ], VERSION );
 		}
-		return TRUE;
+		return true;
 	} else if ( !strcmp( args[ 0 ], "CURRENTPOSITION" ) ) {
 		if ( ( global.client_player ) && ( global.client_player->tank ) ) {
 			SAFE_STOD( ( global.client_player->tank->x ), args[ 1 ] );
@@ -83,7 +83,7 @@ int Parse_Client_Data( char *buffer ) {
 		} else {
 			env.isBoxed = false;
 		}
-		return TRUE;
+		return true;
 	} else if ( !strcmp( args[ 0 ], "EXPLOSION" ) ) {
 		double my_x = 0., my_y = 0.;
 		int    my_type = 0;
@@ -95,7 +95,7 @@ int Parse_Client_Data( char *buffer ) {
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create explosion failed in client code: %s\n", e.what() );
 		}
-		return FALSE;
+		return false;
 	} else if ( !strcmp( args[ 0 ], "ITEM" ) ) {
 		int itemindex = 0, amount = 0;
 		SAFE_STOI( itemindex, args[ 1 ] );
@@ -104,7 +104,7 @@ int Parse_Client_Data( char *buffer ) {
 			global.client_player->ni[ itemindex ] = amount;
 		}
 		if ( itemindex == ( ITEMS - 1 ) ) {
-			return TRUE;
+			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "HEALTH" ) ) {
 		int  tankindex = 0;
@@ -128,13 +128,13 @@ int Parse_Client_Data( char *buffer ) {
 			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
 		}
 		if ( tankindex == ( env.numGamePlayers - 1 ) ) {
-			return TRUE;
+			return true;
 		} else {
-			return FALSE;
+			return false;
 		}
 	} else if ( !strcmp( args[ 0 ], "WIND" ) ) {
 		SAFE_STOD( ( global.wind ), args[ 1 ] );
-		return TRUE;
+		return true;
 	} else if ( !strcmp( args[ 0 ], "MISSILE" ) ) {
 		int    my_type = 0;
 		double my_x = 0., my_y = 0., delta_x = 0., delta_y = 0.;
@@ -148,7 +148,7 @@ int Parse_Client_Data( char *buffer ) {
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create missile failed in client code: %s\n", e.what() );
 		}
-		return FALSE;
+		return false;
 	} else if ( !strcmp( args[ 0 ], "NUMPLAYERS" ) ) {
 		SAFE_STOI( ( env.numGamePlayers ), args[ 1 ] );
 		// create the players in question
@@ -166,12 +166,12 @@ int Parse_Client_Data( char *buffer ) {
 			env.players[ counter ]->tank->player = env.players[ counter ];
 			env.players[ counter ]->tank->nameText.set_text( nullptr );
 		}
-		return TRUE;
+		return true;
 	}
 	// ping is a special case where we do not do anything it is just
 	// making sure we are still here because we are not talking
 	else if ( !strcmp( args[ 0 ], "PING" ) ) {
-		return FALSE;
+		return false;
 	} else if ( !strcmp( args[ 0 ], "PLAYERNAME" ) ) {
 		int number = 0;
 		SAFE_STOI( number, args[ 1 ] );
@@ -179,7 +179,7 @@ int Parse_Client_Data( char *buffer ) {
 			env.players[ number ]->setName( args[ 2 ] );
 		}
 		if ( number == ( env.numGamePlayers - 1 ) ) {
-			return TRUE;
+			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "REMOVETANK" ) ) {
 		int index = 0;
@@ -194,7 +194,7 @@ int Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "ROUNDS" ) ) {
 		SAFE_STOUL( env.rounds, args[ 1 ] );
 		SAFE_STOUL( global.currentround, args[ 2 ] );
-		return TRUE;
+		return true;
 	} else if ( !strcmp( args[ 0 ], "SURFACE" ) ) {
 		int x = 0, y = 0;
 		int index         = 0;
@@ -217,7 +217,7 @@ int Parse_Client_Data( char *buffer ) {
 			}
 		}
 		if ( x >= ( env.screenWidth - 1 ) ) {
-			return TRUE;
+			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "SCREEN" ) ) {
 		int width = 0, height = 0;
@@ -230,7 +230,7 @@ int Parse_Client_Data( char *buffer ) {
 			printf( "Host's screen resolution is %d by %d.\n", width, height );
 			printf( "Ours is %d by %d. This is going to cause problems!\n", env.screenWidth, env.screenHeight );
 		}
-		return TRUE;
+		return true;
 	} else if ( !strcmp( args[ 0 ], "TANKPOSITION" ) ) {
 		int     player_number = 0, x = 0, y = 0;
 		PLAYER *my_player;
@@ -244,7 +244,7 @@ int Parse_Client_Data( char *buffer ) {
 			my_player->tank->y = y;
 		}
 		if ( player_number == ( env.numGamePlayers - 1 ) ) {
-			return TRUE;
+			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "TEAM" ) ) {
 		int32_t player_number = 0;
@@ -267,7 +267,7 @@ int Parse_Client_Data( char *buffer ) {
 			env.players[ player_number ]->color = colour;
 		}
 		if ( player_number == ( env.numGamePlayers - 1 ) ) {
-			return TRUE;
+			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "TELEPORT" ) ) {
 		int player_num = 0;
@@ -301,7 +301,7 @@ int Parse_Client_Data( char *buffer ) {
 				env.wallColour = makecol( 255, 255, 0 ); // YELLOW;
 				break;
 		}
-		return TRUE;
+		return true;
 	} else if ( !strcmp( args[ 0 ], "WEAPON" ) ) {
 		int weaponindex = 0, amount = 0;
 		SAFE_STOI( weaponindex, args[ 1 ] );
@@ -310,7 +310,7 @@ int Parse_Client_Data( char *buffer ) {
 			global.client_player->nm[ weaponindex ] = amount;
 		}
 		if ( weaponindex == ( WEAPONS - 1 ) ) {
-			return TRUE;
+			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "YOUARE" ) ) {
 		int index = 0;
@@ -319,10 +319,10 @@ int Parse_Client_Data( char *buffer ) {
 			global.client_player = env.players[ index ];
 			global.set_curr_tank( global.client_player->tank );
 		}
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void Create_Sky() {
@@ -351,38 +351,38 @@ void Create_Sky() {
 } // end of create sky function
 
 // Send a shot command to the server
-int Client_Fire( PLAYER *my_player, int my_socket ) {
+bool Client_Fire( PLAYER *my_player, int my_socket ) {
 	if ( !my_player ) {
-		return FALSE;
+		return false;
 	}
 	if ( !my_player->tank ) {
-		return FALSE;
+		return false;
 	}
 
 	SAFE_WRITE( my_socket, "FIRE %d %d %d", my_player->tank->cw, my_player->tank->a, my_player->tank->p );
 
-	return TRUE;
+	return true;
 }
 
 // Adjust our power on the client side
-int Client_Power( PLAYER *my_player, int more_or_less ) {
+bool Client_Power( PLAYER *my_player, int more_or_less ) {
 	if ( ( my_player ) && ( my_player->tank ) ) {
 		if ( ( more_or_less == CLIENT_UP ) && ( my_player->tank->p < 1996 ) ) {
 			my_player->tank->p += 5;
 		} else if ( ( more_or_less == CLIENT_DOWN ) && ( my_player->tank->p > 5 ) ) {
 			my_player->tank->p -= 5;
 		}
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
-int Client_Angle( PLAYER *my_player, int left_or_right ) {
+bool Client_Angle( PLAYER *my_player, int left_or_right ) {
 	if ( !my_player ) {
-		return FALSE;
+		return false;
 	}
 	if ( !my_player->tank ) {
-		return FALSE;
+		return false;
 	}
 
 	if ( ( left_or_right == CLIENT_LEFT ) && ( my_player->tank->a < 270 ) ) {
@@ -390,14 +390,14 @@ int Client_Angle( PLAYER *my_player, int left_or_right ) {
 	} else if ( ( left_or_right == CLIENT_RIGHT ) && ( my_player->tank->a > 90 ) ) {
 		my_player->tank->a--;
 	}
-	return TRUE;
+	return true;
 }
 
-int Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
+bool Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
 	bool found = false;
 
 	if ( !my_player->tank ) {
-		return FALSE;
+		return false;
 	}
 
 	while ( !found ) {
@@ -426,7 +426,7 @@ int Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
 			}
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 // This function takes an error number and returns a string
@@ -457,12 +457,12 @@ char const *Explain_Error( int32_t error_code ) {
 // 4. Get input from the player and forward it to the server.
 // 5. Clean up at the end of the round.
 //
-// Function return TRUE if everything went well or FALSE
+// Function return true if everything went well or false
 // if an error occured.
 int Game_Client( int socket_number ) {
 	int             surface_x = 1, tank_position = 1, team_number = 1, name_number = 1;
 	int             weapon_number = 1, item_number = 1, tank_health = 1;
-	int             end_of_round = FALSE, keep_playing = FALSE;
+	int             end_of_round = false, keep_playing = false;
 	int             game_stage = CLIENT_VERSION;
 	char            buffer[ BUFFER_SIZE ];
 	int             incoming;
@@ -470,7 +470,7 @@ int Game_Client( int socket_number ) {
 	int             time_clock    = 0;
 	bool            screen_update = false;
 	int             count;                    // generic counter
-	int             stuff_going_down = FALSE; // explosions, missiles etc on the screen
+	int             stuff_going_down = false; // explosions, missiles etc on the screen
 	VIRTUAL_OBJECT *my_object, *next_obj;
 	int32_t         class_ = 0;
 	bool            fired  = false;
@@ -502,18 +502,18 @@ int Game_Client( int socket_number ) {
 			if ( bytes_read > 0 ) {
 				// do something with this input
 				if ( !strncmp( buffer, "CLOSE", 5 ) ) {
-					end_of_round = TRUE;
-					keep_playing = FALSE;
+					end_of_round = true;
+					keep_playing = false;
 					printf( "Got close message.\n" );
 					global.client_message = strdup( env.ingame->Get_Line( 81 ) );
 				} else if ( !strncmp( buffer, "NOROOM", 6 ) ) {
-					end_of_round = TRUE;
-					keep_playing = FALSE;
+					end_of_round = true;
+					keep_playing = false;
 					printf( "The server is full or the game has not started. Please try again later.\n" );
 					global.client_message = strdup( env.ingame->Get_Line( 80 ) );
 				} else if ( !strncmp( buffer, "GAMEEND", 7 ) ) {
-					end_of_round = TRUE;
-					keep_playing = FALSE;
+					end_of_round = true;
+					keep_playing = false;
 					printf( "The game is over.\n" );
 					if ( strlen( buffer ) > 7 ) {
 						global.client_message = strdup( &( buffer[ 8 ] ) );
@@ -521,8 +521,8 @@ int Game_Client( int socket_number ) {
 						global.client_message = strdup( env.ingame->Get_Line( 82 ) );
 					}
 				} else if ( !strncmp( buffer, "ROUNDEND", 8 ) ) {
-					end_of_round = TRUE;
-					keep_playing = TRUE;
+					end_of_round = true;
+					keep_playing = true;
 					printf( "Round is over.\n" );
 				}
 
@@ -565,7 +565,7 @@ int Game_Client( int socket_number ) {
 									break;
 								case CLIENT_TEAMS:
 									strcpy( buffer, "TEAMS 0" );
-									global.updateMenu = TRUE;
+									global.updateMenu = true;
 									break;
 								case CLIENT_WALL_TYPE:
 									strcpy( buffer, "WALLTYPE" );
@@ -655,7 +655,7 @@ int Game_Client( int socket_number ) {
 			{
 				close( socket_number );
 				printf( "Server closed connection.\n" );
-				end_of_round = TRUE;
+				end_of_round = true;
 			}
 		}
 
@@ -687,7 +687,7 @@ int Game_Client( int socket_number ) {
 
 				if ( ( CLASS_BEAM == class_ ) || ( CLASS_MISSILE == class_ ) || ( CLASS_EXPLOSION == class_ )
 				     || ( CLASS_TELEPORT == class_ ) ) {
-					stuff_going_down = TRUE;
+					stuff_going_down = true;
 				}
 
 				my_object = next_obj;
@@ -735,7 +735,7 @@ int Game_Client( int socket_number ) {
 				Client_Fire( global.client_player, socket_number );
 				fired = true;
 			} else if ( my_key == KEY_ESC ) {
-				end_of_round = TRUE;
+				end_of_round = true;
 				close( socket_number );
 			} else if ( my_key == KEY_UP ) {
 				Client_Power( global.client_player, CLIENT_UP );
@@ -749,18 +749,18 @@ int Game_Client( int socket_number ) {
 				Client_Cycle_Weapon( global.client_player, CYCLE_BACK );
 			} else if ( ( my_key == KEY_C ) || ( my_key == KEY_TAB ) ) {
 				Client_Cycle_Weapon( global.client_player, CYCLE_FORWARD );
-				global.updateMenu = TRUE;
+				global.updateMenu = true;
 			}
 
 			screen_update     = false;
-			global.updateMenu = TRUE;
+			global.updateMenu = true;
 		}
 
 		// pause for a moment
 		// if (game_stage < CLIENT_PLAYING)
 		if ( stuff_going_down ) {
 			LINUX_SLEEP;
-			stuff_going_down = FALSE;
+			stuff_going_down = false;
 		}
 	}
 
