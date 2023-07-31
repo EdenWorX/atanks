@@ -328,7 +328,6 @@ class TANK; // forwarding if not known
 #endif      // HAS_TANK
 
 /// === Global functions used in several compilation units ====
-void   drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems );
 double interpolate( double x1, double x2, double i );
 double Noise( int x );
 double Noise2D( int x, int y );

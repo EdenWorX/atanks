@@ -7,6 +7,7 @@
 
 #include "files.h"
 #include "item.h"
+#include "optionscreens.h"
 #include "player.h"
 #include "random.h"
 #include "text.h"

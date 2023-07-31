@@ -4,4 +4,5 @@ obj/menu.o dep/menu.d : src/menu.cpp src/menu.h src/button.h src/box.h src/main.
  src/network.h src/text.h src/spinlock.h src/optionitem.h \
  src/optionitembase.h src/optiontypes.h src/optionitemmenu.h \
  src/optionitemplayer.h src/clock.h src/optioncontent.h \
- src/optionitemcolour.h src/player.h src/player_types.h src/random.h
+ src/optionitemcolour.h src/optionscreens.h src/player.h \
+ src/player_types.h src/random.h

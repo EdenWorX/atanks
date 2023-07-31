@@ -6,6 +6,7 @@
 #include "main.h"
 #include "optioncontent.h"
 #include "optionitemcolour.h"
+#include "optionscreens.h"
 #include "player.h"
 #include "random.h"
 

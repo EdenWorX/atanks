@@ -4,4 +4,4 @@ obj/optionscreens.o dep/optionscreens.d : src/optionscreens.cpp src/optionscreen
  src/gfxData.h src/bitmap.h src/network.h src/text.h src/spinlock.h \
  src/optionitem.h src/optionitembase.h src/optiontypes.h \
  src/optionitemmenu.h src/optionitemplayer.h src/files.h src/player.h \
- src/player_types.h src/sound.h
+ src/player_types.h

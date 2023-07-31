@@ -2,7 +2,6 @@
 
 #include "files.h"
 #include "player.h"
-#include "sound.h"
 
 // Helper functions to build the sub menus for the options screen
 static void
@@ -46,12 +45,12 @@ void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t 
 
         if ( BACKGROUND_BLANK == backType ) return;
 
-        drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+        drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
         global.current_drawing_mode = DRAW_MODE_TRANS;
         set_trans_blender( 0, 0, 0, 15 );
 
         for ( int32_t tCount = 0; tCount < numItems; tCount++ ) {
-                int32_t radius = static_cast< int32_t >(
+                auto radius = static_cast< int32_t >(
                         ( perlin1DPoint( 1.0, 5, ( tOffset * 0.0333 ) + tCount + 423346, 0.5, 8 ) + 1.1 ) * 20
                 ); // [0.1;2.1]
                 int32_t xpos =
@@ -442,7 +441,7 @@ int32_t selectPlayers() {
 
 	uint32_t number_saved_games = 0;
 	dirent **saved_game_names;
-	char   **game_list = NULL;
+	char   **game_list = nullptr;
 
 	// Use new menu system:
 	// "Select Players"
