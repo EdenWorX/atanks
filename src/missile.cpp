@@ -860,7 +860,7 @@ bool MISSILE::Check_Missile_Hit( sSDI* sdi ) {
 		          || ( ABSDISTANCE2( x, y, lt->x, lt->y ) >= ABSDISTANCE2( mind_shot.x, mind_shot.y, lt->x, lt->y ) ) )
 		     // Not a direct hit with repulsors up while not being buried.
 		     && !( lt->isInBox( mind_shot.x - tank_rad, mind_shot.y - tank_rad, mind_shot.x + tank_rad, mind_shot.y + tank_rad )
-		           && lt->hasRepulsorActivated() && ( BURIED_LEVEL > lt->howBuried( nullptr, nullptr ) ) ) ) {
+		           && lt->hasRepulsorActivated() && ( ( BURIED_LEVEL / 4 ) > lt->howBuried( nullptr, nullptr ) ) ) ) {
 
 			// The point looks promising, but is it worth it?
 			double dmg = get_hit_damage( lt, static_cast< weaponType >( weapType ), x, y );
