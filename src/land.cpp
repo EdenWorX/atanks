@@ -159,27 +159,35 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 				double bot     = ( under_l + under_r ) / 2;
 				double minBot  = std::min( under_l, under_r );
 				double maxTop  = std::max( surf_l, surf_r );
-				double btdiff  = maxTop - minBot;
-				double i       = ( y - bot ) / btdiff;
+				double btdiff  = std::abs( maxTop - minBot );
+				double i       = std::abs( y - bot ) / btdiff;
 				double a1      = RAD2DEG( atan2( under_l - under_r, 1.0 ) ) + 180.;
 				double a2      = RAD2DEG( atan2( surf_l - surf_r, 1.0 ) ) + 180.;
 
 				if ( std::isnan( i ) ) {
-					i = 0.;
+					// cerr << "isnan(i) on x " << x << " * y " << y << "; bot " << bot << "; btdiff " <<
+					// btdiff << "; depth " << depth << endl;
+					i = 0. + ( ( get_rand() % 6 ) / 10. );
 				}
 				if ( std::isinf( i ) ) {
-					i = 1.;
+					// cerr << "isinf(i) on x " << x << " * y " << y << "; bot " << bot << "; btdiff " <<
+					// btdiff << "; depth " << depth << endl;
+					i = 1. - ( ( get_rand() % 6 ) / 10. );
 				}
 				while ( i < 0. ) {
+					// cerr << i << " => i < 0 on x " << x << " * y " << y << "; bot " << bot << "; btdiff "
+					// << btdiff << "; depth " << depth << endl;
 					i += 1.;
 				}
 				while ( i > 1. ) {
+					// cerr << i << " => i > 1 on x " << x << " * y " << y << "; bot " << bot << "; btdiff "
+					// << btdiff << "; depth " << depth << endl;
 					i -= 1.;
 				}
 
 				double angle = interpolate( a1, a2, i );
 
-				shade        = env.slope[ (int)angle ][ 0 ];
+				shade        = env.slope[ ROUND( angle ) ][ 0 ];
 			}
 
 			if ( env.ditherGradients ) {
