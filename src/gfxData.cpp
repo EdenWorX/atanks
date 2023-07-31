@@ -174,8 +174,8 @@ void sGfxData::first_init() {
 			double sides_dist  = 0.1;
 			double circle_dist = FABSDISTANCE2( x, y, STUFF_BAR_WIDTH - 75, halfStuffBarHeight );
 
-			if ( circle_dist < 75. ) {
-				circle_dist = 1. - ( circle_dist / 75.0 );
+			if ( circle_dist < 120. ) {
+				circle_dist = 1. - ( circle_dist / 120. );
 			} else {
 				circle_dist = 0.;
 			}

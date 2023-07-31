@@ -208,7 +208,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 	}
 }
 
-/** @brief Buy item with index @a itemindex
+/** @brief Buy item with index @a item_index
  * An item has been selected, this function merely buys it. It
  * first does checks to make sure the item can be bought.
  * The function returns true if we successfully bought the item or

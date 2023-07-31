@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_SHOP_H_INCLUDED
-#  define ATANKS_SRC_SHOP_H_INCLUDED
+#define ATANKS_SRC_SHOP_H_INCLUDED 1
 
 class LevelCreator; // From levelcreator.h
 
