@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_OPTIONTYPES_H_INCLUDED
-#  define ATANKS_SRC_OPTIONTYPES_H_INCLUDED
+#define ATANKS_SRC_OPTIONTYPES_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -27,7 +26,7 @@
  **/
 
 
-#  include <string>
+#include <string>
 
 /** @enum eMenuClass
  * @brief List of menu classes. Every menu class is a menu in itself.
@@ -96,10 +95,11 @@ enum eEntryType { ET_NONE = 0, ET_ACTION, ET_BUTTON, ET_COLOR, ET_MENU, ET_OPTIO
  **/
 enum eResetOptions { RO_BACK = 667, RO_RESET = 1337 };
 
+#if defined( ATANKS_DEBUG )
 // Some helper functions to get names for enum entries
-std::string getEntryTypeName( eEntryType etype );
-std::string getMenuClassName( eMenuClass mclass );
-std::string getTextClassName( eTextClass tclass );
-
+char const* getEntryTypeName( eEntryType etype );
+char const* getMenuClassName( eMenuClass mclass );
+char const* getTextClassName( eTextClass tclass );
+#endif // ATANKS_DEBUG
 
 #endif // ATANKS_SRC_OPTIONTYPES_H_INCLUDED

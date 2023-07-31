@@ -1,178 +1,124 @@
 #include "optiontypes.h"
 
+#if defined( ATANKS_DEBUG )
+
 /** @brief get the name of an entry type name
  *
- * This function returns a string, as it is most secure and
- * only really needed for error and/or debugging messages
- * where speed and efficiency are as unimportant as they
- * can get.
- *
  * @param[in] etype The enum entry to get the name of.
- * @return A string with the name or "UNIMPLEMENTED" if a new entry hasn't been
- * added here, yet.
+ * @return A sattic C-string with the name or "UNIMPLEMENTED" if a new entry hasn't been added here, yet.
  */
-std::string getEntryTypeName( eEntryType etype ) {
+char const* getEntryTypeName( eEntryType etype ) {
 	switch ( etype ) {
 		case ET_NONE:
-			return std::string( "ET_NONE" );
-			break;
+			return "ET_NONE";
 		case ET_ACTION:
-			return std::string( "ET_ACTION" );
-			break;
+			return "ET_ACTION";
 		case ET_BUTTON:
-			return std::string( "ET_BUTTON" );
-			break;
+			return "ET_BUTTON";
 		case ET_COLOR:
-			return std::string( "ET_COLOR" );
-			break;
+			return "ET_COLOR";
 		case ET_MENU:
-			return std::string( "ET_MENU" );
-			break;
+			return "ET_MENU";
 		case ET_OPTION:
-			return std::string( "ET_OPTION" );
-			break;
+			return "ET_OPTION";
 		case ET_TEXT:
-			return std::string( "ET_NONE" );
-			break;
+			return "ET_NONE";
 		case ET_TOGGLE:
-			return std::string( "ET_TOGGLE" );
-			break;
+			return "ET_TOGGLE";
 		case ET_VALUE:
-			return std::string( "ET_VALUE" );
-			break;
+			return "ET_VALUE";
 		default:
 			break;
 	}
-	return std::string( "UNIMPLEMENTED" );
+	return "UNIMPLEMENTED";
 }
 
 /** @brief get the name of menu class name
  *
- * This function returns a string, as it is most secure and
- * only really needed for error and/or debugging messages
- * where speed and efficiency are as unimportant as they
- * can get.
- *
  * @param[in] mclass The enum entry to get the name of.
- * @return A string with the name or "UNIMPLEMENTED" if a new entry hasn't been
- * added here, yet.
+ * @return A sattic C-string with the name or "UNIMPLEMENTED" if a new entry hasn't been added here, yet.
  */
-std::string getMenuClassName( eMenuClass mclass ) {
+char const* getMenuClassName( eMenuClass mclass ) {
 	switch ( mclass ) {
 		case MC_FINANCE:
-			return std::string( "MC_FINANCE" );
-			break;
+			return "MC_FINANCE";
 		case MC_GRAPHICS:
-			return std::string( "MC_GRAPHICS" );
-			break;
+			return "MC_GRAPHICS";
 		case MC_MAIN:
-			return std::string( "MC_MAIN" );
-			break;
+			return "MC_MAIN";
 		case MC_NETWORK:
-			return std::string( "MC_NETWORK" );
-			break;
+			return "MC_NETWORK";
 		case MC_PHYSICS:
-			return std::string( "MC_PHYSICS" );
-			break;
+			return "MC_PHYSICS";
 		case MC_PLAY:
-			return std::string( "MC_PLAY" );
-			break;
+			return "MC_PLAY";
 		case MC_PLAYERS:
-			return std::string( "MC_PLAYERS" );
-			break;
+			return "MC_PLAYERS";
 		case MC_SOUND:
-			return std::string( "MC_SOUND" );
-			break;
+			return "MC_SOUND";
 		case MC_WEATHER:
-			return std::string( "MC_WEATHER" );
-			break;
+			return "MC_WEATHER";
 		case MC_MENUCLASS_COUNT:
-			return std::string( "MC_MENUCLASS_COUNT" );
-			break;
+			return "MC_MENUCLASS_COUNT";
 		default:
 			break;
 	}
-	return std::string( "UNIMPLEMENTED" );
+	return "UNIMPLEMENTED";
 }
 
 /** @brief get the name of a text class name
  *
- * This function returns a string, as it is most secure and
- * only really needed for error and/or debugging messages
- * where speed and efficiency are as unimportant as they
- * can get.
- *
  * @param[in] tclass The enum entry to get the name of.
- * @return A string with the name or "UNIMPLEMENTED" if a new entry hasn't been
- * added here, yet.
+ * @return A static C-string with the name or "UNIMPLEMENTED" if a new entry hasn't been  added here, yet.
  */
-std::string getTextClassName( eTextClass tclass ) {
+char const* getTextClassName( eTextClass tclass ) {
 	switch ( tclass ) {
 		case TC_COLOUR:
-			return std::string( "TC_COLOUR" );
-			break;
+			return "TC_COLOUR";
 		case TC_LANDSLIDE:
-			return std::string( "TC_LANDSLIDE" );
-			break;
+			return "TC_LANDSLIDE";
 		case TC_LANDTYPE:
-			return std::string( "TC_LANDTYPE" );
-			break;
+			return "TC_LANDTYPE";
 		case TC_LANGUAGE:
-			return std::string( "TC_LANGUAGE" );
-			break;
+			return "TC_LANGUAGE";
 		case TC_LIGHTNING:
-			return std::string( "TC_LIGHTNING" );
-			break;
+			return "TC_LIGHTNING";
 		case TC_METEOR:
-			return std::string( "TC_METEOR" );
-			break;
+			return "TC_METEOR";
 		case TC_MOUSE:
-			return std::string( "TC_MOUSE" );
-			break;
+			return "TC_MOUSE";
 		case TC_OFFON:
-			return std::string( "TC_OFFON" );
-			break;
+			return "TC_OFFON";
 		case TC_OFFONRANDOM:
-			return std::string( "TC_OFFONRANDOM" );
-			break;
+			return "TC_OFFONRANDOM";
 		case TC_PLAYERPREF:
-			return std::string( "TC_PLAYERPREF" );
-			break;
+			return "TC_PLAYERPREF";
 		case TC_PLAYERTEAM:
-			return std::string( "TC_PLAYERTEAM" );
-			break;
+			return "TC_PLAYERTEAM";
 		case TC_PLAYERTYPE:
-			return std::string( "TC_PLAYERTYPE" );
-			break;
+			return "TC_PLAYERTYPE";
 		case TC_SATELLITE:
-			return std::string( "TC_SATELLITE" );
-			break;
+			return "TC_SATELLITE";
 		case TC_SKIPTYPE:
-			return std::string( "TC_SKIPTYPE" );
-			break;
+			return "TC_SKIPTYPE";
 		case TC_SOUNDDRIVER:
-			return std::string( "TC_SOUNDDRIVER" );
-			break;
+			return "TC_SOUNDDRIVER";
 		case TC_TANKTYPE:
-			return std::string( "TC_TANKTYPE" );
-			break;
+			return "TC_TANKTYPE";
 		case TC_TURNTYPE:
-			return std::string( "TC_TURNTYPE" );
-			break;
+			return "TC_TURNTYPE";
 		case TC_WALLTYPE:
-			return std::string( "TC_WALLTYPE" );
-			break;
+			return "TC_WALLTYPE";
 		case TC_TEXTCLASS_COUNT:
-			return std::string( "TC_TEXTCLASS_COUNT" );
-			break;
+			return "TC_TEXTCLASS_COUNT";
 		case TC_FREETEXT:
-			return std::string( "TC_FREETEXT" );
-			break;
+			return "TC_FREETEXT";
 		case TC_NONE:
-			return std::string( "TC_NONE" );
-			break;
+			return "TC_NONE";
 		default:
 			break;
 	}
-	return std::string( "UNIMPLEMENTED" );
+	return "UNIMPLEMENTED";
 }
+
+#endif // ATANKS_DEBUG
