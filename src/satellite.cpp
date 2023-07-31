@@ -8,8 +8,8 @@ SATELLITE::SATELLITE() : x( env.screenWidth / 2 ) {
 	prev_x = x;
 }
 
-void SATELLITE::draw() {
-	drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
+void SATELLITE::draw() const {
+	drawing_mode( DRAW_MODE_SOLID, nullptr, 0, 0 );
 	draw_sprite( global.canvas, env.misc[ SATELLITE_IMAGE ], x, y );
 	global.make_update( x - 20, y, 80, 60 );
 	global.make_update( prev_x, y, 80, 60 );
@@ -17,19 +17,24 @@ void SATELLITE::draw() {
 
 void SATELLITE::move() {
 	// Be sure an owned beam is valid
-	if ( beam && beam->destroy ) beam = nullptr;
+	if ( beam && beam->destroy ) {
+		beam = nullptr;
+	}
 
 	// reverse movement if the satellite reaches the screen borders
-	if ( x < -5 )
+	if ( x < -5 ) {
 		xv += 1;
-	else if ( x > ( env.screenWidth - 20 ) )
+	} else if ( x > ( env.screenWidth - 20 ) ) {
 		xv -= 1;
+	}
 
 	prev_x  = x;
 	x      += xv;
 
 	// If the satellite is firing, move the beam
-	if ( beam ) beam->moveStart( xv < 0 ? x + 10 : x + 40, y + 20 );
+	if ( beam ) {
+		beam->moveStart( xv < 0 ? x + 10 : x + 40, y + 20 );
+	}
 }
 
 void SATELLITE::shoot() {
