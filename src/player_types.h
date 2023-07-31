@@ -1,12 +1,11 @@
-#pragma once
 #ifndef ATANKS_SRC_PLAYER_TYPES_H_INCLUDED
-#  define ATANKS_SRC_PLAYER_TYPES_H_INCLUDED
+#define ATANKS_SRC_PLAYER_TYPES_H_INCLUDED 1
 
 /** @file player_types.h
  * @brief used enums plus operators for players and tanks
  **/
 
-#  include "main.h"
+#include "main.h"
 
 enum ePlayerStages {
 	PS_AI_IS_IDLE = 0, //!< AI has nothing to do and is free to get work
@@ -24,8 +23,8 @@ enum ePlayerStages {
 
 ePlayerStages &operator+= ( ePlayerStages &src, int32_t val );
 ePlayerStages &operator-= ( ePlayerStages &src, int32_t val );
-ePlayerStages &operator++ ( ePlayerStages &src );          // pre
-ePlayerStages  operator++ ( ePlayerStages &src, int32_t ); // post
+ePlayerStages &operator++ ( ePlayerStages &src );
+ePlayerStages  operator++ ( ePlayerStages &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 enum playerType {
 	HUMAN_PLAYER = 0,
@@ -38,15 +37,19 @@ enum playerType {
 	PART_TIME_BOT,      // normally a human, but acting as a deadly computer
 	VERY_PART_TIME_BOT, // just fires one shot
 	NETWORK_CLIENT,
-	SDI_PREDICTOR       // Used so missile mind shots from the SDI won't
-	                    // trigger another SDI check, trigger another SDI
-	                    // check, trigger another...
+	SDI_PREDICTOR // Used so missile mind shots from the SDI won't
+	              // trigger another SDI check, trigger another SDI
+	              // check, trigger another...
 };
 
-playerType &operator+= ( playerType &src, int32_t val );
-playerType &operator-= ( playerType &src, int32_t val );
-playerType &operator++ ( playerType &src );          // pre
-playerType  operator++ ( playerType &src, int32_t ); // post
+/// @brief Maximum AI Level is the highest level being lucky, thus +1.
+int32_t const maxAiLevel = DEADLY_PLAYER + 1;
+
+
+playerType   &operator+= ( playerType &src, int32_t val );
+playerType   &operator-= ( playerType &src, int32_t val );
+playerType   &operator++ ( playerType &src );
+playerType    operator++ ( playerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 // player weapon preference type
 // ALWAYS_PREF - only choose weapon preferences once on player creation
@@ -55,8 +58,8 @@ enum playerPrefType { PERPLAY_PREF = 0, ALWAYS_PREF, PREF_COUNT };
 
 playerPrefType &operator+= ( playerPrefType &src, int32_t val );
 playerPrefType &operator-= ( playerPrefType &src, int32_t val );
-playerPrefType &operator++ ( playerPrefType &src );          // pre
-playerPrefType  operator++ ( playerPrefType &src, int32_t ); // post
+playerPrefType &operator++ ( playerPrefType &src );
+playerPrefType  operator++ ( playerPrefType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 /** @enum ePlayerEdit
  * @brief return codes used by the sub menus when editing players
@@ -76,8 +79,8 @@ enum eTeamTypes { TEAM_SITH = 0, TEAM_NEUTRAL, TEAM_JEDI, TEAM_COUNT };
 
 eTeamTypes &operator+= ( eTeamTypes &src, int32_t val );
 eTeamTypes &operator-= ( eTeamTypes &src, int32_t val );
-eTeamTypes &operator++ ( eTeamTypes &src );          // pre
-eTeamTypes  operator++ ( eTeamTypes &src, int32_t ); // post
+eTeamTypes &operator++ ( eTeamTypes &src );
+eTeamTypes  operator++ ( eTeamTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 /** @enum eTankOffsets
  * @brief Centrally store the bitmap offsets of the tank images
@@ -103,8 +106,8 @@ enum eTankTypes {
 
 eTankTypes &operator+= ( eTankTypes &src, int32_t val );
 eTankTypes &operator-= ( eTankTypes &src, int32_t val );
-eTankTypes &operator++ ( eTankTypes &src );          // pre
-eTankTypes  operator++ ( eTankTypes &src, int32_t ); // post
+eTankTypes &operator++ ( eTankTypes &src );
+eTankTypes  operator++ ( eTankTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 
 #endif // ATANKS_SRC_PLAYER_TYPES_H_INCLUDED
