@@ -1,5 +1,5 @@
-#ifndef PLAYER_HEADER_
-#define PLAYER_HEADER_
+#ifndef ATANKS_SRC_PLAYER_H_INCLUDED
+#define ATANKS_SRC_PLAYER_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -73,40 +73,46 @@ public:
 	void     checkOppMem();
 	int32_t  chooseItemToBuy( int32_t max_boost, int32_t& last_idx );
 	eControl controlTank( AICore* aicore, bool allow_fire );
-	void     drawIndicator( int32_t x, int32_t y, int32_t h );
+	void     drawIndicator( int32_t x, int32_t y, int32_t h ) const;
 #ifdef NETWORK
 	eControl executeNetCmd( bool my_turn, AICore* aicore );
 #endif // NETWORK
-	void        exitShop();
-	void        generatePreferences();
-	int32_t     getBoostValue();
-	int32_t     getItemPref( int32_t idx );
-	int32_t     getMoneyToSave( bool first_look );
-	char const* getName() const;
-	bool        getNetCmd();
-	sOpponent*  getOppMem( int32_t idx );
-	char const* getTeamName() const;
-	int32_t     getWeapPref( int32_t idx );
-	void        initialise( bool loaded_game );
-	bool        load_from_file( FILE* file );
-	void        load_game_data( FILE* file, int32_t file_version );
-	void        newGame();
-	void        newRound();
-	void        noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed );
-	void        noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );
-	void        reclaimShield(); // restore unused shield
-	bool        reduceClock();
-	void        save_game_data( FILE* file );
-	void        save_to_file( FILE* file );
-	char const* selectGloatPhrase();
-	char const* selectPanicPhrase( PLAYER* shocker );
-	char const* selectKamikazePhrase();
-	char const* selectRetaliationPhrase();
-	char const* selectRevengePhrase();
-	char const* selectSuicidePhrase();
-	void        setLastOpponent( sOpponent* last_opp );
-	void        setName( char const* name_ );
-	void        updatePreferences( int32_t max_boost, int32_t max_score );
+	void       exitShop();
+	void       generatePreferences();
+	int32_t    getBoostValue();
+	int32_t    getItemPref( int32_t idx );
+	int32_t    getMoneyToSave( bool first_look );
+	bool       getNetCmd();
+	sOpponent* getOppMem( int32_t idx );
+	int32_t    getWeapPref( int32_t idx );
+	void       initialise( bool loaded_game );
+	bool       load_from_file( FILE* file );
+	void       load_game_data( FILE* file, int32_t file_version );
+	void       newGame();
+	void       newRound();
+	void       noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed );
+	void       noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );
+	void       reclaimShield(); // restore unused shield
+	bool       reduceClock();
+	void       save_game_data( FILE* file );
+	void       save_to_file( FILE* file );
+	void       setLastOpponent( sOpponent* last_opp );
+	void       setName( char const* name_ );
+	void       updatePreferences( int32_t max_boost, int32_t max_score );
+
+	/* Get the names of the player and their team */
+	[[nodiscard]] char const* getName() const;
+	[[nodiscard]] char const* getTeamName() const;
+
+	/* Get a (somewhat) personalized retaliation phrase (MUST be freed!) */
+	[[nodiscard]] char const* selectRetaliationPhrase() const;
+
+	/* Other phrase selectors are unpersonalized and can therefore be static. (Must NOT be freed!) */
+	static char const* selectGloatPhrase();
+	static char const* selectPanicPhrase( PLAYER* shocker );
+	static char const* selectKamikazePhrase();
+	static char const* selectRevengePhrase();
+	static char const* selectSuicidePhrase();
 
 
 	/* ----------------------
@@ -130,11 +136,11 @@ public:
 	playerPrefType preftype         = PERPLAY_PREF;
 	playerType     previous_type    = HUMAN_PLAYER;
 	int32_t        money            = 15000;
-	int32_t        ni[ ITEMS ];
-	int32_t        nm[ WEAPONS ];
+	int32_t        ni[ ITEMS ]{};
+	int32_t        nm[ WEAPONS ]{};
 	PLAYER*        revenge = nullptr;
 	int32_t        score   = 0;
-	abool_t        sdi_has_fired; // Only one shot per frame
+	abool_t        sdi_has_fired{ false }; // Only one shot per frame
 	int32_t        sdiShots           = 0;
 	bool           selected           = false;
 	double         selfPreservation   = .5; // Lengths gone to to avoid self-harm
@@ -164,7 +170,13 @@ private:
 	 * -----------------------
 	 */
 
+	/* Specialized boosters */
+	[[nodiscard]] double boostAmpPref( double old_pref, int32_t idx, int32_t ai_level ) const;
+	[[nodiscard]] double boostArmourPref( double old_pref, int32_t idx, int32_t ai_level ) const;
+
+	/* General booster */
 	void     boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons );
+
 	bool     buy_item( int32_t itemindex, int32_t max_boost );
 	eControl computerControls( AICore* aicore, bool allow_fire );
 	int32_t  computerSelectPreBuyItem( int32_t max_boost );
@@ -180,11 +192,11 @@ private:
 	 */
 
 	int32_t   boostBought = -1;
-	int32_t   currPref[ THINGS ];     // current preferences, calculated for each round
-	int32_t   desired[ THINGS ];      // Shopping wish list
-	int32_t   saveMoneyFor[ THINGS ]; // List of items the AI wants to buy
+	int32_t   currPref[ THINGS ]{};     // current preferences, calculated for each round
+	int32_t   desired[ THINGS ]{};      // Shopping wish list
+	int32_t   saveMoneyFor[ THINGS ]{}; // List of items the AI wants to buy
 	opp_t*    last_opponent = nullptr;
-	char      name[ NAME_LEN + 1 ];
+	char      name[ NAME_LEN + 1 ]{ "New Player" };
 	bool      needAmp      = false;
 	bool      needArmour   = false;
 	bool      needDamage   = false;
@@ -192,7 +204,7 @@ private:
 	opp_t*    opponents    = nullptr;
 	plStage_t plStage      = PS_SELECT_WEAPON;
 	int32_t   shieldBought = -1;
-	int32_t   weapPref[ THINGS ]; // Static preferences, generated once
+	int32_t   weapPref[ THINGS ]{}; // Static preferences, generated once
 };
 
 // For headers including player.h to know that the class is there:
@@ -214,7 +226,7 @@ private:
 struct PLAYER_mini {
 	int32_t        color = GREEN;
 	int32_t        index = -1;
-	char           name[ NAME_LEN ];
+	char           name[ NAME_LEN ]{};
 	uint32_t       played     = 0;
 	PLAYER*        player     = nullptr;
 	playerPrefType preftype   = ALWAYS_PREF;
@@ -240,4 +252,4 @@ int32_t edit_player( PLAYER** target, int32_t );
 int32_t new_player( PLAYER** target, int32_t );
 
 
-#endif
+#endif // ATANKS_SRC_PLAYER_H_INCLUDED
