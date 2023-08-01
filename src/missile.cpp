@@ -227,7 +227,14 @@ void MISSILE::applyPhysics() {
 			angle = ROUND( RAD2DEG( atan( yv / xv ) ) * 256. / 360. ) - 64 + ( xv < 0 ? 128 : 0 );
 		}
 
-		if ( ( MT_MIND_SHOT != missileType ) || ( RAND_AI_0P && RAND_AI_0P ) ) {
+		if ( ( MT_MIND_SHOT != missileType )
+		     // You need 20 SDI units to have them calculate repulsing 100% of the time
+		     || ( ( SDI_PREDICTOR == ai_level ) && ( ( get_rand() % 20 ) < player->ni[ ITEM_SDI ] ) )
+		     // Useless and Guesser never predict repulsors and Rangefinder starts with a 50% chance.
+		     || ( ( GUESSER_PLAYER < ai_level ) // [7;12] Rangefinder; [4;12] Targetter, [3;12] Deadly, [1;12] Deadly+1
+		          && ( ( ( maxAiLevel - RAND_AI_0P ) + ( maxAiLevel - RAND_AI_1P ) ) < 10 ) )
+		     // Note: Even the deadly has no 100%, which is on purpose.
+		) {
 			Repulse_Missile();
 		}
 	}
@@ -289,12 +296,9 @@ int32_t MISSILE::direction() const {
 }
 
 void MISSILE::draw() {
-	if ( destroy ) {
-		return;
-	}
-
-	// Do not draw mind shots
-	if ( MT_MIND_SHOT == missileType ) {
+	if ( destroy
+	     // Do not draw mind shots
+	     || ( MT_MIND_SHOT == missileType ) ) {
 		return;
 	}
 
@@ -357,7 +361,7 @@ void MISSILE::draw() {
 					if ( PINK != pc ) {
 						putpixel(
 							global.terrain,
-							ROUND(x),
+							ROUND( x ),
 							sy,
 							makecol( getr( pc ) * .900, getg( pc ) * .825, getb( pc ) * .866 )
 						);

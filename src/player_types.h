@@ -42,14 +42,15 @@ enum playerType {
 	              // check, trigger another...
 };
 
+
 /// @brief Maximum AI Level is the highest level being lucky, thus +1.
 int32_t const maxAiLevel = DEADLY_PLAYER + 1;
 
 
-playerType   &operator+= ( playerType &src, int32_t val );
-playerType   &operator-= ( playerType &src, int32_t val );
-playerType   &operator++ ( playerType &src );
-playerType    operator++ ( playerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+playerType &operator+= ( playerType &src, int32_t val );
+playerType &operator-= ( playerType &src, int32_t val );
+playerType &operator++ ( playerType &src );
+playerType  operator++ ( playerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 // player weapon preference type
 // ALWAYS_PREF - only choose weapon preferences once on player creation

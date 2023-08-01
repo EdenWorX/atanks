@@ -10,9 +10,6 @@
 #include <cassert>
 
 
-/// @brief Maximum AI Level is the highest level being lucky, thus +1.
-int32_t const maxAiLevel = DEADLY_PLAYER + 1;
-
 /** @struct sItemListEntry
  * @brief doubly linked list element to organize the AIs item preferences.
  **/

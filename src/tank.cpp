@@ -1668,8 +1668,9 @@ bool TANK::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType 
 
 	double distance2 = ( xdist * xdist ) + ( ydist * ydist );
 	double distance  = sqrt( distance2 );
+	double distmod   = 7. - ( ITEM_HVY_REPULSOR_SHIELD - player->last_shield_used ); // [5,6,7]
 
-	if ( distance < ( 5. * std::sqrt( static_cast< double >( repulsion ) ) ) ) {
+	if ( distance < ( distmod * std::sqrt( static_cast< double >( repulsion ) ) ) ) {
 		double rep_mod =
 			PT_DIGGING == phys_type      ? 0.15
 			: PT_DIRTBOUNCE == phys_type ? 0.66
