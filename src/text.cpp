@@ -3,19 +3,13 @@
 #include "main.h"
 #include "random.h"
 
-#include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-// Basic constructor to kick things off
-TEXTBLOCK::TEXTBLOCK() { /* nothing to do here */
-}
-
 // A constructor that also loads text from a file
-TEXTBLOCK::TEXTBLOCK( const char* filename ) {
+TEXTBLOCK::TEXTBLOCK( char const* filename ) {
 	if ( filename && !Load_File( filename ) ) {
 		cerr << "Something went wrong loading text from file:";
 		cerr << filename << " !" << endl;
@@ -31,29 +25,19 @@ TEXTBLOCK::~TEXTBLOCK() {
 void TEXTBLOCK::destroy() {
 	if ( complete_text ) {
 		for ( int32_t i = 0; i < total_lines; ++i ) {
-			if ( complete_text[ i ] ) free( complete_text[ i ] );
+			if ( complete_text[ i ] ) {
+				free( complete_text[ i ] );
+			}
 		}
 		free( complete_text );
 		complete_text = nullptr;
 	}
 }
 
-// This function display all lines of text. Optionally, it
-// will also print line numbers before each line.
-// The number of lines printed is returned.
-int32_t TEXTBLOCK::Display_All( bool show_line_numbers ) {
-	int32_t i = 0;
-	for ( ; i < total_lines; ++i ) {
-		if ( show_line_numbers ) printf( "%d. ", i );
-		printf( "%s\n", complete_text[ i ] );
-	}
-	return i;
-}
-
 /// @brief Draw @a text in the box @a region with border and blue background
 /// if @a with_box is true.
 /// This method releases the display and can therefore be used in parallel.
-void draw_text_in_box( BOX* region, const char* text, bool with_box ) {
+void draw_text_in_box( BOX* region, char const* text, bool with_box ) {
 	if ( with_box ) {
 		global.lockLand();
 		rectfill( global.canvas, region->x, region->y, region->w, region->h, makecol( 0, 0, 128 ) );
@@ -66,12 +50,13 @@ void draw_text_in_box( BOX* region, const char* text, bool with_box ) {
 	uint32_t lineBegin      = 0;
 	uint32_t lineCount      = 0;
 	int32_t  lineWidth      = region->w - 27;
-	uint32_t textLength     = static_cast< uint32_t >( strlen( text ) );
+	auto     textLength     = static_cast< uint32_t >( strlen( text ) );
 
 	while ( lineBegin < textLength ) {
 		uint32_t charCount = 0;
 		uint32_t buffCount = 0;
-		int32_t  buffWidth = 0;
+		int32_t  buffWidth;
+
 		memset( buffer, 0, sizeof( char ) * 1024 );
 
 		// Fill buffer until a line break is found or the maximum width
@@ -79,12 +64,15 @@ void draw_text_in_box( BOX* region, const char* text, bool with_box ) {
 		do {
 			buffer[ buffCount ] = text[ lineBegin + charCount ];
 
-			if ( buffer[ buffCount ] == ' ' )
+			if ( buffer[ buffCount ] == ' ' ) {
 				lastSpace = 0;
-			else
+			} else {
 				++lastSpace;
+			}
 
-			if ( buffer[ buffCount ] != '\n' ) buffCount++;
+			if ( buffer[ buffCount ] != '\n' ) {
+				buffCount++;
+			}
 
 			charCount++;
 
@@ -95,8 +83,9 @@ void draw_text_in_box( BOX* region, const char* text, bool with_box ) {
 		if ( lastSpace && ( buffWidth >= lineWidth ) ) {
 			charCount                           -= lastSpace;
 			buffer[ buffCount - lastSpace - 1 ]  = 0;
-		} else
+		} else {
 			buffer[ buffCount ] = 0;
+		}
 
 		// Print out the result:
 		if ( buffer[ 0 ] ) {
@@ -104,8 +93,8 @@ void draw_text_in_box( BOX* region, const char* text, bool with_box ) {
 				global.canvas,
 				font,
 				buffer,
-				region->x + 5,
-				region->y + ( lineCount * env.fontHeight ) + 5,
+				ROUND( region->x + 5. ),
+				ROUND( region->y + ( lineCount * env.fontHeight ) + 5. ),
 				WHITE,
 				-1
 			);
@@ -118,33 +107,32 @@ void draw_text_in_box( BOX* region, const char* text, bool with_box ) {
 	fi = 1;
 }
 
-// Returns the current line
-const char* TEXTBLOCK::Get_Current_Line() const {
-	return complete_text[ current_line ];
-}
-
 /// @brief Return a specific line or nullptr if @a index is out of bounds
-const char* TEXTBLOCK::Get_Line( int32_t index ) const {
-	if ( ( index > 0 ) && ( index < total_lines ) ) return complete_text[ index ];
+char const* TEXTBLOCK::Get_Line( int32_t index ) const {
+	if ( ( index > 0 ) && ( index < total_lines ) ) {
+		return complete_text[ index ];
+	}
 	return nullptr;
 }
 
 // Find a random line and return it
-const char* TEXTBLOCK::Get_Random_Line() const {
+char const* TEXTBLOCK::Get_Random_Line() const {
 	return complete_text[ get_rand() % total_lines ];
 }
 
 // This function does most of the work. It loads an entire text
 // file into memory. Returns true on success or false if
 // something goes wrong.
-bool TEXTBLOCK::Load_File( const char* filename ) {
+bool TEXTBLOCK::Load_File( char const* filename ) {
 	char    line[ MAX_LINE_LENGTH ] = { 0 };
 	int32_t lines_loaded            = 0;
 	int32_t we_have_space           = 10;
 
 	// open the file
-	FILE*   fIn                     = fopen( filename, "r" );
-	if ( !fIn ) return false;
+	FILE* fIn = fopen( filename, "r" );
+	if ( !fIn ) {
+		return false;
+	}
 
 	// give us some space
 	destroy();
@@ -163,9 +151,9 @@ bool TEXTBLOCK::Load_File( const char* filename ) {
 
 			char** new_text  = (char**)realloc( complete_text, we_have_space * sizeof( char* ) );
 
-			if ( new_text )
+			if ( new_text ) {
 				complete_text = new_text;
-			else {
+			} else {
 				destroy();
 				fclose( fIn );
 				return false;
@@ -176,40 +164,19 @@ bool TEXTBLOCK::Load_File( const char* filename ) {
 		Trim_Newline( line );
 		complete_text[ lines_loaded ] = (char*)calloc( strlen( line ) + 1, sizeof( char ) );
 
-		if ( complete_text[ lines_loaded ] ) strncpy( complete_text[ lines_loaded++ ], line, strlen( line ) );
-	} // End of loading text from a file
+		if ( complete_text[ lines_loaded ] ) {
+			strncpy( complete_text[ lines_loaded++ ], line, strlen( line ) );
+		}
+	} // end of loading text from a file
 
 	fclose( fIn );
-	total_lines  = lines_loaded;
-	current_line = 0;
+	total_lines = lines_loaded;
 
 	return true;
 }
 
 int32_t TEXTBLOCK::Lines() const {
 	return total_lines;
-}
-
-// Move the line counter ahead, if possible
-// Returns false if we hit the end of lines, or
-// true if everything is OK
-bool TEXTBLOCK::Next_Line() {
-	if ( ++current_line >= total_lines ) {
-		current_line = total_lines - 1;
-		return false;
-	}
-	return true;
-}
-
-// Go to the previous line. The function returns
-// true is everything is OK. If we were already
-// at the beginning, then false is returned.
-bool TEXTBLOCK::Previous_Line() {
-	if ( --current_line < 0 ) {
-		current_line = 0;
-		return false;
-	}
-	return true;
 }
 
 // This method renders a part of the text to global.canvas
@@ -228,7 +195,7 @@ void TEXTBLOCK::Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top
 }
 
 // This is a free floating function
-const char* Add_Comma( int32_t number ) {
+char const* Add_Comma( int32_t number ) {
 	static char return_value[ 128 ] = { 0 };
 	memset( return_value, 0, 128 );
 
@@ -236,11 +203,13 @@ const char* Add_Comma( int32_t number ) {
 	char buffer[ 15 ] = { 0 };
 	snprintf( buffer, 14, "%d", number );
 
-	int32_t index       = static_cast< int32_t >( strlen( buffer ) ); // start from the end
+	auto    index       = static_cast< int32_t >( strlen( buffer ) ); // start from the end
 	int32_t returnindex = index + ( index / 3 ) - 1;
 	int32_t th_count    = 0;
 
-	if ( 0 == ( index % 3 ) ) returnindex--;
+	if ( 0 == ( index % 3 ) ) {
+		returnindex--;
+	}
 
 	while ( ( index-- > 0 ) && ( returnindex >= 0 ) ) {
 		return_value[ returnindex-- ] = buffer[ index ];
@@ -262,9 +231,10 @@ void Trim_Newline( char* line ) {
 	int32_t index = 0;
 
 	while ( line[ index ] ) {
-		if ( ( line[ index ] == '\n' ) || ( line[ index ] == '\r' ) )
+		if ( ( line[ index ] == '\n' ) || ( line[ index ] == '\r' ) ) {
 			line[ index ] = '\0';
-		else
+		} else {
 			++index;
+		}
 	}
 }
