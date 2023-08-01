@@ -8,7 +8,6 @@
 
 #include <thread>
 
-
 /** @brief minimal spinlock class
  * It can do nothing but lock and unlock. No recursive locks.
  * But then it is a lot faster and leaner than mutexes and critical

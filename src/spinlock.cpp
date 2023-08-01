@@ -19,8 +19,7 @@ CSpinLock::CSpinLock() {
 
 /// @brief destructor - mark as destroyed, lock and go
 CSpinLock::~CSpinLock() {
-	std::thread::id this_id   = std::this_thread::get_id();
-	bool            need_lock = ( owner_id != this_id );
+	bool need_lock = !hasLock();
 
 	if ( need_lock ) {
 		lock();
@@ -33,7 +32,7 @@ CSpinLock::~CSpinLock() {
 
 /// @brief return true if this thread has an active lock
 bool CSpinLock::hasLock() {
-	// This works, because unlock() sets the owner_id to -1.
+	// This works, because unlock() sets the owner_id to std::thread::id() which is a neutral and unused id.
 	return ( std::this_thread::get_id() == owner_id );
 }
 
@@ -42,22 +41,21 @@ bool CSpinLock::hasLock() {
  **/
 void CSpinLock::lock() {
 	std::thread::id this_id = std::this_thread::get_id();
-	assert( ( owner_id != this_id ) && "ERROR: Lock already owned!" );
+	assert( !hasLock() && "ERROR: Lock already owned!" );
 
-	if ( false == is_destroyed.load( ATOMIC_READ ) ) {
-		while ( lock_flag.test_and_set() ) {
-			std::this_thread::yield();
-		}
+	while ( lock_flag.test_and_set() && !is_destroyed.load( ATOMIC_READ ) ) {
+		std::this_thread::yield();
+	}
+	if ( !is_destroyed.load( ATOMIC_READ ) ) {
 		owner_id = this_id;
 	}
 }
 
 /// @brief unlock if this thread owns the lock. Otherwise do nothing.
 void CSpinLock::unlock() {
-	std::thread::id this_id = std::this_thread::get_id();
-	assert( ( owner_id == this_id ) && "ERROR: Lock *NOT* owned!" );
+	assert( hasLock() && "ERROR: Lock *NOT* owned!" );
 
-	if ( owner_id == this_id ) {
+	if ( hasLock() ) {
 		owner_id = std::thread::id();
 		lock_flag.clear( std::memory_order_release );
 	}
