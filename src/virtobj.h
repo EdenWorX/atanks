@@ -20,10 +20,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * */
 
-#ifndef _PURE
-#  define _PURE = 0
-#endif // _PURE
-
 #include "box.h"
 #include "main.h"
 #include "text.h"
@@ -51,8 +47,8 @@ public:
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
-	explicit VIRTUAL_OBJECT();
-	virtual ~VIRTUAL_OBJECT();
+	explicit VIRTUAL_OBJECT() = default;
+	virtual ~VIRTUAL_OBJECT() = default;
 
 
 	/* ----------------------
@@ -82,7 +78,7 @@ public:
 	void requireUpdate() { needsUpdate.store( true, ATOMIC_WRITE ); }
 
 	/* --- pure virtual (abstract) methods --- */
-	virtual eClass getClass() _PURE;
+	virtual eClass getClass() = 0;
 
 	/* ------------------------------
 	 * --- templated list getters ---
@@ -91,14 +87,18 @@ public:
 
 	/// @brief If not nullptr, set @a prev_ to the predecessor of this.
 	template< typename obj_T > void getPrev( obj_T** prev_ ) {
-		obj_T* prev_obj = static_cast< obj_T* >( prev );
-		if ( prev_ ) *prev_ = prev_obj;
+		auto* prev_obj = static_cast< obj_T* >( prev );
+		if ( prev_ ) {
+			*prev_ = prev_obj;
+		}
 	}
 
 	/// @brief If not nullptr, set @a next_ to the successor of this.
 	template< typename obj_T > void getNext( obj_T** next_ ) {
-		obj_T* next_obj = static_cast< obj_T* >( next );
-		if ( next_ ) *next_ = next_obj;
+		auto* next_obj = static_cast< obj_T* >( next );
+		if ( next_ ) {
+			*next_ = next_obj;
+		}
 	}
 
 	/* ----------------------
@@ -134,8 +134,8 @@ protected:
 	int32_t   age   = 0;
 	alignType align = LEFT;
 	int32_t   angle = 0;
-	BOX       dim_cur;
-	BOX       dim_old;
+	BOX       dim_cur{};
+	BOX       dim_old{};
 	int32_t   height   = 0;
 	int32_t   maxAge   = -1;
 	ePhysType physType = PT_NORMAL; // Special physics processing?

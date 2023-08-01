@@ -23,35 +23,20 @@
 
 #include <cassert>
 
-VIRTUAL_OBJECT::VIRTUAL_OBJECT()
-{ /* nothing to do */ }
-
-VIRTUAL_OBJECT::~VIRTUAL_OBJECT() {
-	bitmap = nullptr;
-}
-
 void VIRTUAL_OBJECT::addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
-	if ( left_ < dim_cur.x ) dim_cur.x = left_;
-	if ( top_ < dim_cur.y ) dim_cur.y = top_;
-	/* This is prone to the following error:
-	   If left_ is greater than dim_cur.x but the width_ is
-	   smaller than dim_cur.w, (left_ + width_) can
-	   nevertheless end up right of (dim_cur.x + dim_cur.w).
-	   Setting dim_cur.w to 'width_' in that case makes
-	   the update area smaller not larger.
-	   The same applies to the height_.
-	   - Sven
-	if ((left_ + width_) > (dim_cur.x + dim_cur.w))
-	        dim_cur.w = width_;
-	if ((top_ + height_) > (dim_cur.y + dim_cur.h))
-	        dim_cur.h = height_;
-	*/
-	int32_t new_r = left_ + width_;
-	int32_t new_b = top_ + height_;
-	int32_t old_r = dim_cur.x + dim_cur.w;
-	int32_t old_b = dim_cur.y + dim_cur.h;
-	if ( new_r > old_r ) dim_cur.w = new_r - dim_cur.x + 1;
-	if ( new_b > old_b ) dim_cur.h = new_b - dim_cur.y + 1;
+	// compute right and bottom coordinates for new and old areas
+	int32_t newRight  = left_ + width_;
+	int32_t newBottom = top_ + height_;
+	int32_t oldRight  = dim_cur.x + dim_cur.w;
+	int32_t oldBottom = dim_cur.y + dim_cur.h;
+
+	// updating the left or top coordinate if necessary
+	dim_cur.x = std::min( left_, dim_cur.x );
+	dim_cur.y = std::min( top_, dim_cur.y );
+
+	// updating the width or height if necessary
+	dim_cur.w = std::max( newRight, oldRight ) - dim_cur.x + 1;
+	dim_cur.h = std::max( newBottom, oldBottom ) - dim_cur.y + 1;
 }
 
 void VIRTUAL_OBJECT::applyPhysics() {
@@ -64,14 +49,15 @@ void VIRTUAL_OBJECT::draw() {
 
 	if ( !destroy && bitmap ) {
 
-		rotate_sprite( global.canvas, bitmap, x - ( width / 2 ), y - ( height / 2 ), itofix( angle ) );
+		rotate_sprite( global.canvas, bitmap, x - ( width / 2. ), y - ( height / 2. ), itofix( angle ) );
 
-		// The update area depends on the rotation state (aka angle)
+		// The update area depends on the rotation state (aka the angle)
 		if ( angle ) {
 			int32_t length = std::max( width, height ) + ( std::min( width, height ) / 2 );
-			setUpdateArea( x - ( length / 2 ), y - ( length / 2 ), length, length );
-		} else
-			setUpdateArea( x - ( width / 2 ) - 1, y - ( height / 2 ) - 1, width + 2, height + 2 );
+			setUpdateArea( x - ( length / 2. ), y - ( length / 2. ), length, length );
+		} else {
+			setUpdateArea( x - ( width / 2. ) - 1, y - ( height / 2. ) - 1., width + 2, height + 2 );
+		}
 		requireUpdate();
 	}
 }
@@ -115,7 +101,9 @@ void VIRTUAL_OBJECT::setUpdateArea( int32_t left_, int32_t top_, int32_t width_,
  * dimensions and position of this object.
  */
 void VIRTUAL_OBJECT::update() {
-	if ( !needsUpdate.load( ATOMIC_READ ) ) return;
+	if ( !needsUpdate.load( ATOMIC_READ ) ) {
+		return;
+	}
 
 	// Add update area for the current dimension
 	if ( dim_cur.w > 0 ) {
@@ -129,7 +117,9 @@ void VIRTUAL_OBJECT::update() {
 		int32_t right  = std::min( env.screenWidth, left + dim_cur.w + 2 );
 		int32_t bottom = std::min( env.screenHeight, top + dim_cur.h + 2 );
 
-		if ( ( right > left ) && ( bottom > top ) ) global.make_update( left, top, right - left, bottom - top );
+		if ( ( right > left ) && ( bottom > top ) ) {
+			global.make_update( left, top, right - left, bottom - top );
+		}
 	} // End of updating current area
 
 	// If the dimensions changed, the old area needs an update, too
@@ -144,7 +134,9 @@ void VIRTUAL_OBJECT::update() {
 		int32_t right  = std::min( env.screenWidth, left + dim_old.w + 2 );
 		int32_t bottom = std::min( env.screenHeight, top + dim_old.h + 2 );
 
-		if ( ( right > left ) && ( bottom > top ) ) global.make_update( left, top, right - left, bottom - top );
+		if ( ( right > left ) && ( bottom > top ) ) {
+			global.make_update( left, top, right - left, bottom - top );
+		}
 	} // End of updating old area
 
 	dim_old = dim_cur;
