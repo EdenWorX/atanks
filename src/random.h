@@ -7,7 +7,9 @@
 #include <cstdint>
 
 
+double  central_rand( double u );
 int32_t get_rand();
+
 
 // A few often needed randomization shortcuts
 #define RAND_AI_0P ( get_rand() % ai_level )
