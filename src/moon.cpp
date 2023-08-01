@@ -9,13 +9,12 @@
 #include "random.h"
 #include "zbuffer.h"
 
-
 /** @brief struct moon
  *
  * A simple data structure to store the parameters of a moon for easy passing.
  *
  **/
-struct moon {
+struct Moon {
 	BITMAP* bitmap;
 	int32_t col1;
 	int32_t col2;
@@ -29,7 +28,7 @@ struct moon {
 	double  yoffset;
 
 	// Simple ctor:
-	explicit moon( int32_t scrnw, int32_t scrnh )
+	explicit Moon( int32_t scrnw, int32_t scrnh )
 		: col1( makecol( get_rand() % 255, get_rand() % 255, get_rand() % 255 ) )
 		, col2( makecol( get_rand() % 255, get_rand() % 255, get_rand() % 255 ) )
 		, lambda( ( ( get_rand() % 60 ) + 30 ) / 100. )
@@ -44,7 +43,7 @@ struct moon {
 	}
 
 	// Simple dtor to get rid of the temp bitmap
-	~moon() {
+	~Moon() {
 		if ( bitmap ) {
 			destroy_bitmap( bitmap );
 		}
@@ -54,7 +53,7 @@ struct moon {
 /*****************************************************************************
 Static function prototypes that need either moon or ZBuffer
 *****************************************************************************/
-static void paint_moonpix( int32_t x, int32_t y, moon const& mn, double xval, double yval, double blend );
+static void paint_moonpix( int32_t x, int32_t y, Moon const& mn, double xval, double yval, double blend );
 
 /** @brief clamp an int into a range
  * Clamps an integer value @arg v into a range from 0 to @arg u.
@@ -88,8 +87,6 @@ static inline double coverage( double distance, double radius ) {
  * Uses the darkside parameter to decide which side of the moon should be dark.
  * Obeys and updates the z-buffer.
  *
- * @todo The current implementation of this function is begging for some simplifications.
- *
  * @params[in] The levelCreator in action, so we can ask whether it has been called to break off
  * @param[out] sky The bitmap to draw on
  * @param mn[in] The moon instance to draw onto the @arg sky
@@ -103,7 +100,7 @@ static inline double coverage( double distance, double radius ) {
 static void draw_amoon(
 	LevelCreator* lcr,
 	BITMAP*       sky,
-	moon const&   mn,
+	Moon const&   mn,
 	int32_t       x0,
 	int32_t       y0,
 	int32_t       x1,
@@ -119,6 +116,9 @@ static void draw_amoon(
 	clear_to_color( mn.bitmap, BLACK );
 	blit( sky, mn.bitmap, startX, startY, 0, 0, mn.radius * 2, mn.radius * 2 );
 
+	double const radius  = mn.radius;
+	double       radius2 = radius * radius;
+
 	for ( int32_t y = startY; ( y < endY ) && lcr->can_work(); ++y ) {
 		bool hityet = false;
 
@@ -128,23 +128,16 @@ static void draw_amoon(
 				continue;
 			}
 
-			/* Find distance from this moon */
-			int32_t xdist = mn.x - x;
-			int32_t ydist = mn.y - y;
-
-			/* Compute some other nice circle values */
-			double const radius    = mn.radius;
-			double       xval      = static_cast< double >( xdist ) / radius;
-			double       yval      = static_cast< double >( ydist ) / radius;
-			double       distance2 = ( xdist * xdist ) + ( ydist * ydist );
-			double       distance  = std::sqrt( distance2 );
+			int32_t xdist     = mn.x - x;
+			int32_t ydist     = mn.y - y;
+			double  distance2 = ( xdist * xdist ) + ( ydist * ydist );
 
 			/* A bound check -> are we in the circle? */
-			if ( distance > ( radius + 1 ) ) {
-				if ( hityet ) { // If we've already been inside at this y...
-					break;  // then skip ahead to the next y
+			if ( distance2 > ( radius2 + 1 ) ) {
+				if ( hityet ) {
+					break;
 				}
-				continue; // Otherwise stay at this y, and skip to the next x
+				continue;
 			}
 
 			double xval = xdist / radius;
@@ -155,7 +148,7 @@ static void draw_amoon(
 			double edgeval  = coverage( distance, radius );
 
 			/* Now, should we paint this side of the moon? */
-			if ( xval && ( ( xval < 0 ) == darkside ) ) {
+			if ( xval != 0.0 && ( ( xval < 0 ) == darkside ) ) {
 				lcr->yield();
 				paint_moonpix( x - startX, y - startY, mn, fabs( xval ), yval, edgeval );
 			}
@@ -227,7 +220,7 @@ void draw_moons( LevelCreator* lcr, BITMAP* sky, int32_t width, int32_t height )
 
 	for ( auto numMoons = ROUND( central_rand( 14.0 ) ); numMoons; --numMoons ) {
 		/* Make up a moon */
-		moon const mn( width, height );
+		Moon const mn( width, height );
 
 		/* Where is it? */
 		int32_t x0 = clamped_int( mn.x - mn.radius, width );
