@@ -70,6 +70,8 @@ public:
 
 	eClass getClass() final { return CLASS_FLOATTEXT; }
 
+	/* Little inline helper */
+	inline void set_pos( double xpos, double ypos ) { set_pos( ROUND( xpos ), ROUND( ypos ) ); }
 
 private:
 	/* -----------------------

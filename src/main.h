@@ -348,6 +348,10 @@ void   quickChange( bool clearerror );
 	return circlefill( bmp, ROUND( x ), ROUND( y ), radius, color );
 }
 
+[[maybe_unused]] static inline void draw_sprite( BITMAP* bmp, BITMAP* sprite, double x, double y ) {
+	draw_sprite( bmp, sprite, ROUND( x ), ROUND( y ) );
+}
+
 [[maybe_unused]] static inline void ellipsefill( BITMAP* bmp, double x, double y, int32_t rx, int32_t ry, int color ) {
 	ellipsefill( bmp, ROUND( x ), ROUND( y ), rx, ry, color );
 }
@@ -368,9 +372,21 @@ void   quickChange( bool clearerror );
 	return getpixel( bmp, ROUND( x ), y );
 }
 
+[[maybe_unused]] static inline int makecol( double r, double g, double b ) {
+	return makecol( ROUND( r ), ROUND( g ), ROUND( b ) );
+}
+
+[[maybe_unused]] static inline void rectfill( BITMAP* bmp, double x1, double y_1, double x2, double y2, int color ) {
+	rectfill( bmp, ROUND( x1 ), ROUND( y_1 ), ROUND( x2 ), ROUND( y2 ), color );
+}
+
 [[maybe_unused]] static inline void
 	rotate_scaled_sprite( BITMAP* bmp, BITMAP* sprite, double x, double y, fixed angle, fixed scale ) {
 	rotate_scaled_sprite( bmp, sprite, ROUND( x ), ROUND( y ), angle, scale );
+}
+
+[[maybe_unused]] static inline void rotate_sprite( BITMAP* bmp, BITMAP* sprite, double x, double y, fixed angle ) {
+	rotate_sprite( bmp, sprite, ROUND( x ), ROUND( y ), angle );
 }
 
 [[maybe_unused]] static inline void

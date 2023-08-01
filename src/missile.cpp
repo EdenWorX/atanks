@@ -357,11 +357,9 @@ void MISSILE::draw() {
 					if ( PINK != pc ) {
 						putpixel(
 							global.terrain,
-							sx,
+							ROUND(x),
 							sy,
-							makecol( ROUNDu( static_cast< double >( getr( pc ) ) * .900 ),
-						                 ROUNDu( static_cast< double >( getg( pc ) ) * .825 ),
-						                 ROUNDu( static_cast< double >( getb( pc ) ) * .866 ) )
+							makecol( getr( pc ) * .900, getg( pc ) * .825, getb( pc ) * .866 )
 						);
 					}
 				} // end of having valid coordinates

@@ -1,5 +1,5 @@
 #ifndef TANK_DEFINE
-#define TANK_DEFINE
+#define TANK_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -26,7 +26,7 @@
 #include "weapon.h"
 
 #define DIR_RIGHT      1
-#define DIR_LEFT       -1
+#define DIR_LEFT       ( -1 )
 
 #define VIOLENT_CHANCE 6
 
@@ -34,7 +34,7 @@
 class PLAYER;
 class EXPLOSION;
 
-class TANK : public PHYSICAL_OBJECT {
+class TANK final : public PHYSICAL_OBJECT {
 
 public:
 	/* -----------------------------------
@@ -43,7 +43,7 @@ public:
 	 */
 
 	explicit TANK();
-	~TANK();
+	~TANK() final;
 
 
 	/* ----------------------
@@ -55,16 +55,13 @@ public:
 	void    activateCurrentSelection();
 	void    addDamage( PLAYER* damageFrom, double damage_ );
 	void    applyDamage();
-	void    applyPhysics();
+	void    applyPhysics() final;
 	void    check_weapon();
 	void    deactivate();
-	void    draw();
+	void    draw() final;
 	void    explode( bool allow_vengeance );
 	int32_t getBottom();
-	double  getDiameter();
 	void    getGuntop( int32_t angle_, double& top_x, double& top_y );
-	int32_t getMaxLife();
-	bool    hasRepulsorActivated();
 	int32_t howBuried( int32_t* left, int32_t* right );
 	bool    isFlying();
 	bool    isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
@@ -79,7 +76,13 @@ public:
 	bool    shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );
 	void    simActivateCurrentSelection();
 
-	eClass  getClass() { return CLASS_TANK; }
+	eClass  getClass() final { return CLASS_TANK; }
+
+	/* Status Getters */
+	[[nodiscard]] double  getDiameter() const;
+	[[nodiscard]] int32_t getMaxLife() const;
+	[[nodiscard]] bool    hasRepulsorActivated() const;
+
 
 	/* ----------------------
 	 * --- Public members ---
@@ -116,31 +119,31 @@ private:
 	PLAYER*   creditTo = nullptr;
 	double    damage   = 0.;
 	CSpinLock damage_lock;
-	int32_t   delay_fall       = env.landSlideDelay * 100; // time the tank will hover
+	int32_t   delay_fall       = env.landSlideDelay * 100; //!< time the tank will hover
 	int32_t   flashdamage      = 0;
-	bool      isTeleported     = false; // Set to true if a teleport occurs to award falling damage.
-	int32_t   maxLife          = 100;   // amount awarded at beginning of round
+	bool      isTeleported     = false; //!< Set to true if a teleport occurs to award falling damage.
+	int32_t   maxLife          = 100;   //!< amount awarded at beginning of round
 	bool      newDamager       = false;
 	int32_t   para             = 0;
 	int32_t   repair_rate      = 0;
 	int32_t   repulsion        = 0;
 	int32_t   shld_col_inner   = BLACK;
 	int32_t   shld_col_outer   = BLACK;
-	double    shld_delta       = 360.; // divided by FPS in ctor
-	double    shld_phase       = 0.;   // Neutral
-	int32_t   shld_rad_x       = 0;    // Determined by the used bitmap
-	int32_t   shld_rad_y       = 0;    // Determined by the used bitmap
+	double    shld_delta       = 360.; //!< divided by FPS in ctor
+	double    shld_phase       = 0.;   //!< Neutral
+	int32_t   shld_rad_x       = 0;    //!< Determined by the used bitmap
+	int32_t   shld_rad_y       = 0;    //!< Determined by the used bitmap
 	int32_t   shld_thickness   = 0;
-	double    tank_dia         = 1.; // Tank diameter, determined by the used bitmap
-	int32_t   tank_off_x       = 0;  // Determined by the used bitmap
-	int32_t   tank_off_y       = 0;  // Determined by the used bitmap
-	int32_t   tank_sag         = 0;  // Determined by the used bitmap
-	int32_t   turr_off_x       = 0;  // Determined by the used bitmap
-	int32_t   turr_off_y       = 0;  // Determined by the used bitmap
+	double    tank_dia         = 1.; //!< Tank diameter, determined by the used bitmap
+	int32_t   tank_off_x       = 0;  //!< Determined by the used bitmap
+	int32_t   tank_off_y       = 0;  //!< Determined by the used bitmap
+	int32_t   tank_sag         = 0;  //!< Determined by the used bitmap
+	int32_t   turr_off_x       = 0;  //!< Determined by the used bitmap
+	int32_t   turr_off_y       = 0;  //!< Determined by the used bitmap
 	int32_t   use_tankbitmap   = -1;
 	int32_t   use_turretbitmap = -1;
 };
 
 #define HAS_TANK 1
 
-#endif
+#endif // TANK_DEFINE

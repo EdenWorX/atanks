@@ -32,6 +32,7 @@
 
 #include <cassert> // For some checks if _DEBUG is defined.
 #include <mutex>   // Needed for lock_guard
+#include <string>
 
 enum shieldVals { SHIELD_ENERGY = 0, SHIELD_REPULSION, SHIELD_RED, SHIELD_GREEN, SHIELD_BLUE, SHIELD_THICKNESS };
 
@@ -122,26 +123,18 @@ void TANK::activateCurrentSelection() {
 		// --- Ballistics ---
 		//--------------------
 		if ( cw < BALLISTICS ) {
-			play_fire_sound( cw, x, 255, 1000 );
+			play_fire_sound( cw, ROUND( x ), 255, 1000 );
 
 			// Loop over spread, that covers everything
 			for ( int32_t z = 0; z < weapon[ cw ].spread; ++z ) {
-				int32_t ca = a + ( ( SPREAD * z ) - ( SPREAD * ( weapon[ cw ].spread - 1 ) / 2 ) );
-				double  dp = static_cast< double >( p ); // Just a shortcut against further casts
+				int32_t ca  = a + ( ( SPREAD * z ) - ( SPREAD * ( weapon[ cw ].spread - 1 ) / 2 ) );
+				auto    dp  = static_cast< double >( p > 0 ? p : 1 ); // Just a shortcut against further casts
 
-				// power must not be zero if this is a riot charge/blast.
-				// If it were, the calculation of the triangle goes nuts and
-				// sends the charge downwards, regardless of the set angle.
-				/// @todo : Fix the calculation so this extra check becomes obsolete
-				if ( ( dp < 100. ) && ( RIOT_CHARGE <= cw ) && ( RIOT_BLAST >= cw ) ) {
-					dp = 100.;
-				}
-
-				double mxv = env.slope[ ca ][ 0 ] * dp * env.FPS_mod / 100.;
-				double myv = env.slope[ ca ][ 1 ] * dp * env.FPS_mod / 100.;
+				double  mxv = env.slope[ ca ][ 0 ] * dp * env.FPS_mod / 100.;
+				double  myv = env.slope[ ca ][ 1 ] * dp * env.FPS_mod / 100.;
 
 				try {
-					MISSILE *newmis = new MISSILE(
+					auto *newmis = new MISSILE(
 						player,
 						x + ( env.slope[ ca ][ 0 ] * turr_off_x ),
 						y + ( env.slope[ ca ][ 1 ] * turr_off_x ),
@@ -207,10 +200,10 @@ void TANK::activateCurrentSelection() {
 		// --- Teleport ---
 		//-----------------
 		if ( ITEM_TELEPORT == ci ) {
-			int32_t right  = env.screenWidth - ( tank_dia * 2 );
-			int32_t bottom = env.screenHeight - ( tank_dia * 2 ) - MENUHEIGHT;
-			int32_t new_x  = ( get_rand() % right ) + tank_dia;
-			int32_t new_y  = ( get_rand() % bottom ) + tank_dia + MENUHEIGHT;
+			auto right  = ROUND( env.screenWidth - ( tank_dia * 2. ) );
+			auto bottom = ROUND( env.screenHeight - ( tank_dia * 2. ) - MENUHEIGHT );
+			auto new_x  = ROUND( ( get_rand() % right ) + tank_dia );
+			auto new_y  = ROUND( ( get_rand() % bottom ) + tank_dia + MENUHEIGHT );
 
 			// Be sure the tank does not end up too high in the sky
 			// or too deeply buried.
@@ -222,8 +215,8 @@ void TANK::activateCurrentSelection() {
 			}
 
 			try {
-				new TELEPORT( this, new_x, new_y, tank_dia, 120, ci );
-				addDamage( player, 0. ); // Fall is a self hit.
+				new TELEPORT( this, new_x, new_y, ROUND( tank_dia ), 120, ci );
+				addDamage( player, 0. ); // Fall is a self-hit.
 				isTeleported = true;
 			} catch ( std::exception &e ) {
 				std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
@@ -244,7 +237,7 @@ void TANK::activateCurrentSelection() {
 						other->getNext( &other );
 					}
 				} else {
-					// Otherwise select one by random
+					// Otherwise, select one by random
 					int32_t rtn = get_rand() % ( global.numTanks - 1 );
 					while ( rtn-- ) {
 						other->getNext( &other );
@@ -282,16 +275,16 @@ void TANK::activateCurrentSelection() {
 		// --- Mass Teleport ---
 		//-----------------------
 		else if ( ITEM_MASS_TELEPORT == ci ) {
-			int32_t right  = env.screenWidth - ( tank_dia * 2 );
-			int32_t bottom = env.screenHeight - ( tank_dia * 2 ) - MENUHEIGHT;
-			TANK   *lt     = nullptr;
+			auto  right  = ROUND( env.screenWidth - ( tank_dia * 2 ) );
+			auto  bottom = ROUND( env.screenHeight - ( tank_dia * 2 ) - MENUHEIGHT );
+			TANK *lt     = nullptr;
 
 			global.getHeadOfClass( CLASS_TANK, &lt );
 			while ( lt ) {
-				int32_t new_x = ( get_rand() % right ) + tank_dia;
-				int32_t new_y = ( get_rand() % bottom ) + tank_dia + MENUHEIGHT;
+				auto new_x = ROUND( ( get_rand() % right ) + tank_dia );
+				auto new_y = ROUND( ( get_rand() % bottom ) + tank_dia + MENUHEIGHT );
 
-				// Like with the normal teleport, ensure a sane y value.
+				// Like with the normal teleport, ensure a correct y value.
 				int32_t surf_y = global.surface[ new_x ].load( ATOMIC_READ );
 				if ( new_y < ( surf_y - 150 ) ) {
 					new_y = surf_y - 150;
@@ -329,21 +322,21 @@ void TANK::activateCurrentSelection() {
 		// --- Fan (aka "The most useless item there is") ---
 		//----------------------------------------------------
 		else if ( ITEM_FAN == ci ) {
-			play_fire_sound( ITEM_FAN + WEAPONS, x, 255, 1000 );
+			play_fire_sound( ITEM_FAN + WEAPONS, ROUND( x ), 255, 1000 );
 
 			if ( a < 180 ) {
 				// move wind to the right
-				global.wind += ( p / 20 );
+				global.wind += ( p / 20. );
 			} else {
 				// wind to the left
-				global.wind -= ( p / 20 );
+				global.wind -= ( p / 20. );
 			}
 
 			// make sure wind is not too strong
-			if ( global.wind < ( -env.windstrength / 2 ) ) {
-				global.wind = -env.windstrength / 2;
-			} else if ( global.wind > ( env.windstrength / 2 ) ) {
-				global.wind = env.windstrength / 2;
+			if ( global.wind < ( -env.windstrength / 2. ) ) {
+				global.wind = -env.windstrength / 2.;
+			} else if ( global.wind > ( env.windstrength / 2. ) ) {
+				global.wind = env.windstrength / 2.;
 			}
 
 			global.lastwind = global.wind;
@@ -393,18 +386,18 @@ void TANK::applyDamage() {
 	}
 
 	// See if the pending damage destroys the tank:
-	int32_t full_damage = ROUND( damage );
+	auto full_damage = ROUND( damage );
 
 	if ( full_damage >= ( sh + l ) ) {
 		destroy     = true;
 		damage      = sh + l; // Don't overdo
-		full_damage = damage;
+		full_damage = ROUND( damage );
 		player->killed++;
 	}
 
 	// Damage is applied to the shield, and negative shield later
 	// added to life. This saves some if/then/else constructs
-	int32_t old_sh  = sh; // For repulsor shield blast through
+	int32_t old_sh  = sh; // For repulsion shield blast through
 	sh             -= full_damage;
 
 	/* -----------------------------------------------------------
@@ -480,7 +473,7 @@ void TANK::applyDamage() {
 
 			try {
 				new FLOATTEXT(
-					creditTo->selectGloatPhrase(),
+					PLAYER::selectGloatPhrase(),
 					creditTo->tank->x,
 					creditTo->tank->y - 30,
 					.0,
@@ -500,7 +493,7 @@ void TANK::applyDamage() {
 		if ( self_hit && destroy && !global.skippingComputerPlay ) {
 			try {
 				new FLOATTEXT(
-					player->selectSuicidePhrase(),
+					PLAYER::selectSuicidePhrase(),
 					x,
 					y - 30,
 					.0,
@@ -555,14 +548,12 @@ void TANK::applyDamage() {
 	// --- Display the damage value ---
 	// --------------------------------
 	if ( full_damage > 0 ) {
-		static char buf[ 12 ] = { 0x0 };
-		flashdamage           = 1;
+		flashdamage = 1;
 
 		if ( !global.skippingComputerPlay ) {
-			snprintf( buf, 11, "%d", full_damage );
 			try {
 				new FLOATTEXT(
-					buf,
+					std::to_string( full_damage ).c_str(),
 					x,
 					y - 30,
 					.0,
@@ -578,7 +569,7 @@ void TANK::applyDamage() {
 			}
 		}
 
-		// If shield remains, the shield text has to be regenerated
+		// If the shield remains, the shield text has to be regenerated
 		if ( sh > 0 ) {
 			snprintf( buf, 11, "%d", sh );
 			shieldText.set_text( buf );
@@ -591,7 +582,7 @@ void TANK::applyDamage() {
 			snprintf( buf, 11, "%d", l );
 			healthText.set_text( buf );
 		}
-	} // End of having damage
+	} // end of having damage
 
 	damage = 0.; // all applied
 }
@@ -608,24 +599,18 @@ void TANK::applyPhysics() {
 
 	// Special handling when rocketing upwards first:
 	if ( yv < 0. ) {
-		// Although activating a rocket instantly pushes the tank
+		// Although activating a rocket, instantly pushes the tank
 		// upwards, it stops there if the tank is buried
 		if ( howBuried( nullptr, nullptr ) ) {
 			xv = 0;
 			yv = 0;
 		}
 
-		/// @todo : Is this really a problem?
-		// make sure the tank does not leave the screen when flying
-		else if ( ( y < tank_off_y ) ) {
-			yv = 0;
-		}
-
-		// Otherwise apply rocket x movement
+		// Otherwise, apply rocket x movement
 		else {
 			x += xv * 4.;
 		}
-	} // End of special rocketing handling
+	} // end of special rocketing handling
 
 	// General movement is only applied while no damage flashes.
 	// Note: This means that damage application halts all movement.
@@ -785,13 +770,13 @@ void TANK::draw() {
 
 		if ( BLACK == shld_col_outer ) {
 			shld_col_outer = makecol(
-				item[ sht ].vals[ SHIELD_RED ],
-				item[ sht ].vals[ SHIELD_GREEN ],
-				item[ sht ].vals[ SHIELD_BLUE ]
+				ROUND( item[ sht ].vals[ SHIELD_RED ] ),
+				ROUND( item[ sht ].vals[ SHIELD_GREEN ] ),
+				ROUND( item[ sht ].vals[ SHIELD_BLUE ] )
 			);
 		}
 		if ( !shld_thickness ) {
-			shld_thickness = item[ sht ].vals[ SHIELD_THICKNESS ];
+			shld_thickness = ROUND( item[ sht ].vals[ SHIELD_THICKNESS ] );
 		}
 
 		// Adapt shield phase:
@@ -817,7 +802,7 @@ void TANK::draw() {
 			move_x -= half_th;
 		} else {
 			rad_x  += half_th;
-			rad_y  += shld_phase * 6. / 360.;
+			rad_y  += ROUND( shld_phase * 6. / 360. );
 			move_y -= half_th;
 		}
 
@@ -893,7 +878,7 @@ void TANK::explode( bool allow_vengeance ) {
 		std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
 	}
 
-	play_explosion_sound( MED_MIS, x, 255, 1000 );
+	play_explosion_sound( MED_MIS, ROUND( x ), 255, 1000 );
 
 	// Violent death can only trigger if there is a player.
 	// Note: There should be, always, so assert as well. Calling this method
@@ -964,22 +949,22 @@ void TANK::explode( bool allow_vengeance ) {
 	int32_t del_power = 0;
 
 	if ( player->ni[ ITEM_FATAL_FURY ] > 0 ) {
-		numLaunch         = item[ ITEM_FATAL_FURY ].vals[ SELFD_NUMBER ];
-		cw                = item[ ITEM_FATAL_FURY ].vals[ SELFD_TYPE ];
+		numLaunch         = ROUND( item[ ITEM_FATAL_FURY ].vals[ SELFD_NUMBER ] );
+		cw                = ROUND( item[ ITEM_FATAL_FURY ].vals[ SELFD_TYPE ] );
 		player->nm[ cw ] += numLaunch;
 		player->ni[ ITEM_FATAL_FURY ]--;
 		min_power = MAX_POWER / 3;
 		del_power = MAX_POWER / 3;
 	} else if ( player->ni[ ITEM_DYING_WRATH ] > 0 ) {
-		numLaunch         = item[ ITEM_DYING_WRATH ].vals[ SELFD_NUMBER ];
-		cw                = item[ ITEM_DYING_WRATH ].vals[ SELFD_TYPE ];
+		numLaunch         = ROUND( item[ ITEM_DYING_WRATH ].vals[ SELFD_NUMBER ] );
+		cw                = ROUND( item[ ITEM_DYING_WRATH ].vals[ SELFD_TYPE ] );
 		player->nm[ cw ] += numLaunch;
 		player->ni[ ITEM_DYING_WRATH ]--;
 		min_power = MAX_POWER / 4;
 		del_power = MAX_POWER / 3;
 	} else if ( player->ni[ ITEM_VENGEANCE ] > 0 ) {
-		numLaunch         = item[ ITEM_VENGEANCE ].vals[ SELFD_NUMBER ];
-		cw                = item[ ITEM_VENGEANCE ].vals[ SELFD_TYPE ];
+		numLaunch         = ROUND( item[ ITEM_VENGEANCE ].vals[ SELFD_NUMBER ] );
+		cw                = ROUND( item[ ITEM_VENGEANCE ].vals[ SELFD_TYPE ] );
 		player->nm[ cw ] += numLaunch;
 		player->ni[ ITEM_VENGEANCE ]--;
 		min_power = MAX_POWER / 5;
@@ -1001,7 +986,7 @@ void TANK::explode( bool allow_vengeance ) {
 			if ( ( tank != this ) && !tank->destroy
 			     && ( ( TEAM_NEUTRAL == player->team ) || ( player->team != tank->player->team ) ) ) {
 				++tanks;
-				med_x += tank->x;
+				med_x += ROUND( tank->x );
 			}
 			tank->getNext( &tank );
 		}
@@ -1025,7 +1010,7 @@ void TANK::explode( bool allow_vengeance ) {
 			mod_a   = 55;
 		}
 
-		// Before the violent death is applied, halve the players
+		// Before the violent death is applied, halve the players'
 		// damage multiplier:
 		assert( player && "ERROR: explode Tank without player?" );
 		player->damageMultiplier = player->damageMultiplier > 1. ? 1. + ( ( player->damageMultiplier - 1. ) / 2. ) : .75;
@@ -1044,11 +1029,11 @@ void TANK::explode( bool allow_vengeance ) {
 
 /// @return The tanks bottom coordinate as used in collision detection.
 int32_t TANK::getBottom() {
-	return y + tank_off_y - tank_sag;
+	return ROUND( y + tank_off_y - tank_sag );
 }
 
 /// @return The calculated tank diameter
-double TANK::getDiameter() {
+double TANK::getDiameter() const {
 	return tank_dia;
 }
 
@@ -1064,12 +1049,12 @@ void TANK::getGuntop( int32_t angle_, double &top_x, double &top_y ) {
 }
 
 /// @return the current maxLife value
-int32_t TANK::getMaxLife() {
+int32_t TANK::getMaxLife() const {
 	return maxLife;
 }
 
 /// @brief return true if a repulsor shield is up and running
-bool TANK::hasRepulsorActivated() {
+bool TANK::hasRepulsorActivated() const {
 	return ( repulsion != 0 );
 }
 
@@ -1084,10 +1069,10 @@ int32_t TANK::howBuried( int32_t *left, int32_t *right ) {
 	int32_t cur_y       = 0;
 	double  angles_seen = 0.;
 
-	// Angles are from right (90) to left (270) counter clockwise
+	// Angles are from right (90) to left (270) counterclockwise
 	for ( int32_t ta = 90; ta < 270; ++ta ) {
-		cur_x = x + ( env.slope[ ta ][ 0 ] * turr_off_x );
-		cur_y = y + ( env.slope[ ta ][ 1 ] * turr_off_y );
+		cur_x = ROUND( x + ( env.slope[ ta ][ 0 ] * turr_off_x ) );
+		cur_y = ROUND( y + ( env.slope[ ta ][ 1 ] * turr_off_y ) );
 
 		if ( ( cur_x != old_x ) || ( cur_y != old_y ) ) {
 			if ( PINK != getpixel( global.terrain, cur_x, cur_y ) ) {
@@ -1108,7 +1093,7 @@ int32_t TANK::howBuried( int32_t *left, int32_t *right ) {
 		}
 	}
 
-	// Add full result to right to negate left half and count only right half
+	// Add a full result to right to negate left half and count only right half
 	if ( left ) {
 		*left += result;
 		if ( *left < 0 ) {
@@ -1129,7 +1114,7 @@ int32_t TANK::howBuried( int32_t *left, int32_t *right ) {
 		*right = ROUNDu( *right * angle_mod / 2. );
 	}
 
-	result *= angle_mod * ( env.isBoxed ? 1.25 : 1. );
+	result *= ROUND( angle_mod * ( env.isBoxed ? 1.25 : 1. ) );
 
 	return ROUNDu( result );
 }
@@ -1172,10 +1157,10 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
 		gun_y_off = 0.;
 	}
 
-	// For the tank the real centre position and the radii must be known.
-	double ox       = static_cast< double >( tank_off_x );
-	double oy       = static_cast< double >( tank_off_y - gun_y_off ) / 2.;
-	double tx       = x; // For consistencies sake...
+	// For the tank, the real center position and the radii must be known.
+	auto   ox       = static_cast< double >( tank_off_x );
+	auto   oy       = static_cast< double >( tank_off_y - gun_y_off ) / 2.;
+	double tx       = x; // For consistency’s sake...
 	double ty       = y + ( static_cast< double >( tank_off_y + gun_y_off ) / 2. );
 
 	double simpDist = FABSDISTANCE2( ex, ey, tx, ty );
@@ -1204,20 +1189,20 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
 
 	/* The ideal solution would be to calculate the intersection of the two
 	 * ellipses which would enable us to tell the absolute correct value of how
-	 * much of the tank surface is covered by the explosion.
+	 * the explosion covers much of the tank surface.
 	 *
-	 * Unfortunately this involves a 4th order equation to allow a numerical
+	 * Unfortunately, this involves a 4th order equation to allow a numerical
 	 * solution. (I have found a very nice example written in JavaScript. It
 	 * uses several functions and has ~600 Lines. A bit much for a game, right?)
 	 *
-	 * The second best solution would be to determine the position on the rim of
-	 * each ellipse that is on a line between the two centres and then use their
+	 * The second-best solution would be to determine the position on the rim of
+	 * each ellipse that is on a line between the two centers and then use their
 	 * distance. That is, if you blame this file and look up the commits, what I
 	 * tried first.
-	 * Unfortunately the exact location on the rim is almost as complex to
+	 * Unfortunately, the exact location on the rim is almost as complex to
 	 * determine as the intersection. I did not see this in the beginning,
 	 * because I simply reused an algorithm of mine to check spheres in a 3D
-	 * space for collisions. But the hard truth is, that 3D spheres and 2D
+	 * space for collisions. But the hard truth is that 3D spheres and 2D
 	 * ellipses are very different.
 	 *
 	 * So here is solution three. Still good enough for a game though. Just
@@ -1235,7 +1220,7 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
 	}
 
 	// Determine start and end positions of explosion/tank intersections.
-	// The check is needed so hit/end are in the correct direction.
+	// The check is needed, so hit/end are in the correct direction.
 	double hit_x = ex > tx ? std::min( ex + rx, tx + ox ) : std::max( ex - rx, tx - ox );
 	double end_x = ex > tx ? std::max( ex - rx, tx - ox ) : std::min( ex + rx, tx + ox );
 	double hit_y = ey > ty ? std::min( ey + ry, ty + oy ) : std::max( ey - ry, ty - oy );
@@ -1362,7 +1347,7 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
 	double t_off_x = std::abs( ox * std::cos( std::asin( ( ty - mid_y ) / oy ) ) );
 	double rng_x   = std::min( ex + e_off_x, tx + t_off_x ) - std::max( ex - e_off_x, tx - t_off_x );
 
-	// Opt out if the explosions rim x does not fit the tanks rim x
+	// Opt out if the explosions rim x do not fit the tank rim x
 	if ( rng_x < .01 ) {
 		DEBUG_LOG_PHY(
 			"Opt Out X",
@@ -1395,7 +1380,7 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
 	}
 
 
-	// Being here means that both ranges lie within the tanks ellipse.
+	// Being here means that both ranges lie within the tank ellipse.
 	in_rate_x = rng_x / ( ox * 2. );
 	in_rate_y = rng_y / ( oy * 2. );
 
@@ -1495,18 +1480,18 @@ bool TANK::moveTank( int32_t direction ) {
 	}
 
 	// Check whether the target pixel is beyond the border or occupied
-	int32_t nextX = ROUND( x + direction );
+	auto nextX = ROUND( x + direction );
 	if ( ( nextX < 1 ) || ( nextX >= env.screenWidth ) || ( env.landType == LAND_NONE ) ) {
 		return false;
 	}
 
 	// select the next pixel on the left/right that is not terrain
-	float nextY = global.surface[ nextX ].load( ATOMIC_READ ) - 1;
+	double nextY = global.surface[ nextX ].load( ATOMIC_READ ) - 1;
 
 	// If there is more terrain to climb, the pixel after the next must
 	// be taken into account, too
 	int32_t afterX = nextX + direction;
-	float   afterY = nextY;
+	double  afterY = nextY;
 	if ( ( afterX > 0 ) && ( afterX < env.screenWidth ) ) {
 		afterY = global.surface[ afterX ].load( ATOMIC_READ ) - 1;
 	}
@@ -1532,15 +1517,13 @@ bool TANK::moveTank( int32_t direction ) {
 }
 
 void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
-	// A new round without set player is futile.
+	// A new round without a set player is futile.
 	assert( player && "ERROR: TANK::newRound called with nullptr player" );
 	if ( nullptr == player ) {
 		return;
 	}
 
-	static char buf[ 12 ] = { 0x0 };
-
-	// Reclaim shield if there is one left from end of last round
+	// Reclaim shield if there is one left from the end of the last round
 	player->reclaimShield();
 
 	// Reset all values
@@ -1562,8 +1545,7 @@ void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
 	l       = maxLife;
 
 	// (re)-init health text
-	snprintf( buf, 12, "%d", l );
-	healthText.set_text( buf );
+	healthText.set_text( std::to_string( l ).c_str() );
 	healthText.set_color( player->color );
 
 	// Re-calculate repair rate
@@ -1599,9 +1581,7 @@ void TANK::reactivate_shield() {
 		return;
 	}
 
-	static char buf[ 5 ] = { 0x0 };
-
-	sht                  = ITEM_NO_SHIELD;
+	sht = ITEM_NO_SHIELD;
 
 	// Try to set the most heavy shield there is available:
 	if ( player->ni[ ITEM_HVY_REPULSOR_SHIELD ] ) {
@@ -1620,17 +1600,17 @@ void TANK::reactivate_shield() {
 
 	if ( ITEM_NO_SHIELD != sht ) {
 		player->ni[ sht ]--;
-		sh        = item[ sht ].vals[ SHIELD_ENERGY ];
-		repulsion = item[ sht ].vals[ SHIELD_REPULSION ];
+		sh        = ROUND( item[ sht ].vals[ SHIELD_ENERGY ] );
+		repulsion = ROUND( item[ sht ].vals[ SHIELD_REPULSION ] );
 		shld_col_outer =
 			makecol( item[ sht ].vals[ SHIELD_RED ], item[ sht ].vals[ SHIELD_GREEN ], item[ sht ].vals[ SHIELD_BLUE ]
 		        );
-		shld_thickness           = item[ sht ].vals[ SHIELD_THICKNESS ];
+		shld_thickness           = ROUND( item[ sht ].vals[ SHIELD_THICKNESS ] );
 
 		player->last_shield_used = sht;
 		shld_phase               = 0.; // Start neutral.
 		snprintf( buf, 4, "%d", sh );
-		shieldText.set_text( buf );
+		shieldText.set_text( std::to_string( sh ).c_str() );
 		setTextPositions( true );
 	}
 }
@@ -1751,11 +1731,11 @@ void TANK::setBitmap() {
 		y -= ( tank_off_y - tank_sag );
 	}
 
-	// Be sure the placement is sane:
+	// Be sure the placement is correct:
 	assert( ( ( x - tank_off_x ) > 2 ) && "Placement too far left" );
 	assert( ( ( x + tank_off_x ) < ( env.screenWidth - 3 ) ) && "Placement too far right" );
 
-	// Without debug mode, this must be fixed:
+	// Without a debug mode, this must be fixed:
 	if ( ( x - tank_off_x ) < 3 ) {
 		x = tank_off_x + 3;
 	}
@@ -1805,7 +1785,7 @@ bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &c
 		ypos += ymov;
 
 		if ( ( ypos <= MENUHEIGHT ) || ( xpos < 2 ) || ( xpos > ( env.screenWidth - 2 ) ) ) {
-			clearance = minimumClearance; // done it! There can't be dirt any more!
+			clearance = ROUND( minimumClearance ); // done it! There can't be dirt any more!
 			done      = true;
 		} else {
 			if ( ++clearance >= minimumClearance ) {
@@ -1814,9 +1794,9 @@ bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &c
 				if ( PINK != getpixel( global.terrain, xpos, ypos ) ) {
 					done = true;
 				}
-			} // End of having to check a pixel
-		}         // End of being within screen bounds
-	}                 // End of checking the path
+			} // end of having to check a pixel
+		}         // end of being within screen bounds
+	}                 // end of checking the path
 
 	// If a minimum clearance lower than the screen width is sought,
 	// check whether this results in a wall/ceiling hit.
@@ -1836,7 +1816,6 @@ bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &c
 /// To fire another shot without the trigger action, call
 /// activateCurrentSelection().
 void TANK::simActivateCurrentSelection() {
-	static char buf[ 6 ] = { 0x0 };
 
 	if ( env.turntype != TURN_SIMUL ) {
 		activateCurrentSelection();
@@ -1849,8 +1828,7 @@ void TANK::simActivateCurrentSelection() {
 	// allow naturals to happen again
 	global.naturals_activated = 0;
 
-	snprintf( buf, 5, "%d", l );
-	healthText.set_text( buf );
+	healthText.set_text( std::to_string( l ).c_str() );
 
 	// avoid having key presses read in next turn
 	clear_keybuf();

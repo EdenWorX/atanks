@@ -279,7 +279,7 @@ bool Parse_Client_Data( char *buffer ) {
 		if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
 			TANK *lt = env.players[ player_num ]->tank;
 			try {
-				new TELEPORT( lt, new_x, new_y, ROUND( lt->getDiameter() ), 120, ITEM_TELEPORT );
+				new TELEPORT( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
 			} catch ( std::bad_alloc &e ) {
 				printf( "Attempt to create teleport failed in client code: %s\n", e.what() );
 			}
