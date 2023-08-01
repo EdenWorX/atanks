@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_SOUNDS_H_INCLUDED
-#  define ATANKS_SRC_SOUNDS_H_INCLUDED
+#define ATANKS_SRC_SOUNDS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,7 +20,7 @@
  *
  */
 
-#  include "externs.h"
+#include "externs.h"
 
 /** @file sound.h
  * @brief declare centralized functions to play sounds.

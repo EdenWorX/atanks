@@ -23,12 +23,18 @@ void play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 	int32_t sndNum = -1;
 
 	if ( type >= WEAPONS ) {
-		if ( item[ type - WEAPONS ].sound > -1 ) sndNum = item[ type - WEAPONS ].sound;
+		if ( item[ type - WEAPONS ].sound > -1 ) {
+			sndNum = item[ type - WEAPONS ].sound;
+		}
 	} else {
-		if ( weapon[ type ].sound > -1 ) sndNum = weapon[ type ].sound;
+		if ( weapon[ type ].sound > -1 ) {
+			sndNum = weapon[ type ].sound;
+		}
 	}
 
-	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) {
+		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+	}
 }
 
 /** @brief play a weapon or item explosion sample according to @a type, panned using @a x.
@@ -42,42 +48,47 @@ void play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
  * @param[in] freq Frequency, 1000 is normal, 500 is half, 2000 is double and so on.
  **/
 void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
-	int32_t sndNum = -1;
+	int32_t sndNum;
 
-	if ( SHAPED_CHARGE == type )
+	if ( SHAPED_CHARGE == type ) {
 		sndNum = SND_EXPL_SHAPED_CHARGE;
-	else if ( WIDE_BOY == type )
+	} else if ( WIDE_BOY == type ) {
 		sndNum = SND_EXPL_WIDE_BOY;
-	else if ( CUTTER == type )
+	} else if ( CUTTER == type ) {
 		sndNum = SND_EXPL_CUTTER;
-	else if ( ( SML_NAPALM <= type ) && ( LRG_NAPALM >= type ) ) {
+	} else if ( ( SML_NAPALM <= type ) && ( LRG_NAPALM >= type ) ) {
 		sndNum  = SND_EXPL_NAPALM;
 		freq   += 333 * ( LRG_NAPALM - type );
 	} else if ( NAPALM_JELLY == type ) {
 		sndNum  = SND_EXPL_NAPALM_BURN;
 		freq   += ( get_rand() % 200 ) - 100;
 		vol    -= get_rand() % 64;
-	} else if ( PERCENT_BOMB == type )
+	} else if ( PERCENT_BOMB == type ) {
 		sndNum = SND_EXPL_PER_CENT_BOMB;
-	else if ( REDUCER == type )
+	} else if ( REDUCER == type ) {
 		sndNum = SND_EXPL_REDUCER;
-	else if ( ( ( DIRT_BALL <= type ) && ( SMALL_DIRT_SPREAD >= type ) ) || ( ( RIOT_CHARGE <= type ) && ( RIOT_BLAST >= type ) ) )
+	} else if ( ( ( DIRT_BALL <= type ) && ( SMALL_DIRT_SPREAD >= type ) ) || ( ( RIOT_CHARGE <= type ) && ( RIOT_BLAST >= type ) ) ) {
 		sndNum = SND_EXPL_DIRT_BALL_BOMB;
-	else {
+	} else {
 		// Default handling
-		if ( type >= WEAPONS )
+		if ( type >= WEAPONS ) {
 			sndNum = item[ type - WEAPONS ].sound + SND_EXPL_MISS_SML;
-		else
+		} else {
 			sndNum = weapon[ type ].sound + SND_EXPL_MISS_SML;
+		}
 	}
 
-	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) {
+		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+	}
 }
 
 /** @brief plays the currently set background music modified by set volume factor
  **/
 void play_music() {
-	if ( env.loadBackgroundMusic() ) play_sound( SND_BG_MUSIC, 128, 255, 1000 );
+	if ( env.loadBackgroundMusic() ) {
+		play_sound( SND_BG_MUSIC, 128, 255, 1000 );
+	}
 }
 
 /** @brief play a natural sample according to @a type, panned using @a x.
@@ -122,8 +133,9 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 	}
 
 	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT )
-	     && ( ( SND_NATU_DIRT_FALL != sndNum ) || ( global.used_voices < ( env.voices - 8 ) ) ) )
+	     && ( ( SND_NATU_DIRT_FALL != sndNum ) || ( global.used_voices < ( env.voices - 8 ) ) ) ) {
 		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+	}
 }
 
 /** @brief play an interface sample according to @a sound.
@@ -132,7 +144,9 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
  **/
 
 void play_interface_sound( eSounds sound ) {
-	if ( SND_INTE_BUTTON_CLICK == sound ) play_sound( sound, env.halfWidth, 128, 1000 );
+	if ( SND_INTE_BUTTON_CLICK == sound ) {
+		play_sound( sound, env.halfWidth, 128, 1000 );
+	}
 }
 
 // Global helpers implementation
@@ -150,8 +164,9 @@ static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq ) {
 				freq,
 				false
 			);
-		} else if ( SND_BG_MUSIC == sound )
+		} else if ( SND_BG_MUSIC == sound ) {
 			play_sample( env.background_music, xVol, x, freq, true );
+		}
 
 		++global.used_voices;
 	}
