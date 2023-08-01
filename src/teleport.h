@@ -1,5 +1,5 @@
 #ifndef TELEPORT_DEFINE
-#define TELEPORT_DEFINE
+#define TELEPORT_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -23,20 +23,36 @@
 #include "globaltypes.h"
 #include "virtobj.h"
 
-class TELEPORT : public VIRTUAL_OBJECT {
+class TELEPORT final : public VIRTUAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 	// Source constructor
-	explicit
-	TELEPORT( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t destinationY, int32_t objRadius, int32_t duration, int32_t type);
-	TELEPORT( VIRTUAL_OBJECT* targetObj, int32_t destinationX, int32_t destinationY, double objRadius, int32_t duration, int32_t type)
-		: TELEPORT(targetObj, destinationX, destinationY, ROUND(objRadius), duration, type) {}
-	TELEPORT( VIRTUAL_OBJECT* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type)
-		: TELEPORT(targetObj, ROUND(destinationX), ROUND(destinationY), ROUND(objRadius), duration, type) {}
-	virtual ~TELEPORT();
+	explicit TELEPORT(
+		VIRTUAL_OBJECT* targetObj,
+		int32_t         destinationX,
+		int32_t         destinationY,
+		int32_t         objRadius,
+		int32_t         duration,
+		int32_t         type
+	);
+
+	TELEPORT(
+		VIRTUAL_OBJECT* targetObj,
+		int32_t         destinationX,
+		int32_t         destinationY,
+		double          objRadius,
+		int32_t         duration,
+		int32_t         type
+	)
+		: TELEPORT( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
+
+	TELEPORT( VIRTUAL_OBJECT* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
+		: TELEPORT( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
+
+	~TELEPORT() final;
 
 
 	/* ----------------------
@@ -44,10 +60,10 @@ public:
 	 * ----------------------
 	 */
 
-	void     applyPhysics();
-	void     draw();
+	void   applyPhysics() final;
+	void   draw() final;
 
-	eClass   getClass() { return CLASS_TELEPORT; }
+	eClass getClass() final { return CLASS_TELEPORT; }
 
 
 private:
@@ -72,4 +88,4 @@ private:
 	int32_t         startClock = 0;
 };
 
-#endif
+#endif // TELEPORT_DEFINE

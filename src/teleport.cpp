@@ -85,21 +85,21 @@ TELEPORT::TELEPORT(
 				// Maybe move left
 				if ( ( ( destinationX > ( objRadius * 2 ) ) && ( destinationX <= lt->x ) )
 				     || ( destinationX >= ( env.screenWidth - ( objRadius * 2 ) ) ) ) {
-					destinationX -= std::abs( lt->x - destinationX );
+					destinationX -= ROUND( std::abs( lt->x - destinationX ) );
 				}
 				// Or move right
 				else if ( destinationX < ( env.screenWidth - ( objRadius * 2 ) ) ) {
-					destinationX += std::abs( lt->x - destinationX );
+					destinationX += ROUND( std::abs( lt->x - destinationX ) );
 				}
 
 				// Maybe move up
 				if ( ( ( destinationY > ( MENUHEIGHT + ( objRadius * 2 ) ) ) && ( destinationY <= lt->y ) )
 				     || ( destinationY >= ( env.screenHeight - ( objRadius * 2 ) ) ) ) {
-					destinationY -= std::abs( lt->y - destinationY );
+					destinationY -= ROUND( std::abs( lt->y - destinationY ) );
 				}
 				// Or move down
 				else if ( destinationY < ( env.screenHeight - ( objRadius * 2 ) ) ) {
-					destinationY += std::abs( lt->y - destinationY );
+					destinationY += ROUND( std::abs( lt->y - destinationY ) );
 				}
 			}
 
@@ -114,13 +114,13 @@ TELEPORT::TELEPORT(
 		std::cerr << "Error creating TELEPORT: " << e.what() << std::endl;
 	}
 
-	play_fire_sound( ITEM_TELEPORT + WEAPONS, x, 255, 1000 );
+	play_fire_sound( ITEM_TELEPORT + WEAPONS, ROUND( x ), 255, 1000 );
 
 #ifdef NETWORK
 	// this seems to be the teleport we usually use
 	int   playerindex = 0;
 	bool  found       = false;
-	TANK* the_tank    = static_cast< TANK* >( targetObj );
+	TANK* the_tank    = dynamic_cast< TANK* >( targetObj );
 
 	// match the player with the tank
 	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
@@ -189,35 +189,36 @@ void TELEPORT::draw() {
 		pClock = 1.0 + ( 1.0 - ( pClock * 2.0 ) );
 	}
 
-	int32_t transMod = 255 - ( pClock / startClock * 255 );
+	auto transMod = ROUND( 255. - ( pClock / startClock * 255. ) );
 	if ( transMod > 255 ) {
 		transMod = 255;
 	} else if ( transMod < 0 ) {
 		transMod = 0;
 	}
 
-	blobSize           -= round( 8 / ( startClock / pClock ) ) + 1;
-	pRadius            -= round( radius / ( startClock / pClock ) ) + 1;
+	blobSize           -= ROUND( 8. / ( startClock / pClock ) + 1. );
+	pRadius            -= ROUND( radius / ( startClock / pClock ) + 1. );
 	maxblobs           += pRadius * 4;
 
 	BITMAP* tempBitmap  = create_bitmap( radius * 2, radius * 2 );
-	blit( global.canvas, tempBitmap, remote->x - radius, remote->y - radius, 0, 0, radius * 2, radius * 2 );
+	blit( global.canvas, tempBitmap, ROUND( remote->x - radius ), ROUND( remote->y - radius ), 0, 0, radius * 2, radius * 2
+	);
 
 	if ( object && remote ) {
 		remote->draw();
 	}
 
-	drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+	drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
 	set_trans_blender( 0, 0, 0, transMod );
 
-	for ( int32_t i = round( maxblobs + pClock ); i > pClock; --i ) {
-		int32_t xOff  = perlin2DPoint( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius;
-		int32_t yOff  = perlin2DPoint( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius;
+	for ( auto i = ROUND( maxblobs + pClock ); i > pClock; --i ) {
+		auto    xOff  = ROUND( perlin2DPoint( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
+		auto    yOff  = ROUND( perlin2DPoint( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
 		int32_t t_col = getpixel( tempBitmap, pRadius + xOff, pRadius + yOff );
 		circlefill( global.canvas, x + xOff, y + yOff, blobSize, t_col );
 	}
 
-	drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
+	drawing_mode( DRAW_MODE_SOLID, nullptr, 0, 0 );
 
 	setUpdateArea( x - pRadius - blobSize, y - pRadius - blobSize, ( pRadius + blobSize ) * 2, ( pRadius + blobSize ) * 2 );
 	requireUpdate();
