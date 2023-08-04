@@ -92,15 +92,22 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 
 		// boost preferences if wanted:
 		if ( boostArmour && ( ( WEAPONS + ITEM_ARMOUR ) <= i ) && ( ( WEAPONS + ITEM_PLASTEEL ) >= i ) ) {
-			pref *= 1. + ( ( 1. + static_cast< double >( RAND_AI_0P ) ) / 10. );
+			double boost = 1. + ( ( defensive + 2. + RAND_AI_1P + RAND_AI_0P /* [1;12] */ ) / 10. ); // [1.1;2.2]
+			DEBUG_LOG_FIN( name, "Boost Armor : %3.2f * %3.2f = %3.2f", pref, boost, pref * boost )
+			pref *= boost;
 		}
 
 		if ( boostAmps && ( ( WEAPONS + ITEM_INTENSITY_AMP ) <= i ) && ( ( WEAPONS + ITEM_VIOLENT_FORCE ) >= i ) ) {
-			pref *= 1. + ( ( 1. + static_cast< double >( RAND_AI_0P ) ) / 10. );
+			double boost = 1. + ( ( -1. * defensive + 2. + RAND_AI_1P + RAND_AI_0P /* [1;12] */ ) / 10. ); // [1.1;2.2]
+			DEBUG_LOG_FIN( name, "Boost Amps : %3.2f * %3.2f = %3.2f", pref, boost, pref * boost )
+			pref *= boost;
 		}
 
 		if ( boostWeapons && i && ( i < WEAPONS ) ) {
-			pref *= 1. + ( ( 1. + static_cast< double >( RAND_AI_1P ) ) / 10. );
+			double boost =
+				1. + ( ( std::abs( defensive ) + RAND_AI_1P + RAND_AI_0P /* [0;10] */ ) / 10. ); // [1.0;2.0]
+			DEBUG_LOG_FIN( name, "Boost Weapons : %3.2f * %3.2f = %3.2f", pref, boost, pref * boost )
+			pref *= boost;
 		}
 
 		// Lower weapon preferences if there is enough in stock already
@@ -121,7 +128,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 			//              - if larger than one_amount, selling the excess
 			//                amount is considered.
 
-			if ( div_amount >= 1. ) {
+			if ( ( div_amount >= 1. ) && ( currPref[ i ] > 0 ) ) {
 				pref /= div_amount;
 				DEBUG_LOG_FIN(
 					name,
@@ -171,7 +178,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 
 				double div_amount = cur_amount - max_amount;
 
-				if ( div_amount >= 1. ) {
+				if ( ( currPref[ i ] > 0 ) && ( div_amount >= 1. ) ) {
 					pref /= div_amount;
 					DEBUG_LOG_FIN(
 						name,
@@ -199,9 +206,9 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 							)
 						}
 					} // end of selling allowed
-				}         // End of having enough in stock
-			}                 // End of item type limitation
-		}                         // End of being in items range
+				}         // end of having enough in stock
+			}                 // end of item type limitation
+		}                         // end of being in items range
 
 		// Write back preferences:
 		currPref[ i ] = ROUND( pref );
@@ -622,13 +629,25 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 			boost_limit = max_boost - ( 2 * ( DEADLY_PLAYER + 1 ) ) + RAND_AI_0P;
 
 			if ( boost_value < boost_limit ) {
-				if ( ( amp_val - defensive ) < ( armour_val + defensive ) ) {
+				double amp_mood = amp_val - mood + 2.;
+				double arm_mood = armour_val + mood + 2.;
+				if ( amp_mood < arm_mood ) {
 					needAmp    = true;
 					needArmour = false;
 				} else {
 					needAmp    = false;
 					needArmour = true;
 				}
+				DEBUG_LOG_FIN(
+					name,
+					"=> need %s: boost %d/%d, amp %3.2f %s %3.2f arm",
+					needAmp ? "Amp" : "armor",
+					boost_value,
+					boost_limit,
+					amp_mood,
+					amp_mood < arm_mood ? "<" : ">",
+					arm_mood
+				);
 			}
 
 

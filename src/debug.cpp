@@ -3,7 +3,6 @@
 #if defined( ATANKS_DEBUG )
 
 #  include <cstdarg>
-#  include <cstdint>
 #  include <ctime>
 #  include <iostream>
 #  include <mutex>
@@ -18,14 +17,14 @@ std::mutex log_lock;
 
 /// @brief use with DEBUG_LOG to get debug dependent positional information for free!
 void debug_log( char const* moduleName, char const* title, char const* message, ... ) {
-	static char timebuf[ 26 ];
-	time_t      t;
-	struct tm   tm_;
-	char        xMsg[ 512 ];
+	static thread_local char timebuf[ 26 ]{ 0x0 };
+	static thread_local char xMsg[ 512 ]{ 0x0 };
+
+	struct tm                tm_ {};
 
 	// Create timestamp
 	atanks_tzset();
-	t = time( NULL );
+	time_t t = time( nullptr );
 	atanks_localtime( &tm_, &t );
 	atanks_snprintf(
 		timebuf,
@@ -54,12 +53,14 @@ void debug_log( char const* moduleName, char const* title, char const* message, 
 	// to atanks.log instead.
 	FILE* out = fopen( "atanks.log", "a" );
 	if ( out ) {
-		fprintf( out, "%s : %s : \"%s\" - %s\n", timebuf, moduleName, title, xMsg );
+		// The output format is meant to be loadable as CSV into Excel or localc,
+		// so the content can be analyzed using auto-filters.
+		fprintf( out, "%s|%s|%s|%s|\n", timebuf, moduleName, title, xMsg );
 		fclose( out );
 	}
 #  endif // MSVC or explicit logging to atanks.log
 #  if !defined( ATANKS_IS_WINDOWS )
-	fprintf( stdout, "%s : %s : \"%s\" - %s\n", timebuf, moduleName, title, xMsg );
+	fprintf( stdout, "%s : %s : %s : %s\n", timebuf, moduleName, title, xMsg );
 #  endif // !Windows
 
 

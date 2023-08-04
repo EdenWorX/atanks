@@ -19,6 +19,7 @@ DEBUG_OBJECTS ?= NO
 DEBUG_PHYSICS ?= NO
 
 # If the debug output shall be written to atanks.log, set this to YES
+# ( Hint: If you enable more than one option above, you WANT to say YES here! ;-) )
 DEBUG_LOG_TO_FILE ?= NO
 
 # These three are mutually exclusive. If all are set to yes,
@@ -330,10 +331,10 @@ endif
 # ------------------------------------
 
 aidebug:
-	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_LOG_TO_FILE=YES
 
 debug:
-	$(MAKE) -f Makefile DEBUG=YES
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_LOG_TO_FILE=YES
 
 fulldebug:
 	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_FINANCE=YES DEBUG_OBJECTS=YES DEBUG_PHYSICS=YES DEBUG_LOG_TO_FILE=YES

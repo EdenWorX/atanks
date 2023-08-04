@@ -47,7 +47,7 @@ sDebrisItem::~sDebrisItem() {
 sDebrisPool::sDebrisPool( int32_t limit_ )
 	: limit( limit_ * 5 ) // The limit is per debris size
 {
-	DEBUG_LOG_OBJ( "Debris Pool", "Pool created with limit %d", limit )
+	DEBUG_LOG_OBJ( "Debris Limit", "Pool created with limit %d", limit )
 
 	// Pre-create a third of the possible pool elements now,
 	// so an evenly distributed base is given at any time.
@@ -101,7 +101,7 @@ sDebrisItem* sDebrisPool::create_item( int32_t radius ) {
 	++count_all;
 	++counts[ idx ];
 	++avail[ idx ];
-	DEBUG_LOG_OBJ( "Debris", "New maximum number: %d", count_all )
+	DEBUG_LOG_OBJ( "Debris Limit", "New maximum number: %d", count_all )
 
 	return res;
 }

@@ -14,8 +14,8 @@
 #      define ATANKS_IS_MSVC
 // See whether the chrono bug is fixed:
 #      if ( _MSC_VER < 1900 )
-#        undef ATANKS_HAS_MSVC12_BUG
-#        define ATANKS_HAS_MSVC12_BUG 1
+#	undef ATANKS_HAS_MSVC12_BUG
+#	define ATANKS_HAS_MSVC12_BUG 1
 #      endif // Earlier than VS 2015
 #    endif   // _MSVC_VER
 #  endif     // Win 32
@@ -80,8 +80,8 @@
 #    ifdef ATANKS_IS_MSVC
 #      define ATANKS_GET_FILE( target )                                                                         \
 	      {                                                                                                 \
-		      char _atanks_fname_info[ 64 ];                                                            \
-		      char _atanks_extension[ 8 ];                                                              \
+		      static thread_local char _atanks_fname_info[ 64 ];                                        \
+		      static thread_local char _atanks_extension[ 8 ];                                          \
 		      _splitpath_s( __FILE__, NULL, 0, NULL, 0, _atanks_fname_info, 63, _atanks_extension, 7 ); \
 		      atanks_snprintf( target, 255, "%s%s", _atanks_fname_info, _atanks_extension );            \
 	      }
@@ -93,21 +93,21 @@
 
 // ATANKS_GET_POS - This macro gathers positional information
 #    ifdef ATANKS_IS_MSVC
-#      define ATANKS_GET_POS( target )                                                                   \
-	      {                                                                                          \
-		      ATANKS_GET_FILE( target )                                                          \
-		      atanks_snprintf( target, 255, "%-10s:%4d %-24s", target, __LINE__, __FUNCTION__ ); \
+#      define ATANKS_GET_POS( target )                                                               \
+	      {                                                                                      \
+		      ATANKS_GET_FILE( target )                                                      \
+		      atanks_snprintf( target, 255, "%s:%d|%s()", target, __LINE__, __FUNCTION__ ); \
 	      }
 #    else
 #      define ATANKS_GET_POS( target ) \
-	      { atanks_snprintf( target, 255, "%-10s:%4d %-24s", basename( __FILE__ ), __LINE__, __FUNCTION__ ); }
+	      { atanks_snprintf( target, 255, "%s:%d|%s()", basename( __FILE__ ), __LINE__, __FUNCTION__ ); }
 #    endif
 
 
 // DEBUG_LOG - This macro is a wrapper for debug_log
 #    define DEBUG_LOG( Title, Msg, ... )                                      \
 	    {                                                                 \
-		    char _atanks_trace_info[ 256 ];                           \
+		    static thread_local char _atanks_trace_info[ 256 ];       \
 		    ATANKS_GET_POS( _atanks_trace_info )                      \
 		    debug_log( _atanks_trace_info, Title, Msg, __VA_ARGS__ ); \
 	    }
