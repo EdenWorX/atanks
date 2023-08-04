@@ -192,8 +192,9 @@ private:
 	 */
 
 	int32_t   boostBought = -1;
-	int32_t   currPref[ THINGS ]{};     // current preferences, calculated for each round
-	int32_t   desired[ THINGS ]{};      // Shopping wish list
+	int32_t   boostPref[ THINGS ]{}; // used to carry "boosts" over to the next round (see notes in generateDesiredList())
+	int32_t   currPref[ THINGS ]{};  // current preferences, calculated for each round
+	int32_t   desired[ THINGS ]{};   // Shopping wish list
 	int32_t   saveMoneyFor[ THINGS ]{}; // List of items the AI wants to buy
 	opp_t*    last_opponent = nullptr;
 	char      name[ NAME_LEN + 1 ]{ "New Player" };

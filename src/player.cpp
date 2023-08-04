@@ -83,32 +83,36 @@ PLAYER::~PLAYER() {
 	}
 }
 
+/// @brief specifically boost amp preference item[idx] from @arg old_pref using @arg ai_level
+double PLAYER::boostAmpPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
+	double pref  = old_pref;
+	double boost = 1. + ( ( -1. * defensive + 2. + RAND_AI_10P /* [1;12] */ ) / 10. );
+	if ( pref < 1. ) {
+		pref = 1.;
+	}
+	DEBUG_LOG_FIN( name, "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	pref *= boost;
+	return pref;
+}
+
+/// @brief specifically boost armour preference item[idx] from @arg old_pref using @arg ai_level
+double PLAYER::boostArmourPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
+	double pref  = old_pref;
+	double boost = 1. + ( ( defensive + 2. + RAND_AI_10P /* [1;12] */ ) / 10. );
+	if ( pref < 1. ) {
+		pref = 1.;
+	}
+	DEBUG_LOG_FIN( name, "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	pref *= boost;
+	return pref;
+}
+
 /// @brief update currPrefs array with considering needs and stock amounts
 void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons ) {
 	auto ai_level = static_cast< int32_t >( type );
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
 		double pref = currPref[ i ];
-
-		// boost preferences if wanted:
-		if ( boostArmour && ( ( WEAPONS + ITEM_ARMOUR ) <= i ) && ( ( WEAPONS + ITEM_PLASTEEL ) >= i ) ) {
-			double boost = 1. + ( ( defensive + 2. + RAND_AI_1P + RAND_AI_0P /* [1;12] */ ) / 10. ); // [1.1;2.2]
-			DEBUG_LOG_FIN( name, "Boost Armor : %3.2f * %3.2f = %3.2f", pref, boost, pref * boost )
-			pref *= boost;
-		}
-
-		if ( boostAmps && ( ( WEAPONS + ITEM_INTENSITY_AMP ) <= i ) && ( ( WEAPONS + ITEM_VIOLENT_FORCE ) >= i ) ) {
-			double boost = 1. + ( ( -1. * defensive + 2. + RAND_AI_1P + RAND_AI_0P /* [1;12] */ ) / 10. ); // [1.1;2.2]
-			DEBUG_LOG_FIN( name, "Boost Amps : %3.2f * %3.2f = %3.2f", pref, boost, pref * boost )
-			pref *= boost;
-		}
-
-		if ( boostWeapons && i && ( i < WEAPONS ) ) {
-			double boost =
-				1. + ( ( std::abs( defensive ) + RAND_AI_1P + RAND_AI_0P /* [0;10] */ ) / 10. ); // [1.0;2.0]
-			DEBUG_LOG_FIN( name, "Boost Weapons : %3.2f * %3.2f = %3.2f", pref, boost, pref * boost )
-			pref *= boost;
-		}
 
 		// Lower weapon preferences if there is enough in stock already
 		if ( i && ( i < WEAPONS ) ) {
@@ -128,7 +132,23 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 			//              - if larger than one_amount, selling the excess
 			//                amount is considered.
 
-			if ( ( div_amount >= 1. ) && ( currPref[ i ] > 0 ) ) {
+			if ( boostWeapons && i && ( i < WEAPONS ) ) {
+				double boost = 1. + ( ( std::abs( defensive ) + RAND_AI_10P /* [0;10] */ ) / 10. );
+				if ( pref < 1. ) {
+					pref = 1.;
+				}
+				DEBUG_LOG_FIN(
+					name,
+					"Boost %s : %3.2f * %3.2f = %3.2f",
+					weapon[ i ].getName(),
+					pref,
+					boost,
+					pref * boost
+				)
+				pref *= boost;
+			}
+
+			if ( ( div_amount > 1. ) && ( pref >= 1. ) ) {
 				pref /= div_amount;
 				DEBUG_LOG_FIN(
 					name,
@@ -178,7 +198,16 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 
 				double div_amount = cur_amount - max_amount;
 
-				if ( ( currPref[ i ] > 0 ) && ( div_amount >= 1. ) ) {
+				if ( boostArmour && ( ( WEAPONS + ITEM_ARMOUR ) <= i ) && ( ( WEAPONS + ITEM_PLASTEEL ) >= i ) ) {
+					pref = boostArmourPref( pref, j, ai_level );
+				}
+
+				if ( boostAmps && ( ( WEAPONS + ITEM_INTENSITY_AMP ) <= i )
+				     && ( ( WEAPONS + ITEM_VIOLENT_FORCE ) >= i ) ) {
+					pref = boostAmpPref( pref, j, ai_level );
+				}
+
+				if ( ( div_amount > 1. ) && ( pref >= 1. ) ) {
 					pref /= div_amount;
 					DEBUG_LOG_FIN(
 						name,
@@ -222,7 +251,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
  * false if we could not get it for some reason.
  **/
 bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
-	bool bought = true;
+	bool bought = false;
 
 	if ( itemindex < WEAPONS ) {
 		// The three things to test:
@@ -238,8 +267,7 @@ bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
 			if ( nm[ itemindex ] > MAX_ITEMS_IN_STOCK ) {
 				nm[ itemindex ] = MAX_ITEMS_IN_STOCK;
 			}
-		} else {
-			bought = false;
+			bought = true;
 		}
 	} // end of buying a weapon
 
@@ -276,9 +304,13 @@ bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
 			if ( ni[ itemNum ] > MAX_ITEMS_IN_STOCK ) {
 				ni[ itemNum ] = MAX_ITEMS_IN_STOCK;
 			}
-		} else {
-			bought = false;
+			bought = true;
 		}
+	}
+
+	// Reset boostPref if we bought the item
+	if ( bought ) {
+		boostPref[ itemindex ] = 0;
 	}
 
 	return bought;
@@ -647,7 +679,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 					amp_mood,
 					amp_mood < arm_mood ? "<" : ">",
 					arm_mood
-				);
+				)
 			}
 
 
@@ -672,7 +704,13 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 					DEBUG_LOG_FIN( name, "Pre-selecting Armour", 0 )
 					return ( WEAPONS + ITEM_ARMOUR );
 				}
-			} // End of armour check
+
+				// If nothing could be selected, at least boost what we need for the next round
+				int32_t i     = ITEM_PLASTEEL + WEAPONS;
+				int32_t j     = ITEM_PLASTEEL;
+				currPref[ i ] = ROUND( boostArmourPref( currPref[ i ], j, ai_level ) );
+
+			} // end of armour check
 
 			// Otherwise go for a shining new amp:
 			if ( needAmp || ( ( mood <= 2.0 ) && ( amp_val <= armour_val ) ) ) {
@@ -694,8 +732,13 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 					DEBUG_LOG_FIN( name, "Pre-selecting Intensity Amp", 0 )
 					return ( WEAPONS + ITEM_INTENSITY_AMP );
 				}
-			} // End of amp check
-		}         // End of being allowed to by boost items
+
+				// If nothing could be selected, at least boost what we need for the next round
+				int32_t i     = ITEM_VIOLENT_FORCE + WEAPONS;
+				int32_t j     = ITEM_VIOLENT_FORCE;
+				currPref[ i ] = ROUND( boostAmpPref( currPref[ i ], j, ai_level ) );
+			} // end of amp check
+		}         // dnd of being allowed to by boost items
 	}                 // end of step 3
 
 
@@ -1217,8 +1260,20 @@ int32_t PLAYER::generateDesiredList() {
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
 		if ( env.isItemAvailable( i ) ) {
-			desired[ i ]  = i;
-			currPref[ i ] = weapPref[ i ];
+			desired[ i ]   = i;
+			boostPref[ i ] = std::max( boostPref[ i ], currPref[ i ] - weapPref[ i ] );
+			currPref[ i ]  = weapPref[ i ] + boostPref[ i ];
+
+			/* Notes on boostPref:
+			 * To be able to both reset to the static preferences and boost items over several rounds,
+			 * the boostPrefs array is used as follows:
+			 * It is reset to the difference between the current preferences (modified last round) and the
+			 * static preference, if it is higher than the current value.
+			 * So if it has a value of 0, and currPref is 550 because it was boosted 10% over a static 500
+			 * preference, it would be set to 50.
+			 * Whenever a weapon or an item having a boosPref value over zero is bought by the bot, the boostPref
+			 * entry is reset to 0 and the weapon/item has to be "re-boosted" to get the value back up again.
+			 */
 
 			// No negative prefs:
 			if ( currPref[ i ] < 0 ) {
@@ -1609,6 +1664,7 @@ int32_t PLAYER::getItemPref( int32_t idx ) {
 int32_t PLAYER::getMoneyToSave( bool first_look ) {
 	// If this is the first look in a shopping round,
 	// the list of items to save money for must be built:
+
 	if ( first_look ) {
 		int32_t avgPref   = 0;
 		int32_t prefCount = 0;
@@ -1618,17 +1674,17 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		// if the preferences are exceptionally low, a div by 0
 		// might occur, so it has to be made dynamic:
 		for ( int i : currPref ) {
-			if ( i > prefLimit ) {
+			if ( i > 0 ) {
 				prefLimit += i;
 				prefCount++;
 			}
 		}
 
-		prefLimit /= prefCount ? prefCount : 1;
-		prefCount  = 0;
+		prefLimit /= prefCount ? prefCount : 1; // Rough average of all preferences we have
+		DEBUG_LOG_FIN( name, "Middle preference value is %d with %d counted", prefLimit, prefCount )
+		prefCount = 0;
 
-		// Now it is guaranteed that prefCount and avgPref
-		// will result in values > 0.
+		// Now that the prefLimit is roughly the middle, let's get the average of everything above
 		for ( int i : currPref ) {
 			if ( i > prefLimit ) {
 				prefCount++;
@@ -1638,6 +1694,8 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 
 		// Complete the average preference of the most valuable weapons:
 		avgPref /= prefCount ? prefCount : 1;
+		DEBUG_LOG_FIN( name, "Average preference value above %d is %d with %d counted", avgPref, prefLimit, prefCount )
+
 
 		// Now go through the list and add everything above the
 		// average into the save money list if the amount in stock
@@ -1645,17 +1703,19 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		for ( int32_t i = 0; i < THINGS; ++i ) {
 			int32_t j = i - WEAPONS; // short cut
 			if ( ( currPref[ i ] > avgPref )
-			     && ( ( ( i < WEAPONS ) && ( nm[ i ] < weapon[ i ].amt ) )
-			          || ( ( j == ITEM_VIOLENT_FORCE ) && needAmp ) || ( ( j == ITEM_PLASTEEL ) && needArmour ) ) ) {
+			     && ( ( ( i < WEAPONS ) && ( nm[ i ] < weapon[ i ].amt ) ) // Stock up weapons
+			          || ( ( j == ITEM_VIOLENT_FORCE ) && needAmp )        // Save up for amp if we need it
+			          || ( ( j == ITEM_PLASTEEL ) && needArmour )          // Save up for armor if we need it
+			     ) ) {
 				saveMoneyFor[ i ] = i < WEAPONS ? weapon[ i ].cost : item[ j ].cost;
 				DEBUG_LOG_FIN(
 					name,
 					" => Save money for %s!",
 					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
 				)
-			} // End of having a big enough preference
-		}         // End of looping THINGS
-	}                 // End of building safe-for-list
+			} // end of having a big enough preference
+		}         // end of looping THINGS
+	}                 // end of building safe-for-list
 
 
 	// moneyToSafe can be easily generated (and regenerated)
@@ -1669,16 +1729,32 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 
 		if ( saveMoneyFor[ i ] > 0 ) {
 			// Still needed?
-			if ( ( ( i < WEAPONS ) && ( nm[ i ] < weapon[ i ].amt ) ) || ( ( j == ITEM_VIOLENT_FORCE ) && needAmp )
-			     || ( ( j == ITEM_PLASTEEL ) && needArmour ) ) {
+			if ( ( ( i < WEAPONS ) && ( nm[ i ] < weapon[ i ].amt ) ) // Stock up weapons
+			     || ( ( j == ITEM_VIOLENT_FORCE ) && needAmp )        // Save up for amp if we need it
+			     || ( ( j == ITEM_PLASTEEL ) && needArmour )          // Save up for armor if we need it
+			) {
 				moneyToSave += saveMoneyFor[ i ];
 				wanted      += 1.;
 				if ( saveMoneyFor[ i ] > max_cost ) {
 					max_cost = saveMoneyFor[ i ];
 				}
+				DEBUG_LOG_FIN(
+					name,
+					" ==> I%s need %d.: %s! (+ %d => %d)",
+					first_look ? "" : " still",
+					ROUND( wanted ),
+					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName(),
+					saveMoneyFor[ i ],
+					ROUND( moneyToSave )
+				)
 			} else {
 				// nope...
 				saveMoneyFor[ i ] = 0;
+				DEBUG_LOG_FIN(
+					name,
+					" <== I no longer need %s ...",
+					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
+				)
 			}
 		}
 	}
@@ -1690,9 +1766,14 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		moneyToSave += max_cost;
 		wanted      += 1.;
 
-		// The average money to save modified by the player type
-		// is the result:
+		// The average money to save modified by the player type is the base:
 		moneyToSave = ( moneyToSave / wanted ) * ( 1. + ( static_cast< double >( LAST_PLAYER_TYPE - type ) / 10. ) );
+
+		// If the base is lower than the most expensive item costs, raise the amount to save to the
+		// average of the base and twice the items cost.
+		if ( moneyToSave < max_cost ) {
+			moneyToSave = ( ( 2. * max_cost ) + moneyToSave ) / 2.;
+		}
 	}
 
 	/* Results for Armageddon only @ 100k credits:
@@ -2783,6 +2864,14 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 	if ( ( score <= ( max_score / ( ai_level + 1 ) ) ) && ( weapons_in_stock < ( 2 * ai_level ) ) ) {
 		DEBUG_LOG_FIN( name, "updPref: Need to boost weapons (%d / %d)", score, max_score / ( ai_level + 1 ) )
 		needDamage = true;
+	}
+
+	// Account for boosted preferences from last round
+	if ( ( boostPref[ WEAPONS + ITEM_VIOLENT_FORCE ] > 0 ) || ( boostPref[ WEAPONS + ITEM_INTENSITY_AMP ] > 0 ) ) {
+		needAmp = true;
+	}
+	if ( ( boostPref[ WEAPONS + ITEM_PLASTEEL ] > 0 ) || ( boostPref[ WEAPONS + ITEM_ARMOUR ] > 0 ) ) {
+		needArmour = true;
 	}
 
 

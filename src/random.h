@@ -12,10 +12,11 @@ int32_t get_rand();
 
 
 // A few often needed randomization shortcuts
-#define RAND_AI_0P ( get_rand() % ai_level )
-#define RAND_AI_0N ( 0 == ( get_rand() % ai_level ) )
-#define RAND_AI_1P ( get_rand() % ( ai_level + 1 ) )
-#define RAND_AI_1N ( 0 == ( get_rand() % ( ai_level + 1 ) ) )
+#define RAND_AI_0P  ( get_rand() % ai_level )
+#define RAND_AI_0N  ( 0 == ( get_rand() % ai_level ) )
+#define RAND_AI_1P  ( get_rand() % ( ai_level + 1 ) )
+#define RAND_AI_1N  ( 0 == ( get_rand() % ( ai_level + 1 ) ) )
+#define RAND_AI_10P ( RAND_AI_0P + RAND_AI_1P )
 
 
 #endif // ATANKS_RANDOM_H
