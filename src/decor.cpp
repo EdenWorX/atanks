@@ -11,7 +11,7 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 	: PHYSICAL_OBJECT( false )
 	, curWind( global.wind )
 	, delay( delay_ )
-	, maxGravAccel( -4. * env.gravity * env.FPS_mod )
+	, maxGravAccel( -4. * env.fall_vector )
 	, maxWind( env.windstrength )
 	, maxWindAccel( global.wind * env.FPS_mod )
 	, radius( maxRadius )

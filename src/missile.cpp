@@ -532,9 +532,9 @@ void MISSILE::applyPhysicsOther() {
 
 	// Apply gravitation, digging types are reversed and scorch the ground:
 	if ( PT_DIGGING == physType ) {
-		yv -= env.gravity * 0.05 * env.FPS_mod;
+		yv -= env.fall_vector * 0.05;
 	} else {
-		yv += env.gravity * 0.05 * env.FPS_mod;
+		yv += env.fall_vector * 0.05;
 	}
 
 	// Apply velocity

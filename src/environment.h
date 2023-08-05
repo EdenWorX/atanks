@@ -151,6 +151,7 @@ public:
 	bool         drawBackground     = true;
 	bool         dynamicMenuBg      = true;
 	bool         fadingText         = false;
+	double       fall_vector        = 0.; // Will be gravity * FPS_mod
 	int32_t      falling_dirt_balls = 0;
 	int32_t      fog                = 0;
 	int32_t      fontHeight         = 0;  // Fixed in ctor, no calls to text_height(font) needed.

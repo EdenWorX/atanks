@@ -2010,13 +2010,13 @@ bool AICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 		// lower target, less power.
 		// If the target is above, the projectile hits earlier than
 		// on lower targets, where the projectile has to fall down there.
-		double airTime = std::abs( rawTime ) + ( dist_y * slope_y * env.gravity * env.FPS_mod * 2.0 );
+		double airTime = std::abs( rawTime ) + ( dist_y * slope_y * env.fall_vector * 2.0 );
 
 		// Less airTime doesn't necessarily mean less power
 		// Horizontal firing means more power needed even though
 		// air time is minimised.
 		curr_power = ROUNDu(
-			std::sqrt( airTime * env.gravity * env.FPS_mod ) * static_cast< double >( env.frames_per_second )
+			std::sqrt( airTime * env.fall_vector ) * static_cast< double >( env.frames_per_second )
 		);
 
 		// Power modification according to the bots focus rate

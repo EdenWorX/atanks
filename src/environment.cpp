@@ -847,6 +847,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				if ( gravity < 0.025 ) {
 					gravity = 0.15;
 				}
+				fall_vector = gravity * FPS_mod;
 			} else if ( !strcasecmp( field, "techlevel" ) ) {
 				SAFE_STOI( weapontechLevel, value );
 				itemtechLevel = weapontechLevel; // for backward compatibility
@@ -1628,6 +1629,7 @@ void ENVIRONMENT::set_fps( int32_t new_FPS ) {
 			frames_per_second = new_FPS;
 		}
 		FPS_mod     = 100. / static_cast< double >( frames_per_second );
+		fall_vector = gravity * FPS_mod;
 		maxVelocity = static_cast< double >( MAX_POWER ) * FPS_mod / 100.;
 	}
 }

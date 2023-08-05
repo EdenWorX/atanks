@@ -663,7 +663,7 @@ void TANK::applyPhysics() {
 				return;
 			}
 
-			yv += env.gravity * env.FPS_mod;
+			yv += env.fall_vector;
 
 			// Check for parachute opening
 			if ( para ) {

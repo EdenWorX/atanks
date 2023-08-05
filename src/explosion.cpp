@@ -159,7 +159,7 @@ void EXPLOSION::applyPhysics() {
 	if ( NAPALM_JELLY == weapType ) {
 		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 2 ) ) ) {
 			try {
-				new DECOR( x, y, 0, -2. * env.gravity * env.FPS_mod, radius / 2, DECOR_SMOKE, 0 );
+				new DECOR( x, y, 0, -2. * env.fall_vector, radius / 2, DECOR_SMOKE, 0 );
 			} catch ( std::exception& e ) {
 				std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
 			}

@@ -51,11 +51,11 @@ void PHYSICAL_OBJECT::getVelocity( double &xv_, double &yv_ ) {
  * @return true if something was hit, false otherwise.
  */
 void PHYSICAL_OBJECT::applyPhysics() {
-	// Apply wind to x-movement
-	xv += ( global.wind - xv ) / mass * drag * env.viscosity;
+	// Apply wind to x movement
+	xv+= ( global.wind - xv ) / mass * drag * env.viscosity;
 
-	// Apply gravity to y-movement
-	yv += env.gravity * env.FPS_mod;
+	// Apply the fall vector to y movement
+	yv += env.fall_vector;
 
 	// Barrier test:
 	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) {
