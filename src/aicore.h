@@ -812,8 +812,8 @@ private:
 	 * -----------------------
 	 */
 
-	bool    aim( bool is_last, bool can_move );
-	bool    calcAttack( int32_t attempt );
+	bool    aim( int32_t combo_attempt, int32_t combo_tries, bool can_move );
+	bool    calcAttack( int32_t attempt, int32_t tries );
 	bool    calcBoxed( bool is_last );
 	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType );
 	int32_t calcHitScore( bool is_last );
