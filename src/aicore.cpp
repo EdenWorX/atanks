@@ -827,6 +827,22 @@ bool AICore::calcAttack( int32_t attempt, int32_t tries ) {
 		return true;
 	}
 
+	/* Now that all is set up, we have to add some error to the bots' calculation.
+	 * But we do not want to have to manipulate each and every calculation, so we simply move the target a bit.
+	 */
+	int32_t x_drift = env.screenWidth / 40; // Limit drift to 5% screenwidth (Although the USELESS_PLAYER can get over it.)
+	int32_t x_dir   = get_rand() % 2 ? -1 : 1;
+	double  x_off   = errorMultiplier * x_dir * ( ( get_rand() % x_drift ) + x_drift ); // [2.5;5.0]% screenwidth
+
+	if ( ( ROUND( mem_curr->opX + x_off ) <= 0 ) || ( ROUND( mem_curr->opX + x_off ) >= env.screenWidth ) ) {
+		x_off *= -1.;
+	}
+
+	mem_curr->opX      += x_off;
+	mem_curr->opY       = global.surface[ ROUND( mem_curr->opX ) ];
+	mem_curr->distance  = FABSDISTANCE2( x, y, mem_curr->opX, mem_curr->opY );
+
+
 	/* If the current target is different or there was no last target,
 	 * a basic set of values must be generated.
 	 *
@@ -855,11 +871,12 @@ bool AICore::calcAttack( int32_t attempt, int32_t tries ) {
 	DEBUG_LOG_AIM( player->getName(), "[%d / %d] Starting to aim at %s", attempt, tries, mem_curr->entry->opponent->getName() )
 	DEBUG_LOG_AIM(
 		player->getName(),
-		"Aim from %d/%d to %d/%d [distance %d/%d]",
+		"Aim from %d/%d to %d/%d [drift %d, distance %d/%d]",
 		ROUND( x ),
 		ROUND( y ),
 		ROUND( mem_curr->opX ),
 		ROUND( mem_curr->opY ),
+		ROUND( x_off ),
 		ROUND( mem_curr->opX - x ),
 		ROUND( mem_curr->opY - y )
 	)
@@ -5714,24 +5731,26 @@ void AICore::operator() () {
 		// ---------------------------------------
 		// --- Apply some "last second" errors ---
 		// ---------------------------------------
-		if ( !isStopped && needAim
-		     && !isBlocked
-		     // Assume that bots can 'fix' errors from the last round:
-		     && ( ( nullptr == mem_curr ) || ( mem_curr->entry != last_opp ) ) && RAND_AI_1N ) {
-			int32_t ang_mod = maxAiLevel - ai_level + 2; // [ 2; 7]
-			int32_t pow_mod = ( ang_mod * 5 ) + 1;       // [11;36]
-			double  ang_err = get_rand() % ang_mod;      // [ 1; 6]
-			double  pow_err = get_rand() % pow_mod;      // [10;35]
+		if ( !isStopped && needAim && !isBlocked       // Don't temper with blocked shots, makes no sense
+		                                               // And assume that bots can 'fix' errors from the last round:
+		     && ( ( nullptr == mem_curr )              // No current aopponent set or ...
+		          || ( mem_curr->entry != last_opp ) ) // ...current opponent is not the same as last round
+		     && RAND_AI_1N                             // But don't let them "fumble" too often.
+		) {
+			int32_t ang_mod = ( get_rand() % 6 ) + 3; // [ 3; 8]
+			int32_t pow_mod = ( ang_mod * 10 ) + 1;   // [31;81]
+			double  ang_err = get_rand() % ang_mod;   // [ 1; 6]
+			double  pow_err = get_rand() % pow_mod;   // [10;35]
 
 			// Angles always go 'up', but never over the top
 			if ( angle > ( 180. + ang_err ) ) {
-				curr_angle = ROUND( angle - ang_err );
+				curr_angle = ROUND( angle - ( errorMultiplier * ang_err ) );
 			} else if ( angle < ( 180. - ang_err ) ) {
-				curr_angle = ROUND( angle + ang_err );
+				curr_angle = ROUND( angle + ( errorMultiplier * ang_err ) );
 			}
 
 			// Power error is always a raise
-			curr_power = ROUND( power + pow_err );
+			curr_power = ROUND( power + ( errorMultiplier * pow_err ) );
 
 			sanitizeCurr();
 
