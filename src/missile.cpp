@@ -382,7 +382,8 @@ void MISSILE::draw() {
 struct sSDI {
 	int32_t am    = 0;
 	double  dist  = 0.; // Distance used for sorting
-	double  lvl   = 0.; // AI level, human players are counted as deadly.
+	double  lvl   = 0.; // Level of the SDI, One per 5 SDIs bought
+	double  mod   = 0.; // Level mod in the range of 1.0 to 1.5 (Caps levels at 10 which is 50xSDI this way)
 	sSDI*   next  = nullptr;
 	double  range = 100.; // The more SDI, the further the shot
 	TANK*   tank  = nullptr;
@@ -634,28 +635,26 @@ sSDI* MISSILE::Build_SDI_List( sSDI* sdi ) {
 		     && !lt->player->sdi_has_fired.load( ATOMIC_READ )        // 4
 		     && ( lt->player->ni[ ITEM_SDI ] > lt->player->sdiShots ) // 5
 		     && ( ( lt->y - 10. ) >= y ) ) {                          // 6
-			double startX  = lt->x;
-			double startY  = lt->y - 10.;
-			sdi[ idx ].am  = lt->player->ni[ ITEM_SDI ] - lt->player->sdiShots;
-			sdi[ idx ].lvl = static_cast< double >(
-				( ( lt->player->type == HUMAN_PLAYER ) || ( lt->player->type > DEADLY_PLAYER ) )
-					? DEADLY_PLAYER
-					: lt->player->type
-			);
-			sdi[ idx ].tank = lt;
-			sdi[ idx ].range =
-				static_cast< double >( SDI_DISTANCE ) + ( static_cast< double >( sdi[ idx ].am - 1 ) * 2.5 );
-			sdi[ idx ].dist = FABSDISTANCE2( x, y, startX, startY );
-			sdi[ idx ].x    = startX;
-			sdi[ idx ].y    = startY;
+			double startX    = lt->x;
+			double startY    = lt->y - 10.;
+			sdi[ idx ].am    = lt->player->ni[ ITEM_SDI ] - lt->player->sdiShots;
+			sdi[ idx ].lvl   = ( sdi[ idx ].am - ( static_cast< int32_t >( sdi[ idx ].am ) % 5 ) ) / 5.;
+			sdi[ idx ].mod   = 1. + ( std::min( 10., sdi[ idx ].lvl ) / 20. );
+			sdi[ idx ].tank  = lt;
+			sdi[ idx ].range = static_cast< double >( SDI_DISTANCE );
+			sdi[ idx ].dist  = FABSDISTANCE2( x, y, startX, startY );
+			sdi[ idx ].x     = startX;
+			sdi[ idx ].y     = startY;
+
 
 			/* Add the SDI to the list if:
 			 * 1: The missile is within maximum range
+			 *    Note: For every 5 SDIs the maximum range is raised by 5% with a maximum of 50%
 			 * 2: but further away than the minimum distance and
 			 * 3: no dirt is between the gun top and the missile.
 			 */
-			if ( ( sdi[ idx ].dist <= sdi[ idx ].range )             // 1
-			     && ( sdi[ idx ].dist > lt->player->ni[ ITEM_SDI ] ) // 2
+			if ( ( sdi[ idx ].dist <= ( sdi[ idx ].range * sdi[ idx ].mod ) ) // 1
+			     && ( sdi[ idx ].dist > lt->player->ni[ ITEM_SDI ] )          // 2
 			     && !checkPixelsBetweenTwoPoints( &startX, &startY, x, y, 0.0, nullptr ) /* 3 */ ) {
 				// This can be added!
 				if ( pSDI ) {
@@ -827,7 +826,7 @@ bool MISSILE::Check_Missile_Hit( sSDI* sdi ) {
 	double   y_dist    = sdi->y - mind_shot.y;
 	double   x_vel     = 0.;
 	double   y_vel     = 0.;
-	uint32_t max_range = ROUND( sdi->lvl ) * std::max( ROUND( sdi->range ), weap->radius );
+	uint32_t max_range = ROUNDu( sdi->range * std::max( ROUND( sdi->range ), weap->radius ));
 	mind_shot.getVelocity( x_vel, y_vel );
 
 	// Apply physics until the missile is either destroyed, or

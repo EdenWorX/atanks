@@ -1653,11 +1653,11 @@ bool TANK::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType 
 	double ydist = ypos - ( y - turr_off_y + shld_rad_y );
 
 	// Apply a minimum distance so no extreme catapult shots happen
-	if ( std::abs( xdist ) < 0.25 ) {
-		xdist = 0.25 * SIGNd( xdist );
+	if ( std::abs( xdist ) < 0.2 ) {
+		xdist = 0.2 * SIGNd( xdist );
 	}
-	if ( std::abs( ydist ) < 0.25 ) {
-		ydist = 0.25 * SIGNd( ydist );
+	if ( std::abs( ydist ) < 0.2 ) {
+		ydist = 0.2 * SIGNd( ydist );
 	}
 
 	// Unless this is a burying type that currently comes from below,
@@ -1677,7 +1677,7 @@ bool TANK::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType 
 			: PT_SMOKE == phys_type      ? 0.75
 						     : 1.;
 		*xa = ( repulsion * ( xdist / distance ) / distance2 ) * rep_mod * 0.667; // Fokus is to get the missile as far
-		*ya = ( repulsion * ( ydist / distance ) / distance2 ) * rep_mod * 2.333; // away on the y-axis.
+		*ya = ( repulsion * ( ydist / distance ) / distance2 ) * rep_mod * 2.667; // away on the y-axis.
 		return true;
 	}
 
