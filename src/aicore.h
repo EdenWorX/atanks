@@ -928,7 +928,6 @@ private:
 	PLAYER*    player      = nullptr;
 	int32_t    power       = 0; //!< The currently determined best power
 	TANK*      tank        = nullptr;
-	double     type_mod    = 1.;
 	weEntry_t* weap_curr   = nullptr; //!< Currently selected entry
 	weEntry_t* weap_head   = nullptr; //!< Last selected entry
 	weEntry_t* weap_last   = nullptr; //!< Entry with highest score

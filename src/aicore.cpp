@@ -4466,36 +4466,35 @@ void AICore::updateOppScore( opEntry_t* pOpp ) {
 	 * --- 7) Add points for score difference                    ---
 	 * --- Target the leading bots earlier, losing ones later.   ---
 	 * ------------------------------------------------------------- */
+	auto opp_level_d = static_cast< double >(
+		( HUMAN_PLAYER == opponent->type ) ? DEADLY_PLAYER + 1 + ( DEADLY_PLAYER - ai_level ) : opponent->type
+	);
 	double win_score =
 		pOpp->onSameTeam
 			? 0.
 			: ( opponent->score - player->score ) * ( player->selfPreservation + 1. ) * ( player->defensive + 2. )
 				  * static_cast< double >( ai_level + 1 ) * ( static_cast< double >( pOpp->opLife ) / 10. )
-				  / ( player->painSensitivity + 0.5 );
+				  / ( player->painSensitivity - 0.5 + opp_level_d );
 	// Note: The win_score is only used if positive.
 	// 1 - Self preservation: Get rid of the winner as a threat soon.
 	// 2 - Defensiveness : Even more if of the defensive type.
-	// 3 - The smarter the more they do care.
+	// 3 - The smarter, the more they do care.
 	// 4 - Multiply with 10% of the opponents tank life
-	// 5 - Pain Sensitivity: Can they stand the answer? ( If this value
-	//     is lower than 0.5, they care so less, that the score is raised. Up
-	//     to a doubling is possible - If they really feel no pain.)
-	// Maximum score:
-	// deadly + 1 (lucky turn), maximum defensiveness and self preservation, painless:
-	// (4 * 3 * 7) / 0.5 = 84 / 0.5 = 168 points per opponent health point and
-	// round win difference.
+	// 5 - Pain Sensitivity: Can they stand the answer? ( The higher the opponent type, the more the bot fears them. )
 
 
 	/* -------------------------------------------------------------
 	 * --- 8) Sum up the score                                   ---
 	 * --- This will be used for sorting the opponents list      ---
 	 * ------------------------------------------------------------- */
-	double damage_score = entry->damage_from - entry->damage_to;
-	double kill_score   = ( entry->killed_me - entry->killed_them ) * maxLife;
-	double prev_score   = entry->damage_last * type_mod;
+	double damage_score = ( entry->damage_from * ai_level_d ) - ( entry->damage_to * opp_level_d );
+	double kill_score =
+		entry->killed_them > 0. // If we did not kill them, yet, the score must not become too extreme
+			? ( ( entry->killed_me * ai_level_d ) / ( entry->killed_them * opp_level_d ) ) * maxLife
+			: entry->killed_me * ai_level_d / opp_level_d; // Like 1 death but without life multiplier.
+	double prev_score = entry->damage_last;
 
 	DEBUG_LOG_EMO( player->getName(), "  team_mod     : %6.2lf", pOpp->team_mod )
-	DEBUG_LOG_EMO( player->getName(), "  type_mod     : %6.2lf", type_mod )
 	DEBUG_LOG_EMO( player->getName(), "  damage_score : %6.2lf", damage_score )
 	DEBUG_LOG_EMO( player->getName(), "  kill_score   : %6.2lf", kill_score )
 	DEBUG_LOG_EMO( player->getName(), "  prev_score   : %6.2lf", prev_score )
@@ -5366,7 +5365,6 @@ void AICore::operator() () {
 		 */
 
 		DEBUG_LOG_AI( player->getName(), "AI Level       : %d (%s)", ai_level, getLevelName( ai_level ) )
-		DEBUG_LOG_AI( player->getName(), "type_mod       : %4.3lf", type_mod )
 		DEBUG_LOG_AI( player->getName(), "errorMultiplier: %4.3lf", errorMultiplier )
 		DEBUG_LOG_AI( player->getName(), "findOppAttempts: %d", findOppAttempts )
 		DEBUG_LOG_AI( player->getName(), "findRngAttempts: %d", findRngAttempts )
