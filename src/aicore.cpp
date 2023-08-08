@@ -852,13 +852,7 @@ bool AICore::calcAttack( int32_t attempt, int32_t tries ) {
 	 *       check for an obstacle that can be removed and do so if found.
 	 */
 
-	DEBUG_LOG_AIM(
-		player->getName(),
-		"[%d / %d] Starting to aim at %s",
-		attempt,
-		tries,
-		mem_curr->entry->opponent->getName()
-	)
+	DEBUG_LOG_AIM( player->getName(), "[%d / %d] Starting to aim at %s", attempt, tries, mem_curr->entry->opponent->getName() )
 	DEBUG_LOG_AIM(
 		player->getName(),
 		"Aim from %d/%d to %d/%d [distance %d/%d]",
@@ -5393,7 +5387,7 @@ void AICore::operator() () {
 		int32_t tgt_attempts  = 0;
 		int32_t opp_attempts  = 0;
 		int32_t weap_attempts = 0;
-		int32_t total_tries = findTgtAttempts * findOppAttempts * findWeapAttempts;
+		int32_t total_tries   = findTgtAttempts * findOppAttempts * findWeapAttempts;
 		bool    done          = false;
 
 		while ( canWork && isWorking && !isStopped && ( needAim || !isBlocked ) // end if a free is needed
@@ -5692,7 +5686,8 @@ void AICore::operator() () {
 		// -------------------------------------------------
 		// --- Tell the world this tank is going bye bye ---
 		// -------------------------------------------------
-		if ( !isStopped && ( mem_curr->entry->opponent == player ) && !global.skippingComputerPlay ) {
+		if ( !isStopped && mem_curr && mem_curr->entry && ( mem_curr->entry->opponent == player )
+		     && !global.skippingComputerPlay ) {
 			try {
 				// Wait for the AI to be allowed to create texts
 				while ( !textAllowed.load( ATOMIC_READ ) ) {
