@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_WINCLOCK_H_INCLUDED
-#  define ATANKS_SRC_WINCLOCK_H_INCLUDED
+#define ATANKS_SRC_WINCLOCK_H_INCLUDED 1
 
 /* Workaround for the buggy <chrono> implementation of VS12.
  *
@@ -21,22 +20,22 @@
  * https://connect.microsoft.com/VisualStudio/feedback/details/753115/
  */
 
-#  if defined( ATANKS_IS_MSVC )
-#    include "main.h"
+#if defined( ATANKS_IS_MSVC )
+#  include "main.h"
 
-#    ifdef USE_MUTEX_INSTEAD_OF_SPINLOCK
-#      include <mutex>
-#      define CSpinLock std::mutex
-#    endif // USE_MUTEX_INSTEAD_OF_SPINLOCK
+#  ifdef USE_MUTEX_INSTEAD_OF_SPINLOCK
+#    include <mutex>
+#    define CSpinLock std::mutex
+#  endif // USE_MUTEX_INSTEAD_OF_SPINLOCK
 
 // timer variable and locker
-bool             has_win_clock = false;
-CSpinLock        win_clock_lock;
-volatile int32_t win_clock = 0;
+bool      has_win_clock = false;
+CSpinLock win_clock_lock;
+int32_t volatile win_clock = 0;
 
 // additional functions:
-void             win_clock_add() {
-        ++win_clock;
+void win_clock_add() {
+	++win_clock;
 }
 END_OF_FUNCTION( win_clock_add )
 
@@ -87,6 +86,6 @@ void menu_ms_reset() {
 	win_clock_lock.unlock();
 }
 
-#  endif // defined(ATANKS_IS_MSVC)
+#endif // defined(ATANKS_IS_MSVC)
 
-#endif   // ATANKS_SRC_WINCLOCK_H_INCLUDED
+#endif // ATANKS_SRC_WINCLOCK_H_INCLUDED
