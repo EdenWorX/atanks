@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_GLOBALTYPES_H_INCLUDED
-#  define ATANKS_SRC_GLOBALTYPES_H_INCLUDED
+#define ATANKS_SRC_GLOBALTYPES_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,23 +20,23 @@
  *
  */
 
-#  define DEFAULT_SCREEN_WIDTH  800
-#  define DEFAULT_SCREEN_HEIGHT 600
-#  define GAMENAMELEN           64
-#  define MAX_INTEREST_AMOUNT   100000
-#  define MAX_TEAM_AMOUNT       500000
-#  define DEMO_WAIT_TIME        60
-#  ifdef ATANKS_IS_WINDOWS
-#    define MAX_AI_TIME 30 // DirectDraw is too slow, allow more time
-#  else
-#    define MAX_AI_TIME 10 // Standard with anything but windows
-#  endif                   // ATANKS_IS_WINDOWS
+#define DEFAULT_SCREEN_WIDTH  800
+#define DEFAULT_SCREEN_HEIGHT 600
+#define GAMENAMELEN           64
+#define MAX_INTEREST_AMOUNT   100000
+#define MAX_TEAM_AMOUNT       500000
+#define DEMO_WAIT_TIME        60
+#ifdef ATANKS_IS_WINDOWS
+#  define MAX_AI_TIME 30 // DirectDraw is too slow, allow more time
+#else
+#  define MAX_AI_TIME 10 // Standard with anything but windows
+#endif                   // ATANKS_IS_WINDOWS
 
 // Start enforcing unified integer typing
-#  include <cstdint>
+#include <cstdint>
 
 // Use atomic types for thread safety where locks are a bad idea
-#  include <atomic>
+#include <atomic>
 typedef std::atomic_bool    abool_t;
 typedef std::atomic_flag    aflag_t;
 typedef std::atomic_int32_t ai32_t;
