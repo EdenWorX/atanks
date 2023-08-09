@@ -396,4 +396,4 @@ void   quickChange( bool clearerror );
 
 #include "externs.h"
 
-#endif
+#endif // MAIN_DEFINE
