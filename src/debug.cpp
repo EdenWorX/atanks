@@ -67,4 +67,4 @@ void debug_log( char const* moduleName, char const* title, char const* message, 
 	log_lock.unlock();
 }
 
-#endif
+#endif // ATANKS_DEBUG
