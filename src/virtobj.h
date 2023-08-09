@@ -1,5 +1,5 @@
 #ifndef VIRTOBJ_DEFINE
-#define VIRTOBJ_DEFINE
+#define VIRTOBJ_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
