@@ -1,6 +1,9 @@
-#ifndef FILE_HANDLING_HEADER_
-#define FILE_HANDLING_HEADER_
+#ifndef ATANKS_SRC_FILES_H_INCLUDED
+#define ATANKS_SRC_FILES_H_INCLUDED 1
 
+
+// Maximum numbers supported in configuration files
+// @todo : make this variable, hard-coded maximum numbers are very 90s.
 #define MAX_CONFIG_LINE 128
 
 
@@ -34,4 +37,4 @@ dirent** Find_Saved_Games( uint32_t& num_files_found );
 
 char**   Find_Bitmaps( int32_t* bitmaps_found );
 
-#endif
+#endif // ATANKS_SRC_FILES_H_INCLUDED
