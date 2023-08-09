@@ -658,7 +658,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 		} else if ( !strncmp( line, "*GLOBAL*", 8 ) ) {
 			// Old style config/save file
 			rewind( file );
-			global.load_from_file( file );
+			GLOBALDATA::load_from_file( file );
 		}
 	} while ( 0 != strncmp( line, "*ENV*", 5 ) );
 	// read until we hit new record
@@ -1036,7 +1036,7 @@ void ENVIRONMENT::load_text_files() {
  * @return true if a sample is loaded, false otherwise.
  **/
 bool ENVIRONMENT::loadBackgroundMusic() {
-	static bool isSecondTry = false;
+	bool isSecondTry = false;
 
 	// see if we should bother
 	if ( !play_music ) {
@@ -1045,63 +1045,64 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 
 	SAMPLE* newStream    = nullptr;
 	dirent* folder_entry = nullptr;
+	string  music_path{ configDir + "/music" };
 
 
-	// see if we have the music folder open
-	if ( !music_dir ) {
-		music_dir = opendir( string( configDir + "/music" ).c_str() );
+	while ( true ) {
+
+		// see if we have the music folder open
 		if ( !music_dir ) {
-			return false;
-		}
-	}
-
-
-	// at this point we should have an open music folder
-	// the music folder is closed by global's deconstructor
-	// search for files ending in .wav
-	string music_path{ configDir + "/music/" };
-	folder_entry = readdir( music_dir );
-	while ( folder_entry && !newStream ) {
-		// we have something, see if it is a wav file
-		if ( strstr( folder_entry->d_name, ".wav" ) ) {
-			newStream = load_sample( string( music_path + folder_entry->d_name ).c_str() );
-		}
-		if ( !newStream ) {
-			folder_entry = readdir( music_dir );
-		}
-	}
-
-	if ( !folder_entry ) {
-		// hit end of folder
-		closedir( music_dir );
-		music_dir = nullptr;
-
-		// If there is a current background music file loaded, then the
-		// directory is just gone through completely. In that case a
-		// recursive call re-opens the directory and starts anew.
-		if ( !isSecondTry && background_music ) {
-			isSecondTry = true;
-			return loadBackgroundMusic();
-		} else {
-			// Otherwise there is either an error or there are no
-			// files in that directory
-			if ( background_music ) {
-				// Okay, this is odd.
-				destroy_sample( background_music );
-				background_music = nullptr;
+			music_dir = opendir( music_path.c_str() );
+			if ( !music_dir ) {
+				return false;
 			}
-			play_music = false;
-			return false;
 		}
-	}
+
+		// At this point we should have an open music folder.
+		// The music folder is closed by global's deconstructor.
+
+		// Now search for files ending in .wav.
+		while ( !newStream && ( nullptr != ( folder_entry = readdir( music_dir ) ) ) ) {
+			// we have something, see if it is a wav file
+			if ( strstr( folder_entry->d_name, ".wav" ) ) {
+				newStream = load_sample( string( music_path + "/" + folder_entry->d_name ).c_str() );
+			}
+		}
+
+		// If we have a stream, break off
+		if ( newStream ) {
+			break;
+		}
+
+		if ( !folder_entry ) {
+			// hit end of folder
+			closedir( music_dir );
+			music_dir = nullptr;
+
+			// If there is a current background music file loaded, then the directory is just gone through
+			// completely. In that case one secound round would re-open the directory and start anew.
+			if ( !isSecondTry && background_music ) {
+				isSecondTry = true;
+				continue;
+			}
+		} // end of not having a folder entry any more
+	}         // end of "endless" loop
+
 
 	if ( background_music ) {
 		destroy_sample( background_music );
 	}
-	background_music = newStream;
-	isSecondTry      = false;
 
-	return true;
+	if ( newStream ) {
+		background_music = newStream;
+		return true;
+	}
+
+	// This is odd... end background music playing for good
+	background_music = nullptr;
+	play_music       = false;
+
+	return false;
 }
 
 /*

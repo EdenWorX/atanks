@@ -1,5 +1,5 @@
 #ifndef ENVIRONMENT_DEFINE
-#define ENVIRONMENT_DEFINE
+#define ENVIRONMENT_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -273,4 +273,4 @@ private:
 
 #define HAS_ENVIRONMENT 1
 
-#endif
+#endif // ENVIRONMENT_DEFINE
