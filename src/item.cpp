@@ -8,11 +8,7 @@
 #include <cstring>
 
 // Safe ctor for WEAPON class
-ITEM::ITEM() {
-	memset( vals, 0, sizeof( double ) * MAX_ITEM_VALUES );
-	memset( desc, 0, sizeof( char ) * MAX_ITEM_DESC_LEN + 1 );
-	memset( name, 0, sizeof( char ) * MAX_ITEM_NAME_LEN + 1 );
-}
+ITEM::ITEM() = default;
 
 /// @brief Get the current item description
 char const* ITEM::getDesc() const {

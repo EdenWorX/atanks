@@ -73,7 +73,7 @@ public:
 	int32_t selectable = 0;
 	int32_t techLevel  = 0;
 	int32_t sound      = 0;
-	double  vals[ MAX_ITEM_VALUES ];
+	double  vals[ MAX_ITEM_VALUES ]{ 0x0 };
 
 
 private:
@@ -82,8 +82,8 @@ private:
 	 * -----------------------------------
 	 */
 
-	char desc[ MAX_ITEM_DESC_LEN + 1 ];
-	char name[ MAX_ITEM_NAME_LEN + 1 ];
+	char desc[ MAX_ITEM_DESC_LEN + 1 ]{ 0x0 };
+	char name[ MAX_ITEM_NAME_LEN + 1 ]{ 0x0 };
 };
 
 #define HAS_ITEM 1
