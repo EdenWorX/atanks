@@ -242,22 +242,22 @@ void MISSILE::applyPhysics() {
 	// === 1) Handle standard physics projectiles ===
 	if ( PT_NORMAL == physType ) {
 		applyPhysicsNormal();
-	} // --- End of normal physic types ---
+	} // --- end of normal physic types ---
 
 	// === 2) Handle rolling projectiles ===
 	else if ( PT_ROLLING == physType ) {
 		applyPhysicsRolling();
-	} // --- End of rolling physic types ---
+	} // --- end of rolling physic types ---
 
 	// === 3) Handle funky projectiles ===
 	else if ( PT_FUNKY_FLOAT == physType ) {
 		applyPhysicsFunky();
-	} // --- End of funky float physic types ---
+	} // --- end of funky float physic types ---
 
 	// === 4) Handle other projectiles ===
 	else {
 		applyPhysicsOther();
-	} // End of checking 'others'
+	} // end of checking 'others'
 
 	// Final check against the terrain
 	if ( !hitSomething && ( y > MENUHEIGHT ) && ( y < ( env.screenHeight - 1 ) ) ) {
@@ -826,7 +826,7 @@ bool MISSILE::Check_Missile_Hit( sSDI* sdi ) {
 	double   y_dist    = sdi->y - mind_shot.y;
 	double   x_vel     = 0.;
 	double   y_vel     = 0.;
-	uint32_t max_range = ROUNDu( sdi->range * std::max( ROUND( sdi->range ), weap->radius ));
+	uint32_t max_range = ROUNDu( sdi->range * std::max( ROUND( sdi->range ), weap->radius ) );
 	mind_shot.getVelocity( x_vel, y_vel );
 
 	// Apply physics until the missile is either destroyed, or

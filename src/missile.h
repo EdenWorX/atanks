@@ -1,5 +1,5 @@
 #ifndef MISSILE_DEFINE
-#define MISSILE_DEFINE
+#define MISSILE_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -118,4 +118,4 @@ private:
 	WEAPON*      weap         = nullptr;
 };
 
-#endif
+#endif // MISSILE_DEFINE
