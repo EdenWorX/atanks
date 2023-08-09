@@ -801,7 +801,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				size_t end   = s.find_last_of( '\'' );
 
 				if ( start < end ) {
-					strncpy( server_name, s.substr( start, end - start ).c_str(), 129 );
+					strncpy( server_name, s.substr( start, end - start ).c_str(), 128 );
 				}
 			} else if ( !strcasecmp( field, "serverport" ) ) {
 				string s( value );
@@ -809,7 +809,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				size_t end   = s.find_last_of( '\'' );
 
 				if ( start < end ) {
-					strncpy( server_port, s.substr( start, end - start ).c_str(), 129 );
+					strncpy( server_port, s.substr( start, end - start ).c_str(), 128 );
 				}
 			}
 #endif // NETWORK

@@ -889,9 +889,8 @@ void TANK::explode( bool allow_vengeance ) {
 	}
 
 #ifdef NETWORK
-	int32_t     playerindex  = 0;
-	bool        found        = false;
-	static char buffer[ 15 ] = { 0x0 };
+	int32_t playerindex = 0;
+	bool    found       = false;
 
 	// get the player index
 	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
@@ -902,10 +901,9 @@ void TANK::explode( bool allow_vengeance ) {
 		}
 	}
 
-	// we should have found a match and now we send it to all clients
+	// we should have found a match, and now we send it to all clients
 	if ( found ) {
-		snprintf( buffer, 14, "REMOVETANK %d", playerindex );
-		env.sendToClients( buffer );
+		env.sendToClients( string( "REMOVETANK " + std::to_string( playerindex ) ).c_str() );
 	}
 #endif // NETWORK
 
@@ -1627,8 +1625,7 @@ void TANK::repair() {
 		}
 
 		// update text
-		snprintf( buf, 9, "%d", l );
-		healthText.set_text( buf );
+		healthText.set_text( std::to_string( l ).c_str() );
 
 		// add float text
 		if ( !global.skippingComputerPlay ) {
@@ -1668,7 +1665,7 @@ bool TANK::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType 
 
 	double distance2 = ( xdist * xdist ) + ( ydist * ydist );
 	double distance  = sqrt( distance2 );
-	double distmod   = 9. - ( ( ITEM_HVY_REPULSOR_SHIELD - player->last_shield_used ) * 2.); // [5,7,9]
+	double distmod   = 9. - ( ( ITEM_HVY_REPULSOR_SHIELD - player->last_shield_used ) * 2. ); // [5,7,9]
 
 	if ( distance < ( distmod * std::sqrt( static_cast< double >( repulsion ) ) ) ) {
 		double rep_mod =

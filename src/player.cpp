@@ -41,8 +41,6 @@ static bool has_shift_pressed = false;
 /// @brief default ctor
 PLAYER::PLAYER() {
 
-	strncpy( name, "New Player", NAME_LEN );
-
 	// 25% of the time set to perplay weapon preferences
 	preftype = ( get_rand() % 4 ) ? ALWAYS_PREF : PERPLAY_PREF;
 
@@ -90,7 +88,7 @@ double PLAYER::boostAmpPref( double old_pref, int32_t idx [[maybe_unused]], int3
 	if ( pref < 1. ) {
 		pref = 1.;
 	}
-	DEBUG_LOG_FIN( name, "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
 	pref *= boost;
 	return pref;
 }
@@ -102,7 +100,7 @@ double PLAYER::boostArmourPref( double old_pref, int32_t idx [[maybe_unused]], i
 	if ( pref < 1. ) {
 		pref = 1.;
 	}
-	DEBUG_LOG_FIN( name, "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
 	pref *= boost;
 	return pref;
 }
@@ -138,7 +136,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 					pref = 1.;
 				}
 				DEBUG_LOG_FIN(
-					name,
+					name.c_str(),
 					"Boost %s : %3.2f * %3.2f = %3.2f",
 					weapon[ i ].getName(),
 					pref,
@@ -151,7 +149,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 			if ( ( div_amount > 1. ) && ( pref >= 1. ) ) {
 				pref /= div_amount;
 				DEBUG_LOG_FIN(
-					name,
+					name.c_str(),
 					"Lower %s pref (%d in stock) %d -> %d",
 					weapon[ i ].getName(),
 					ROUND( cur_amount ),
@@ -168,7 +166,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 						money   += ROUND( weapon[ i ].cost * env.sellpercent * saleable );
 						nm[ i ] -= weapon[ i ].amt * saleable;
 						DEBUG_LOG_FIN(
-							name,
+							name.c_str(),
 							"Sold %d %s for $%s",
 							saleable,
 							weapon[ i ].getName(),
@@ -210,7 +208,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 				if ( ( div_amount > 1. ) && ( pref >= 1. ) ) {
 					pref /= div_amount;
 					DEBUG_LOG_FIN(
-						name,
+						name.c_str(),
 						"Lower %s pref (%d in stock) %d -> %d",
 						item[ j ].getName(),
 						ROUND( cur_amount ),
@@ -227,7 +225,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 							money   += ROUND( item[ j ].cost * env.sellpercent * saleable );
 							ni[ j ] -= item[ j ].amt * saleable;
 							DEBUG_LOG_FIN(
-								name,
+								name.c_str(),
 								"Sold %d %s for $%s",
 								saleable,
 								item[ j ].getName(),
@@ -596,7 +594,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	if ( ( ( type >= RANGEFINDER_PLAYER ) || RAND_AI_1P ) && ( env.landSlideType > SLIDE_NONE )
 	     && ( ni[ ITEM_PARACHUTE ] < 10 ) && ( money > item[ ITEM_PARACHUTE ].cost ) ) {
 
-		DEBUG_LOG_FIN( name, "Pre-selecting Parachute", 0 )
+		DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Parachute", 0 )
 		return ( WEAPONS + ITEM_PARACHUTE );
 	}
 
@@ -605,13 +603,13 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	// To be fair, this is always done and never forgotten.
 	if ( ( nm[ LRG_MIS ] < 3 ) && ( money >= weapon[ LRG_MIS ].cost ) ) {
 
-		DEBUG_LOG_FIN( name, "Pre-selecting Large Missile", 0 )
+		DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Large Missile", 0 )
 		return LRG_MIS;
 	}
 
 	if ( ( nm[ MED_MIS ] < 5 ) && ( money >= weapon[ MED_MIS ].cost ) ) {
 
-		DEBUG_LOG_FIN( name, "Pre-selecting Medium Missile", 0 )
+		DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Medium Missile", 0 )
 		return MED_MIS;
 	}
 
@@ -628,7 +626,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	// Got one?
 	if ( saved_item > 0 ) {
 		DEBUG_LOG_FIN(
-			name,
+			name.c_str(),
 			"Finally got enough money for %s!",
 			saved_item < WEAPONS ? weapon[ saved_item ].getName() : item[ saved_item - WEAPONS ].getName()
 		)
@@ -649,7 +647,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 		if ( ( boost_limit > ( max_level - ai_level + 1 ) ) && ( !needDamage || RAND_AI_0P ) ) {
 
 			DEBUG_LOG_FIN(
-				name,
+				name.c_str(),
 				"Pre-Check: Max Boost %d, Armour %d, Amp %d, Limit %d",
 				max_boost,
 				armour_val,
@@ -671,7 +669,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 					needArmour = true;
 				}
 				DEBUG_LOG_FIN(
-					name,
+					name.c_str(),
 					"=> need %s: boost %d/%d, amp %3.2f %s %3.2f arm",
 					needAmp ? "Amp" : "armor",
 					boost_value,
@@ -694,14 +692,14 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 				     || ( ( ( armour_val < ( amp_val * 0.5 ) ) || !armour_val )
 				          && ( money > item[ ITEM_PLASTEEL ].cost ) ) ) {
 
-					DEBUG_LOG_FIN( name, "Pre-selecting Plasteel Plating", 0 )
+					DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Plasteel Plating", 0 )
 					return ( WEAPONS + ITEM_PLASTEEL );
 				}
 
 				if ( ( money >= ( item[ ITEM_ARMOUR ].cost * 2.0 ) )
 				     && ( ni[ ITEM_ARMOUR ] < ni[ ITEM_PLASTEEL ] ) && ( mood >= 3.5 ) ) {
 
-					DEBUG_LOG_FIN( name, "Pre-selecting Armour", 0 )
+					DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Armour", 0 )
 					return ( WEAPONS + ITEM_ARMOUR );
 				}
 
@@ -722,14 +720,14 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 				     || ( ( ( amp_val < ( armour_val * 0.5 ) ) || !amp_val )
 				          && ( money > item[ ITEM_VIOLENT_FORCE ].cost ) ) ) {
 
-					DEBUG_LOG_FIN( name, "Pre-selecting Violent Force", 0 )
+					DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Violent Force", 0 )
 					return ( WEAPONS + ITEM_VIOLENT_FORCE );
 				}
 
 				if ( ( money >= ( item[ ITEM_INTENSITY_AMP ].cost * 1.75 ) )
 				     && ( ni[ ITEM_INTENSITY_AMP ] < ni[ ITEM_VIOLENT_FORCE ] ) && ( mood < 1.0 ) ) {
 
-					DEBUG_LOG_FIN( name, "Pre-selecting Intensity Amp", 0 )
+					DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Intensity Amp", 0 )
 					return ( WEAPONS + ITEM_INTENSITY_AMP );
 				}
 
@@ -749,26 +747,26 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 			// More offensive in this round, check for riot bombs
 			if ( ( nm[ HVY_RIOT_BOMB ] < 2 ) && ( money >= weapon[ HVY_RIOT_BOMB ].cost ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Heavy Riot Bomb", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Heavy Riot Bomb", 0 )
 				return HVY_RIOT_BOMB;
 			}
 
 			if ( ( nm[ RIOT_BOMB ] < 5 ) && ( money >= weapon[ RIOT_BOMB ].cost ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Riot Bomb", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Riot Bomb", 0 )
 				return RIOT_BOMB;
 			}
 		} else {
 			// In a defensive mood the charges are checked
 			if ( ( nm[ RIOT_BLAST ] < 2 ) && ( money >= weapon[ RIOT_BLAST ].cost ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Riot Blast", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Riot Blast", 0 )
 				return RIOT_BLAST;
 			}
 
 			if ( ( nm[ RIOT_CHARGE ] < 5 ) && ( money >= weapon[ RIOT_CHARGE ].cost ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Riot Charge", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Riot Charge", 0 )
 				return RIOT_CHARGE;
 			}
 		}
@@ -783,21 +781,21 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 			if ( ( ni[ ITEM_LGT_REPULSOR_SHIELD ] <= ( item[ ITEM_LGT_REPULSOR_SHIELD ].amt * ai_level ) )
 			     && ( money >= ( item[ ITEM_LGT_REPULSOR_SHIELD ].cost * 2.0 ) ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Light Repulsor Shield", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Light Repulsor Shield", 0 )
 				return ( WEAPONS + ITEM_LGT_REPULSOR_SHIELD );
 			}
 
 			if ( ( ni[ ITEM_MED_REPULSOR_SHIELD ] <= ( item[ ITEM_MED_REPULSOR_SHIELD ].amt * ai_level ) )
 			     && ( money >= ( item[ ITEM_MED_REPULSOR_SHIELD ].cost * 1.75 ) ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Medium Repulsor Shield", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Medium Repulsor Shield", 0 )
 				return ( WEAPONS + ITEM_MED_REPULSOR_SHIELD );
 			}
 
 			if ( ( ni[ ITEM_HVY_REPULSOR_SHIELD ] <= ( item[ ITEM_HVY_REPULSOR_SHIELD ].amt * ai_level ) )
 			     && ( money >= ( item[ ITEM_HVY_REPULSOR_SHIELD ].cost * 1.5 ) ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Heavy Repulsor Shield", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Heavy Repulsor Shield", 0 )
 				return ( WEAPONS + ITEM_HVY_REPULSOR_SHIELD );
 			}
 		} // End of offensive mood
@@ -808,21 +806,21 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 			if ( ( ni[ ITEM_LGT_SHIELD ] <= ( item[ ITEM_LGT_SHIELD ].amt * ai_level ) )
 			     && ( money >= ( item[ ITEM_LGT_SHIELD ].cost * 2.0 ) ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Light Shield", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Light Shield", 0 )
 				return ( WEAPONS + ITEM_LGT_SHIELD );
 			}
 
 			if ( ( ni[ ITEM_MED_SHIELD ] <= ( item[ ITEM_MED_SHIELD ].amt * ai_level ) )
 			     && ( money >= ( item[ ITEM_MED_SHIELD ].cost * 1.75 ) ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Medium Shield", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Medium Shield", 0 )
 				return ( WEAPONS + ITEM_MED_SHIELD );
 			}
 
 			if ( ( ni[ ITEM_HVY_SHIELD ] <= ( item[ ITEM_HVY_SHIELD ].amt * ai_level ) )
 			     && ( money >= ( item[ ITEM_HVY_SHIELD ].cost * 1.5 ) ) ) {
 
-				DEBUG_LOG_FIN( name, "Pre-selecting Heavy Shield", 0 )
+				DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Heavy Shield", 0 )
 				return ( WEAPONS + ITEM_HVY_SHIELD );
 			}
 		} // End of defensive mood
@@ -831,7 +829,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 
 	// Step 7: Fuel
 	if ( ( ni[ ITEM_FUEL ] < 100 ) && ( money >= item[ ITEM_FUEL ].cost ) ) {
-		DEBUG_LOG_FIN( name, "Pre-selecting Fuel", 0 )
+		DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Fuel", 0 )
 		return ( WEAPONS + ITEM_FUEL );
 	}
 
@@ -841,13 +839,13 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 
 		if ( ( ni[ ITEM_DIMPLEP ] < 50 ) && ( money >= item[ ITEM_DIMPLEP ].cost ) ) {
 
-			DEBUG_LOG_FIN( name, "Pre-selecting Dimpled Projectiles", 0 )
+			DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Dimpled Projectiles", 0 )
 			return ( WEAPONS + ITEM_DIMPLEP );
 		}
 
 		if ( ( ni[ ITEM_SLICKP ] < 50 ) && ( money >= item[ ITEM_SLICKP ].cost ) ) {
 
-			DEBUG_LOG_FIN( name, "Pre-selecting Slick Projectiles", 0 )
+			DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Slick Projectiles", 0 )
 			return ( WEAPONS + ITEM_SLICKP );
 		}
 	}
@@ -917,7 +915,7 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 						global.tank_status,
 						127,
 						"%s: %d + %d -- Team: %s",
-						env.players[ value ]->name,
+						env.players[ value ]->name.c_str(),
 						my_tank->l,
 						my_tank->sh,
 						env.players[ value ]->getTeamName()
@@ -1331,9 +1329,9 @@ void PLAYER::generatePreferences() {
 	 * --- Generate weapon and item preferences ---
 	 * --------------------------------------------
 	 */
-	if ( 0 != strcmp( name, "New Player" ) ) {
-		DEBUG_LOG_EMO( name, "Generating preferences (defensive %lf)", defensive )
-		DEBUG_LOG_EMO( name, "---------------------------------------", 0 )
+	if ( name != "New Player" ) {
+		DEBUG_LOG_EMO( name.c_str(), "Generating preferences (defensive %lf)", defensive )
+		DEBUG_LOG_EMO( name.c_str(), "---------------------------------------", 0 )
 	}
 
 	weapPref[ 0 ] = 0; // small missiles are always zero!
@@ -1579,9 +1577,9 @@ void PLAYER::generatePreferences() {
 			maxItemPref = weapPref[ i ];
 		}
 
-		if ( 0 != strcmp( name, "New Player" ) ) {
+		if ( name != "New Player" ) {
 			DEBUG_LOG_EMO(
-				name,
+				name.c_str(),
 				"%23s (%6s): %5d",
 				i < WEAPONS ? weapon[ i ].getName() : item[ i - WEAPONS ].getName(),
 				i < WEAPONS ? "weapon" : "item",
@@ -1597,9 +1595,9 @@ void PLAYER::generatePreferences() {
 		for ( int32_t i = 1; i < WEAPONS; ++i ) {
 			if ( weapPref[ i ] > ( MAX_WEAP_PROBABILITY / 100.0 ) ) {
 				weapPref[ i ] = ROUND( worth * weapPref[ i ] );
-				if ( 0 != strcmp( name, "New Player" ) ) {
+				if ( name != "New Player" ) {
 					DEBUG_LOG_EMO(
-						name,
+						name.c_str(),
 						"%23s (%6s) amplified to: %5d",
 						weapon[ i ].getName(),
 						"weapon",
@@ -1616,9 +1614,9 @@ void PLAYER::generatePreferences() {
 		for ( int32_t i = WEAPONS; i < THINGS; ++i ) {
 			if ( weapPref[ i ] > ( MAX_WEAP_PROBABILITY / 100.0 ) ) {
 				weapPref[ i ] = ROUND( worth * weapPref[ i ] );
-				if ( 0 != strcmp( name, "New Player" ) ) {
+				if ( name != "New Player" ) {
 					DEBUG_LOG_EMO(
-						name,
+						name.c_str(),
 						"%23s (%6s) amplified to: %5d",
 						item[ i - WEAPONS ].getName(),
 						"item",
@@ -1629,8 +1627,8 @@ void PLAYER::generatePreferences() {
 		}
 	}
 
-	if ( 0 != strcmp( name, "New Player" ) ) {
-		DEBUG_LOG_EMO( name, "=======================================", 0 )
+	if ( name != "New Player" ) {
+		DEBUG_LOG_EMO( name.c_str(), "=======================================", 0 )
 	}
 }
 
@@ -1681,7 +1679,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		}
 
 		prefLimit /= prefCount ? prefCount : 1; // Rough average of all preferences we have
-		DEBUG_LOG_FIN( name, "Middle preference value is %d with %d counted", prefLimit, prefCount )
+		DEBUG_LOG_FIN( name.c_str(), "Middle preference value is %d with %d counted", prefLimit, prefCount )
 		prefCount = 0;
 
 		// Now that the prefLimit is roughly the middle, let's get the average of everything above
@@ -1694,7 +1692,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 
 		// Complete the average preference of the most valuable weapons:
 		avgPref /= prefCount ? prefCount : 1;
-		DEBUG_LOG_FIN( name, "Average preference value above %d is %d with %d counted", avgPref, prefLimit, prefCount )
+		DEBUG_LOG_FIN( name.c_str(), "Average preference value above %d is %d with %d counted", avgPref, prefLimit, prefCount )
 
 
 		// Now go through the list and add everything above the
@@ -1709,7 +1707,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 			     ) ) {
 				saveMoneyFor[ i ] = i < WEAPONS ? weapon[ i ].cost : item[ j ].cost;
 				DEBUG_LOG_FIN(
-					name,
+					name.c_str(),
 					" => Save money for %s!",
 					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
 				)
@@ -1739,7 +1737,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 					max_cost = saveMoneyFor[ i ];
 				}
 				DEBUG_LOG_FIN(
-					name,
+					name.c_str(),
 					" ==> I%s need %d.: %s! (+ %d => %d)",
 					first_look ? "" : " still",
 					ROUND( wanted ),
@@ -1751,7 +1749,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 				// nope...
 				saveMoneyFor[ i ] = 0;
 				DEBUG_LOG_FIN(
-					name,
+					name.c_str(),
 					" <== I no longer need %s ...",
 					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
 				)
@@ -1793,7 +1791,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 
 // return the player name
 char const* PLAYER::getName() const {
-	return name;
+	return name.c_str();
 }
 
 // This function checks for incoming data from a client.
@@ -1810,7 +1808,7 @@ bool PLAYER::getNetCmd() {
 			// connection is broken
 			close( server_socket );
 			type = DEADLY_PLAYER;
-			printf( "%s lost network connection. Returning control to AI.\n", name );
+			printf( "%s lost network connection. Returning control to AI.\n", name.c_str() );
 			return false;
 		} else {
 			// we got data
@@ -2120,7 +2118,10 @@ bool PLAYER::load_from_file( FILE* file ) {
 
 			// check which field we have and process value
 			if ( !strcasecmp( field, "NAME" ) ) {
-				strncpy( name, value, NAME_LEN );
+				name.assign( value );
+				if ( name.length() > NAME_LEN ) {
+					name.erase( NAME_LEN );
+				}
 			} else if ( !strcasecmp( field, "COLOR" ) ) {
 				SAFE_STOI( color, value );
 			} else if ( !strcasecmp( field, "DEFENSIVE" ) ) {
@@ -2333,7 +2334,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 								* ( std::abs( defensive ) + 1. )
 							);
 							DEBUG_LOG_EMO(
-								name,
+								name.c_str(),
 								"New preference for %s : %5d",
 								weapon[ THEFT_BOMB ].getName(),
 								weapPref[ THEFT_BOMB ]
@@ -2350,7 +2351,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 							prf_val = ROUND( MAX_WEAP_PROBABILITY / 60. * type / 2. + .5 );
 
 							DEBUG_LOG_EMO(
-								name,
+								name.c_str(),
 								"Changed preference for %s : %5d",
 								item[ ITEM_FUEL ].getName(),
 								prf_val
@@ -2733,7 +2734,7 @@ void PLAYER::save_to_file( FILE* file ) {
 
 	// start section with "*PLAYER*"
 	fprintf( file, "*PLAYER*\n" );
-	fprintf( file, "NAME=%s\n", name ); // Set first for easier debugging
+	fprintf( file, "NAME=%s\n", name.c_str() ); // Set first for easier debugging
 	fprintf( file, "COLOR=%d\n", color );
 	fprintf( file, "DEFENSIVE=%lf\n", defensive );
 	fprintf( file, "PAINSENSITIVITY=%lf\n", painSensitivity );
@@ -2819,11 +2820,8 @@ void PLAYER::setLastOpponent( sOpponent* last_opp ) {
 }
 
 void PLAYER::setName( char const* name_ ) {
-	if ( !name_ || ( 0 != strncmp( name, name_, NAME_LEN - 1 ) ) ) {
-		memset( name, 0, NAME_LEN );
-		if ( name_ ) {
-			strncpy( name, name_, NAME_LEN - 1 );
-		}
+	if ( !name_ || ( ( name != name_ ) ) ) {
+		name.assign( name_ ? name_ : "" );
 	}
 }
 
@@ -2852,17 +2850,17 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 		double arm_want = defensive < 0 ? ( amp_val / 5. ) - ( arm_val / 3. ) : amp_val - ( arm_val / 3. );
 
 		if ( amp_want > arm_want ) {
-			DEBUG_LOG_FIN( name, "updPref: Need to boost amps    (%d / %d)", getBoostValue(), max_boost / ai_level )
+			DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost amps    (%d / %d)", getBoostValue(), max_boost / ai_level )
 			needAmp = true; // Try to come back with more damage output
 		} else {
-			DEBUG_LOG_FIN( name, "updPref: Need to boost armour  (%d / %d)", getBoostValue(), max_boost / ai_level )
+			DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost armour  (%d / %d)", getBoostValue(), max_boost / ai_level )
 			needArmour = true; // Try to come back with more endurance
 		}
 	}
 
 	// Fallen behind? Need more weapons?
 	if ( ( score <= ( max_score / ( ai_level + 1 ) ) ) && ( weapons_in_stock < ( 2 * ai_level ) ) ) {
-		DEBUG_LOG_FIN( name, "updPref: Need to boost weapons (%d / %d)", score, max_score / ( ai_level + 1 ) )
+		DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost weapons (%d / %d)", score, max_score / ( ai_level + 1 ) )
 		needDamage = true;
 	}
 
@@ -2904,7 +2902,7 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 	// Get out the top twenty
 	for ( int32_t i = 0; i < THINGS; ++i ) {
 		DEBUG_LOG_FIN(
-			name,
+			name.c_str(),
 			"%2d. preference: %6d - %s",
 			i + 1,
 			currPref[ desired[ i ] ],
@@ -2915,10 +2913,7 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 }
 
 /// @brief mini ctor to pacify Visual C++
-PLAYER_mini::PLAYER_mini() {
-	memset( name, 0, sizeof( char ) * NAME_LEN );
-	strncpy( name, "New Player", NAME_LEN );
-}
+PLAYER_mini::PLAYER_mini() = default;
 
 /// @brief backup a players editable data
 void PLAYER_mini::copy_from( PLAYER* source ) {

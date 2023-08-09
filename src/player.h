@@ -197,7 +197,7 @@ private:
 	int32_t   desired[ THINGS ]{};   // Shopping wish list
 	int32_t   saveMoneyFor[ THINGS ]{}; // List of items the AI wants to buy
 	opp_t*    last_opponent = nullptr;
-	char      name[ NAME_LEN + 1 ]{ "New Player" };
+	string    name{ "New Player" };
 	bool      needAmp      = false;
 	bool      needArmour   = false;
 	bool      needDamage   = false;
@@ -227,7 +227,7 @@ private:
 struct PLAYER_mini {
 	int32_t        color = GREEN;
 	int32_t        index = -1;
-	char           name[ NAME_LEN ]{};
+	char           name[ NAME_LEN + 1 ]{ "New Player" };
 	uint32_t       played     = 0;
 	PLAYER*        player     = nullptr;
 	playerPrefType preftype   = ALWAYS_PREF;

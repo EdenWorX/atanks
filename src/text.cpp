@@ -162,11 +162,7 @@ bool TEXTBLOCK::Load_File( char const* filename ) {
 
 		// Store the line:
 		Trim_Newline( line );
-		complete_text[ lines_loaded ] = (char*)calloc( strlen( line ) + 1, sizeof( char ) );
-
-		if ( complete_text[ lines_loaded ] ) {
-			strncpy( complete_text[ lines_loaded++ ], line, strlen( line ) );
-		}
+		complete_text[ lines_loaded++ ] = strdup( line );
 	} // end of loading text from a file
 
 	fclose( fIn );

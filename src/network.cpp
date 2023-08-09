@@ -44,15 +44,10 @@ bool MESSAGE_QUEUE::Add( char *some_text, int to ) {
 	if ( !new_message ) {
 		return false;
 	}
-	new_message->text = (char *)calloc( strlen( some_text ) + 1, sizeof( char ) );
-	if ( !new_message->text ) {
-		free( new_message );
-		return false;
-	}
 
 	// fill the message structure
-	strncpy( new_message->text, some_text, strlen( some_text ) );
-	new_message->to = to;
+	new_message->text = strdup( some_text );
+	new_message->to   = to;
 	// next is already cleared by calloc
 
 	// empty line, create new line
@@ -97,14 +92,15 @@ MESSAGE *MESSAGE_QUEUE::Peek() const {
 	if ( !my_message ) {
 		return nullptr;
 	}
-	my_message->text = (char *)calloc( strlen( first_message->text ) + 1, sizeof( char ) );
+	size_t text_len  = strlen( first_message->text );
+	my_message->text = (char *)calloc( text_len + 1, sizeof( char ) );
 	if ( !my_message->text ) {
 		free( my_message );
 		return nullptr;
 	}
 
 	// we have an empty message. Now fill it
-	strncpy( my_message->text, first_message->text, strlen( first_message->text ) );
+	strncpy( my_message->text, first_message->text, text_len );
 	my_message->to = first_message->to;
 
 	return my_message;
@@ -138,15 +134,15 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 	if ( !my_message ) {
 		return nullptr;
 	}
-
-	my_message->text = (char *)calloc( strlen( current->text ) + 1, sizeof( char ) );
+	size_t text_len  = strlen( current->text );
+	my_message->text = (char *)calloc( text_len + 1, sizeof( char ) );
 	if ( !my_message->text ) {
 		free( my_message );
 		return nullptr;
 	}
 
 	my_message->to = current->to;
-	strncpy( my_message->text, current->text, strlen( current->text ) );
+	strncpy( my_message->text, current->text, text_len );
 	if ( previous ) {
 		previous->next = current->next;
 	} else {
