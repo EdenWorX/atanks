@@ -17,6 +17,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * */
 
+/* @todo : Replace old multiplication and overflow based "perlin noise" with
+ * Perlins newer addition based "Simplex Noise", which is faster and produces
+ * less artifacts.
+ */
+
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 perlin.cc
 
