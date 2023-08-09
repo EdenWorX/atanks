@@ -64,10 +64,11 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 	yv    = env.slope[ angle ][ 1 ];
 
 
-	if ( weapType < WEAPONS )
+	if ( weapType < WEAPONS ) {
 		weap = &( weapon[ weapType ] );
-	else
+	} else {
 		weap = &( naturals[ weapType - WEAPONS ] );
+	}
 	radius = weap->radius;
 
 	/* All beams should have the same age, no matter what the FPS settings
@@ -94,11 +95,13 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 		base_age     *= 2;
 		age_per_size *= 2;
 		weap_size     = weapType - SML_LAZER;
-		if ( BT_SDI != beamType )
+		if ( BT_SDI != beamType ) {
 			// The SDI constructor produces its own color
 			color = makecol( 255 - ( ( weapType - SML_LAZER ) * 64 ), 128, 64 + ( ( weapType - SML_LAZER ) * 64 ) );
-		if ( !global.skippingComputerPlay && ( ( BT_WEAPON == beamType ) || ( BT_SDI == beamType ) ) )
+		}
+		if ( !global.skippingComputerPlay && ( ( BT_WEAPON == beamType ) || ( BT_SDI == beamType ) ) ) {
 			play_fire_sound( weapType, ROUND( x ), 128 + ( radius * 10 ), 1500 - ( radius * 50 ) );
+		}
 	}
 
 	maxAge = base_age + ( age_per_size * weap_size );
@@ -110,17 +113,22 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 	createBeamPath();
 
 	// Now that the points are clear, a lightning bolt can emit its thunder:
-	if ( !global.skippingComputerPlay && ( BT_NATURAL == beamType ) )
+	if ( !global.skippingComputerPlay && ( BT_NATURAL == beamType ) ) {
 		play_natural_sound( weapType, ( points[ 0 ].x + points[ numPoints - 1 ].x ) / 2, 175 + ( radius * 10 ), 1000 );
+	}
 
 	// Add to the chain unless it is a mind shot:
-	if ( BT_MIND_SHOT != beamType ) global.addObject( this );
+	if ( BT_MIND_SHOT != beamType ) {
+		global.addObject( this );
+	}
 }
 
 /// @brief special constructor for SDI lasers
 BEAM::BEAM( PLAYER *player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out )
 	: BEAM( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, weaponType, BT_SDI ) {
-	if ( player ) ++player->sdiShots;
+	if ( player ) {
+		++player->sdiShots;
+	}
 
 	// SDI lasers are redder than normal, even more if burnt_out
 	color = makecol(
@@ -158,12 +166,16 @@ BEAM::~BEAM() {
 		global.removeObject( this );
 
 		// The player is allowed to fire one more SDI laser again:
-		if ( ( BT_SDI == beamType ) && player ) --player->sdiShots;
+		if ( ( BT_SDI == beamType ) && player ) {
+			--player->sdiShots;
+		}
 	}
 }
 
 void BEAM::applyPhysics() {
-	if ( ++age > maxAge ) destroy = true;
+	if ( ++age > maxAge ) {
+		destroy = true;
+	}
 
 	if ( BT_SDI != beamType ) {
 		createBeamPath();
@@ -205,7 +217,9 @@ void BEAM::applyPhysics() {
 
 void BEAM::draw() {
 	// never draw mind shots!
-	if ( BT_MIND_SHOT == beamType ) return;
+	if ( BT_MIND_SHOT == beamType ) {
+		return;
+	}
 
 	int32_t oldDrawingMode = global.current_drawing_mode;
 
@@ -222,12 +236,13 @@ void BEAM::draw() {
 		int32_t right  = std::max( points[ i - 1 ].x, points[ i ].x );
 		int32_t bottom = std::max( points[ i - 1 ].y, points[ i ].y );
 
-		if ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) )
+		if ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) {
 			do_line( global.canvas, points[ i - 1 ].x, points[ i - 1 ].y, points[ i ].x, points[ i ].y, age, lightningPoint
 			);
-		else if ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) )
+		} else if ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) {
 			do_line( global.canvas, points[ i - 1 ].x, points[ i - 1 ].y, points[ i ].x, points[ i ].y, color, lazerPoint
 			);
+		}
 
 		addUpdateArea( left - radius, top - radius, right - left + ( 2 * radius ), bottom - top + ( 2 * radius ) );
 	}
@@ -264,14 +279,17 @@ void BEAM::createBeamPath() {
 		// Assume PINK for off screen pixels
 		int32_t col = PINK;
 
-		if ( ( tx > 0 ) && ( tx < ( env.screenWidth - 1 ) ) && ( ty > MENUHEIGHT ) && ( ty < ( env.screenHeight - 1 ) ) )
+		if ( ( tx > 0 ) && ( tx < ( env.screenWidth - 1 ) ) && ( ty > MENUHEIGHT )
+		     && ( ty < ( env.screenHeight - 1 ) ) ) {
 			col = getpixel( global.terrain, tx, ty );
+		}
 
 		if ( PINK == col ) {
 			tx += xv;
 			ty += yv;
-		} else
+		} else {
 			hitSomething = true;
+		}
 	} // End of tracing pixels
 
 	// tx and ty now result in the first obstacle (or screen border)
@@ -287,7 +305,9 @@ void BEAM::createBeamPath() {
 	traceBeamPath();
 
 	// If this is a mind_shot, it is immediately destroyed
-	if ( BT_MIND_SHOT == beamType ) destroy = true;
+	if ( BT_MIND_SHOT == beamType ) {
+		destroy = true;
+	}
 }
 
 /// @brief get the end of a mind shot laser
@@ -341,7 +361,9 @@ void BEAM::traceBeamPath() {
 		bool   chkDirt  = global.isDirtInBox( startX, startY, endX, endY );
 
 		// Break this if there is nothing possibly in between
-		if ( !( chkTanks || chkDirt ) ) continue;
+		if ( !( chkTanks || chkDirt ) ) {
+			continue;
+		}
 
 		int32_t range  = 0;
 		double  distX  = endX - startX;
@@ -359,7 +381,9 @@ void BEAM::traceBeamPath() {
 
 			// Only check for tanks if the total range is large enough
 			// and if there are tanks in the path
-			if ( ( range >= minRange ) && !canHit ) canHit = true;
+			if ( ( range >= minRange ) && !canHit ) {
+				canHit = true;
+			}
 			if ( canHit && chkTanks ) {
 				TANK *lt = nullptr;
 				global.getHeadOfClass( CLASS_TANK, &lt );
@@ -371,19 +395,28 @@ void BEAM::traceBeamPath() {
 						lt->requireUpdate();
 
 						// 'Lock' the beam end on the tank:
-						if ( startY < ( lt->y + radius ) ) startY = lt->y + radius;
-						if ( startY > ( lt->y + ( 2 * radius ) ) ) startY = lt->y + ( 2 * radius );
-						if ( startX < ( lt->x - ( radius / 2. ) ) ) startX = lt->x - ( radius / 2. );
-						if ( startX > ( lt->x + ( radius / 2. ) ) ) startX = lt->x + ( radius / 2. );
+						if ( startY < ( lt->y + radius ) ) {
+							startY = lt->y + radius;
+						}
+						if ( startY > ( lt->y + ( 2 * radius ) ) ) {
+							startY = lt->y + ( 2 * radius );
+						}
+						if ( startX < ( lt->x - ( radius / 2. ) ) ) {
+							startX = lt->x - ( radius / 2. );
+						}
+						if ( startX > ( lt->x + ( radius / 2. ) ) ) {
+							startX = lt->x + ( radius / 2. );
+						}
 
 						// Get the in_rates
 						double in_rate_x, in_rate_y;
 						if ( ( BT_MIND_SHOT != beamType )
 						     && lt->isInEllipse( startX, startY, radius, radius, in_rate_x, in_rate_y ) ) {
 							double in_rate = in_rate_x * in_rate_y;
-							if ( in_rate < 0.9 )
+							if ( in_rate < 0.9 ) {
 								// Beams do not 'splash'.
 								in_rate = 0.9;
+							}
 
 							lt->addDamage(
 								player,
@@ -396,8 +429,9 @@ void BEAM::traceBeamPath() {
 						moveX = 0.;
 						moveY = 0.;
 					} // End of having a tank
-					else
+					else {
 						lt->getNext( &lt );
+					}
 				} // End of looping tanks
 			}
 
@@ -408,7 +442,9 @@ void BEAM::traceBeamPath() {
 		} // End of regular check
 
 		// If dirt was hit, hitSomething must be adapted
-		if ( ( PINK != getpixel( global.terrain, startX, startY ) ) ) hitSomething = true;
+		if ( ( PINK != getpixel( global.terrain, startX, startY ) ) ) {
+			hitSomething = true;
+		}
 
 		if ( hitSomething
 		     && ( ( ROUND( startX ) != points[ numPoints - 1 ].x ) || ( ROUND( startY ) != points[ numPoints - 1 ].y )
@@ -419,8 +455,12 @@ void BEAM::traceBeamPath() {
 			makeLightningPath();
 
 			// Note down x position for dirt slide on destruction:
-			if ( ( startX - radius - 1 ) < tgtLeftX ) tgtLeftX = ROUND( startX - radius - 1. );
-			if ( ( startX + radius + 1 ) > tgtRightX ) tgtRightX = ROUND( startX + radius + 1. );
+			if ( ( startX - radius - 1 ) < tgtLeftX ) {
+				tgtLeftX = ROUND( startX - radius - 1. );
+			}
+			if ( ( startX + radius + 1 ) > tgtRightX ) {
+				tgtRightX = ROUND( startX + radius + 1. );
+			}
 		} // End of checking pixels
 	}         // End of looping points
 }

@@ -1,5 +1,5 @@
 #ifndef BEAM_DEFINE
-#define BEAM_DEFINE
+#define BEAM_DEFINE 1
 
 /*
 atanks - obliterate each other with oversize weapons
@@ -95,4 +95,4 @@ private:
 	WEAPON*   weap      = nullptr;
 };
 
-#endif
+#endif // BEAM_DEFINE
