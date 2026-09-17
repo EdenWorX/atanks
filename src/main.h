@@ -20,6 +20,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * */
 
+// Generated build configuration. ATANKS_HAVE_CONFIG_H is only defined for
+// CMake builds (see config.h.in); Visual Studio and legacy Makefile builds
+// keep passing -DVERSION= and -DDATA_DIR= on the compiler command line.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #ifndef VERSION
 #  error "VERSION information is missing. Fix Makefile."
 #endif

@@ -1,6 +1,14 @@
 #ifndef ATANKS_SRC_PLAYER_H_INCLUDED
 #define ATANKS_SRC_PLAYER_H_INCLUDED 1
 
+// Build configuration (CMake only): the NETWORK macro lives in the generated
+// config.h, which must be visible before the first #ifdef NETWORK below
+// regardless of include order. Non-CMake builds keep passing -DNETWORK= on
+// the compiler command line, so this include stays conditional.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 /*
  * atanks - obliterate each other with oversize weapons
  * Copyright (C) 2003  Thomas Hudson

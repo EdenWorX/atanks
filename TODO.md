@@ -200,7 +200,7 @@ layout (`PREFIX`/`DESTDIR` equivalents), `DEBUG` flavors, and sanitizers. Agree 
 prerequisite with the user. Expected result: a configured build tree produces the same `atanks` binary layout as the legacy
 `Makefile`.
 
-#### [ ] PF-1.9.2: Generate config.h from config.h.in
+#### [x] PF-1.9.2: Generate config.h from config.h.in
 
 Add `config.h.in` producing a `config.h` with the version macros, replacing the `-DVERSION=` / `-DDATA_DIR=` (and related
 `-DNETWORK` / platform-define) flag plumbing. Keep the `src/main.h` missing-`VERSION` hard-error satisfied through the generated

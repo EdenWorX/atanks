@@ -763,10 +763,10 @@ bool Load_Weapons_Text() {
 /*
 Filter out files that do not have .sav in the name.
 */
-#ifndef MACOSX
-int Filter_File( const struct dirent* my_file )
-#else
+#ifdef MACOSX
 int Filter_File( struct dirent* my_file )
+#else
+int Filter_File( const struct dirent* my_file )
 #endif
 {
 	if ( strstr( my_file->d_name, ".sav" ) ) {

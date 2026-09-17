@@ -35,23 +35,23 @@ option(GCCUSESGOLD "Use the linker plugin with LTO (requires USE_LTO)" OFF)
 
 # Install layout equivalents of Makefile PREFIX/BINDIR/INSTALLDIR.
 # DESTDIR staging works natively via `cmake --install <dir> --prefix ...`
-# or the DESTDIR environment variable. ATANKS_DATA_DIR becomes -DDATA_DIR
-# until WP PF-1.9.2 moves it into the generated config.h.
+# or the DESTDIR environment variable. ATANKS_DATA_DIR is baked into the
+# generated config.h (see below).
 set(ATANKS_INSTALL_BINDIR "bin" CACHE STRING "Binary install directory, relative to prefix")
 set(ATANKS_DATA_DIR "${CMAKE_INSTALL_PREFIX}/share/atanks" CACHE STRING "Data directory baked into the binary")
 
 # Platform selection mirrors the Makefile: macOS via osxuser, everything
 # else Unix builds as LINUX (including BSD). No WIN32 support here.
 if(APPLE)
-  set(ATANKS_PLATFORM_DEFINE "MACOSX")
+  set(ATANKS_PLATFORM_MACOSX ON)
   set(ATANKS_WITH_NETWORK OFF)
   set(ATANKS_IS_BSD OFF)
 elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSD|DragonFly")
-  set(ATANKS_PLATFORM_DEFINE "LINUX")
+  set(ATANKS_PLATFORM_MACOSX OFF)
   set(ATANKS_WITH_NETWORK ON)
   set(ATANKS_IS_BSD ON)
 else()
-  set(ATANKS_PLATFORM_DEFINE "LINUX")
+  set(ATANKS_PLATFORM_MACOSX OFF)
   set(ATANKS_WITH_NETWORK ON)
   set(ATANKS_IS_BSD OFF)
 endif()
@@ -69,18 +69,25 @@ separate_arguments(ALLEGRO_LIBS)
 # Sources mirror the Makefile wildcard (sorted, auto-picked-up).
 file(GLOB ATANKS_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
+# Generated build configuration (WP PF-1.9.2). This replaces the legacy
+# -DVERSION= / -DDATA_DIR= / -DNETWORK / platform-define flag plumbing; the
+# legacy Makefile keeps passing -D flags until WP PF-1.9.4. Non-CMake builds
+# (Visual Studio) never define ATANKS_HAVE_CONFIG_H, so src/main.h skips the
+# include there and keeps its missing-VERSION hard-error.
+if(ATANKS_WITH_NETWORK)
+  set(NETWORK ON)
+endif()
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+  @ONLY)
+
 add_executable(atanks ${ATANKS_SOURCES})
 
+target_include_directories(atanks PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_definitions(atanks PRIVATE ATANKS_HAVE_CONFIG_H)
 target_compile_features(atanks PRIVATE cxx_std_17)
 target_compile_options(atanks PRIVATE -Wall -Wextra -Wpedantic -fexceptions)
-target_compile_definitions(atanks PRIVATE
-  "DATA_DIR=\"${ATANKS_DATA_DIR}\""
-  "${ATANKS_PLATFORM_DEFINE}"
-  "VERSION=\"${PROJECT_VERSION}\""
-)
-if(ATANKS_WITH_NETWORK)
-  target_compile_definitions(atanks PRIVATE NETWORK)
-endif()
 if(ATANKS_IS_BSD)
   target_include_directories(atanks PRIVATE /usr/local/include)
   target_compile_options(atanks PRIVATE -Wno-c99-extensions)

@@ -1,6 +1,14 @@
 #ifndef ATANKS_SRC_CLIENT_H_INCLUDED
 #define ATANKS_SRC_CLIENT_H_INCLUDED 1
 
+// Build configuration (CMake only): the NETWORK macro lives in the generated
+// config.h, which must be visible before the first #ifdef NETWORK below
+// regardless of include order. Non-CMake builds keep passing -DNETWORK= on
+// the compiler command line, so this include stays conditional.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #ifdef NETWORK
 
 #  define CLIENT_VERSION       1

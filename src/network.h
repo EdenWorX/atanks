@@ -1,6 +1,14 @@
 #ifndef ATANKS_NETWORK_H_INCLUDED
 #define ATANKS_NETWORK_H_INCLUDED 1
 
+// Build configuration (CMake only): the NETWORK macro lives in the generated
+// config.h, which must be visible before the first #ifdef NETWORK below
+// regardless of include order. Non-CMake builds keep passing -DNETWORK= on
+// the compiler command line, so this include stays conditional.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 /*
 This file will contain two sets of headers and data. One for dealing with queued message
 and the other for handling server sockets. This queue will be in standard, platform-neutral
