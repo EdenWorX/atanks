@@ -6,7 +6,7 @@ eden99_99 (eden99_99@users.sourceforge.net)
 Jesse Smith (jessefrgsmith@yahoo.ca)
 Mike Wilson (CaptainNeeda+atanks@gmail.com)
 Kevin (sylikc@gmail.com)
-Sven Eden (yamakuzure@users.sourceforge.net)
+Sven Eden (sven@eden-worx.com)
 Bruno Victal (ubr47k@users.sourceforge.net)
 Bill Buerger
 
@@ -17,6 +17,7 @@ CtHx
 Documentation
 Justin Soles (wordsamurai@users.sourceforge.net)
 Jesse Smith (jessefrgsmith@yahoo.ca)
+Sven Een (sven@eden-worx.com>
 
 
 Translations
