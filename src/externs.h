@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_EXTERNS_H_INCLUDED
-#define ATANKS_SRC_EXTERNS_H_INCLUDED
+#define ATANKS_SRC_EXTERNS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -31,7 +30,17 @@ class GLOBALDATA;
 class ENVIRONMENT;
 #endif // HAS_ENVIRONMENT
 
-#define CLOCK_MAX 10
+#ifndef HAS_ITEM
+class ITEM;
+#endif // HAS_ITEM
+
+#  ifndef HAS_ITEM
+class ITEM;
+#  endif // HAS_ITEM
+
+#  ifndef HAS_WEAPON
+class WEAPON;
+#  endif // HAS_WEAPON
 
 #ifndef ATANKS_SRC_ATANKS_CPP
 
@@ -41,31 +50,32 @@ extern ENVIRONMENT env;
 
 
 // === Defined colours used everywhere ===
-extern int32_t BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY,
-               GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED,
-               SILVER, TURQUOISE, WHITE, YELLOW;
-
+#  ifndef GLOBADATA_BLACK_DECLARED
+extern int32_t BLACK;
+#  endif // GLOBADATA_BLACK_DECLARED
+extern int32_t BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED,
+	SILVER, TURQUOISE, WHITE, YELLOW;
+#  define EXTERNS_H_COLORS_DECLARED 1
 
 // === General values that are globally used ===
-extern char        buf[100];
-extern const char* errorMessage;
+extern char        buf[ 100 ];
+extern char const* errorMessage;
 extern int32_t     errorX, errorY;
 extern int32_t     k, K;
 extern int32_t     fi, lx, ly;
 extern int32_t     game_version;
-extern WEAPON      weapon[WEAPONS];    // from files.cpp
-extern WEAPON      naturals[NATURALS]; // from files.cpp
-extern ITEM        item[ITEMS];        // from files.cpp
+extern WEAPON      weapon[ WEAPONS ];    // from files.cpp
+extern WEAPON      naturals[ NATURALS ]; // from files.cpp
+extern ITEM        item[ ITEMS ];        // from files.cpp
 
 
 // === Gradients ===
-extern gradient  topbar_gradient[4];
-extern gradient  stuff_bar_gradient[11];
-extern gradient  circles_gradient[4];
-extern gradient  explosion_gradient1[3];
-extern gradient  explosion_gradient2[3];
-extern gradient* explosion_gradients[2];
+extern gradient  topbar_gradient[ 4 ];
+extern gradient  stuff_bar_gradient[ 11 ];
+extern gradient  circles_gradient[ 4 ];
+extern gradient  explosion_gradient1[ 3 ];
+extern gradient  explosion_gradient2[ 3 ];
+extern gradient* explosion_gradients[ 2 ];
 
 #endif // ATANKS_SRC_ATANKS_CPP
 #endif // ATANKS_SRC_EXTERNS_H_INCLUDED
-

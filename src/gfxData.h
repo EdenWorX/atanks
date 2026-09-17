@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_GFXDATA_H_INCLUDED
-#define ATANKS_SRC_GFXDATA_H_INCLUDED
+#define ATANKS_SRC_GFXDATA_H_INCLUDED 1
 
 
 /*
@@ -22,56 +21,47 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * */
 
-#define ALL_SKIES 16
-#define ALL_LANDS 16
+#include "bitmap.h"
 
-#define	STUFF_BAR_WIDTH	 400
-#define	STUFF_BAR_HEIGHT 35
+#include <cstdint>
 
-#define EXPLODEFRAMES  18
-#define	DISPERSEFRAMES 10
-#define	EXPLOSIONFRAMES	(EXPLODEFRAMES + DISPERSEFRAMES)
+#define ALL_SKIES        16
+#define ALL_LANDS        16
 
-#define EXPLO_CX 107.f
-#define EXPLO_CY 107.f
-#define EXPLO_H  214.f
-#define EXPLO_W  214.f
+#define STUFF_BAR_WIDTH  400
+#define STUFF_BAR_HEIGHT 35
 
-#define FLAME_CX 300.f
-#define FLAME_CY  15.f
-#define FLAME_H   30.f
-#define FLAME_W  600.f
+#define EXPLODEFRAMES    18
+#define DISPERSEFRAMES   10
+#define EXPLOSIONFRAMES  ( EXPLODEFRAMES + DISPERSEFRAMES )
 
 /// @brief Consolidate global gfx data in a struct to have RAII in effect.
-struct sGfxData
-{
+struct sGfxData {
 	explicit sGfxData();
 	~sGfxData();
 
-	void destroy();
-	void first_init();
+	void    destroy();
+	void    first_init();
 
-	BITMAP* sky_gradient_strips[ALL_SKIES];
-	BITMAP* land_gradient_strips[ALL_LANDS];
-	BITMAP* stuff_bar_gradient_strip = nullptr;
-	BITMAP* topbar_gradient_strip    = nullptr;
-	BITMAP* explosion_gradient_strip = nullptr;
-	BITMAP* stuff_bar[2];
-	BITMAP* stuff_icon_base          = nullptr;
-	BITMAP* topbar                   = nullptr;
-	BITMAP* explosions[EXPLOSIONFRAMES];
-	BITMAP* flameFront[EXPLOSIONFRAMES];
+	BITMAP* sky_gradient_strips[ ALL_SKIES ]{ nullptr };
+	BITMAP* land_gradient_strips[ ALL_LANDS ]{ nullptr };
+	BITMAP* stuff_bar_gradient_strip{ nullptr };
+	BITMAP* topbar_gradient_strip{ nullptr };
+	BITMAP* explosion_gradient_strip{ nullptr };
+	BITMAP* stuff_bar[ 2 ]{};
+	BITMAP* stuff_icon_base{ nullptr };
+	BITMAP* topbar{ nullptr };
+	BITMAP* explosions[ EXPLOSIONFRAMES ]{ nullptr };
+	BITMAP* flameFront[ EXPLOSIONFRAMES ]{ nullptr };
 
 private:
 	bool initDone = false;
 };
 
-
 // === Helper Functions ===
 // ========================
-BITMAP* create_gradient_strip (const gradient* grad, int32_t len);
-int32_t gradientColorPoint    (const gradient* grad, double len, double line);
-
+BITMAP* create_gradient_strip( gradient const* grad, int32_t len );
+int32_t gradientColorPoint( gradient const* grad, double len, double line );
 
 
 #endif // ATANKS_SRC_GFXDATA_H_INCLUDED

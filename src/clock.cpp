@@ -5,22 +5,22 @@
 /// === Used clocks and time granularity ===
 using atanks_clock_t = std::chrono::steady_clock;
 
-#if defined(ATANKS_IS_MSVC) && !defined(ATANKS_IS_AT_LEAST_MSVC13)
-  // Note: this is a bug in vc12, that is fixed in vc13.
-  // See: https://connect.microsoft.com/VisualStudio/feedback/details/858357/steady-clock-now-returning-the-wrong-type
-# include "winclock.h"
-  using time_point_t = std::chrono::time_point<std::chrono::system_clock>;
+#if 1 == ATANKS_HAS_MSVC12_BUG
+// Note: this is a bug in vc12 (2013), that is fixed in vc13 (2015).
+// See: https://connect.microsoft.com/VisualStudio/feedback/details/858357/steady-clock-now-returning-the-wrong-type
+#  include "winclock.h"
+using time_point_t = std::chrono::time_point< std::chrono::system_clock >;
 #else
-  using time_point_t = std::chrono::time_point<atanks_clock_t>;
+using time_point_t = std::chrono::time_point< atanks_clock_t >;
 #endif // MSVC++ 2013 bug
 
 using clock_ms_t = std::chrono::milliseconds;
 using clock_us_t = std::chrono::microseconds;
 
 /// === Helper macros to not have ridiculously long lines ===
-#define CLOCK_NOW  atanks_clock_t::now()
-#define MS_CAST(x) static_cast<int32_t>(std::chrono::duration_cast<clock_ms_t>(x).count())
-#define US_CAST(x) static_cast<int32_t>(std::chrono::duration_cast<clock_us_t>(x).count())
+#define CLOCK_NOW    atanks_clock_t::now()
+#define MS_CAST( x ) static_cast< int32_t >( std::chrono::duration_cast< clock_ms_t >( x ).count() )
+#define US_CAST( x ) static_cast< int32_t >( std::chrono::duration_cast< clock_us_t >( x ).count() )
 
 /// === Internal values only used here ===
 static time_point_t game_us_end   = CLOCK_NOW;
@@ -28,39 +28,51 @@ static time_point_t game_us_start = CLOCK_NOW;
 static time_point_t menu_ms_end   = CLOCK_NOW;
 static time_point_t menu_ms_start = CLOCK_NOW;
 
-
 /// === Function implementations ===
 
+// This function checks to see if one full second has passed since the last time the function was called.
+// The function returns true if time has passed.
+// The function returns false if time hasn't passed, or it was unable to tell how much time has passed.
+bool check_time_changed() {
+	static thread_local time_t last_second    = 0;
+	static thread_local time_t current_second = 0;
+
+	time( &current_second );
+
+	if ( current_second == last_second ) {
+		return false;
+	}
+
+	// time has changed
+	last_second = current_second;
+
+	return true;
+}
+
 /// REMOVE_VS12_WORKAROUND
-#if !defined(ATANKS_IS_MSVC) || defined(ATANKS_IS_AT_LEAST_MSVC13)
-int32_t game_us_get()
-{
+#if 0 == ATANKS_HAS_MSVC12_BUG
+// No else here, they are implemented in winclock.h !
+int32_t game_us_get() {
 	game_us_end     = CLOCK_NOW;
-	int32_t used_us = US_CAST(game_us_end - game_us_start);
+	int32_t used_us = US_CAST( game_us_end - game_us_start );
 	game_us_start   = game_us_end;
 	return used_us > 0 ? used_us : 0;
 }
 
-
-void game_us_reset()
-{
+void game_us_reset() {
 	game_us_end   = CLOCK_NOW;
 	game_us_start = game_us_end;
 }
 
-
-int32_t menu_ms_get()
-{
+int32_t menu_ms_get() {
 	menu_ms_end     = CLOCK_NOW;
-	int32_t used_us = MS_CAST(menu_ms_end - menu_ms_start);
+	int32_t used_us = MS_CAST( menu_ms_end - menu_ms_start );
 	menu_ms_start   = menu_ms_end;
 	return used_us > 0 ? used_us : 0;
 }
 
-
-void menu_ms_reset()
-{
+void menu_ms_reset() {
 	menu_ms_end   = CLOCK_NOW;
 	menu_ms_start = menu_ms_end;
 }
-#endif // !ATANKS_IS_MSVC
+#endif // ATANKS_HAS_MSVC12_BUG

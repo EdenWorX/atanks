@@ -1,5 +1,5 @@
 #ifndef DECOR_DEFINE
-#define DECOR_DEFINE
+#define DECOR_DEFINE 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,36 +21,34 @@
  * */
 
 
-#include "physobj.h"
 #include "debris_pool.h"
+#include "physobj.h"
 
-enum decorTypes
-{
-  DECOR_SMOKE = 0,
-  DECOR_DIRT
-};
+enum decorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
 
-class DECOR: public PHYSICAL_OBJECT
-{
+class DECOR final : public PHYSICAL_OBJECT {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
 	// ctor without bitmap
-	explicit
-	DECOR (double x_, double y_, double xv_, double yv_,
-	       int32_t maxRadius, int32_t type_, int32_t delay_);
+	explicit DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ );
 
 	// ctor with bitmap
-	DECOR (double x_, double y_, double xv_, double yv_,
-	       int32_t maxRadius, int32_t type_, int32_t delay_,
-	       sDebrisItem* deb_item, sDebrisItem* met_item);
+	DECOR( double       x_,
+	       double       y_,
+	       double       xv_,
+	       double       yv_,
+	       int32_t      maxRadius,
+	       int32_t      type_,
+	       int32_t      delay_,
+	       sDebrisItem* deb_item,
+	       sDebrisItem* met_item );
 
 
-	~DECOR();
+	~DECOR() final;
 
 
 	/* -----------------------------------
@@ -58,17 +56,14 @@ public:
 	 * -----------------------------------
 	 */
 
-	void     applyPhysics ();
-	void     draw         ();
-	void     force_aging  (int32_t frames); // Helper to work against FPS drops.
-	eClasses getClass     () { return (DECOR_SMOKE == type
-	                           ? CLASS_DECOR_SMOKE
-	                           : CLASS_DECOR_DIRT); }
-	bool     isSmoke      () { return DECOR_SMOKE == type; }
+	void   applyPhysics() final;
+	void   draw() final;
+	void   force_aging( int32_t frames ); // Helper to work against FPS drops.
+
+	eClass getClass() final { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
 
 
 private:
-
 	typedef sDebrisItem item_t;
 
 
@@ -77,9 +72,9 @@ private:
 	 * -----------------------------------
 	 */
 
-	bool isOnFloor   ();
+	bool isOnFloor();
 	void repulseDecor();
-	void updateDirt  ();
+	void updateDirt();
 
 
 	/* -----------------------------------
@@ -105,4 +100,4 @@ private:
 	int32_t type         = DECOR_SMOKE;
 };
 
-#endif
+#endif // DECOR_DEFINE

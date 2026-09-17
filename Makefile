@@ -1,8 +1,7 @@
-.PHONY: all install clean veryclean user winuser osxuser ubuntu \
-dist tarball zipfile source-dist i686-dist win32-dist
+.PHONY: aidebug all clean debug dist fulldebug i686-dist install osxuser \
+    source-dist tarball ubuntu user veryclean win32-dist winuser zipfile
 
 VERSION := 6.7
-
 
 DEBUG   ?= NO
 # Note: Submit as "YES" to enable debugging
@@ -20,6 +19,7 @@ DEBUG_OBJECTS ?= NO
 DEBUG_PHYSICS ?= NO
 
 # If the debug output shall be written to atanks.log, set this to YES
+# ( Hint: If you enable more than one option above, you WANT to say YES here! ;-) )
 DEBUG_LOG_TO_FILE ?= NO
 
 # These three are mutually exclusive. If all are set to yes,
@@ -29,8 +29,12 @@ SANITIZE_ADDRESS ?= NO
 SANITIZE_LEAK    ?= NO
 SANITIZE_THREAD  ?= NO
 
-# The following is only used on gcc-4.9+ and only without debugging enabled.
-USE_LTO ?= NO
+# The following is only used without debugging enabled.
+USE_LTO     ?= NO
+
+# Set to one if wanting to use linker plugins. Requires USE_LOT to be YES
+GCCUSESGOLD ?= NO
+
 
 # ------------------------------------
 # Install and target directories
@@ -39,7 +43,7 @@ PREFIX     ?= /usr
 DESTDIR    ?=
 BINPREFIX  ?= $(PREFIX)
 BINDIR     ?= ${BINPREFIX}/bin
-INSTALLDIR ?= ${PREFIX}/share/games/atanks
+INSTALLDIR ?= ${PREFIX}/share/atanks
 
 
 # ------------------------------------
@@ -83,9 +87,10 @@ FILENAME := $(TARGET)-$(VERSION)
 # ------------------------------------
 # Tools to use
 # ------------------------------------
+CXX     ?= $(shell which clang++)
 INSTALL := $(shell which install)
+MAKE    := $(shell which make)
 RM      := $(shell which rm) -f
-CXX     ?= clang++
 SED     := $(shell which sed)
 WINDRES :=
 
@@ -110,39 +115,18 @@ endif
 LD := $(CXX)
 
 # --------------------------------------------------------------------------
-# Determine proper C++11 standard flag, and if and how stack protector works
+# C++17 is the minimum standard to use. Older compilers are a security risk.
 # --------------------------------------------------------------------------
-GCCVERSGTEQ47 := 0
-GCCVERSGTEQ49 := 0
-GCCUSESGOLD   := 0
-GCC_STACKPROT :=
-GCC_CXXSTD    := 0x
-PEDANDIC_FLAG := -pedantic
-
-# Note: It has to be evaluated which versions of clang and mingw
-#       start using c++11 instead of c++0x.
-ifneq (,$(findstring /g++,$(CXX)))
-  GCCVERSGTEQ47 := $(shell expr `$(CXX) -dumpversion | cut -f1,2 -d. | tr -d '.'` \>= 47)
-  GCCVERSGTEQ49 := $(shell expr `$(CXX) -dumpversion | cut -f1,2 -d. | tr -d '.'` \>= 49)
-endif
-
-ifeq "$(GCCVERSGTEQ47)" "1"
-  GCC_CXXSTD    := 11
-  PEDANDIC_FLAG := -Wpedantic
-  ifeq "$(GCCVERSGTEQ49)" "1"
-    GCC_STACKPROT := -fstack-protector-strong
-    GCCUSESGOLD   := $(shell ld --version | head -n 1 | grep -c "GNU gold")
-  else
-    GCC_STACKPROT := -fstack-protector
-  endif
-endif
+GCC_STACKPROT := -fstack-protector-strong
+GCC_CXXSTD    := 17
+PEDANDIC_FLAG := -Wpedantic
 
 
 # ------------------------------------
 # Flags for compiler and linker
 # ------------------------------------
 CPPFLAGS += -DDATA_DIR=\"${INSTALLDIR}\" -D$(PLATFORM) -DVERSION=\"${VERSION}\"
-CXXFLAGS += -Wall -Wextra $(PEDANDIC_FLAG) -std=c++$(GCC_CXXSTD)
+CXXFLAGS += -Wall -Wextra $(PEDANDIC_FLAG) -std=c++$(GCC_CXXSTD) -fexceptions
 LDFLAGS  +=
 
 # Depending on the platform, some values have to be appended:
@@ -186,10 +170,10 @@ endif
 
 ifeq (YES,$(DEBUG))
   ifeq (NO,$(HAS_DEBUG_FLAG))
-    CXXFLAGS := -ggdb ${CXXFLAGS} -O0
+    CXXFLAGS := -ggdb ${CXXFLAGS}
   endif
 
-  CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG
+  CPPFLAGS := ${CPPFLAGS} -Og -DATANKS_DEBUG
   CXXFLAGS := ${CXXFLAGS} ${GCC_STACKPROT} -Wunused
 
   # LTO is hard blocked now:
@@ -232,16 +216,15 @@ ifeq (YES,$(DEBUG))
   endif
 
 else
-  CXXFLAGS := -march=native ${CXXFLAGS} -O2
+  CPPFLAGS := ${CPPFLAGS} -O2
+  CXXFLAGS := -march=native ${CXXFLAGS}
 endif
 
 
 # Potentially enable LTO if this is gcc-4.9 and greater
 ifeq (YES,$(USE_LTO))
-  ifeq "$(GCCVERSGTEQ49)" "1"
-    CXXFLAGS := ${CXXFLAGS} -flto
-  endif
-  ifeq "$(GCCUSESGOLD)" "1"
+  CXXFLAGS := ${CXXFLAGS} -flto
+  ifeq (YES,$(GCCUSESGOLD))
     CXXFLAGS := ${CXXFLAGS} -fuse-linker-plugin
   endif
 endif
@@ -341,6 +324,20 @@ ifeq (WIN32,$(PLATFORM))
 else
 	$(RM) $(TARGET)
 endif
+
+
+# ------------------------------------
+# Debugging targets
+# ------------------------------------
+
+aidebug:
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_LOG_TO_FILE=YES
+
+debug:
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_LOG_TO_FILE=YES
+
+fulldebug:
+	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_FINANCE=YES DEBUG_OBJECTS=YES DEBUG_PHYSICS=YES DEBUG_LOG_TO_FILE=YES
 
 
 # ------------------------------------

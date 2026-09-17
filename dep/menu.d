@@ -1,6 +1,8 @@
-obj/menu.o dep/menu.d : src/menu.cpp src/optioncontent.h src/optiontypes.h \
- src/globaltypes.h src/optionitemcolour.h src/optionitembase.h \
- src/environment.h src/main.h src/debug.h src/externs.h src/globaldata.h \
- src/text.h src/network.h src/gfxData.h src/button.h src/menu.h \
- src/optionitem.h src/optionitemmenu.h src/optionitemplayer.h \
- src/player.h src/player_types.h src/clock.h
+obj/menu.o dep/menu.d : src/menu.cpp src/menu.h src/button.h src/box.h src/main.h \
+ src/debug.h src/globaltypes.h src/wrap_dirent.h src/externs.h \
+ src/globaldata.h src/environment.h src/gfxData.h src/bitmap.h \
+ src/network.h src/text.h src/spinlock.h src/optionitem.h \
+ src/optionitembase.h src/optiontypes.h src/optionitemmenu.h \
+ src/optionitemplayer.h src/clock.h src/optioncontent.h \
+ src/optionitemcolour.h src/optionscreens.h src/player.h \
+ src/player_types.h src/random.h

@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
-#define ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
+#define ATANKS_SRC_OPTIONSCREENS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -22,16 +21,15 @@
  * */
 
 /** @file optionscreens.h
-  * @brief Here the functions providing option screens and menus are declared
-**/
+ * @brief Here the functions providing option screens and menus are declared
+ **/
 
 #include "menu.h"
 
-void    drawMenuBackground (int32_t itemType, int32_t tOffset, int32_t numItems);
-void    editPlayers        ();
-void    optionsMenu        ();
-int32_t selectPlayers      ();
+void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems );
+void    editPlayers();
+void    optionsMenu();
+int32_t selectPlayers();
 
 
 #endif // ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
-

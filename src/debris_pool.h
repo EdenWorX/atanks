@@ -1,6 +1,5 @@
-#pragma once
 #ifndef ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
-#define ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
+#define ATANKS_SRC_DEBRIS_POOL_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -25,49 +24,44 @@
 #include "main.h"
 
 /** @struct sDebrisItem
-  * @brief represent one entry in the debris pool
-**/
-struct sDebrisItem
-{
-    BITMAP*      bmp      = nullptr;
-	int32_t      idx      = 0;       //!< calculated index from diameter (aka radius/2-1)
-    bool         is_free  = true;
-    sDebrisItem* next     = nullptr;
-    sDebrisItem* prev     = nullptr;
+ * @brief represent one entry in the debris pool
+ **/
+struct sDebrisItem {
+	BITMAP*      bmp     = nullptr;
+	int32_t      idx     = 0; //!< calculated index from diameter (aka radius/2-1)
+	bool         is_free = true;
+	sDebrisItem* next    = nullptr;
+	sDebrisItem* prev    = nullptr;
 
-	explicit sDebrisItem(int32_t diameter_, sDebrisItem* next_);
+	explicit sDebrisItem( int32_t diameter_, sDebrisItem* next_ );
 	~sDebrisItem();
 };
 
-
 /** @struct sDebrisPool
-  * @brief A pool of bitmaps used to throw around dirt.
-  *
-  * Note: Currently the pool is limited to radius [1;5] the
-  *       debris can have. That is five series of bitmaps.
-**/
-struct sDebrisPool
-{
+ * @brief A pool of bitmaps used to throw around dirt.
+ *
+ * Note: Currently the pool is limited to radius [1;5] the
+ *       debris can have. That is five series of bitmaps.
+ **/
+struct sDebrisPool {
 	typedef sDebrisItem item_t;
 
-	explicit sDebrisPool(int32_t limit_);
+	explicit sDebrisPool( int32_t limit_ );
 	~sDebrisPool();
 
-	void    free_item(item_t* item);
-	item_t* get_item (int32_t radius);
+	void    free_item( item_t* itm );
+	item_t* get_item( int32_t radius );
 
 private:
+	item_t* create_item( int32_t radius );
 
-	item_t* create_item(int32_t radius);
-
-	int32_t avail[5];      //!< How many items are available for which radius.
-	int32_t count_all = 0; //!< Sum of all created items.
-	int32_t counts[5];     //!< How many items are used for which radius.
-	int32_t limit     = 0; //!< The limit of the pool, set on pool creation.
-	item_t* heads[5];
-	item_t* tails[5];
+	int32_t avail[ 5 ]  = { 0x0 }; //!< How many items are available for which radius.
+	int32_t count_all   = 0;       //!< Sum of all created items.
+	int32_t counts[ 5 ] = { 0x0 }; //!< How many items are used for which radius.
+	int32_t limit       = 0;       //!< The limit of the pool, set on pool creation.
+	item_t* heads[ 5 ]  = { nullptr };
+	item_t* tails[ 5 ]  = { nullptr };
 };
 
 
 #endif // ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
-

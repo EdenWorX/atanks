@@ -1,5 +1,5 @@
 #ifndef BEAM_DEFINE
-#define BEAM_DEFINE
+#define BEAM_DEFINE 1
 
 /*
 atanks - obliterate each other with oversize weapons
@@ -20,38 +20,38 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include "externs.h"
 #include "main.h"
 #include "physobj.h"
-
+#include "weapon.h"
 
 /** @enum eBeamType
-  * @brief Determines what kind of beam is generated
-**/
-enum eBeamType
-{
+ * @brief Determines what kind of beam is generated
+ **/
+enum eBeamType {
 	BT_WEAPON = 0, //!< Normal weapon, nothing special
 	BT_SDI,        //!< Not a weapon but an SDI laser
 	BT_NATURAL,    //!< Fired by natural disaster, like lightning.
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
+struct POINT_t {
+	int32_t x          = 0;
+	int32_t y          = 0;
 
-class BEAM: public PHYSICAL_OBJECT
-{
+	explicit POINT_t() = default;
+};
+
+class BEAM final : public PHYSICAL_OBJECT {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit BEAM ( PLAYER* player_, double x_, double y_,
-					int32_t fireAngle, int32_t weaponType,
-					eBeamType beam_type);
-	BEAM          ( PLAYER* player_, double x_, double y_,
-					double tx, double ty, int32_t weaponType,
-					bool is_burnt_out);
-	~BEAM ();
+	explicit BEAM( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
+	BEAM( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
+	~BEAM() final;
 
 
 	/* ----------------------
@@ -59,16 +59,15 @@ public:
 	 * ----------------------
 	 */
 
-	void	 applyPhysics();
-    void	 draw        ();
-    void     getEndPoint (int32_t &x, int32_t &y); // For mind shots to fetch
-	void     moveStart   (double x_, double y_);   // For the satellite
+	void   applyPhysics() final;
+	void   draw() final;
+	void   getEndPoint( int32_t& x, int32_t& y ); // For mind shots to fetch
+	void   moveStart( double x_, double y_ );     // For the satellite
 
-	eClasses getClass() { return CLASS_BEAM; }
+	eClass getClass() final { return CLASS_BEAM; }
 
 
 private:
-
 	/* -----------------------
 	 * --- Private methods ---
 	 * -----------------------
@@ -76,7 +75,7 @@ private:
 
 	void createBeamPath();
 	void makeLightningPath();
-	void traceBeamPath ();
+	void traceBeamPath();
 
 
 	/* -----------------------
@@ -87,8 +86,8 @@ private:
 	eBeamType beamType  = BT_WEAPON;
 	int32_t   color     = WHITE;
 	double    damage    = 0.;
-	int32_t   numPoints = 0;
-	POINT_t*  points    = nullptr;
+	int32_t   numPoints = 2; // Default for lasers
+	POINT_t   points[ 12 ];  // Maximum for lightnings
 	int32_t   radius    = 0;
 	int32_t   seed      = 0;
 	int32_t   tgtLeftX  = 0;
@@ -96,5 +95,4 @@ private:
 	WEAPON*   weap      = nullptr;
 };
 
-#endif
-
+#endif // BEAM_DEFINE

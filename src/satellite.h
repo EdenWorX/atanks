@@ -1,21 +1,18 @@
-#ifndef SATELLITE_HEADER_FILE__
-#define SATELLITE_HEADER_FILE__
+#ifndef ATANKS_SRC_SATELLITE_H_INCLUDED
+#define ATANKS_SRC_SATELLITE_H_INCLUDED 1
 
 
 #include "environment.h"
 #include "globaldata.h"
 
 #define SATELLITE_IMAGE 16
-#define CHANCE_TO_SHOOT 100
 
 #ifndef BEAM_DEFINE
 class BEAM;
 #endif // BEAM_DEFINE
 
-class SATELLITE
-{
+class SATELLITE {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
@@ -29,13 +26,12 @@ public:
 	 * ----------------------
 	 */
 
-	void draw();
+	void draw() const;
 	void move();
 	void shoot();
 
 
 private:
-
 	/* -----------------------
 	 * --- Private members ---
 	 * -----------------------
@@ -46,8 +42,6 @@ private:
 	int32_t y      = MENUHEIGHT + 5;
 	int32_t xv     = -2;
 	int32_t prev_x = 0;
-
 };
 
-#endif
-
+#endif // ATANKS_SRC_SATELLITE_H_INCLUDED

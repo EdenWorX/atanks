@@ -1,5 +1,5 @@
-#ifndef	FLOATTEXT_DEFINE
-#define	FLOATTEXT_DEFINE
+#ifndef FLOATTEXT_DEFINE
+#define FLOATTEXT_DEFINE
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -21,36 +21,38 @@
  * */
 
 
-#include "main.h"
 #include "environment.h"
+#include "main.h"
 #include "virtobj.h"
-
 
 /// @enum eTextSway
 /// @brief Type of text swaying
-enum eTextSway
-{
-	TS_NO_SWAY    =  0, //!< Static text that is moving normally
+enum eTextSway {
+	TS_NO_SWAY    = 0,  //!< Static text that is moving normally
 	TS_VERTICAL   = 15, //!< Vertical "bouncing" text like tank health.
 	TS_HORIZONTAL = 22  //!< Horizontal swaying text, if turned on, used for damage and money.
 };
 
-
-
-class FLOATTEXT: public VIRTUAL_OBJECT
-{
+class FLOATTEXT final : public VIRTUAL_OBJECT {
 public:
-
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit FLOATTEXT (const char* text_, int32_t xpos, int32_t ypos,
-						double xv_, double yv_, int32_t color_,
-						alignType alignment, eTextSway sway_type,
-						int32_t max_age, bool is_fixed_);
-	~FLOATTEXT ();
+	explicit FLOATTEXT(
+		char const* text_,
+		double      xpos,
+		double      ypos,
+		double      xv_,
+		double      yv_,
+		int32_t     color_,
+		alignType   alignment,
+		eTextSway   sway_type,
+		int32_t     max_age,
+		bool        is_fixed_
+	);
+	~FLOATTEXT() final;
 
 
 	/* ----------------------
@@ -58,29 +60,30 @@ public:
 	 * ----------------------
 	 */
 
-	void     applyPhysics ();
-	void     draw         ();
-	void     newRound     ();
-	void     set_color    (int32_t color_);
-	void     set_pos      (int32_t xpos, int32_t ypos);
-	void     set_sway_type(eTextSway sway_type);
-	void     set_text     (const char* text_);
+	void   applyPhysics() final;
+	void   draw() final;
+	void   newRound();
+	void   set_color( int32_t color_ );
+	void   set_pos( int32_t xpos, int32_t ypos );
+	void   set_sway_type( eTextSway sway_type );
+	void   set_text( char const* text_ );
 
-	eClasses getClass() { return CLASS_FLOATTEXT; }
+	eClass getClass() final { return CLASS_FLOATTEXT; }
 
+	/* Little inline helper */
+	inline void set_pos( double xpos, double ypos ) { set_pos( ROUND( xpos ), ROUND( ypos ) ); }
 
 private:
-
 	/* -----------------------
 	 * --- Private methods ---
 	 * -----------------------
 	 */
 
-	void     check_pos    (bool is_new);
-	int32_t  overlaps_by  (const FLOATTEXT* other);
-	void     push_down    (int32_t ydiff, bool is_new);
-	void     reset_sway   ();
-	void     set_speed    (double xv_, double yv_);
+	void    check_pos( bool is_new );
+	int32_t overlaps_by( const FLOATTEXT* other );
+	void    push_down( int32_t ydiff, bool is_new );
+	void    reset_sway();
+	void    set_speed( double xv_, double yv_ );
 
 
 	/* -----------------------
@@ -98,10 +101,9 @@ private:
 	char*     text      = nullptr;
 };
 
-
 // This function returns a shade colour, which
 // is either brighter or darker depending on
 // the given colour and options.
-int32_t GetShadeColor(int32_t colour, bool do_lighten, int32_t bg_colour);
+int32_t GetShadeColor( int32_t colour, bool do_lighten, int32_t bg_colour );
 
 #endif

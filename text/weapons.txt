@@ -260,7 +260,7 @@ Teleports the tank to a random location
 
 Swapper
 Swap places with another tank
-40000 2 1 4 6
+4000 2 1 4 6
 
 Mass Teleport
 Teleports all tanks on the screen
