@@ -108,22 +108,22 @@ packagers own their specs.
 Confirm no references to the spec or to tracked `.d` files remain (`git grep atanks-4.3.spec`, `git ls-files dep/` shows only
 `.keep_dir`), and that install/packaging docs no longer promise them.
 
-### [ ] PF-1.5: Clean up `exporter/` and `cb/`
+### [x] PF-1.5: Clean up `exporter/` and `cb/`
 
 Both date from 2015: no Allegro datafiles have been used since then (`exporter/export.cpp`, `exporter/move.cpp`), and
 Code::Blocks has been unsupported for almost a decade (`cb/atanks.cbp`, `cb/atanks.workspace`).
 
-#### [ ] PF-1.5.1: Delete `exporter/` and update the asset workflow docs
+#### [x] PF-1.5.1: Delete `exporter/` and update the asset workflow docs
 
 Delete `exporter/export.cpp` and `exporter/move.cpp`, and update the `README.md` "new asset" workflow (which cites
 `exporter/move.cpp` for bitmap renumbering) to describe the manual numbering step. Game behavior unchanged.
 
-#### [ ] PF-1.5.2: Delete `cb/` and update the build docs
+#### [x] PF-1.5.2: Delete `cb/` and update the build docs
 
 Delete `cb/atanks.cbp` and `cb/atanks.workspace`, and remove the Code::Blocks rows from the `README.md` build docs and
 `AGENTS.md` project map. The `Makefile` itself is untouched.
 
-#### [ ] PF-1.5.3: Verify no references remain
+#### [x] PF-1.5.3: Verify no references remain
 
 Confirm `git grep -E "exporter/|atanks\.cbp"` returns no hits outside `docs/Changelog.history`.
 
