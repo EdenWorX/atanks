@@ -3,7 +3,7 @@
 <component type="desktop-application">
   <metadata_license>CC0-1.0</metadata_license>
 ​  <project_license>GPL-3.0-or-later</project_license>
-  <id>io.sourceforge.atanks</id>
+  <id>io.github.EdenWorX.atanks</id>
   <name>Atomic Tanks</name>
   <summary>Multi-platform Scorched Earth clone similar to the Worms series of games</summary>
   <description>
@@ -59,8 +59,8 @@
     </screenshot>
   </screenshots>
 
-  <url type="homepage">https://atanks.sourceforge.io</url>
-  <url type="bugtracker">https://sourceforge.net/p/atanks/bugs/</url>
+  <url type="homepage">https://github.com/EdenWorX/atanks</url>
+  <url type="bugtracker">https://github.com/EdenWorX/atanks/issues</url>
 
   <update_contact>ubr47k@users.sourceforge.net</update_contact>
   <update_contact>jessefrgsmith@yahoo.ca</update_contact>

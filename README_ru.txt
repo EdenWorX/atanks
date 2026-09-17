@@ -15,7 +15,7 @@ Atomic Tanks - это игра, в которой вы управляете мо
 ===================================
 
 Чтобы получить Atomic Tanks, зайдите на наш сайт:
-http://atanks.sourceforge.net
+https://github.com/EdenWorX/atanks
 Затем зайдите в секцию "Download" и скачайте самую
 последнюю версию Atomic Tanks.
 

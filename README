@@ -16,7 +16,7 @@ How to I get/install Atomic Tanks?
 ===================================
 
 To gain a copy of Atomic Tanks, go to our website at
-   http://atanks.sourceforge.net
+   https://github.com/EdenWorX/atanks
 Click on the "Download" link and select the latest version of Atanks.
 
 Note: If you have a pre-compiled (binary) copy of Atomic Tanks, you will need
@@ -237,9 +237,9 @@ Atomic Tanks is a great game, but it isn't perfect.
 We, the developers, are always trying to improve the experience our game brings
 to you. If you have a problem with installing or playing Atomic Tanks, please
 let us know.
-We have a bug tracker on xxx, where issues can be recorded, tracked, and
+We have a bug tracker on https://github.com/EdenWorX/atanks/issues, where issues can be recorded, tracked, and
 discussed.
-Or mail the project lead at jessefrgsmith@yahoo.ca
+Or mail the project lead at sven@eden-worx.com
 We encourage you to give your feedback. Please give as many details as possible
 so we can help you.
 
