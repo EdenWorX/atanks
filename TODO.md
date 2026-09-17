@@ -184,7 +184,7 @@ it accidentally, revert. The user then creates post-PF-1 entries.
 None of the following exists yet: `CMakeLists.txt`, `config.h.in` / generated `config.h`, `CHANGELOG.md`, `make test` /
 `test-all` / `test-asan` / `test-ubsan` / `test-tsan`, `tools/run-cppcheck.sh`, `make doc`, Doxygen coverage of public APIs.
 
-### [ ] PF-1.9: Migrate the build to CMake, keep `Makefile` as wrapper
+### [x] PF-1.9: Migrate the build to CMake, keep `Makefile` as wrapper
 
 Add `CMakeLists.txt` with `project(VERSION ...)` as the single source of truth for the version, add `config.h.in` generating
 `config.h` with the version macros (replacing `-DVERSION=` / `-DDATA_DIR=` flag plumbing), and port targets, flags, platform
@@ -224,7 +224,7 @@ appended for `SANITIZE_UNDEF=YES`. Examples: `make` → `./cmake-build-release`,
 dropped (lsan is part of asan now); `SANITIZE_UNDEF` (ubsan) is new. Address and thread sanitizers are mutually exclusive
 (address wins) but each combines with undefined.
 
-#### [ ] PF-1.9.5: Update the build documentation
+#### [x] PF-1.9.5: Update the build documentation
 
 Update the `README.md` build system docs and the `AGENTS.md` build/test commands to the CMake flow (wrapper commands,
 prerequisites, `vs12/`/`vs14/` for Windows). Remove documentation of retired targets.
