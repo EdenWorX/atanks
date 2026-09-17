@@ -1,0 +1,542 @@
+# Atomic Tanks
+
+## Overview
+
+Atomic Tanks is a turn-based artillery game in the Scorched Earth / Worms tradition. Each player controls a tank, buys weapons
+and defensive items between rounds, and fires projectiles in turn-based order. The last tank standing wins the round. The game
+supports human players, AI bots (multiple difficulty levels), teams (Jedi / Sith / Neutral), destructible terrain, wind and
+weather, network play (host plus clients), and localized in-game text.
+
+- Language: C++ (built with `-std=c++17`, see `Makefile:121`).
+- Graphics/audio/input library: Allegro 4 (`#include <allegro.h>` in `src/main.h:49`; build queries `allegro-config
+  --cppflags/--libs` in `Makefile:134,140,148,150`). Allegro must be installed separately; it is not vendored in this
+  repository.
+- Concurrency: POSIX threads on Linux (`-pthread` in `Makefile:149-150`), `std::thread`/`std::mutex`/`std::condition_variable`
+  in game code, plus a custom spinlock (`src/spinlock.h`).
+- Version: the `VERSION` variable in `Makefile` (currently `6.7`) is the single source of truth. Older version strings in other
+  files will be synchronized or removed in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.2`–`WP PF-1.4`).
+- License: `LICENSE` is the single source of truth. Contradicting license information elsewhere in the tree (`COPYING` GPLv2
+  text, `either version 2 ... or later` source headers, `io.sourceforge.atanks.metainfo.xml:5` declaring `GPL-2.0-or-later`)
+  will be fixed in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.1`).
+- Issue reports go to `https://github.com/EdenWorX/atanks/issues`. This is a manual fork moved from SourceForge to GitHub;
+  updating the remaining SourceForge references is part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.6`).
+
+## Repository Status and Documentation Scope
+
+This document was generated from tracked files only (`git ls-files`, 496 files). The following were intentionally excluded from
+analysis per `.gitignore` and `git ls-files --other`:
+
+- Build outputs: `atanks` binary, `obj/*.o` (except the tracked placeholder `obj/.keep_dir`), `*.dep`.
+- Logs: `atanks.log`, `allegro.log`, `memcheck.log`.
+- Windows local config: `allegro.cfg` (tracked in git but matched by a `.gitignore` rule; known to disable vertical sync on
+  Windows builds as a workaround for Allegro 4 sync problems).
+- Screenshots: `screenshot_*.*` (`screenshot_0001..0007.bmp`, `screenshot_001/002.bmp` on disk).
+- Agent/IDE-local state: `.opencode/` (including `node_modules`), `.aiignore`, `.idea/workspace.xml`, `talk_*.md`.
+- `AGENTS.md` itself is matched by `.gitignore:79` and is therefore untracked-by-design documentation.
+
+External or bundled third-party material was identified by metadata only and was not deeply analyzed: `src/extern/dirent.{h,c}`
+(Kevlin Henney Win32 dirent shim), the Allegro 4 system library, and the tracked Windows runtime DLLs `alleg44.dll` /
+`alleg44_64.dll`. Details are in `External or Bundled Dependencies` below.
+
+## Project Layout
+
+Top-level tracked entries (`git ls-files`, directories sorted):
+
+| Path | Contents / role |
+|---|---|
+| `src/` | All game source: ~50 `.cpp` + ~55 `.h` files, plus `src/extern/` shim |
+| `src/extern/` | Bundled `dirent` shim for Windows (`dirent.h`, `dirent.c`) |
+| `button/`, `misc/`, `missile/`, `stock/`, `tank/`, `tankgun/`, `title/` | Runtime bitmap assets (`*.bmp`), installed as data |
+| `sound/` | Runtime sound assets (`*.wav`) |
+| `text/` | Localized in-game text files (`weapons*.txt`, `Help*.txt`, `ingame*.txt`, etc.) |
+| `unicode.dat` | Allegro datafile used for fonts; also the probe file for data-dir detection. An old manual addition; ignored (not touched) until the post-cleanup move away from Allegro 4 makes it obsolete |
+| `Makefile` | Primary GNU Make build (`VERSION 6.7`, the version single source of truth) |
+| `Makefile.bsd` | Deprecated BSD-make build file, pending removal (`TODO.md`, `WP PF-1.3`) |
+| `cb/` | Code::Blocks frontend, unsupported for almost a decade, pending cleanup (`TODO.md`, `WP PF-1.5`) |
+| `vs12/`, `vs14/` | Visual Studio 2013 / 2015 solution + project + filters + `README_allegro.txt` |
+| `exporter/` | Obsolete standalone asset tools (no Allegro datafiles used since 2015), pending cleanup (`TODO.md`, `WP PF-1.5`) |
+| `dep/` | Tracked GCC dependency files (`*.d`, obsolete, pending removal) plus `.keep_dir` placeholder (`TODO.md`, `WP PF-1.4`) |
+| `obj/` | Object output directory; only `.keep_dir` is tracked |
+| `README`, `README_ru.txt` | Original user documentation (English + Russian) |
+| `Changelog` | Release history, newest entry first (top entry: 6.7) |
+| `TODO` | Legacy prioritized bug/feature list (almost a decade old; explicitly frozen — ignore it for now, `TODO.md` `WP PF-1.8`) |
+| `TODO.md` | Canonical planning file (per `docs/todo_planning.md`); first item is `TODO-PF-1` Cleanup and Modernization |
+| `docs/` | EdenWorX planning and release rules (`todo_planning.md`, `release_process.md`) |
+| `COPYING`, `LICENSE` | GPLv2 / GPLv3 license texts (`LICENSE` is the single source of truth) |
+| `credits.txt` | Authors, graphics, docs, translations, sound attributions |
+| `atanks-4.3.spec` | Obsolete RPM spec file (version 4.3, from 2015 or older), pending removal (`TODO.md`, `WP PF-1.4`) |
+| `atanks.desktop` | freedesktop menu entry (`Exec=atanks`) |
+| `io.sourceforge.atanks.metainfo.xml` | AppStream metadata |
+| `atanks.ico`, `atanks.png` | Windows icon (used by `src/atanks.rc`) and Linux menu icon |
+| `alleg44.dll`, `alleg44_64.dll` | Tracked Windows Allegro runtime DLLs (32/64-bit) |
+| `allegro.supp` | Valgrind suppression file for Allegro/ALSA/X11 noise |
+| `do_memcheck.sh`, `do_helgrind.sh`, `gdb_memcheck.sh` | Valgrind/helgrind/gdb helpers that run `./atanks` |
+| `.clang-format` | clang-format style definition (requires clang-format 19+) |
+| `.gitignore`, `.idea/*`, `cb/*` | Ignore rules and IDE metadata |
+
+There is no test directory and no test target in any build file.
+
+## Components
+
+### Executables
+
+One program is built: `atanks` (`atanks.exe` on `WIN32`).
+
+- Entry point: `int32_t main(int32_t argc, char** argv)` in `src/atanks.cpp:1494`, closed by Allegro's `END_OF_MAIN()` in
+  `src/atanks.cpp:1648`.
+- Startup sequence in `main` (`src/atanks.cpp:1494-1647`):
+  1. `parse_args()` (`src/atanks.cpp:1134`), called at `:1498`.
+  2. `env.find_data_dir()` (`:1508`); failure exits with `EXIT_FAILURE`.
+  3. `game_version` derived from `VERSION` (`:1513-1518`).
+  4. `env.find_config_dir()` (`:1522`), then `loadConfig()` or `createConfig()` (`:1525-1526`).
+  5. `env.loadGameFiles()` (`:1530`); failure exits.
+  6. Optional `NETWORK` threads (`Send_And_Receive`, update checker, `:1535-1562`).
+  7. Main-menu loop (`:1568-1613`) dispatching on `global.get_command()`: help, options, players, credits, network game, demo,
+     or local play.
+  8. `Save_Game_Settings()`, `env.destroy()`, `global.destroy()`, `allegro_exit()` (`:1633-1642`).
+- Round execution funnels into `game()` declared in `src/gameloop.h:7` via `play_local()` (`src/atanks.cpp:1313`), `play_demo()`
+  (`:1257`), and `play_networked()` (`:1383`; without `-DNETWORK` this path reports an error, `:1398-1410`).
+
+### Libraries
+
+There are no separate built libraries. Every `src/*.cpp` compiles to `obj/*.o` and links into the single `atanks` binary
+(`$(TARGET): $(MODULES)` in `Makefile:315-316`). The closest thing to internal libraries is a set of service modules with narrow
+responsibilities:
+
+| Module | Files | Responsibility |
+|---|---|---|
+| Debug/platform layer | `src/debug.h`, `src/debug.cpp` | OS detection (`ATANKS_IS_WINDOWS/LINUX/BSD/MSVC`), `snprintf`/`localtime` shims, `DEBUG_LOG*` macros |
+| Global state | `src/globals.h`, `src/externs.h`, `src/globaldata.h/.cpp`, `src/environment.h/.cpp`, `src/globaltypes.h/.cpp` | The two globals (`GLOBALDATA global`, `ENVIRONMENT env`), enums, constants |
+| Persistence | `src/files.h`, `src/files.cpp` | Config, savegames, weapon-text loading, directory scans |
+| Text/localization | `src/text.h`, `src/text.cpp` | `TEXTBLOCK` file loading, line selection, text rendering helpers |
+| Audio | `src/sound.h`, `src/sound.cpp` | Thin wrappers over `env.sounds` / `env.background_music` |
+| Clock | `src/clock.h`, `src/clock.cpp`, `src/winclock.h` | Game/menu timers, MSVC clock workaround |
+| Locking | `src/spinlock.h`, `src/spinlock.cpp` | `CSpinLock` (atomic-flag, non-recursive) |
+| Z-buffer | `src/zbuffer.h`, `src/zbuffer.cpp` | 1-bit-per-pixel `ZBuffer::set/test` over `vector<bool>` |
+| Update protocol | `src/update.h`, `src/update.cpp` | `Update_Data` / update-checker structures |
+| Network transport | `src/network.h`, `src/network.cpp` | `MESSAGE`/`MESSAGE_QUEUE`, sockets (only when `NETWORK` is defined) |
+| Network client | `src/client.h`, `src/client.cpp` | Client-side protocol constants and handling |
+
+### Shared/Internal Utility Code
+
+- `src/main.h` is the common include hub: it requires `debug.h` first (comment at `src/main.h:32-35`), then Allegro headers,
+  then `globaltypes.h` and `wrap_dirent.h`, then the C++ standard headers. It defines `BUFFER_SIZE 256` (`:28`), `HOME_DIR`
+  (`"AppData"` on Windows, `"HOME"` on Linux, `:137-141`), the `DATA_DIR` fallback `"."` (`:143-145`), math helpers (`SIGN`,
+  `SIGNd`, `ROUND`, `ROUNDu`, `FABSDISTANCE2`, `:150-160`), sleep helpers (`USLEEP`, `MSLEEP`, `LINUX_SLEEP`, `LINUX_REST`,
+  `:119-127`), and MSVC portability shims (`:102-115`).
+- `src/externs.h:48-49` re-exports the two globals as `extern` for every translation unit except `src/atanks.cpp` (guarded by
+  `ATANKS_SRC_ATANKS_CPP`, `:45-80`). It also declares shared scalars and the three content catalogs (`:53-69`).
+- Content catalogs, defined in `src/files.cpp:26-28`: `WEAPON weapon[WEAPONS]`, `WEAPON naturals[NATURALS]`, `ITEM item[ITEMS]`,
+  with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (`src/main.h:257-260`).
+- `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct gradient;`.
+- `src/gfxData.h` (`sGfxData`) owns generated gradient strips and explosion graphics.
+- `src/random.h` / `src/perlin.cpp` provide random numbers (Changelog 6.7 notes thread-local modernized RNG) and procedural
+  noise for terrain/sky.
+- `src/box.h`, `src/button.h`, `src/menu.h`, `src/optiontypes.h`, `src/optioncontent.h`, `src/optionitem*.h`,
+  `src/optionscreens.h` form the menu/options UI framework (self-managing `Menu` of `OptionItem` entries).
+
+### Gameplay Modules
+
+| Area | Key files | Notes |
+|---|---|---|
+| Object hierarchy root | `src/virtobj.h/.cpp` (`VIRTUAL_OBJECT`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `getClass()` |
+| Physics mixin | `src/physobj.h/.cpp` (`PHYSICAL_OBJECT : VIRTUAL_OBJECT`) | Gravity/drag/mass, bounces, `weapType`, angle macros |
+| Tank avatar | `src/tank.h/.cpp` (`TANK final : PHYSICAL_OBJECT`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
+| Projectile | `src/missile.h/.cpp` (`MISSILE final : PHYSICAL_OBJECT`) | `eMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
+| Detonation | `src/explosion.h/.cpp` (`EXPLOSION final : PHYSICAL_OBJECT`) | Terrain deformation, throwing, damage, napalm/debris |
+| Beams (lasers) | `src/beam.h/.cpp` | Laser-class weapons parallel to ballistic missiles |
+| Arsenal data | `src/weapon.h/.cpp`, `src/item.h/.cpp` | Plain records: 56 weapons + 6 naturals + 24 items; unified index `THINGS = WEAPONS+ITEMS` |
+| Player state | `src/player.h/.cpp` | Economy, inventories `nm[WEAPONS]/ni[ITEMS]`, personality, opponent memory, shop prefs, save/load, speech-line selection |
+| Player/AI types | `src/player_types.h/.cpp` | `playerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `ePlayerStages`, `eTeamTypes{SITH,NEUTRAL,JEDI}`, modular enum arithmetic |
+| AI | `src/aicore.h/.cpp` (`AICore`) | Background-thread bot with documented pipeline: initialize, target/weapon selection, attack calculation, aiming traces, writeback |
+| Shop | `src/shop.h/.cpp` (`bool shop(LevelCreator*)`) | Inter-round buy/sell UI |
+| Scoring | `src/score.h/.cpp` (`sScore`, `sort_scores()`) | Caller deletes the returned array |
+| Terrain/sky | `src/land.h/.cpp`, `src/sky.h/.cpp`, `src/levelcreator.h/.cpp`, `src/moon.h/.cpp`, `src/satellite.h/.cpp`, `src/teleport.h/.cpp`, `src/decor.h/.cpp`, `src/debris_pool.h/.cpp`, `src/floattext.h/.cpp` | 16 land + 16 sky gradients each (8 classic + 8 crispy), generators, decor, debris, floating text |
+| Round driver | `src/gameloop.h/.cpp` (`game()`) | Round phases, AI thread, per-class `ObjectUpdater` threads, input, firing, winner detection |
+
+### Data, Templates, and Resources
+
+Installed by the `install` target (`Makefile:294-313`) under `${INSTALLDIR}`:
+
+- `button/*.bmp` (28 files, `0..27`), `misc/*.bmp` (18 files), `missile/*.bmp` (32 files, `0..31`), `stock/*.bmp` (80 files,
+  `0..79`), `tank/*.bmp` (17 files), `tankgun/*.bmp` (10 files), `title/*.bmp` (4 files).
+- `sound/*.wav` (27 files: `00-07`, `10-22`, `30-32`, `40`).
+- `text/*.txt` (~90 files): per-topic per-language matrix for `gloat`, `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`,
+  `revenge`, `suicide`, `weapons`, `war_quotes`, `Help`, with language suffixes `_de`, `_fr`, `_it`, `_ru`, `_sk`, `_ES`,
+  `.pt_BR` plus the English base file.
+- `unicode.dat` (5604 bytes, `file` reports `Allegro datafile`), `COPYING`, `README`, `TODO`, `Changelog`, `*.txt`.
+- `atanks.png` is installed to `.../share/icons/hicolor/48x48/apps` (`Makefile:292-293`); `atanks.ico` is consumed by
+  `src/atanks.rc` for the Windows build.
+
+Weapon/item stats come from `text/weapons*.txt` (see `Configuration`). Speech/quote text comes from the other `text/*.txt` files
+via `TEXTBLOCK`.
+
+### Platform-Specific Code
+
+- `src/debug.h:9-32` detects `ATANKS_IS_WINDOWS`, `ATANKS_IS_MSVC` (including the `ATANKS_HAS_MSVC12_BUG` workaround for
+  `_MSC_VER < 1900`), `ATANKS_IS_BSD`, and `ATANKS_IS_LINUX`; anything else is a compile `#error`.
+- `src/main.h:39-53` handles `ALLEGRO_NO_MAGIC_MAIN`, `ALLEGRO_HAVE_STDINT_H`, and `winalleg.h` inclusion on Windows; `:57-67`
+  handles MSVC `PATH_MAX`, `_USE_MATH_DEFINES`, and POSIX-vs-MSVC headers.
+- `src/winclock.h` plus `USLEEP`/`MSLEEP` in `src/main.h:119-127` work around an MSVC12 chrono problem.
+- `src/wrap_dirent.h:9-16` includes `extern/dirent.h` on MSVC and the system `<dirent.h>` elsewhere. `src/files.cpp:786-840` has
+  separate `scandir` paths for Win32 vs POSIX.
+- `src/atanks.rc` (Windows resources: `A ICON ../atanks.ico`, Allegro icon, `VERSIONINFO`) and `src/resource.h` (MSVC-generated
+  defines) are used only by the Visual Studio / windres builds.
+- `Makefile` selects `PLATFORM` from the make goals (`:60-72`): any goal containing `win` selects `WIN32`, containing `osx`
+  selects `MACOSX`, otherwise `LINUX`. Goals containing `user` force `INSTALLDIR := .` (`:75-77`).
+
+### External or Bundled Dependencies
+
+The following were classified as external by metadata inspection; their internals were not analyzed:
+
+- **Allegro 4 (system dependency).** Evidence: `README:23-26,32-33` requires the Allegro (development) package; `Makefile`
+  queries `allegro-config` for Linux/macOS builds (`:134,140,148,150`); `vs12|vs14/README_allegro.txt` explain how to repoint
+  include/lib paths to a local Allegro; `exporter/export.cpp:5` documents compiling with `` `allegro-config --libs` ``;
+  `io.sourceforge.atanks.metainfo.xml:19` states the game "runs on any platform Allegro4 runs on". Role: graphics, sound, input,
+  timers. The build fails without it (verified: `allegro-config` is absent on this machine, and even `make -n user` prints
+  `allegro-config: Datei oder Verzeichnis nicht gefunden`).
+- **`src/extern/dirent.{h,c}` (bundled shim).** Evidence: header comment `Declaration of POSIX directory browsing functions and
+  types for Win32. Author: Kevlin Henney ... Created March 1997. Updated June 2003` (`src/extern/dirent.h:4-12`) with a
+  permissive use/copy/modify/distribute grant (`:31-41`). Role: POSIX `opendir/readdir` for MSVC builds only, selected by
+  `src/wrap_dirent.h:10-14` and compiled in the `.vcxproj` files; the GNU build uses the system `<dirent.h>`.
+- **Windows Allegro runtime DLLs.** `alleg44.dll` (832512 bytes) and `alleg44_64.dll` (998400 bytes) are tracked release
+  runtimes for 32/64-bit Windows (per `vs12|vs14/README_allegro.txt`, only Release DLLs are kept in git; Debug/import libraries
+  are user-supplied and matched by `.gitignore` rules `alleg44*.lib`, `alleg44*-debug.*`, `alleg44*_d.*`).
+- **Build/analysis tools (not vendored):** `clang++`/`mingw32-g++`/`windres.exe`, MSVC toolsets v120/v140, and `valgrind` for
+  the `do_*.sh` helpers.
+
+## Architecture
+
+```
+ CLI (atanks.cpp: parse_args)
+   |
+   v
+ ENVIRONMENT env ......... fixed config + asset registry (environment.h)
+ GLOBALDATA global ........ per-round mutable state (globaldata.h)
+   |                               |
+   +-- main-menu loop .............+-- round driver game() (gameloop.cpp)
+   |    (menu/options/players/       |    |
+   |     shop/selectPlayers)         |    +-- AICore thread (aicore.h) per AI tank
+   |                                 |    +-- ObjectUpdater threads per eClass
+   |                                 |    +-- object lists: TANK / MISSILE / BEAM /
+   |                                 |         EXPLOSION / TELEPORT / DECOR / FLOATTEXT
+   v                                 v
+ files.cpp ................. config/save/weapon-text loading
+ text.cpp .................. TEXTBLOCK localization
+ sound.cpp ................. audio triggers
+ network.cpp / client.cpp .. host/client transport (NETWORK builds)
+```
+
+- Draw/update ordering follows `eClass` in `src/globaltypes.h` (`CLASS_MISSILE, BEAM, TANK, TELEPORT, DECOR_DIRT, SMOKE,
+  EXPLOSION, FLOATTEXT, COUNT`).
+- Round stages follow `eRoundStages` (`STAGE_AIM, STAGE_FIRE, STAGE_SCOREBOARD, STAGE_ENDGAME`).
+- Threading: `AICore` runs bot planning off the main thread (`mutex`/`condition_variable`, `start/stop/status` in
+  `src/aicore.h`); `gameloop.cpp:89-243` spawns one `ObjectUpdater` thread per class behind `updMutex/updCondition` (`:85-86`)
+  and joins them at `:497-541`. `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (`Makefile:191`).
+- Data flow for content: `text/weapons*.txt` -> `Load_Weapons_Text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
+  -> shop UI, AI planning, firing, explosions. `text/*.txt` (speech/help) -> `ENVIRONMENT::load_text_files()`
+  (`src/environment.cpp:966ff`) -> `TEXTBLOCK*` fields -> menus, AI taunts, help screens.
+
+## Build System
+
+### Supported Build Paths
+
+| Goal / command | Platform / result | Notes |
+|---|---|---|
+| `make` then `make install` | Linux system install | Binary to `$(PREFIX)/bin` (`/usr/bin` default), data to `/usr/share/atanks`; honors `PREFIX=` and `DESTDIR=` (`Makefile:42-46`, `README:43-48`) |
+| `make ubuntu` then `make install ubuntu` | Ubuntu sound workaround (ancient, pending removal, `TODO.md` `WP PF-1.13`) | Adds `-DUBUNTU` (`Makefile:155-157`, `README:50-55`) |
+| `make user` | Linux local run | `INSTALLDIR := .`, so `DATA_DIR="."` (`Makefile:75-77`, `README:57-60`) |
+| `make winuser` | Windows via MinGW (stale; the project is built with Visual Studio) | `PLATFORM=WIN32`, `atanks.exe` + `obj/atanks.res` via `windres.exe`, `CXX=mingw32-g++`, `LDFLAGS -L. -lalleg44` (`Makefile:104-112`, `README:61-63`); retired in the CMake migration (`TODO.md`, `WP PF-1.9`) |
+| `make osxuser` (`gmake osxuser`) | macOS local run | `PLATFORM=MACOSX` (`README:65-68`) |
+| `make bsduser` | BSD via GNU Makefile | Extra include path `/usr/local/include`, `-Wno-c99-extensions` (`Makefile:141-147`) |
+| `make debug` / `aidebug` / `fulldebug` | Debug variants | `DEBUG=YES` plus flavor defines; `aidebug` adds AICORE logging, `fulldebug` adds finance/objects/physics (`Makefile:333-340`) |
+| `make clean` / `veryclean` | Cleanup | Removes `obj/*` and `atanks` (`:318-326`) |
+| `make dist` / `source-dist` / `i686-dist` / `win32-dist` / `tarball` / `zipfile` | Distribution archives | All Windows `Makefile` targets are stale (the project is built with Visual Studio); `win32-dist` references `alleg40.dll`, which does not match the tracked `alleg44*.dll` names. The `Makefile` will become a cmake+ninja wrapper in the CMake migration (`TODO.md`, `WP PF-1.9`) |
+| Code::Blocks `cb/atanks.cbp` | IDE frontend | Custom-makefile project; its targets invoke `make` with flag presets (e.g. `user`, `USE_LTO=YES`, sanitizers) |
+| `vs12/atanks.sln`, `vs14/atanks.sln` | Visual Studio 2013 / 2015 | Four configs each (Debug/Release x Win32/x64); see below |
+
+Verified on this machine: `make -n user` expands to per-file `g++ -DDATA_DIR="." -DLINUX -DVERSION="6.7" -DNETWORK -O2 ... -c
+src/*.cpp` lines. A full compile was not attempted because `allegro-config` is not installed here (shell reports `NO
+allegro-config`).
+
+### Autotools / Make Build
+
+There is no Autotools setup (`configure`, `configure.in`, `aclocal.m4` do not exist). The build is plain GNU Make:
+
+- Sources/objects: `SOURCES := $(sort $(wildcard src/*.cpp))`, `MODULES := obj/...`, `DEPENDS := dep/...` (`Makefile:52-54`).
+- Dependency tracking: `dep/%.d` generated with `$(CXX) -MM` and included via `-include $(DEPENDS)` (`:256-260`, `:384-386`).
+- Compiler defaults: `CXX ?= $(shell which clang++)`, `LD := $(CXX)` (`:90-115`).
+- Base flags (`:120-130`): `-Wall -Wextra -Wpedantic -std=c++17 -fexceptions`, `CPPFLAGS += -DDATA_DIR="${INSTALLDIR}"
+  -D$(PLATFORM) -DVERSION="${VERSION}"`.
+- Per-platform flags (`:133-151`): Linux adds `-DNETWORK`, `allegro-config` flags, `-pthread`, `-lm -lpthread`; macOS adds
+  `-I/usr/local/include` and Allegro flags (no `-DNETWORK`); Windows adds `-mwindows`, `-L. -lalleg44`.
+- Release (`DEBUG=NO`): `-O2`, `-march=native` (`:218-221`), optional `USE_LTO=YES` (`-flto`, optionally `-fuse-linker-plugin`,
+  `:225-230`).
+- Debug (`DEBUG=YES`, or any `-g` flag in `CXXFLAGS` forces `DEBUG=YES`, `:163-169`): `-ggdb`, `-Og`, `-DATANKS_DEBUG`,
+  `-fstack-protector-strong`, `-Wunused`, LTO blocked (`:171-181`); optional sanitizers (`SANITIZE_ADDRESS/LEAK/THREAD`,
+  `:183-193`) and per-flavor `-DATANKS_DEBUG_{AIMING,EMOTIONS,FINANCE,OBJECTS,PHYSICS,LOGTOFILE}` (`:195-216`, with
+  `DEBUG_AICORE` enabling aiming+emotions together).
+
+### Platform-Specific Builds
+
+- `Makefile.bsd` is deprecated and pending removal (`TODO.md`, `WP PF-1.3`). For the record, it is a standalone BSD-make file
+  with explicit per-object rules (`MODULES` list at `:5-15`, compile lines `:40-121`), `VERSION 6.5`, `-std=c++0x`, and its own
+  dependency list (`:127-298`). It expects to run from a shadow `obj/` directory (`MAKEOBJDIRPREFIX`, `../src/*.cpp` paths).
+- `vs12` targets VS2013 (`Format 12.00`, toolset v120, `CharacterSet=Unicode`, `OutDir=$(SolutionDir)..`); `vs14` targets VS2015
+  (toolset v140, `CharacterSet=MultiByte`, `WindowsTargetPlatformVersion=8.1`, `IntDir=.obj\$(Platform)_$(Configuration)`). Both
+  define `VERSION="6.5_rc1"` (stale vs `Makefile` 6.7); `vs14` additionally defines `DATA_DIR="."`. Both link one of
+  `alleg44.lib / alleg44_64.lib / alleg44_d.lib / alleg44_64_d.lib` per configuration plus the Win32 system libraries. `vs14`
+  embeds `../atanks.ico`. `README_allegro.txt` in each folder explains how to repoint include/library paths and swap the DLL
+  variants.
+- Code::Blocks (`cb/atanks.cbp:6,10`) sets `makefile_is_custom=1`, `compiler=gcc`, and defines ~19 targets that are `make`
+  invocations with different flag presets; `cb/atanks.workspace` is a single-project wrapper.
+
+### Visual Studio Project Files
+
+Covered above; the `.vcxproj.filters` files only group files in Solution Explorer (German group names in `vs12`, English in
+`vs14`) and carry no build semantics.
+
+### Xcode Workspace / Configuration Files
+
+None exist in the repository.
+
+## Configuration
+
+- Compile-time: `DATA_DIR` (`-DDATA_DIR="${INSTALLDIR}"`, `Makefile:128`; default `/usr/share/atanks`, `"."` for `*user` goals),
+  `VERSION` (`-DVERSION="6.7"`), `PLATFORM` (`-DLINUX/-DWIN32/-DMACOSX`), `NETWORK` (Linux only), `UBUNTU` (ancient workaround,
+  pending removal, `WP PF-1.13`), `ATANKS_DEBUG*` flavors.
+- Runtime data directory, resolved by `ENVIRONMENT::find_data_dir()` (`src/environment.cpp:387-416`): `--datadir` if readable,
+  else the compiled `DATA_DIR` (verified by probing `unicode.dat` inside it), else `./` fallback.
+- Runtime config directory, resolved by `ENVIRONMENT::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
+  else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, `src/main.h:137-141`). `Copy_Config_File()`
+  (`src/files.cpp:334-390`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
+- Main settings file: `<configDir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
+  `env.load_from_file()` plus per-player `PLAYER::load_from_file`) and written by `Save_Game_Settings()` (`:1448-1463`).
+  `--noconfig` skips loading.
+- Weapon/item stats: `Load_Weapons_Text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<dataDir>/text/weapons*.txt`,
+  selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
+  always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
+  `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`eDataStage`, `src/globaltypes.h:81-86`).
+- Speech/help text: `ENVIRONMENT::load_text_files()` (`src/environment.cpp:966ff`) loads `text/<base><suffix>` for `gloat`,
+  `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
+  `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (`src/environment.h:248-257`).
+- Savegames: `<configDir>/<game_name>.sav`, format `VERSION/GLOBAL/ENVIRONMENT/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
+  listing via `Find_Saved_Games()` (`*.sav` filter, `src/files.cpp:786-840`).
+- Music: `Create_Music_Folder()` ensures a `music/` folder in the config dir (`src/files.cpp:395-412`); custom `*.bmp` files are
+  picked up by `Find_Bitmaps()` (`:848-893`).
+
+## Runtime Behavior
+
+- Default invocation `./atanks` equals `--windowed --width 800 --tall 600 --datadir . depth 32` (`README:116-119`; defaults
+  `DEFAULT_SCREEN_WIDTH 800` / `DEFAULT_SCREEN_HEIGHT 600` in `src/globaltypes.h:23-24`).
+- First run with no human player opens the player-creation screen automatically; afterwards the flow is Players -> select tanks
+  (2-10) -> buy screen (left-click buys, right-click sells, `Done` confirms) -> battle (`README:122-152`).
+- In-battle keys (`README:155-176`): Space fires/selects, Enter confirms, Up/Down power and menu cycling, Left/Right gun aim and
+  buy/sell, Esc cancels, F1 screenshot, F10 AI-takeover (or save on the buy screen), `v`/`V` volume down/up, `~` (or `#` on
+  German keyboards) scoreboard.
+- Network play (still rough per `README:179-214`): the host enables Networking in Options -> Network and restarts; clients set
+  Server Address to the host IP and choose Network Game. Client tanks are color-coded (Jedi green, Sith purple, Neutral blue,
+  player red). `TODO:5` records a bug: the network client must not get unlimited shots.
+- Screenshot key F1 writes `screenshot_*.*` files (a `.gitignore`d artifact).
+- Environment variables: `HOME` (Linux) or `AppData` (Windows) locates the config directory;
+  `C_INCLUDE_PATH`/`CPLUS_INCLUDE_PATH` are exported only for the `bsd` GNU-make path (`Makefile:141-147`).
+
+## Command-Line Tools
+
+Main binary flags, parsed by `parse_args()` (`src/atanks.cpp:1134-1255`, help text at `:1413-1429`):
+
+| Flag | Effect |
+|---|---|
+| `-h`, `--help` | Print help, exit with `HELP_REQUESTED (-100)` |
+| `-fs` | Full screen |
+| `--windowed` | Windowed mode |
+| `-d`, `--depth <16\|32>` | Color depth into `env.colourDepth` |
+| `-w`, `--width <>=512>` | Screen width (also half/temp variants) |
+| `-t`, `--tall` (`--height`) `<>=320>` | Screen height (also half/temp variants) |
+| `--datadir <path>` | Data directory into `env.dataDir` (must be readable) |
+| `-c <path>` | Config/save directory into `env.configDir` |
+| `--noconfig` | Do not load game settings |
+| `--nosound` | Disable sound (`env.sound_enabled=false`) |
+| `--noname` | Hide player names above tanks |
+| `--nonetwork` | Disable networking (`allow_network=false`) |
+| `--nobackground` | Hide the green menu background |
+| `--nothread`, `--thread` | Accepted but ignored (deprecated) |
+
+Missing option values print `ERROR: Missing argument` and exit `EXIT_FAILURE` (`:1248-1251`).
+
+Standalone helpers (not built by `Makefile`):
+
+- `exporter/export.cpp`: dumps bitmaps `0..255` from an Allegro datafile to `%d.bmp`. Compile note in the file: `g++ -o Export
+  export.cpp \`allegro-config --libs\``.
+- `exporter/move.cpp`: renames `N.bmp` to `N+1.bmp` to make room for inserted frames.
+- `do_memcheck.sh`: `valgrind --tool=memcheck --trace-children=yes --track-origins=yes --leak-check=full ... ./atanks`.
+- `do_helgrind.sh`: `valgrind --tool=helgrind ... ./atanks`.
+- `gdb_memcheck.sh`: memcheck under `gdb` (`--vgdb=full --vgdb-error=0`).
+- `allegro.supp`: suppressions for `ld.so`/`dl_*`, `install_sound` mempool, ALSA (`snd_pcm_open`, `snd_config_*`), `_al_malloc`,
+  and X11/Xrm realloc noise.
+
+## Data Flow
+
+1. Startup resolves `dataDir` and `configDir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
+   sounds, and background music (`ENVIRONMENT::loadGameFiles()`, `src/environment.cpp:1311`).
+2. Menu/options/player/shop screens mutate `ENVIRONMENT` (options, rosters) and `PLAYER` objects (names, colors, teams,
+   inventories, money).
+3. `game()` (`src/gameloop.cpp:246`) runs a round: `init_new_round()` (`:261`), `set_tank_settings()` (`:270`), spawn of the
+   `AICore` thread and per-class `ObjectUpdater` threads, then the frame loop (`:316-489`) over stages `STAGE_AIM -> STAGE_FIRE
+   -> STAGE_SCOREBOARD -> STAGE_ENDGAME`.
+4. Firing creates `MISSILE`/`BEAM` objects; impacts create `EXPLOSION`s, which deform `global.surface`/`global.terrain`, throw
+   tanks, apply damage (with `TANK::damage_lock`), spawn debris/floattext, and may trigger AI revenge/panic logic via opponent
+   memory.
+5. Round end credits winners (`ENVIRONMENT::creditWinners`), sorts scores (`sort_scores()`), opens the shop for the next round,
+   and persists settings and optional savegames to the config directory.
+
+## Error Handling and Logging
+
+- Fatal startup failures (missing data dir, unreadable game files) print an error and return `EXIT_FAILURE` from `main`
+  (`src/atanks.cpp:1508-1533`).
+- `parse_args()` rejects missing values with `ERROR: Missing argument` (`src/atanks.cpp:1248-1251`).
+- `DEBUG_LOG(...)` and its flavors (`DEBUG_LOG_AIM/EMO/AI/FIN/OBJ/PHY`, `src/debug.h:105-170`) compile to no-ops unless the
+  matching `ATANKS_DEBUG*` macro is defined; with `ATANKS_DEBUG` they call `debug_log()` with `file:line|function()` position
+  info (`AT hugeET_POS`, `:92-102`).
+- `debug_log()` (`src/debug.cpp:19-68`) writes to `atanks.log` on Windows or when `ATANKS_DEBUG_LOGTOFILE` is set, otherwise to
+  `stdout`; output is mutex-protected.
+- MSVC-incompatible POSIX calls are shimmed in `src/main.h:102-115` (`snprintf`, `strncpy`, `access`, `strcasecmp`, `strdup`,
+  `unlink`, `mkdir`).
+- In-game failures are surfaced modally where practical (e.g. the non-`NETWORK` network-game path reports an error instead of
+  crashing, `src/atanks.cpp:1398-1410`).
+
+## Testing and Validation
+
+- No automated test suite exists: no test directories, no test files, and no test targets in `Makefile`, `Makefile.bsd`,
+  `cb/atanks.cbp`, or the `.vcxproj` files (verified by file listing and target enumeration).
+- The closest equivalents to tests are:
+  - `make -n <target>` dry-run to validate flag expansion (verified here for `make -n user`).
+  - A full `make user` build followed by `./atanks --windowed` smoke run.
+  - `make debug` / `aidebug` / `fulldebug` builds plus the Valgrind helpers (`do_memcheck.sh`, `do_helgrind.sh`,
+    `gdb_memcheck.sh` with `allegro.supp`) for memory/thread validation.
+  - `Changelog` entries as regression notes (e.g. 6.7 lists fixed crashes, AI, and land-creation bugs).
+  - Executable test, sanitizer, static-analysis, and doc targets (`make test`, `test-asan/ubsan/tsan`, `tools/run-cppcheck.sh`,
+    `make doc`) do not exist yet; adding them is part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.11`–`WP
+    PF-1.12`).
+- Accepted validation bar (the game is an interactive GUI application): until proper unit and smoke tests exist, a plain `make
+  DEBUG=YES` build has to be enough, plus manual validation — developers actually test their changes in-game.
+- Known-issue sources: `TODO.md` itself (canonical planning file, first item `TODO-PF-1` Cleanup and Modernization). The legacy
+  `TODO` file (1 bug
+  + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; proper `TODO-PF-*`
+    entries will be created after `TODO-PF-1` (`WP PF-1.8`). Also `README:216-231` (Ubuntu sound driver, buggy network client),
+    and the `TODO`/`FIXME`/`BUG`/`HACK` grep surface, which only matches `DEBUG_LOG*` call sites rather than real markers.
+- Bug reports go to `https://github.com/EdenWorX/atanks/issues` (this fork moved from SourceForge to GitHub; updating the
+  remaining SourceForge references in `README`, `credits.txt`, the metainfo file, and help texts is part of `TODO.md`, `WP
+  PF-1.6`).
+
+## Development Workflow
+
+- Configure: install Allegro 4 development files so `allegro-config` works; for a local build nothing else is required.
+- Build (Linux): `make user` (binary `./atanks`, data in place). For a system install: `make` then `make install` (optionally
+  `PREFIX=/usr/local`, `DESTDIR=<staging>`). The `UBUNTU` workaround is ancient and pending removal — do not use `make ubuntu`
+  for new work (`TODO.md`, `WP PF-1.13`).
+- Build (Windows): the project is built with Visual Studio — open `vs12/atanks.sln` (VS2013) / `vs14/atanks.sln` (VS2015) after
+  following `README_allegro.txt` to repoint Allegro include/lib paths. The MinGW `make winuser` path is stale and will be
+  retired in the CMake migration (`TODO.md`, `WP PF-1.9`), after which `Makefile` remains only as a cmake+ninja wrapper.
+- Build (macOS): `make osxuser` (or `gmake osxuser`).
+- Build (BSD): `make bsduser` with GNU make. The standalone `Makefile.bsd` is deprecated and pending removal (`TODO.md`, `WP
+  PF-1.3`).
+- Debug: `make debug` (general), `make aidebug` (AI aiming/emotions to `atanks.log`), `make fulldebug` (all flavors); or set
+  `DEBUG=YES` with `DEBUG_AICORE/AIMING/EMOTION/FINANCE/OBJECTS/PHYSICS/LOG_TO_FILE=YES` and optionally
+  `SANITIZE_ADDRESS/LEAK/THREAD=YES` directly.
+- Run: `./atanks --windowed` for a window, `./atanks -h` for options.
+- Validate memory/threads: `./do_memcheck.sh`, `./do_helgrind.sh`, `./gdb_memcheck.sh`.
+- Clean: `make clean` (removes `obj/*` and `atanks`), `make veryclean` (also removes the target binary form explicitly).
+- Format: `.clang-format` (clang-format 19 or later) is the defined style; the 6.7 Changelog states the tree was uniformly
+  formatted with it.
+- Documentation files (`README.md`, `AGENTS.md`, `TODO*.md`, `docs/*`) wrap prose at a maximum line length of 128 characters
+  (table rows are exempt and may be longer). The `.clang-format` `ColumnLimit` (currently 140) applies only to C/C++ source
+  files and headers, never to documentation files.
+
+## Adding or Modifying Code
+
+- New gameplay entity: subclass `VIRTUAL_OBJECT` (or `PHYSICAL_OBJECT` for ballistic behavior) in a new `src/<name>.h/.cpp`
+  pair, return the matching `eClass` from `getClass()`, add the files to the VS projects' file lists (GNU make picks up
+  `src/*.cpp` via wildcard automatically), and wire creation/update/draw into `gameloop.cpp` and teardown into
+  `GLOBALDATA::destroy` paths.
+- New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
+  strings), keep the numeric field count in sync with `Load_Weapons_Text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
+  `src/main.h:257-260` if the count changes; check AI selection (`AICore`), shop availability (`ENVIRONMENT::genItemsList`), and
+  sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
+  (INI or YAML) with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
+- New option/menu entry: add the `eMenuClass`/`eEntryType` value in `src/optiontypes.h`, construct the item in
+  `menu.cpp`/`optionscreens.cpp`, and persist it in `ENVIRONMENT::save_to_file/load_from_file`.
+- New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `ENVIRONMENT::load_text_files()`
+  and `Load_Weapons_Text()`, and add the language to the `eLanguages` enum.
+- New asset: drop the numbered `N.bmp` / `N.wav` into the right folder (`exporter/move.cpp` documents the renumbering workflow)
+  and update the loader ranges in `environment.cpp` (`loadBitmaps`/`loadSounds`) and the `Makefile` install lists if a new
+  folder is introduced.
+
+## Important Technical Nuances
+
+- `src/main.h` include order is load-bearing: `debug.h` must precede Allegro headers on Windows (`src/main.h:32-35`).
+- `globals.h` may only be included from `src/atanks.cpp`; every other unit uses `externs.h` (`src/globals.h:1-3`,
+  `src/externs.h:45-80`).
+- `WEAPON::getDelayDiv()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
+- The `-DNETWORK` define is added only for the Linux GNU-make path (`Makefile:148`); `MACOSX` and `WIN32` builds do not get it
+  from this `Makefile`. Network play is currently a Linux-only first draft; proper network development is deferred until after
+  the Cleanup and Modernization task (`TODO.md`).
+- `allegro.cfg` (tracked) disables vertical sync on Windows builds, working around Allegro 4 sync problems there. Broader
+  UI-framework modernization away from Allegro 4 is deferred until after the Cleanup and Modernization task (`TODO.md`, `WP
+  PF-1.7`).
+- `Makefile` treats any `-g` in `CXXFLAGS` as `DEBUG=YES`, which disables LTO (`Makefile:163-181`).
+- `vs12`/`vs14` projects do not define `DATA_DIR` (`vs12`) or define it as `"."` (`vs14`), so Windows builds read data from the
+  working directory.
+- `dep/*.d` files are checked into git although `Makefile:256-260` also regenerates them; they can go stale after header
+  refactors.
+- `CSpinLock` is non-recursive and records its owner; taking it twice from the same thread deadlocks. Thread-sanitizer builds
+  replace it with a mutex (`USE_MUTEX_INSTEAD_OF_SPINLOCK`).
+
+## Known Issues and TODO Sources
+
+- `TODO:4-5`: network client must not get unlimited shots (bug).
+- `TODO:7-18`: missing buy-screen scrollbar, missing buy-screen randomize button, field-repair-kit item, radar-resistant
+  missile, more frequent client ground-surface updates, client buying screen, semi-destructible rocks.
+- `TODO:29-49`: under consideration — underground mines, firework rockets, shootable UFO, scalable main window (blocked on
+  Allegro 5 / a port the file calls a no-opt), an entry literally questioning its own meaning (`Harder ground -> What is that
+  supposed to mean?`), high-voltage missiles, tornadoes, another armor level.
+- `README:216-231`: Ubuntu default sound driver workaround (switch to OSS, restart, clear `/tmp/pulse*`); buggy network client
+  side.
+- `Changelog` top entry (6.7) lists recently fixed crashes and AI bugs; older entries document recurring AI-strength and
+  SDI-tuning adjustments.
+
+## Files and Directories Reference
+
+| Path | Kind | Description |
+|---|---|---|
+| `src/atanks.cpp` | entry point + menus | `main()`, `parse_args()`, menu dispatch, config load/save |
+| `src/gameloop.h/.cpp` | round driver | `game()`, `ObjectUpdater` threads, frame loop, winner logic |
+| `src/globaldata.h/.cpp` | per-round state | `GLOBALDATA`: canvases, surface, turn order, object lists, locks |
+| `src/environment.h/.cpp` | config + assets | `ENVIRONMENT`: options, players, bitmaps/sounds/text, dir resolution |
+| `src/globaltypes.h/.cpp` | enums/types | Stages, classes, wall/landslide/box modes, enum operators |
+| `src/globals.h`, `src/externs.h` | state wiring | Single definitions vs `extern` declarations |
+| `src/main.h` | common hub | Includes, shims, macros, catalog sizes |
+| `src/files.h/.cpp` | persistence | Config, savegames, weapon text, directory scans |
+| `src/text.h/.cpp` | localization | `TEXTBLOCK` loading/selection/rendering |
+| `src/player.h/.cpp`, `src/player_types.h/.cpp` | players/AI types | State, economy, memory, enums |
+| `src/aicore.h/.cpp` | AI | Background bot, documented plan/aim pipeline |
+| `src/tank.h/.cpp`, `src/missile.h/.cpp`, `src/explosion.h/.cpp`, `src/beam.h/.cpp` | entities | Tank, projectile, detonation, laser |
+| `src/weapon.h/.cpp`, `src/item.h/.cpp` | arsenal | Data records, 56 + 6 + 24 catalog sizes |
+| `src/land.h/.cpp`, `src/sky.h/.cpp`, `src/levelcreator.h/.cpp` | world gen | Gradients, terrain/sky generation |
+| `src/shop.h/.cpp`, `src/score.h/.cpp` | meta | Buy/sell UI, score sorting |
+| `src/menu.h/.cpp`, `src/optionscreens.h/.cpp`, `src/option*.h/.cpp` | UI | Menu framework, option screens/items |
+| `src/network.h/.cpp`, `src/client.h/.cpp` | net | Transport + client protocol (`NETWORK` builds) |
+| `src/sound.h/.cpp`, `src/clock.h/.cpp`, `src/spinlock.h/.cpp`, `src/zbuffer.h/.cpp`, `src/debug.h/.cpp`, `src/update.h/.cpp` | services | Audio, timers, locking, z-buffer, logging, updater |
+| `src/bitmap.h`, `src/gfxData.h/.cpp`, `src/box.h/.cpp`, `src/button.h/.cpp` | gfx/UI bits | Forward decls, gradient strips, boxes, buttons |
+| `src/moon.h/.cpp`, `src/satellite.h/.cpp`, `src/teleport.h/.cpp`, `src/decor.h/.cpp`, `src/debris_pool.h/.cpp`, `src/floattext.h/.cpp`, `src/perlin.cpp`, `src/random.h/.cpp` | world extras | Moon, UFO, teleports, decor, debris, float text, noise, RNG |
+| `src/atanks.rc`, `src/resource.h` | windows-only | Icon/version resources, MSVC defines |
+| `src/winclock.h`, `src/wrap_dirent.h`, `src/optioncontent.h`, `src/optionitem.h` | shims/decls | Clock fix, dirent selector, option declarations |
+| `Makefile`, `Makefile.bsd` | build | GNU build (primary) + deprecated BSD-make file pending removal |
+| `cb/`, `vs12/`, `vs14/` | IDE | Code::Blocks (unsupported, pending cleanup) / VS2013 / VS2015 frontends |
+| `exporter/` | tools | Obsolete Allegro-datafile asset utilities, pending cleanup |
+| `dep/`, `obj/.keep_dir` | build dirs | Checked-in dependency files (obsolete, pending removal); object dir placeholder |
+| `README`, `README_ru.txt`, `Changelog`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, history, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
+| `COPYING`, `LICENSE` | legal | GPLv2 / GPLv3 texts (`LICENSE` is the single source of truth; cleanup pending, `WP PF-1.1`) |
+| `atanks-4.3.spec`, `atanks.desktop`, `io.sourceforge.atanks.metainfo.xml` | packaging | Obsolete RPM spec (pending removal) / desktop entry / AppStream metadata |
+| `allegro.supp`, `do_*.sh`, `gdb_memcheck.sh` | diagnostics | Valgrind suppressions and runners |
+| `.clang-format` | style | Formatter definition (clang-format 19+) |
