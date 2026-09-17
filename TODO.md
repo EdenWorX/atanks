@@ -155,18 +155,18 @@ This fork coexists with the still-active upstream project on SourceForge, which 
 shipping the same AppStream ID would collide in software centers. Rename `io.github.EdenWorX.atanks.metainfo.xml` to
 `io.github.EdenWorX.atanks.metainfo.xml` (via `git mv`), set `<id>` to `io.github.EdenWorX.atanks`, and update the `Makefile`
 install rule plus all documentation references. Keep `atanks.desktop` as the launchable and the screenshot block untouched.
-### [ ] PF-1.7: Document `allegro.cfg`
+### [x] PF-1.7: Document `allegro.cfg`
 
 Record that it disables vertical sync on Windows builds because Allegro 4 has sync problems there. Full UI-framework
 modernization away from Allegro 4 is explicitly deferred to a future to-do item (see planned follow-ups below).
 
-#### [ ] PF-1.7.1: Document the role in README.md
+#### [x] PF-1.7.1: Document the role in README.md
 
 Add a short paragraph to the platform-specific build docs: what `allegro.cfg` does (disables vertical sync on Windows as an
 Allegro 4 sync workaround), that the tracked copy is preserved as-is, and that broader UI modernization is deferred. No file
 content changes.
 
-#### [ ] PF-1.7.2: Confirm agent guidance is consistent
+#### [x] PF-1.7.2: Confirm agent guidance is consistent
 
 Verify `AGENTS.md` already instructs agents to preserve `allegro.cfg` and not "clean it up"; adjust wording only if it
 contradicts the `README.md` paragraph from `PF-1.7.1`.

@@ -278,10 +278,14 @@ There is no Autotools setup (`configure`, `configure.in`, `aclocal.m4` do not ex
 - BSD builds use the GNU `Makefile` (`make bsduser`); there is no separate BSD makefile.
 - `vs12` targets VS2013 (`Format 12.00`, toolset v120, `CharacterSet=Unicode`, `OutDir=$(SolutionDir)..`); `vs14` targets VS2015
   (toolset v140, `CharacterSet=MultiByte`, `WindowsTargetPlatformVersion=8.1`, `IntDir=.obj\$(Platform)_$(Configuration)`). Both
-  define `VERSION="6.5_rc1"` (stale vs `Makefile` 6.7); `vs14` additionally defines `DATA_DIR="."`. Both link one of
+  define `VERSION="6.7"` (matching `Makefile`); `vs14` additionally defines `DATA_DIR="."`. Both link one of
   `alleg44.lib / alleg44_64.lib / alleg44_d.lib / alleg44_64_d.lib` per configuration plus the Win32 system libraries. `vs14`
   embeds `../atanks.ico`. `README_allegro.txt` in each folder explains how to repoint include/library paths and swap the DLL
   variants.
+- Windows builds also pick up the tracked `allegro.cfg`, which disables vertical sync as a workaround for Allegro 4 sync
+  problems there. The file is matched by `.gitignore` as Windows-local config but is kept in git deliberately — preserve it, do
+  not "clean it up". Broader UI-framework modernization away from Allegro 4 is deferred until after the Cleanup and
+  Modernization task (`TODO.md`).
 
 ### Visual Studio Project Files
 
