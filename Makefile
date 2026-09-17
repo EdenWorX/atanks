@@ -76,44 +76,48 @@ RM    := $(shell which rm) -f
 # -----------------------------------------------------------------------------------------------------------------------------
 # Build directory owned by the wrapper
 # -----------------------------------------------------------------------------------------------------------------------------
-# Base ./cmake-build plus option postfixes (TODO.md, WP PF-1.9.4):
-# DEBUG=NO -> -release, DEBUG=YES -> -debug,
-# SANITIZE_ADDRESS=YES -> -asan, SANITIZE_THREAD=YES -> -tsan,
-# SANITIZE_UNDEF=YES appends -usan. Any sanitizer implies DEBUG=YES,
-# so no extra -debug postfix is added (bare SANITIZE_UNDEF=YES gives
-# -usan, SANITIZE_ADDRESS=YES SANITIZE_UNDEF=YES gives -asan-usan).
-BUILDDIR_BASE := cmake-build
-BUILD_SUFFIX  := -release
-ifeq (YES,$(DEBUG))
-  BUILD_SUFFIX := -debug
-endif
+# Base ./cmake-build plus option postfixes
+BUILDDIR_BASE  := cmake-build
+BUILD_SUFFIX   := -release
+CMAKE_VERBOSE  := OFF
+HAVE_SANITIZER := NO
 ifeq (YES,$(SANITIZE_ADDRESS))
-  BUILD_SUFFIX := -asan
+  BUILD_SUFFIX   := -asan
+  HAVE_SANITIZER := YES
 else ifeq (YES,$(SANITIZE_THREAD))
-  BUILD_SUFFIX := -tsan
+  BUILD_SUFFIX   := -tsan
+  HAVE_SANITIZER := YES
 endif
 ifeq (YES,$(SANITIZE_UNDEF))
-  ifneq (,$(filter -release -debug,$(BUILD_SUFFIX)))
-    BUILD_SUFFIX := -usan
+  ifeq (YES,$(HAVE_SANITIZER))
+    BUILD_SUFFIX := ${BUILD_SUFFIX}-usan
   else
-    BUILD_SUFFIX := $(BUILD_SUFFIX)-usan
+    BUILD_SUFFIX   := -usan
+    HAVE_SANITIZER := YES
   endif
 endif
+ifeq (YES,$(HAVE_SANITIZER))
+  DEBUG := YES
+endif
+ifeq (YES,$(DEBUG))
+  ifneq (YES,$(HAVE_SANITIZER))
+    BUILD_SUFFIX  := -debug
+  endif
+  CMAKE_VERBOSE := ON
+endif
+
 BUILDDIR := $(BUILDDIR_BASE)$(BUILD_SUFFIX)
 
 # BINDIR relative to PREFIX for -DATANKS_INSTALL_BINDIR.
 BINDIR_REL := $(patsubst $(PREFIX)/%,%,$(BINDIR))
 
 # Flags forwarded to the CMake configure step.
-CMAKE_FLAGS := -G Ninja -DCMAKE_INSTALL_PREFIX=$(PREFIX) -DATANKS_DATA_DIR=$(INSTALLDIR)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DATANKS_INSTALL_BINDIR=$(BINDIR_REL)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DDEBUG=$(DEBUG) -DDEBUG_AICORE=$(DEBUG_AICORE)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DDEBUG_AIMING=$(DEBUG_AIMING) -DDEBUG_EMOTION=$(DEBUG_EMOTION)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DDEBUG_FINANCE=$(DEBUG_FINANCE) -DDEBUG_OBJECTS=$(DEBUG_OBJECTS)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DDEBUG_PHYSICS=$(DEBUG_PHYSICS) -DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) -DSANITIZE_THREAD=$(SANITIZE_THREAD)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DSANITIZE_UNDEF=$(SANITIZE_UNDEF)
-CMAKE_FLAGS := ${CMAKE_FLAGS} -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
+CMAKE_FLAGS := -G Ninja -DCMAKE_VERBOSE_MAKEFILE=$(CMAKE_VERBOSE) \
+	-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DATANKS_DATA_DIR=$(INSTALLDIR) -DATANKS_INSTALL_BINDIR=$(BINDIR_REL)  \
+	 -DDEBUG=$(DEBUG) -DDEBUG_AICORE=$(DEBUG_AICORE) -DDEBUG_AIMING=$(DEBUG_AIMING) -DDEBUG_EMOTION=$(DEBUG_EMOTION) \
+	 -DDEBUG_FINANCE=$(DEBUG_FINANCE) -DDEBUG_OBJECTS=$(DEBUG_OBJECTS) -DDEBUG_PHYSICS=$(DEBUG_PHYSICS) \
+	 -DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE) -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) -DSANITIZE_THREAD=$(SANITIZE_THREAD) \
+	 -DSANITIZE_UNDEF=$(SANITIZE_UNDEF) -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
 
 # Built binary inside the configured tree (used by the dist targets).
 BUILDBINARY := $(BUILDDIR)/atanks
