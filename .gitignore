@@ -72,3 +72,9 @@ allegro.cfg
 # Screenshots
 screenshot_*.*
 Thumbs.db
+
+# AI files
+.opencode/
+.aiignore
+AGENTS.md
+talk_*.md
