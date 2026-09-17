@@ -26,6 +26,31 @@ To-do items use a four-level hierarchy so coding agents and humans can refer to 
 number (e.g. `WP PF-1.1`, task `PF-1.1.1`). Never write a bare relative number such as `WP 1.1`, which is ambiguous across
 items of different categories.
 
+## Document Structure
+
+`TODO.md` (and any `TODO_<feature>.md` split) uses this fixed heading hierarchy so the CLion Structure Viewer (`##` chapters,
+`###` sections, `####` subsections) and human readers get a stable overview:
+
+- Phase (to-do item) → `##` chapter: `## [ ] TODO-<type>-<nr>: <title>`
+- Work Package → `###` section: `### [ ] <type>-<nr>.<wp>: <title>`
+- Implementation Task → `####` subsection: `#### [ ] <type>-<nr>.<wp>.<task>: <title>`
+- Action Item (optional) → unordered list item: `- [ ] **<type>-<nr>.<wp>.<task>.<action>**: <short description>`
+
+Structural rules:
+
+- One `##` chapter per to-do item; never nest phases. The only other `###` sections inside a phase are Work Packages plus the
+  `Planned follow-ups` and `Feature-Complete Checklist` sections.
+- The `WP ` prefix is used in prose references (e.g. `WP PF-1.1`), not in the Work Package heading itself, which carries the
+  bare category-prefixed number (e.g. `### [ ] PF-1.1: <title>`).
+- Action Item numbers always use dots (`PF-1.1.1.1`), never dashes.
+- Do not group Work Packages under theme subheadings; record ordering constraints as `Dependencies:` notes in the Work Package
+  description instead.
+- Checkbox state follows the Completion Rules (`[ ]` → `[x]`, parents only when children complete). Note that Markdown
+  renderers display `[ ]` inside headings as literal text, not as clickable boxes; only `- [ ]` list items (Action Items,
+  checklist entries) stay interactive.
+- Keep prose (descriptions, task text) wrapped at 128 columns per the repository documentation guidelines; headings that cannot
+  be split are exempt like table rows.
+
 ## Classification and Numbering
 
 To-do items are classified into three kinds, each with its own numbering that restarts at 1:
