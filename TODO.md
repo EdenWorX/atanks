@@ -211,7 +211,7 @@ header; behavior of version reporting (`game_version`) must be preserved.
 Port the `install` target (binary, metainfo, desktop file, icons, data tree) to CMake and verify byte-equivalent install results
 against the legacy `make install`, including a staged `DESTDIR` install.
 
-#### [ ] PF-1.9.4: Convert the Makefile to a thin cmake+ninja wrapper
+#### [x] PF-1.9.4: Convert the Makefile to a thin cmake+ninja wrapper
 
 Rewrite `Makefile` so plain `make`, `make test`, `make install`, etc. delegate to cmake+ninja while keeping their familiar names
 and variables. Retire the stale Windows targets (`winuser`, `win32-dist`, the `windres.exe` resource flow); `vs12/`/`vs14/`
@@ -419,3 +419,4 @@ quantities/prices, fired shots).
 - [ ] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
 - [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
 - [ ] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).
+- [ ] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).

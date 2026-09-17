@@ -22,6 +22,8 @@ patches_sent
 dep/*.d
 *.o
 atanks
+# CMake build directories owned by the Makefile wrapper
+cmake-build*/
 !vs12/atanks*
 !vs13/atanks*
 devtools
