@@ -190,8 +190,8 @@ Add `CMakeLists.txt` with `project(VERSION ...)` as the single source of truth f
 `config.h` with the version macros (replacing `-DVERSION=` / `-DDATA_DIR=` flag plumbing), and port targets, flags, platform
 paths, and install rules. The legacy `Makefile` stays as a thin wrapper so plain `make`, `make test`, `make install`, and so on
 keep working, but it only wraps cmake+ninja. All Windows targets in the `Makefile` (`winuser`, `win32-dist`, the `windres.exe`
-resource build) are stale — the project is built with Visual Studio (`vs12/`/`vs14/`) — and are retired as part of this
-migration.
+resource build) are stale and are retired as part of this migration — Windows builds go through CMake (Visual Studio 2026
+with C++17 and CMake support); `vs12/`/`vs14/` are legacy solutions.
 
 #### [x] PF-1.9.1: Create CMakeLists.txt with version and build options
 
@@ -214,9 +214,10 @@ against the legacy `make install`, including a staged `DESTDIR` install.
 #### [x] PF-1.9.4: Convert the Makefile to a thin cmake+ninja wrapper
 
 Rewrite `Makefile` so plain `make`, `make test`, `make install`, etc. delegate to cmake+ninja while keeping their familiar names
-and variables. Retire the stale Windows targets (`winuser`, `win32-dist`, the `windres.exe` resource flow); `vs12/`/`vs14/`
-remain the Windows path. GNU platform targets (`user`, `osxuser`, `bsduser`, `debug`/`aidebug`/`fulldebug`) must keep working
-through the wrapper. The wrapper owns the build directory: base `./cmake-build` plus option postfixes (`DEBUG=NO` →
+and variables. Retire the stale Windows targets (`winuser`, `win32-dist`, the `windres.exe` resource flow); Windows builds
+go through CMake (VS2026) while `vs12/`/`vs14/` stay as legacy solutions. GNU platform targets (`user`, `osxuser`, `bsduser`,
+`debug`/`aidebug`/`fulldebug`) must keep working through the wrapper. The wrapper owns the build directory: base
+`./cmake-build` plus option postfixes (`DEBUG=NO` → `-release`, `DEBUG=YES` → `-debug`, `SANITIZE_ADDRESS=YES` → `-asan`,
 `-release`, `DEBUG=YES` → `-debug`, `SANITIZE_ADDRESS=YES` → `-asan`, `SANITIZE_THREAD=YES` → `-tsan`), with `-usan`
 appended for `SANITIZE_UNDEF=YES`. Examples: `make` → `./cmake-build-release`, `make DEBUG=YES` → `./cmake-build-debug`,
 `make DEBUG=YES SANITIZE_THREAD=YES` → `./cmake-build-tsan`, `make SANITIZE_ADDRESS=YES SANITIZE_UNDEF=YES` →
@@ -227,7 +228,7 @@ dropped (lsan is part of asan now); `SANITIZE_UNDEF` (ubsan) is new. Address and
 #### [x] PF-1.9.5: Update the build documentation
 
 Update the `README.md` build system docs and the `AGENTS.md` build/test commands to the CMake flow (wrapper commands,
-prerequisites, `vs12/`/`vs14/` for Windows). Remove documentation of retired targets.
+prerequisites, VS2026 with CMake support for Windows). Remove documentation of retired targets.
 
 ### [x] PF-1.10: Adopt `CHANGELOG.md` and semantic versioning
 
@@ -262,10 +263,23 @@ Implement `make test` and `make test-all`, plus `make test-asan`, `make test-ubs
 `SANITIZE_*` Makefile knobs), so the pre-release checklist in `docs/release_process.md` is executable. Tasks `PF-1.11.1`–
 `PF-1.11.2` build on the `WP PF-1.9` CMake base.
 
-#### [ ] PF-1.11.1: Define and implement make test / test-all
+#### [x] PF-1.11.1: Define and implement make test / test-all
 
 Agree with the user what `test`/`test-all` cover for an interactive GUI application without a test suite, then implement the
 targets on top of the `WP PF-1.9` CMake base. Expected result: `make test` and `make test-all` run green on a clean checkout.
+Scope agreement (recorded): unit tests cover exactly the decoupled logic units (verified zero Allegro/global references) —
+`random`, `zbuffer`, `spinlock`, `optiontypes`, `box`, `clock`, `globaltypes` — as a CppUTest suite in `tests/` wired to
+`ctest`. `make test` builds and runs the suite in the directory selected by the current flags (`DEBUG` and sanitizers pick
+`cmake-build-debug`, `-asan`, `-tsan`, `-usan`); `make test-all` runs it in both `cmake-build-release` and `cmake-build-debug`
+(sanitizer runs belong to the `test-asan`/`test-tsan`/`test-ubsan` targets of `PF-1.11.2`). Interactive smoke tests stay manual.
+Framework decision (recorded): CppUTest, consumed via FetchContent pinned to release tag `v4.0` (both `CppUTest` and
+`CppUTestExt` libraries — mocking lives in Ext). To go online only when really necessary, resolve the dependency in this
+order: (1) `find_package(CppUTest 4.0 QUIET)` against a local install, (2) `pkg_check_modules(... IMPORTED_TARGET
+cpputest>=4.0)` probe, (3) FetchContent as last resort. Verified on the dev machine: system install is version 4.0 (config
+file, header macro, pkg-config agree); the pkg-config probe finds it (`CPPUTEST_FOUND=1 ver=4.0`) and a mock-based smoke test
+linked via `PkgConfig::CPPUTEST` compiles, links, and runs green. Note: that machine's installed CMake config is internally
+inconsistent (references `/usr/lib/libCppUTest.a`, actual libs in `/usr/lib64`) so tier (1) hard-fails there until the install
+is repaired (reported to the Gentoo maintainers) — which is exactly why the pkg-config tier (2) exists.
 
 #### [ ] PF-1.11.2: Implement the sanitizer targets
 
@@ -419,4 +433,5 @@ quantities/prices, fired shots).
 - [ ] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
 - [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
 - [ ] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).
+- [ ] `make test` and `make test-all` run green (unit suite in release and debug dirs, `WP PF-1.11`).
 - [ ] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).

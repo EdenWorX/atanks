@@ -14,6 +14,9 @@ No open items — decomposition of `WP PF-1.1`–`WP PF-1.17` surfaced no blocki
 
 - [ ] **Low**: `src/atanks.rc:52` references `COPYING.txt`, but the file is named `COPYING` (no `.txt`). Left untouched because
   version-string work on that file belongs to `WP PF-1.2`; fix the filename reference when that package edits the resource.
+- [ ] **Low**: `src/optiontypes.h:10` says "or (at your menu) any later version" — "menu" is a typo for "option" in the
+  license header. Left untouched because header normalization belonged to completed `WP PF-1.1`; fix with any future edit of
+  that header.
 - [ ] **Low**: the 12 screenshot URLs in `io.github.EdenWorX.atanks.metainfo.xml` (`<image>https://atanks.sourceforge.io/...`)
   still point at the old SourceForge site, which this fork no longer controls. Out of scope for `WP PF-1.6` (screenshots were
   not listed there); decide whether to re-host the images (e.g. in the GitHub repo) and update or drop the block.

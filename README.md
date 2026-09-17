@@ -51,7 +51,7 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `text/` | Localized in-game text files (`weapons*.txt`, `Help*.txt`, `ingame*.txt`, etc.) |
 | `unicode.dat` | Allegro datafile used for fonts; also the probe file for data-dir detection. An old manual addition; ignored (not touched) until the post-cleanup move away from Allegro 4 makes it obsolete |
 | `Makefile` | Primary GNU Make build (`VERSION 6.7`, the version single source of truth) |
-| `vs12/`, `vs14/` | Visual Studio 2013 / 2015 solution + project + filters + `README_allegro.txt` |
+| `vs12/`, `vs14/` | Legacy Visual Studio 2013 / 2015 solutions (retired toolsets v120/v140); Windows builds go through CMake |
 | `dep/` | Ignored GCC dependency files (`*.d`, legacy make outputs) plus `.keep_dir` placeholder |
 | `obj/` | Object output directory; only `.keep_dir` is tracked |
 | `README`, `README_ru.txt` | Original user documentation (English + Russian) |
@@ -196,8 +196,8 @@ The following were classified as external by metadata inspection; their internal
 - **Windows Allegro runtime DLLs.** `alleg44.dll` (832512 bytes) and `alleg44_64.dll` (998400 bytes) are tracked release
   runtimes for 32/64-bit Windows (per `vs12|vs14/README_allegro.txt`, only Release DLLs are kept in git; Debug/import libraries
   are user-supplied and matched by `.gitignore` rules `alleg44*.lib`, `alleg44*-debug.*`, `alleg44*_d.*`).
-- **Build/analysis tools (not vendored):** `clang++`, `cmake` 3.25+, `ninja`, MSVC toolsets v120/v140, and `valgrind` for
-  the `do_*.sh` helpers.
+- **Build/analysis tools (not vendored):** `clang++`, `cmake` 3.25+, `ninja`, Visual Studio 2026 (C++17 + CMake support),
+  and `valgrind` for the `do_*.sh` helpers.
 
 ## Architecture
 
@@ -247,7 +247,7 @@ The following were classified as external by metadata inspection; their internal
 | `make clean` / `veryclean` | Cleanup | Removes `cmake-build*` directories (plus legacy `obj/*` and `atanks` leftovers) |
 | `make dist` / `source-dist` / `i686-dist` / `tarball` / `zipfile` | Distribution archives | Legacy targets kept as-is (`win32-dist` was retired with the MinGW path); `DISTCOMMON` still references legacy `atanks/*` paths that no longer exist |
 | Direct CMake | Any Unix | `cmake -S . -B <dir> -G Ninja` (3.25+, ninja mandatory) then `cmake --build <dir>`; see `CMakeLists.txt` for options |
-| `vs12/atanks.sln`, `vs14/atanks.sln` | Visual Studio 2013 / 2015 | Four configs each (Debug/Release x Win32/x64); see below |
+| `vs12/atanks.sln`, `vs14/atanks.sln` | Legacy Visual Studio 2013 / 2015 solutions | Retired toolsets; Windows builds go through CMake (VS2026); see below for file details |
 
 Verified on this machine: `make user` configures `./cmake-build-release`, builds all 51 steps, and the binary reports
 `Atomic Tanks Version 6.7`.
@@ -279,12 +279,11 @@ wrapper (`TODO.md`, `WP PF-1.9`); the real build lives in `CMakeLists.txt` (CMak
 ### Platform-Specific Builds
 
 - BSD builds use the GNU `Makefile` (`make bsduser`); there is no separate BSD makefile.
-- `vs12` targets VS2013 (`Format 12.00`, toolset v120, `CharacterSet=Unicode`, `OutDir=$(SolutionDir)..`); `vs14` targets VS2015
-  (toolset v140, `CharacterSet=MultiByte`, `WindowsTargetPlatformVersion=8.1`, `IntDir=.obj\$(Platform)_$(Configuration)`). Both
-  define `VERSION="6.7"` (matching `CMakeLists.txt`); `vs14` additionally defines `DATA_DIR="."`. Both link one of
-  `alleg44.lib / alleg44_64.lib / alleg44_d.lib / alleg44_64_d.lib` per configuration plus the Win32 system libraries. `vs14`
-  embeds `../atanks.ico`. `README_allegro.txt` in each folder explains how to repoint include/library paths and swap the DLL
-  variants.
+- Legacy `vs12` / `vs14` solutions target retired toolsets (VS2013: `Format 12.00`, toolset v120; VS2015: toolset v140,
+  `WindowsTargetPlatformVersion=8.1`). Both define `VERSION="6.7"` (matching `CMakeLists.txt`); `vs14` additionally defines
+  `DATA_DIR="."`. Both link one of `alleg44.lib / alleg44_64.lib / alleg44_d.lib / alleg44_64_d.lib` per configuration plus the
+  Win32 system libraries. `vs14` embeds `../atanks.ico`. `README_allegro.txt` in each folder explains how to repoint
+  include/library paths and swap the DLL variants. Current Windows builds go through CMake (VS2026), not these solutions.
 - Windows builds also pick up the tracked `allegro.cfg`, which disables vertical sync as a workaround for Allegro 4 sync
   problems there. The file is matched by `.gitignore` as Windows-local config but is kept in git deliberately — preserve it, do
   not "clean it up". Broader UI-framework modernization away from Allegro 4 is deferred until after the Cleanup and
@@ -432,8 +431,8 @@ Standalone helpers (not built by `Makefile`):
 - Build (Linux): `make user` (binary at `./cmake-build-release/atanks`, data in place). For a system install: `make` then
   `make install` (optionally `PREFIX=/usr/local`, `DESTDIR=<staging>`). The `UBUNTU` workaround is ancient and pending removal
   — do not use `make ubuntu` for new work (`TODO.md`, `WP PF-1.13`).
-- Build (Windows): the project is built with Visual Studio — open `vs12/atanks.sln` (VS2013) / `vs14/atanks.sln` (VS2015) after
-  following `README_allegro.txt` to repoint Allegro include/lib paths.
+- Build (Windows): open the project folder in Visual Studio 2026 (built-in CMake support) after following
+  `README_allegro.txt` to repoint Allegro include/lib paths.
 - Build (macOS): `make osxuser` (or `gmake osxuser`).
 - Build (BSD): `make bsduser` with GNU make.
 - Debug: `make debug` (general), `make aidebug` (AI aiming/emotions to `atanks.log`), `make fulldebug` (all flavors, into
@@ -525,7 +524,7 @@ Standalone helpers (not built by `Makefile`):
 | `src/atanks.rc`, `src/resource.h` | windows-only | Icon/version resources, MSVC defines |
 | `src/winclock.h`, `src/wrap_dirent.h`, `src/optioncontent.h`, `src/optionitem.h` | shims/decls | Clock fix, dirent selector, option declarations |
 | `Makefile` | build | GNU build (primary) |
-| `vs12/`, `vs14/` | IDE | VS2013 / VS2015 frontends |
+| `vs12/`, `vs14/` | IDE | Legacy VS2013 / VS2015 solutions (retired toolsets) |
 | `dep/`, `obj/.keep_dir` | build dirs | Ignored dependency files (legacy make outputs); object dir placeholder |
 | `README`, `README_ru.txt`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
 | `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in `WP PF-1.1`) |
