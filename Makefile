@@ -1,5 +1,5 @@
 .PHONY: aidebug all bsduser clean debug dist fulldebug i686-dist install osxuser \
-    source-dist tarball ubuntu user veryclean zipfile
+    source-dist tarball test test-all ubuntu user veryclean zipfile
 
 # Note: Submit as "YES" to enable debugging
 DEBUG   := $(if $(DEBUG),$(DEBUG),NO)
@@ -170,6 +170,17 @@ fulldebug:
 # -----------------------------------------------------------------------------------------------------------------------------
 install: all
 	DESTDIR=$(DESTDIR) $(CMAKE) --install $(BUILDDIR) --prefix $(PREFIX)
+
+# Unit tests (WP PF-1.11). `test` builds and runs the suite in the build
+# directory selected by the current flags (DEBUG and sanitizer options pick
+# cmake-build-debug, cmake-build-asan, and so on); `test-all` runs it in both
+# the release and the debug directory.
+test: all
+	ctest --test-dir $(BUILDDIR) --output-on-failure
+
+test-all:
+	$(MAKE) -f Makefile test
+	$(MAKE) -f Makefile test DEBUG=YES
 
 clean:
 	$(RM) -r cmake-build*

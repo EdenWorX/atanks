@@ -84,18 +84,22 @@ configure_file(
 
 add_executable(atanks ${ATANKS_SOURCES})
 
-target_include_directories(atanks PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
-target_compile_definitions(atanks PRIVATE ATANKS_HAVE_CONFIG_H)
-target_compile_features(atanks PRIVATE cxx_std_17)
-target_compile_options(atanks PRIVATE -Wall -Wextra -Wpedantic -fexceptions)
+# Shared build flags for the game and the unit tests below, so both compile
+# with identical warnings, defines, and sanitizer settings.
+add_library(atanks_buildflags INTERFACE)
+target_include_directories(atanks_buildflags INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_definitions(atanks_buildflags INTERFACE ATANKS_HAVE_CONFIG_H)
+target_compile_features(atanks_buildflags INTERFACE cxx_std_17)
+target_compile_options(atanks_buildflags INTERFACE -Wall -Wextra -Wpedantic -fexceptions)
 if(ATANKS_IS_BSD)
-  target_include_directories(atanks PRIVATE /usr/local/include)
-  target_compile_options(atanks PRIVATE -Wno-c99-extensions)
+  target_include_directories(atanks_buildflags INTERFACE /usr/local/include)
+  target_compile_options(atanks_buildflags INTERFACE -Wno-c99-extensions)
 endif()
 if(APPLE)
-  target_include_directories(atanks PRIVATE /usr/local/include)
+  target_include_directories(atanks_buildflags INTERFACE /usr/local/include)
 endif()
-target_compile_options(atanks PRIVATE ${ALLEGRO_CPPFLAGS})
+target_compile_options(atanks_buildflags INTERFACE ${ALLEGRO_CPPFLAGS})
+target_link_libraries(atanks PRIVATE atanks_buildflags)
 
 if(ATANKS_WITH_NETWORK OR NOT APPLE)
   # Linux and BSD link pthread, libm, and the Allegro libraries.
@@ -113,8 +117,8 @@ if(SANITIZE_ADDRESS OR SANITIZE_THREAD OR SANITIZE_UNDEF)
 endif()
 
 if(ATANKS_DEBUG_BUILD)
-  target_compile_options(atanks PRIVATE -ggdb -Og -fstack-protector-strong -Wunused)
-  target_compile_definitions(atanks PRIVATE ATANKS_DEBUG)
+  target_compile_options(atanks_buildflags INTERFACE -ggdb -Og -fstack-protector-strong -Wunused)
+  target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG)
   # LTO is hard blocked for debug builds, like in the Makefile.
   set(USE_LTO OFF)
   # Sanitizers: address and thread are mutually exclusive (address wins, like
@@ -127,53 +131,115 @@ if(ATANKS_DEBUG_BUILD)
     list(APPEND ATANKS_SANITIZERS "address")
   elseif(SANITIZE_THREAD)
     list(APPEND ATANKS_SANITIZERS "thread")
-    target_compile_definitions(atanks PRIVATE USE_MUTEX_INSTEAD_OF_SPINLOCK)
-    target_compile_options(atanks PRIVATE -fPIC -O2 -ggdb)
-    target_link_options(atanks PRIVATE -pie -O2 -ggdb)
+    target_compile_definitions(atanks_buildflags INTERFACE USE_MUTEX_INSTEAD_OF_SPINLOCK)
+    target_compile_options(atanks_buildflags INTERFACE -fPIC -O2 -ggdb)
+    target_link_options(atanks_buildflags INTERFACE -pie -O2 -ggdb)
   endif()
   if(SANITIZE_UNDEF)
     list(APPEND ATANKS_SANITIZERS "undefined")
   endif()
   if(ATANKS_SANITIZERS)
     string(JOIN "," ATANKS_SANITIZER_LIST ${ATANKS_SANITIZERS})
-    target_compile_options(atanks PRIVATE "-fsanitize=${ATANKS_SANITIZER_LIST}")
-    target_link_options(atanks PRIVATE "-fsanitize=${ATANKS_SANITIZER_LIST}")
+    target_compile_options(atanks_buildflags INTERFACE "-fsanitize=${ATANKS_SANITIZER_LIST}")
+    target_link_options(atanks_buildflags INTERFACE "-fsanitize=${ATANKS_SANITIZER_LIST}")
   endif()
   if(DEBUG_AICORE)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_AIMING ATANKS_DEBUG_EMOTIONS)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_AIMING ATANKS_DEBUG_EMOTIONS)
   endif()
   if(DEBUG_AIMING)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_AIMING)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_AIMING)
   endif()
   if(DEBUG_EMOTION)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_EMOTIONS)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_EMOTIONS)
   endif()
   if(DEBUG_FINANCE)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_FINANCE)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_FINANCE)
   endif()
   if(DEBUG_OBJECTS)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_OBJECTS)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_OBJECTS)
   endif()
   if(DEBUG_PHYSICS)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_PHYSICS)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_PHYSICS)
   endif()
   if(DEBUG_LOG_TO_FILE)
-    target_compile_definitions(atanks PRIVATE ATANKS_DEBUG_LOGTOFILE)
+    target_compile_definitions(atanks_buildflags INTERFACE ATANKS_DEBUG_LOGTOFILE)
   endif()
 else()
-  target_compile_options(atanks PRIVATE -O2)
+  target_compile_options(atanks_buildflags INTERFACE -O2)
   # Same portability trade-off as the Makefile (-march=native).
-  target_compile_options(atanks PRIVATE -march=native)
+  target_compile_options(atanks_buildflags INTERFACE -march=native)
   if(USE_LTO)
-    target_compile_options(atanks PRIVATE -flto)
+    target_compile_options(atanks_buildflags INTERFACE -flto)
     if(GCCUSESGOLD)
-      target_compile_options(atanks PRIVATE -fuse-linker-plugin)
+      target_compile_options(atanks_buildflags INTERFACE -fuse-linker-plugin)
     endif()
   endif()
 endif()
 
-# Install rules mirroring the Makefile install target. (Distribution, test,
-# doc, and analysis targets arrive in WP PF-1.9.4, WP PF-1.11, and WP PF-1.12.)
+# Install rules mirroring the Makefile install target. (Distribution, doc, and
+# analysis targets arrive in WP PF-1.9.4 and WP PF-1.12.)
+
+# Unit tests (WP PF-1.11). The suite covers decoupled logic units only (no
+# Allegro or global-state references): random, zbuffer, spinlock,
+# optiontypes, box, clock, globaltypes.
+include(CTest)
+if(BUILD_TESTING)
+  # CppUTest resolution, online only as a last resort: a local install
+  # first (pkg-config probe, then CMake package config), pinned FetchContent
+  # (release tag v4.0) third. The probe order is deliberate: a broken
+  # installed CMake config fails with message(FATAL_ERROR), which QUIET
+  # cannot suppress, while pkg_check_modules fails softly. Fully offline
+  # without a system CppUTest 4.0+: configure with -DBUILD_TESTING=OFF to
+  # skip the suite.
+  set(ATANK_HAVE_CPPUTEST OFF)
+  find_package(PkgConfig QUIET)
+  if(PkgConfig_FOUND)
+    pkg_check_modules(CPPUTEST IMPORTED_TARGET cpputest>=4.0)
+  endif()
+  if(CPPUTEST_FOUND)
+    set(ATANK_CPPUTEST_LIBS PkgConfig::CPPUTEST)
+    set(ATANK_HAVE_CPPUTEST ON)
+  else()
+    find_package(CppUTest 4.0 QUIET)
+    if(CppUTest_FOUND)
+      set(ATANK_CPPUTEST_LIBS CppUTest CppUTestExt)
+      set(ATANK_HAVE_CPPUTEST ON)
+    else()
+      include(FetchContent)
+      # Keep CppUTest's own suite out of our ctest run.
+      set(TESTS OFF CACHE BOOL "" FORCE)
+      FetchContent_Declare(CppUTest
+        GIT_REPOSITORY https://github.com/cpputest/cpputest.git
+        GIT_TAG v4.0)
+      FetchContent_MakeAvailable(CppUTest)
+      set(ATANK_CPPUTEST_LIBS CppUTest CppUTestExt)
+      set(ATANK_HAVE_CPPUTEST ON)
+    endif()
+  endif()
+
+  if(ATANK_HAVE_CPPUTEST)
+    add_executable(atanks_tests
+      tests/tests_main.cpp
+      tests/test_random.cpp
+      tests/test_zbuffer.cpp
+      tests/test_spinlock.cpp
+      tests/test_optiontypes.cpp
+      tests/test_box.cpp
+      tests/test_clock.cpp
+      tests/test_globaltypes.cpp
+      src/random.cpp
+      src/zbuffer.cpp
+      src/spinlock.cpp
+      src/optiontypes.cpp
+      src/box.cpp
+      src/clock.cpp
+      src/globaltypes.cpp)
+    target_include_directories(atanks_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    target_compile_features(atanks_tests PRIVATE cxx_std_17)
+    target_link_libraries(atanks_tests PRIVATE atanks_buildflags ${ATANK_CPPUTEST_LIBS})
+    add_test(NAME units COMMAND atanks_tests)
+  endif()
+endif()
 install(TARGETS atanks RUNTIME DESTINATION ${ATANKS_INSTALL_BINDIR}
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 install(FILES io.github.EdenWorX.atanks.metainfo.xml DESTINATION share/metainfo)
