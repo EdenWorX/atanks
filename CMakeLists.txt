@@ -172,9 +172,8 @@ else()
   endif()
 endif()
 
-# Install rules mirroring the Makefile install target. (The Changelog/TODO
-# entries move in WP PF-1.10; distribution, test, doc, and analysis targets
-# arrive in WP PF-1.9.4, WP PF-1.11, and WP PF-1.12.)
+# Install rules mirroring the Makefile install target. (Distribution, test,
+# doc, and analysis targets arrive in WP PF-1.9.4, WP PF-1.11, and WP PF-1.12.)
 install(TARGETS atanks RUNTIME DESTINATION ${ATANKS_INSTALL_BINDIR}
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 install(FILES io.github.EdenWorX.atanks.metainfo.xml DESTINATION share/metainfo)
@@ -184,7 +183,7 @@ file(GLOB ATANKS_DATA_TOPFILES
   "${CMAKE_CURRENT_SOURCE_DIR}/COPYING"
   "${CMAKE_CURRENT_SOURCE_DIR}/README"
   "${CMAKE_CURRENT_SOURCE_DIR}/TODO"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Changelog"
+  "${CMAKE_CURRENT_SOURCE_DIR}/docs/Changelog.history"
   "${CMAKE_CURRENT_SOURCE_DIR}/*.txt"
   "${CMAKE_CURRENT_SOURCE_DIR}/unicode.dat")
 install(FILES ${ATANKS_DATA_TOPFILES} DESTINATION share/atanks)

@@ -55,7 +55,7 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `dep/` | Ignored GCC dependency files (`*.d`, legacy make outputs) plus `.keep_dir` placeholder |
 | `obj/` | Object output directory; only `.keep_dir` is tracked |
 | `README`, `README_ru.txt` | Original user documentation (English + Russian) |
-| `Changelog` | Release history, newest entry first (top entry: 6.7) |
+| `docs/Changelog.history` | Frozen release history up to 6.7 (renamed from `Changelog`; new releases go in `CHANGELOG.md`) |
 | `TODO` | Legacy prioritized bug/feature list (almost a decade old; explicitly frozen — ignore it for now, `TODO.md` `WP PF-1.8`) |
 | `TODO.md` | Canonical planning file (per `docs/todo_planning.md`); first item is `TODO-PF-1` Cleanup and Modernization |
 | `docs/` | EdenWorX planning and release rules (`todo_planning.md`, `release_process.md`) |
@@ -126,7 +126,7 @@ narrow responsibilities:
   with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (`src/main.h:264-267`).
 - `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct gradient;`.
 - `src/gfxData.h` (`sGfxData`) owns generated gradient strips and explosion graphics.
-- `src/random.h` / `src/perlin.cpp` provide random numbers (Changelog 6.7 notes thread-local modernized RNG) and procedural
+- `src/random.h` / `src/perlin.cpp` provide random numbers (`CHANGELOG.md` 6.7 entry notes thread-local modernized RNG) and
   noise for terrain/sky.
 - `src/box.h`, `src/button.h`, `src/menu.h`, `src/optiontypes.h`, `src/optioncontent.h`, `src/optionitem*.h`,
   `src/optionscreens.h` form the menu/options UI framework (self-managing `Menu` of `OptionItem` entries).
@@ -160,7 +160,7 @@ Installed by the `install` rules in `CMakeLists.txt` (mirroring the old `make in
 - `text/*.txt` (~90 files): per-topic per-language matrix for `gloat`, `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`,
   `revenge`, `suicide`, `weapons`, `war_quotes`, `Help`, with language suffixes `_de`, `_fr`, `_it`, `_ru`, `_sk`, `_ES`,
   `.pt_BR` plus the English base file.
-- `unicode.dat` (5604 bytes, `file` reports `Allegro datafile`), `COPYING`, `README`, `TODO`, `Changelog`, `*.txt`.
+- `unicode.dat` (5604 bytes, `file` reports `Allegro datafile`), `COPYING`, `README`, `TODO`, `Changelog.history`, `*.txt`.
 - `atanks.png` is installed to `.../share/icons/hicolor/48x48/apps`; `atanks.ico` is consumed by `src/atanks.rc` for the
   Windows build.
 
@@ -411,7 +411,7 @@ Standalone helpers (not built by `Makefile`):
   - A full `make user` build followed by a `./cmake-build-release/atanks --windowed` smoke run.
   - `make debug` / `aidebug` / `fulldebug` builds plus the Valgrind helpers (`do_memcheck.sh`, `do_helgrind.sh`,
     `gdb_memcheck.sh` with `allegro.supp`) for memory/thread validation.
-  - `Changelog` entries as regression notes (e.g. 6.7 lists fixed crashes, AI, and land-creation bugs).
+  - `CHANGELOG.md` entries as regression notes (e.g. 6.7 lists fixed crashes, AI, and land-creation bugs).
   - Executable test, sanitizer, static-analysis, and doc targets (`make test`, `test-asan/ubsan/tsan`, `tools/run-cppcheck.sh`,
     `make doc`) do not exist yet; adding them is part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.11`–`WP
     PF-1.12`).
@@ -442,11 +442,9 @@ Standalone helpers (not built by `Makefile`):
 - Run: `./cmake-build-release/atanks --windowed` for a window, `./cmake-build-release/atanks -h` for options.
 - Validate memory/threads: `./do_memcheck.sh`, `./do_helgrind.sh`, `./gdb_memcheck.sh`.
 - Clean: `make clean` (removes `cmake-build*` directories plus legacy `obj/*` and `atanks` leftovers).
-- Format: `.clang-format` (clang-format 19 or later) is the defined style; the 6.7 Changelog states the tree was uniformly
-  formatted with it.
+- Format: `.clang-format` (clang-format 19 or later) is the defined style; the 6.7 `CHANGELOG.md` entry states the tree
+  was uniformly formatted with it.
 - Documentation files (`README.md`, `AGENTS.md`, `TODO*.md`, `docs/*`) wrap prose at a maximum line length of 128 characters
-  (table rows are exempt and may be longer). The `.clang-format` `ColumnLimit` (currently 140) applies only to C/C++ source
-  files and headers, never to documentation files.
 
 ## Adding or Modifying Code
 
@@ -497,8 +495,8 @@ Standalone helpers (not built by `Makefile`):
   supposed to mean?`), high-voltage missiles, tornadoes, another armor level.
 - `README:216-231`: Ubuntu default sound driver workaround (switch to OSS, restart, clear `/tmp/pulse*`); buggy network client
   side.
-- `Changelog` top entry (6.7) lists recently fixed crashes and AI bugs; older entries document recurring AI-strength and
-  SDI-tuning adjustments.
+- `CHANGELOG.md` entry (6.7) lists recently fixed crashes and AI bugs; older entries in `docs/Changelog.history` document
+  recurring AI-strength and SDI-tuning adjustments.
 
 ## Files and Directories Reference
 
@@ -529,7 +527,7 @@ Standalone helpers (not built by `Makefile`):
 | `Makefile` | build | GNU build (primary) |
 | `vs12/`, `vs14/` | IDE | VS2013 / VS2015 frontends |
 | `dep/`, `obj/.keep_dir` | build dirs | Ignored dependency files (legacy make outputs); object dir placeholder |
-| `README`, `README_ru.txt`, `Changelog`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, history, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
+| `README`, `README_ru.txt`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
 | `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in `WP PF-1.1`) |
 | `atanks.desktop`, `io.github.EdenWorX.atanks.metainfo.xml` | packaging | Desktop entry / AppStream metadata |
 | `allegro.supp`, `do_*.sh`, `gdb_memcheck.sh` | diagnostics | Valgrind suppressions and runners |

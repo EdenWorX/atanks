@@ -214,4 +214,4 @@ atanks/Changelog atanks/BUGS atanks/*.txt
 
 # Kept for reference only: the install itself moved to CMakeLists.txt.
 # WP PF-1.10 updates this list when Changelog becomes docs/Changelog.history.
-INCOMMON   := COPYING README TODO Changelog *.txt unicode.dat
+INCOMMON   := COPYING README TODO docs/Changelog.history *.txt unicode.dat

@@ -229,7 +229,7 @@ dropped (lsan is part of asan now); `SANITIZE_UNDEF` (ubsan) is new. Address and
 Update the `README.md` build system docs and the `AGENTS.md` build/test commands to the CMake flow (wrapper commands,
 prerequisites, `vs12/`/`vs14/` for Windows). Remove documentation of retired targets.
 
-### [ ] PF-1.10: Adopt `CHANGELOG.md` and semantic versioning
+### [x] PF-1.10: Adopt `CHANGELOG.md` and semantic versioning
 
 Keep the legacy `Changelog` (2500+ lines) exactly as it is — SourceForge URLs and all — by renaming it to
 `docs/Changelog.history` to preserve its historical context. Create a fresh `CHANGELOG.md` with a single entry for the `6.7`
@@ -239,19 +239,19 @@ going forward; document `MINOR`/`MAJOR` changes per release and apply the remova
 their `CHANGELOG.md` entry). Task `PF-1.10.1` runs after `WP PF-1.5` (so no Code::Blocks unit list needs updating); the history
 file it creates is the carve-out for the `PF-1.2.4` and `PF-1.6.3` sweeps.
 
-#### [ ] PF-1.10.1: Rename the history file and fix references
+#### [x] PF-1.10.1: Rename the history file and fix references
 
 `git mv Changelog docs/Changelog.history` (after `WP PF-1.5`, so no Code::Blocks unit list needs updating), then update the
 `Makefile` `INCOMMON`/install lists and the `README.md`/`AGENTS.md` references to point at the new path. Verify the renamed
 file is byte-identical to the original blob.
 
-#### [ ] PF-1.10.2: Create CHANGELOG.md with the 6.7 entry
+#### [x] PF-1.10.2: Create CHANGELOG.md with the 6.7 entry
 
 Create `CHANGELOG.md` containing only `## 6.7 (2023-08-09)` with `Added` / `Changed` / `Fixed` sections rewritten in markdown
 from the `Atanks-6.7 released` section of `docs/Changelog.history`. No new claims beyond that section; later releases append
 entries per `docs/release_process.md`.
 
-#### [ ] PF-1.10.3: Record the semver and removal rules going forward
+#### [x] PF-1.10.3: Record the semver and removal rules going forward
 
 Document that new versions use `MAJOR.MINOR.PATCH` (tied to the CMake `project(VERSION ...)` format from `WP PF-1.9`) and that
 finished to-do items are removed after their `CHANGELOG.md` entry, per `docs/todo_planning.md`. No code changes.
