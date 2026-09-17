@@ -193,7 +193,7 @@ keep working, but it only wraps cmake+ninja. All Windows targets in the `Makefil
 resource build) are stale — the project is built with Visual Studio (`vs12/`/`vs14/`) — and are retired as part of this
 migration.
 
-#### [ ] PF-1.9.1: Create CMakeLists.txt with version and build options
+#### [x] PF-1.9.1: Create CMakeLists.txt with version and build options
 
 Add `CMakeLists.txt` declaring `project(... VERSION 6.7 ...)` as the single source of truth, with options covering install
 layout (`PREFIX`/`DESTDIR` equivalents), `DEBUG` flavors, and sanitizers. Agree the minimum CMake version and the ninja
@@ -216,7 +216,13 @@ against the legacy `make install`, including a staged `DESTDIR` install.
 Rewrite `Makefile` so plain `make`, `make test`, `make install`, etc. delegate to cmake+ninja while keeping their familiar names
 and variables. Retire the stale Windows targets (`winuser`, `win32-dist`, the `windres.exe` resource flow); `vs12/`/`vs14/`
 remain the Windows path. GNU platform targets (`user`, `osxuser`, `bsduser`, `debug`/`aidebug`/`fulldebug`) must keep working
-through the wrapper.
+through the wrapper. The wrapper owns the build directory: base `./cmake-build` plus option postfixes (`DEBUG=NO` →
+`-release`, `DEBUG=YES` → `-debug`, `SANITIZE_ADDRESS=YES` → `-asan`, `SANITIZE_THREAD=YES` → `-tsan`), with `-usan`
+appended for `SANITIZE_UNDEF=YES`. Examples: `make` → `./cmake-build-release`, `make DEBUG=YES` → `./cmake-build-debug`,
+`make DEBUG=YES SANITIZE_THREAD=YES` → `./cmake-build-tsan`, `make SANITIZE_ADDRESS=YES SANITIZE_UNDEF=YES` →
+`./cmake-build-asan-usan`. Any sanitizer implies `DEBUG=YES`, so no extra `-debug` postfix is added. `SANITIZE_LEAK` is
+dropped (lsan is part of asan now); `SANITIZE_UNDEF` (ubsan) is new. Address and thread sanitizers are mutually exclusive
+(address wins) but each combines with undefined.
 
 #### [ ] PF-1.9.5: Update the build documentation
 
@@ -263,7 +269,7 @@ targets on top of the `WP PF-1.9` CMake base. Expected result: `make test` and `
 
 #### [ ] PF-1.11.2: Implement the sanitizer targets
 
-Implement `make test-asan`, `make test-ubsan`, and `make test-tsan`, mapping the existing `SANITIZE_ADDRESS` / `SANITIZE_LEAK` /
+Implement `make test-asan`, `make test-ubsan`, and `make test-tsan`, mapping the `SANITIZE_ADDRESS` / `SANITIZE_UNDEF` /
 `SANITIZE_THREAD` knobs (thread flavor keeps `USE_MUTEX_INSTEAD_OF_SPINLOCK`). Expected result: each target builds and runs the
 test scope from `PF-1.11.1` under its sanitizer.
 
@@ -412,3 +418,4 @@ quantities/prices, fired shots).
   PF-1.1`).
 - [ ] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
 - [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
+- [ ] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).

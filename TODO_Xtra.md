@@ -17,6 +17,8 @@ No open items — decomposition of `WP PF-1.1`–`WP PF-1.17` surfaced no blocki
 - [ ] **Low**: the 12 screenshot URLs in `io.github.EdenWorX.atanks.metainfo.xml` (`<image>https://atanks.sourceforge.io/...`)
   still point at the old SourceForge site, which this fork no longer controls. Out of scope for `WP PF-1.6` (screenshots were
   not listed there); decide whether to re-host the images (e.g. in the GitHub repo) and update or drop the block.
+- [ ] **Low**: `README.md` claims `allegro-config` is absent on the documenting machine, but Allegro 4.4.3 is installed in the
+  current environment. Reword to drop the machine-specific absence claim when that section is next touched.
 
 ## Planned Features
 
