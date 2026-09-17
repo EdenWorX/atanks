@@ -12,8 +12,8 @@ No open items — decomposition of `WP PF-1.1`–`WP PF-1.17` surfaced no blocki
 
 ## General Issues
 
-No open items — every cleanup, consistency, and documentation concern found during decomposition is covered by an Implementation
-Task in its parent Work Package in `TODO.md`.
+- [ ] **Low**: `src/atanks.rc:52` references `COPYING.txt`, but the file is named `COPYING` (no `.txt`). Left untouched because
+  version-string work on that file belongs to `WP PF-1.2`; fix the filename reference when that package edits the resource.
 
 ## Planned Features
 

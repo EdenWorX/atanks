@@ -2,7 +2,7 @@
 <!-- Copyright 2020 Bruno Victal <ubr47k@users.sourceforge.net> -->
 <component type="desktop-application">
   <metadata_license>CC0-1.0</metadata_license>
-​  <project_license>GPL-2.0-or-later</project_license>
+​  <project_license>GPL-3.0-or-later</project_license>
   <id>io.sourceforge.atanks</id>
   <name>Atomic Tanks</name>
   <summary>Multi-platform Scorched Earth clone similar to the Worms series of games</summary>

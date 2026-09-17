@@ -17,29 +17,29 @@ project as if this cleanup was already done).
 
 ### Cleanup Work Packages
 
-- [ ] **WP PF-1.1 — Consolidate license information.** `LICENSE` is the single source of truth. Fix the contradicting license
+- [x] **WP PF-1.1 — Consolidate license information.** `LICENSE` is the single source of truth. Fix the contradicting license
   information throughout the project: `COPYING` (GPLv2 text), the `either version 2 ... or (at your option) any later version`
   source headers (e.g. `src/main.h`, `src/globaltypes.h`), the `GPL-2.0-or-later` declaration in
   `io.sourceforge.atanks.metainfo.xml`, and the `License: GPL` line in `atanks-4.3.spec` (covered by its removal in `WP
   PF-1.4`).
 
-   - [ ] **PF-1.1.1 Inventory contradicting license statements**
+   - [x] **PF-1.1.1 Inventory contradicting license statements**
 
       Grep the tracked tree for license identifiers (`GPL`, `General Public License`, `COPYING`, `License:`) including `README`,
       `README_ru.txt`, packaging files, and all `src/*.h`/`src/*.cpp` headers. Expected result: a complete hit list that drives
       tasks `PF-1.1.2`–`PF-1.1.4`. No files changed.
 
-   - [ ] **PF-1.1.2 Normalize source-file license headers to LICENSE**
+   - [x] **PF-1.1.2 Normalize source-file license headers to LICENSE**
 
       Replace the `either version 2 ... or (at your option) any later version` headers with headers matching `LICENSE`, keeping
       the existing copyright holders and the surrounding comment style. Pure text change; no code behavior changes.
 
-   - [ ] **PF-1.1.3 Align packaging and metadata declarations**
+   - [x] **PF-1.1.3 Align packaging and metadata declarations**
 
       Set the license fields in `io.sourceforge.atanks.metainfo.xml` (`project_license`) and any remaining packaging metadata to
       the `LICENSE` identifier. Coordinate with `WP PF-1.4` (the spec file is deleted there, not fixed here).
 
-   - [ ] **PF-1.1.4 Decide the fate of COPYING and verify install lists**
+   - [x] **PF-1.1.4 Decide the fate of COPYING and verify install lists**
 
       Either remove `COPYING` or replace it with a pointer to `LICENSE` (decision with the user), then verify the `Makefile`
       `INCOMMON` install list and any other file enumerations are consistent with the outcome.
@@ -372,7 +372,13 @@ None of the following exists yet: `CMakeLists.txt`, `config.h.in` / generated `c
 
 ### Planned follow-ups (not yet numbered; become `TODO-PF-*` after `TODO-PF-1`)
 
-- Proper development of network functionality (currently a Linux-only first draft; `NETWORK` handling stays as-is during this
-  cleanup).
-- UI-framework modernization away from Allegro 4 (including removal of the then-obsolete `unicode.dat`; until then the file is
-  ignored, not touched).
+- Proper development of network functionality (currently a Linux-only first
+  draft; `NETWORK` handling stays as-is during this cleanup).
+- UI-framework modernization away from Allegro 4 (including removal of the
+  then-obsolete `unicode.dat`; until then the file is ignored, not touched).
+
+## Feature-Complete Checklist
+
+- [ ] `git grep "either version 2" -- src` returns zero hits (license headers consolidated, `WP PF-1.1`).
+- [ ] `git grep -i "GPL-2.0" -- io.sourceforge.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
+  PF-1.1`).

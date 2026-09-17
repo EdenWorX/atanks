@@ -15,9 +15,10 @@ weather, network play (host plus clients), and localized in-game text.
   in game code, plus a custom spinlock (`src/spinlock.h`).
 - Version: the `VERSION` variable in `Makefile` (currently `6.7`) is the single source of truth. Older version strings in other
   files will be synchronized or removed in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.2`–`WP PF-1.4`).
-- License: `LICENSE` is the single source of truth. Contradicting license information elsewhere in the tree (`COPYING` GPLv2
-  text, `either version 2 ... or later` source headers, `io.sourceforge.atanks.metainfo.xml:5` declaring `GPL-2.0-or-later`)
-  will be fixed in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.1`).
+- License: `LICENSE` is the single source of truth. Formerly contradicting license information (old GPLv2 `COPYING` text,
+  `either version 2 ... or later` source headers, `io.sourceforge.atanks.metainfo.xml:5` declaring `GPL-2.0-or-later`) was
+  consolidated in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.1`): headers now say version 3, the metainfo declares
+  `GPL-3.0-or-later`, and `COPYING` is a pointer to `LICENSE`.
 - Issue reports go to `https://github.com/EdenWorX/atanks/issues`. This is a manual fork moved from SourceForge to GitHub;
   updating the remaining SourceForge references is part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.6`).
 
@@ -62,7 +63,7 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `TODO` | Legacy prioritized bug/feature list (almost a decade old; explicitly frozen — ignore it for now, `TODO.md` `WP PF-1.8`) |
 | `TODO.md` | Canonical planning file (per `docs/todo_planning.md`); first item is `TODO-PF-1` Cleanup and Modernization |
 | `docs/` | EdenWorX planning and release rules (`todo_planning.md`, `release_process.md`) |
-| `COPYING`, `LICENSE` | GPLv2 / GPLv3 license texts (`LICENSE` is the single source of truth) |
+| `COPYING`, `LICENSE` | License pointer + full license text (`LICENSE` is the single source of truth) |
 | `credits.txt` | Authors, graphics, docs, translations, sound attributions |
 | `atanks-4.3.spec` | Obsolete RPM spec file (version 4.3, from 2015 or older), pending removal (`TODO.md`, `WP PF-1.4`) |
 | `atanks.desktop` | freedesktop menu entry (`Exec=atanks`) |
@@ -536,7 +537,7 @@ Standalone helpers (not built by `Makefile`):
 | `exporter/` | tools | Obsolete Allegro-datafile asset utilities, pending cleanup |
 | `dep/`, `obj/.keep_dir` | build dirs | Checked-in dependency files (obsolete, pending removal); object dir placeholder |
 | `README`, `README_ru.txt`, `Changelog`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, history, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
-| `COPYING`, `LICENSE` | legal | GPLv2 / GPLv3 texts (`LICENSE` is the single source of truth; cleanup pending, `WP PF-1.1`) |
+| `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in `WP PF-1.1`) |
 | `atanks-4.3.spec`, `atanks.desktop`, `io.sourceforge.atanks.metainfo.xml` | packaging | Obsolete RPM spec (pending removal) / desktop entry / AppStream metadata |
 | `allegro.supp`, `do_*.sh`, `gdb_memcheck.sh` | diagnostics | Valgrind suppressions and runners |
 | `.clang-format` | style | Formatter definition (clang-format 19+) |
