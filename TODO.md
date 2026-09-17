@@ -257,7 +257,7 @@ entries per `docs/release_process.md`.
 Document that new versions use `MAJOR.MINOR.PATCH` (tied to the CMake `project(VERSION ...)` format from `WP PF-1.9`) and that
 finished to-do items are removed after their `CHANGELOG.md` entry, per `docs/todo_planning.md`. No code changes.
 
-### [ ] PF-1.11: Add test and sanitizer targets
+### [x] PF-1.11: Add test and sanitizer targets
 
 Implement `make test` and `make test-all`, plus `make test-asan`, `make test-ubsan`, and `make test-tsan` (mapping the existing
 `SANITIZE_*` Makefile knobs), so the pre-release checklist in `docs/release_process.md` is executable. Tasks `PF-1.11.1`–
@@ -281,13 +281,13 @@ linked via `PkgConfig::CPPUTEST` compiles, links, and runs green. Note: that mac
 inconsistent (references `/usr/lib/libCppUTest.a`, actual libs in `/usr/lib64`) so tier (1) hard-fails there until the install
 is repaired (reported to the Gentoo maintainers) — which is exactly why the pkg-config tier (2) exists.
 
-#### [ ] PF-1.11.2: Implement the sanitizer targets
+#### [x] PF-1.11.2: Implement the sanitizer targets
 
 Implement `make test-asan`, `make test-ubsan`, and `make test-tsan`, mapping the `SANITIZE_ADDRESS` / `SANITIZE_UNDEF` /
 `SANITIZE_THREAD` knobs (thread flavor keeps `USE_MUTEX_INSTEAD_OF_SPINLOCK`). Expected result: each target builds and runs the
 test scope from `PF-1.11.1` under its sanitizer.
 
-#### [ ] PF-1.11.3: Update the validation documentation
+#### [x] PF-1.11.3: Update the validation documentation
 
 Replace the interim `make DEBUG=YES` + manual in-game validation rule in `README.md`/`AGENTS.md` with the new test targets once
 they exist. Until then the interim rule stays.

@@ -403,19 +403,19 @@ Standalone helpers (not built by `Makefile`):
 
 ## Testing and Validation
 
-- No automated test suite exists: no test directories, no test files, and no test targets in `Makefile` or the `.vcxproj`
-  files (verified by file listing and target enumeration).
+- Automated unit suite exists: `tests/` (CppUTest, decoupled logic units) wired to `ctest`.
+  - `make test` builds and runs the suite in the flag-selected build directory; `make test-all` runs it in release and debug.
+  - `make test-asan` / `test-ubsan` / `test-tsan` run the suite under sanitizers (`TODO.md`, `WP PF-1.11`).
 - The closest equivalents to tests are:
   - `make -n <target>` dry-run to validate flag expansion (verified here for `make -n user`).
   - A full `make user` build followed by a `./cmake-build-release/atanks --windowed` smoke run.
   - `make debug` / `aidebug` / `fulldebug` builds plus the Valgrind helpers (`do_memcheck.sh`, `do_helgrind.sh`,
     `gdb_memcheck.sh` with `allegro.supp`) for memory/thread validation.
   - `CHANGELOG.md` entries as regression notes (e.g. 6.7 lists fixed crashes, AI, and land-creation bugs).
-  - Executable test, sanitizer, static-analysis, and doc targets (`make test`, `test-asan/ubsan/tsan`, `tools/run-cppcheck.sh`,
-    `make doc`) do not exist yet; adding them is part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.11`–`WP
-    PF-1.12`).
-- Accepted validation bar (the game is an interactive GUI application): until proper unit and smoke tests exist, a plain `make
-  DEBUG=YES` build has to be enough, plus manual validation — developers actually test their changes in-game.
+  - Static-analysis and doc targets (`tools/run-cppcheck.sh`, `make doc`) do not exist yet; adding them is part of the
+    Cleanup and Modernization task (`TODO.md`, `WP PF-1.12`).
+- Accepted validation bar (the game is an interactive GUI application): a green `make test` (plus `make test-all` where
+  affordable), plus manual validation — developers actually test their changes in-game.
 - Known-issue sources: `TODO.md` itself (canonical planning file, first item `TODO-PF-1` Cleanup and Modernization). The legacy
   `TODO` file (1 bug
   + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; proper `TODO-PF-*`

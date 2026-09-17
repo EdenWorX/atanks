@@ -1,5 +1,5 @@
 .PHONY: aidebug all bsduser clean debug dist fulldebug i686-dist install osxuser \
-    source-dist tarball test test-all ubuntu user veryclean zipfile
+    source-dist tarball test test-all test-asan test-tsan test-ubsan ubuntu user veryclean zipfile
 
 # Note: Submit as "YES" to enable debugging
 DEBUG   := $(if $(DEBUG),$(DEBUG),NO)
@@ -181,6 +181,19 @@ test: all
 test-all:
 	$(MAKE) -f Makefile test
 	$(MAKE) -f Makefile test DEBUG=YES
+
+# Sanitizer runs (WP PF-1.11). Each builds and runs the unit-test scope in
+# its own build directory (cmake-build-asan, cmake-build-ubsan,
+# cmake-build-tsan), exercising the suite under the sanitizer. The thread
+# flavor keeps USE_MUTEX_INSTEAD_OF_SPINLOCK (see CMakeLists.txt).
+test-asan:
+	$(MAKE) -f Makefile test SANITIZE_ADDRESS=YES
+
+test-ubsan:
+	$(MAKE) -f Makefile test SANITIZE_UNDEF=YES
+
+test-tsan:
+	$(MAKE) -f Makefile test SANITIZE_THREAD=YES
 
 clean:
 	$(RM) -r cmake-build*
