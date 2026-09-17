@@ -206,7 +206,7 @@ Add `config.h.in` producing a `config.h` with the version macros, replacing the 
 `-DNETWORK` / platform-define) flag plumbing. Keep the `src/main.h` missing-`VERSION` hard-error satisfied through the generated
 header; behavior of version reporting (`game_version`) must be preserved.
 
-#### [ ] PF-1.9.3: Port install rules and verify equivalence
+#### [x] PF-1.9.3: Port install rules and verify equivalence
 
 Port the `install` target (binary, metainfo, desktop file, icons, data tree) to CMake and verify byte-equivalent install results
 against the legacy `make install`, including a staged `DESTDIR` install.
