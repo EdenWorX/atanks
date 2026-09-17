@@ -1536,6 +1536,7 @@ int32_t main( int32_t argc, char** argv ) {
 	SEND_RECEIVE_TYPE* send_receive   = nullptr;
 	std::thread*       network_thread = nullptr;
 
+#if 0 // legacy SourceForge update checker disabled; a modern replacement is planned (see TODO_Xtra.md)
 	// Create the update checker thread:
 	update_data updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
 
@@ -1543,6 +1544,7 @@ int32_t main( int32_t argc, char** argv ) {
 	if ( env.check_for_updates ) {
 		global.update_string = updateData.update_string;
 	}
+#endif // 0
 
 	// Initialize network if allowed and wanted
 	if ( env.network_enabled && allow_network ) {
@@ -1627,7 +1629,9 @@ int32_t main( int32_t argc, char** argv ) {
 		delete network_thread;
 		free( send_receive );
 	}
+#if 0 // legacy SourceForge update checker disabled (see TODO_Xtra.md)
 	updateThread.join();
+#endif // 0
 #endif // NETWORK
 
 	if ( !Save_Game_Settings( fullPath.c_str() ) ) {
@@ -1641,7 +1645,9 @@ int32_t main( int32_t argc, char** argv ) {
 
 	allegro_exit();
 
+#if 0 // legacy SourceForge farewell URL disabled (see TODO_Xtra.md)
 	cout << "See https://atanks.sourceforge.io for the latest news and downloads." << endl;
+#endif // 0
 
 	return result;
 }
