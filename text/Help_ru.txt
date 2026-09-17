@@ -119,8 +119,8 @@ Atomic Tanks: Описание
 --------------------------------------
 
 Не можете найти ответа на свой вопрос?
-Посетите http://atanks.sourceforge.net (английский)
-или отправьте e-mail по адресу: jessefrgsmith@yahoo.ca (английский)
+Посетите https://github.com/EdenWorX/atanks (английский)
+или отправьте e-mail по адресу: sven@eden-worx.com (английский)
                              или myothehedgefox@gmail.com (русский)
 
 

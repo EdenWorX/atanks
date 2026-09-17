@@ -8,7 +8,7 @@ Sommario :
 		Come giocare
 
 	Personalizzazione del gioco
-		 les caractéristiques générales
+		 les caractï¿½ristiques gï¿½nï¿½rales
 		Modificare le caratteristiche fisiche
 		Modificare il meteo del gioco
 		Modificare le finaze
@@ -46,9 +46,9 @@ Voi avete la possibilita' di personalizzare Atomic Tanks per rendere il gioco pi
 
 Modifica delle caratteristiche generali :
 1. Cliccare 'Opzions' nel menu principale per visualizzare le Opzioni del gioco.
-2. Regolare il 'Tech Level' delle armi per determinare le armi e gli equipaggiamenti disponibili nello schermo 'armi' ; i livelli piu' alti rendono disponibili una maggior varietà di armi.
+2. Regolare il 'Tech Level' delle armi per determinare le armi e gli equipaggiamenti disponibili nello schermo 'armi' ; i livelli piu' alti rendono disponibili una maggior varietï¿½ di armi.
 3. Le Opzioni 'Landscape' permettono di disporre d'altri tipi d'ambiente ad ogni round.
-4. Il 'Turn Order' determina se l'ordine del giocatore per round è dato dal punteggio piu' alto (High+), dal punteggio piu' basso (Low+), o in ordine aleatorio.
+4. Il 'Turn Order' determina se l'ordine del giocatore per round ï¿½ dato dal punteggio piu' alto (High+), dal punteggio piu' basso (Low+), o in ordine aleatorio.
 5. Selezionare 'Skip AI-only Play' permette all'Intelligenza Artificiale (IA) di continuare a giocare anche quando tutti i giocatori umani sono stati eliminati; mettere ad on 'Skip AI-only Play' per accellerare il gioco.
 6. Cliccare 'Back' per applicare le modifiche al prossimo gioco.
 
@@ -109,4 +109,4 @@ NOTE: Le modifiche possono rallentare la partenza del gioco o del cambio di roun
 --------------------------------------
 
 Se non potete trovare delle risposte alle vostre domande, consultate il sito (in Inglese)
-http://atanks.sourceforge.net, o contattatemi per mail (in Inglese) : jessefrgsmith@yahoo.ca
+https://github.com/EdenWorX/atanks, o contattatemi per mail (in Inglese) : sven@eden-worx.com

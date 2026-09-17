@@ -106,6 +106,6 @@ NOTE: Changing game graphics may affect the time required to start a game or rou
 --------------------------------------
 
 If you can't find the answer to your question here, at 
-http://atanks.sourceforge.net, email jessefrgsmith@yahoo.ca
+https://github.com/EdenWorX/atanks, email sven@eden-worx.com
 
 
