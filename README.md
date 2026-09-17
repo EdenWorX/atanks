@@ -52,7 +52,6 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `text/` | Localized in-game text files (`weapons*.txt`, `Help*.txt`, `ingame*.txt`, etc.) |
 | `unicode.dat` | Allegro datafile used for fonts; also the probe file for data-dir detection. An old manual addition; ignored (not touched) until the post-cleanup move away from Allegro 4 makes it obsolete |
 | `Makefile` | Primary GNU Make build (`VERSION 6.7`, the version single source of truth) |
-| `Makefile.bsd` | Deprecated BSD-make build file, pending removal (`TODO.md`, `WP PF-1.3`) |
 | `cb/` | Code::Blocks frontend, unsupported for almost a decade, pending cleanup (`TODO.md`, `WP PF-1.5`) |
 | `vs12/`, `vs14/` | Visual Studio 2013 / 2015 solution + project + filters + `README_allegro.txt` |
 | `exporter/` | Obsolete standalone asset tools (no Allegro datafiles used since 2015), pending cleanup (`TODO.md`, `WP PF-1.5`) |
@@ -65,7 +64,6 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `docs/` | EdenWorX planning and release rules (`todo_planning.md`, `release_process.md`) |
 | `COPYING`, `LICENSE` | License pointer + full license text (`LICENSE` is the single source of truth) |
 | `credits.txt` | Authors, graphics, docs, translations, sound attributions |
-| `atanks-4.3.spec` | Obsolete RPM spec file (version 4.3, from 2015 or older), pending removal (`TODO.md`, `WP PF-1.4`) |
 | `atanks.desktop` | freedesktop menu entry (`Exec=atanks`) |
 | `io.sourceforge.atanks.metainfo.xml` | AppStream metadata |
 | `atanks.ico`, `atanks.png` | Windows icon (used by `src/atanks.rc`) and Linux menu icon |
@@ -280,9 +278,7 @@ There is no Autotools setup (`configure`, `configure.in`, `aclocal.m4` do not ex
 
 ### Platform-Specific Builds
 
-- `Makefile.bsd` is deprecated and pending removal (`TODO.md`, `WP PF-1.3`). For the record, it is a standalone BSD-make file
-  with explicit per-object rules (`MODULES` list at `:5-15`, compile lines `:40-121`), `VERSION 6.5`, `-std=c++0x`, and its own
-  dependency list (`:127-298`). It expects to run from a shadow `obj/` directory (`MAKEOBJDIRPREFIX`, `../src/*.cpp` paths).
+- BSD builds use the GNU `Makefile` (`make bsduser`); there is no separate BSD makefile.
 - `vs12` targets VS2013 (`Format 12.00`, toolset v120, `CharacterSet=Unicode`, `OutDir=$(SolutionDir)..`); `vs14` targets VS2015
   (toolset v140, `CharacterSet=MultiByte`, `WindowsTargetPlatformVersion=8.1`, `IntDir=.obj\$(Platform)_$(Configuration)`). Both
   define `VERSION="6.5_rc1"` (stale vs `Makefile` 6.7); `vs14` additionally defines `DATA_DIR="."`. Both link one of
@@ -408,8 +404,8 @@ Standalone helpers (not built by `Makefile`):
 
 ## Testing and Validation
 
-- No automated test suite exists: no test directories, no test files, and no test targets in `Makefile`, `Makefile.bsd`,
-  `cb/atanks.cbp`, or the `.vcxproj` files (verified by file listing and target enumeration).
+- No automated test suite exists: no test directories, no test files, and no test targets in `Makefile`, `cb/atanks.cbp`,
+  or the `.vcxproj` files (verified by file listing and target enumeration).
 - The closest equivalents to tests are:
   - `make -n <target>` dry-run to validate flag expansion (verified here for `make -n user`).
   - A full `make user` build followed by `./atanks --windowed` smoke run.
@@ -440,8 +436,7 @@ Standalone helpers (not built by `Makefile`):
   following `README_allegro.txt` to repoint Allegro include/lib paths. The MinGW `make winuser` path is stale and will be
   retired in the CMake migration (`TODO.md`, `WP PF-1.9`), after which `Makefile` remains only as a cmake+ninja wrapper.
 - Build (macOS): `make osxuser` (or `gmake osxuser`).
-- Build (BSD): `make bsduser` with GNU make. The standalone `Makefile.bsd` is deprecated and pending removal (`TODO.md`, `WP
-  PF-1.3`).
+- Build (BSD): `make bsduser` with GNU make.
 - Debug: `make debug` (general), `make aidebug` (AI aiming/emotions to `atanks.log`), `make fulldebug` (all flavors); or set
   `DEBUG=YES` with `DEBUG_AICORE/AIMING/EMOTION/FINANCE/OBJECTS/PHYSICS/LOG_TO_FILE=YES` and optionally
   `SANITIZE_ADDRESS/LEAK/THREAD=YES` directly.
@@ -532,12 +527,12 @@ Standalone helpers (not built by `Makefile`):
 | `src/moon.h/.cpp`, `src/satellite.h/.cpp`, `src/teleport.h/.cpp`, `src/decor.h/.cpp`, `src/debris_pool.h/.cpp`, `src/floattext.h/.cpp`, `src/perlin.cpp`, `src/random.h/.cpp` | world extras | Moon, UFO, teleports, decor, debris, float text, noise, RNG |
 | `src/atanks.rc`, `src/resource.h` | windows-only | Icon/version resources, MSVC defines |
 | `src/winclock.h`, `src/wrap_dirent.h`, `src/optioncontent.h`, `src/optionitem.h` | shims/decls | Clock fix, dirent selector, option declarations |
-| `Makefile`, `Makefile.bsd` | build | GNU build (primary) + deprecated BSD-make file pending removal |
+| `Makefile` | build | GNU build (primary) |
 | `cb/`, `vs12/`, `vs14/` | IDE | Code::Blocks (unsupported, pending cleanup) / VS2013 / VS2015 frontends |
 | `exporter/` | tools | Obsolete Allegro-datafile asset utilities, pending cleanup |
 | `dep/`, `obj/.keep_dir` | build dirs | Checked-in dependency files (obsolete, pending removal); object dir placeholder |
 | `README`, `README_ru.txt`, `Changelog`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, history, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
 | `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in `WP PF-1.1`) |
-| `atanks-4.3.spec`, `atanks.desktop`, `io.sourceforge.atanks.metainfo.xml` | packaging | Obsolete RPM spec (pending removal) / desktop entry / AppStream metadata |
+| `atanks.desktop`, `io.sourceforge.atanks.metainfo.xml` | packaging | Desktop entry / AppStream metadata |
 | `allegro.supp`, `do_*.sh`, `gdb_memcheck.sh` | diagnostics | Valgrind suppressions and runners |
 | `.clang-format` | style | Formatter definition (clang-format 19+) |

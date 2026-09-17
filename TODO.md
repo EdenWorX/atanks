@@ -49,18 +49,18 @@ project as if this cleanup was already done).
   (currently `6, 4, 99`), and `io.sourceforge.atanks.metainfo.xml` (currently `6.5`). `Makefile.bsd` and `atanks-4.3.spec` are
   covered by their removal in `WP PF-1.3`/`WP PF-1.4`.
 
-   - [ ] **PF-1.2.1 Propagate 6.7 to the Visual Studio projects**
+   - [x] **PF-1.2.1 Propagate 6.7 to the Visual Studio projects**
 
       Replace `6.5_rc1` with the `Makefile` version in all configurations (Debug/Release x Win32/x64) of `vs12/atanks.vcxproj`
       and `vs14/atanks.vcxproj`. Preserve the existing per-project differences (e.g. the `DATA_DIR` define present only in
       `vs14`). Expected result: all MSVC builds report the same version string.
 
-   - [ ] **PF-1.2.2 Sync the Windows resource version**
+   - [x] **PF-1.2.2 Sync the Windows resource version**
 
       Update `VERSIONINFO` in `src/atanks.rc` to the `Makefile` version and verify the `windres.exe` build still produces
       `obj/atanks.res` (until that flow is retired in `WP PF-1.9`). No behavior change besides the version.
 
-   - [ ] **PF-1.2.3 Update the metainfo release entry**
+   - [x] **PF-1.2.3 Update the metainfo release entry**
 
       Set the release entry in `io.sourceforge.atanks.metainfo.xml` to version `6.7`, released `2023-08-09` (verified from git
       log, commit `571c0be`).
@@ -70,33 +70,33 @@ project as if this cleanup was already done).
       After `WP PF-1.3`/`WP PF-1.4` removals, grep the tracked tree for leftover stale versions (`6.5_rc1`, `6, 4, 99`, `4.3`)
       outside `docs/Changelog.history` (created in `WP PF-1.10`). Expected result: zero hits.
 
-- [ ] **WP PF-1.3 — Remove deprecated `Makefile.bsd`.** The file is deprecated (stale `VERSION 6.5`, references to untracked
+- [x] **WP PF-1.3 — Remove deprecated `Makefile.bsd`.** The file is deprecated (stale `VERSION 6.5`, references to untracked
   `src/main.cpp` and `imagedefs.h`) and will be removed, not fixed.
 
-   - [ ] **PF-1.3.1 Delete the file and its documentation mentions**
+   - [x] **PF-1.3.1 Delete the file and its documentation mentions**
 
       Delete `Makefile.bsd` and remove its mentions from `README.md` and `AGENTS.md` build docs. The GNU `make bsduser` path is
       unaffected.
 
-   - [ ] **PF-1.3.2 Verify no references or users remain**
+   - [x] **PF-1.3.2 Verify no references or users remain**
 
       Confirm `git grep Makefile.bsd` returns no hits outside `docs/Changelog.history`, and that the documented BSD build (`make
       bsduser`) is still described correctly.
 
-- [ ] **WP PF-1.4 — Remove obsolete packaging and dependency artifacts.** Remove `atanks-4.3.spec` (from 2015 or older, no
+- [x] **WP PF-1.4 — Remove obsolete packaging and dependency artifacts.** Remove `atanks-4.3.spec` (from 2015 or older, no
   longer needed) and the tracked `dep/*.d` files (obsolete, regenerable via `Makefile`).
 
-   - [ ] **PF-1.4.1 Delete the RPM spec and its documentation mentions**
+   - [x] **PF-1.4.1 Delete the RPM spec and its documentation mentions**
 
       Delete `atanks-4.3.spec` and remove its mentions from `README.md` and `AGENTS.md` packaging docs. No replacement;
       downstream packagers own their specs.
 
-   - [ ] **PF-1.4.2 Untrack the dependency files and ignore them**
+   - [x] **PF-1.4.2 Untrack the dependency files and ignore them**
 
       `git rm --cached` the tracked `dep/*.d` files and add an ignore rule, then verify a clean checkout regenerates them via
       the `Makefile` dependency rules (`dep/%.d`, `-include $(DEPENDS)`). Build output must be unchanged.
 
-   - [ ] **PF-1.4.3 Verify consistency of the remaining file lists**
+   - [x] **PF-1.4.3 Verify consistency of the remaining file lists**
 
       Confirm no references to the spec or to tracked `.d` files remain (`git grep atanks-4.3.spec`, `git ls-files dep/` shows
       only `.keep_dir`), and that install/packaging docs no longer promise them.
@@ -382,3 +382,5 @@ None of the following exists yet: `CMakeLists.txt`, `config.h.in` / generated `c
 - [ ] `git grep "either version 2" -- src` returns zero hits (license headers consolidated, `WP PF-1.1`).
 - [ ] `git grep -i "GPL-2.0" -- io.sourceforge.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
   PF-1.1`).
+- [ ] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
+- [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).

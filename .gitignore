@@ -19,6 +19,7 @@ patches_sent
 
 # build results
 *.dep
+dep/*.d
 *.o
 atanks
 !vs12/atanks*
