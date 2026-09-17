@@ -20,7 +20,7 @@ project as if this cleanup was already done).
 
 `LICENSE` is the single source of truth. Fix the contradicting license information throughout the project: `COPYING` (GPLv2
 text), the `either version 2 ... or (at your option) any later version` source headers (e.g. `src/main.h`, `src/globaltypes.h`),
-the `GPL-2.0-or-later` declaration in `io.sourceforge.atanks.metainfo.xml`, and the `License: GPL` line in `atanks-4.3.spec`
+the `GPL-2.0-or-later` declaration in `io.github.EdenWorX.atanks.metainfo.xml`, and the `License: GPL` line in `atanks-4.3.spec`
 (covered by its removal in `WP PF-1.4`).
 
 #### [x] PF-1.1.1: Inventory contradicting license statements
@@ -36,8 +36,8 @@ existing copyright holders and the surrounding comment style. Pure text change; 
 
 #### [x] PF-1.1.3: Align packaging and metadata declarations
 
-Set the license fields in `io.sourceforge.atanks.metainfo.xml` (`project_license`) and any remaining packaging metadata to the
-`LICENSE` identifier. Coordinate with `WP PF-1.4` (the spec file is deleted there, not fixed here).
+Set the license fields in `io.github.EdenWorX.atanks.metainfo.xml` (`project_license`) and any remaining packaging metadata
+to the `LICENSE` identifier. Coordinate with `WP PF-1.4` (the spec file is deleted there, not fixed here).
 
 #### [x] PF-1.1.4: Decide the fate of COPYING and verify install lists
 
@@ -47,9 +47,10 @@ Either remove `COPYING` or replace it with a pointer to `LICENSE` (decision with
 ### [ ] PF-1.2: Consolidate version information
 
 The `VERSION` variable in `Makefile` (currently `6.7`) is the single source of truth. Propagate it to `vs12/atanks.vcxproj` and
-`vs14/atanks.vcxproj` (currently `6.5_rc1`), `src/atanks.rc` (currently `6, 4, 99`), and `io.sourceforge.atanks.metainfo.xml`
-(currently `6.5`). `Makefile.bsd` and `atanks-4.3.spec` are covered by their removal in `WP PF-1.3`/`WP PF-1.4`. Task `PF-1.2.4`
-runs last, after `WP PF-1.3`, `WP PF-1.4`, and `WP PF-1.10` (which creates the history file the sweep excludes).
+`vs14/atanks.vcxproj` (currently `6.5_rc1`), `src/atanks.rc` (currently `6, 4, 99`), and
+`io.github.EdenWorX.atanks.metainfo.xml` (currently `6.5`). `Makefile.bsd` and `atanks-4.3.spec` are covered by their removal in
+`WP PF-1.3`/`WP PF-1.4`. Task `PF-1.2.4` runs last, after `WP PF-1.3`, `WP PF-1.4`, and `WP PF-1.10` (which creates the history
+file the sweep excludes).
 
 #### [x] PF-1.2.1: Propagate 6.7 to the Visual Studio projects
 
@@ -64,8 +65,8 @@ Update `VERSIONINFO` in `src/atanks.rc` to the `Makefile` version and verify the
 
 #### [x] PF-1.2.3: Update the metainfo release entry
 
-Set the release entry in `io.sourceforge.atanks.metainfo.xml` to version `6.7`, released `2023-08-09` (verified from git log,
-commit `571c0be`).
+Set the release entry in `io.github.EdenWorX.atanks.metainfo.xml` to version `6.7`, released `2023-08-09` (verified from git
+log, commit `571c0be`).
 
 #### [ ] PF-1.2.4: Sweep for stale version strings
 
@@ -131,22 +132,29 @@ Confirm `git grep -E "exporter/|atanks\.cbp"` returns no hits outside `docs/Chan
 Issue reports go to `https://github.com/EdenWorX/atanks/issues` from now on. Historical `Changelog` entries keep their
 SourceForge URLs untouched (preserved as `docs/Changelog.history` in `WP PF-1.10`).
 
-#### [ ] PF-1.6.1: Update live SourceForge references to GitHub
+#### [x] PF-1.6.1: Update live SourceForge references to GitHub
 
 Update the live references in `README`, `README_ru.txt` (URLs only, preserving the Russian prose), `Makefile` comments,
-`credits.txt`, `io.sourceforge.atanks.metainfo.xml` (homepage, bugtracker, update contacts), the `src/atanks.cpp`
+`credits.txt`, `io.github.EdenWorX.atanks.metainfo.xml` (homepage, bugtracker, update contacts), the `src/atanks.cpp`
 update-checker endpoints (verify the replacement endpoints with the user before changing), and the `text/Help*.txt` display
 strings (all 7 languages, strings only). No functional changes besides the endpoints.
 
-#### [ ] PF-1.6.2: Replace the bug-tracker placeholder
+#### [x] PF-1.6.2: Replace the bug-tracker placeholder
 
 Replace the `xxx` bug-tracker placeholder (`README:240-241`) with `https://github.com/EdenWorX/atanks/issues`.
 
 #### [ ] PF-1.6.3: Verify the migration is complete and history untouched
 
-Confirm `git grep -i sourceforge` returns hits only in `docs/Changelog.history`, and that the history file is byte-identical to
-the former `Changelog` (`git diff` against the pre-rename blob, see `WP PF-1.10`).
+Confirm `git grep -i sourceforge` returns hits only in `docs/Changelog.history`, the `TODO*.md` plan records, and the `#if 0`
+-masked legacy checker in `src/atanks.cpp` (kept deliberately, with its replacement tracked in `TODO_Xtra.md`), and that the
+history file is byte-identical to the former `Changelog` (`git diff` against the pre-rename blob, see `WP PF-1.10`).
 
+#### [x] PF-1.6.4: Rename the AppStream component ID to the fork
+
+This fork coexists with the still-active upstream project on SourceForge, which keeps its own `io.sourceforge.atanks` identity;
+shipping the same AppStream ID would collide in software centers. Rename `io.github.EdenWorX.atanks.metainfo.xml` to
+`io.github.EdenWorX.atanks.metainfo.xml` (via `git mv`), set `<id>` to `io.github.EdenWorX.atanks`, and update the `Makefile`
+install rule plus all documentation references. Keep `atanks.desktop` as the launchable and the screenshot block untouched.
 ### [ ] PF-1.7: Document `allegro.cfg`
 
 Record that it disables vertical sync on Windows builds because Allegro 4 has sync problems there. Full UI-framework
@@ -400,7 +408,7 @@ quantities/prices, fired shots).
 ### Feature-Complete Checklist
 
 - [ ] `git grep "either version 2" -- src` returns zero hits (license headers consolidated, `WP PF-1.1`).
-- [ ] `git grep -i "GPL-2.0" -- io.sourceforge.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
+- [ ] `git grep -i "GPL-2.0" -- io.github.EdenWorX.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
   PF-1.1`).
 - [ ] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
 - [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
