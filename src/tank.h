@@ -34,6 +34,9 @@
 class PLAYER;
 class EXPLOSION;
 
+/** @class TANK
+ * @brief Player tank avatar.
+ **/
 class TANK final : public PHYSICAL_OBJECT {
 
 public:
@@ -42,7 +45,9 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct a tank.
 	explicit TANK();
+	/// Destroy a tank.
 	~TANK() final;
 
 
@@ -51,37 +56,38 @@ public:
 	 * ----------------------
 	 */
 
-	void    activate();
-	void    activateCurrentSelection();
-	void    addDamage( PLAYER* damageFrom, double damage_ );
-	void    applyDamage();
-	void    applyPhysics() final;
-	void    check_weapon();
-	void    deactivate();
-	void    draw() final;
-	void    explode( bool allow_vengeance );
-	int32_t getBottom();
-	void    getGuntop( int32_t angle_, double& top_x, double& top_y );
-	int32_t howBuried( int32_t* left, int32_t* right );
-	bool    isFlying();
-	bool    isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );
-	bool    isInBox( double x1, double y1, double x2, double y2 );
-	bool    isInEllipse( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y );
-	bool    moveTank( int32_t direction );
-	void    newRound( int32_t pos_x, int32_t pos_y );
-	void    reactivate_shield();
-	void    repair();
-	bool    repulse( double xpos, double ypos, double* xa, double* ya, ePhysType phys_type );
-	void    resetFlashDamage();
-	bool    shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );
-	void    simActivateCurrentSelection();
+	void    activate();                                                                                      ///< Show turn labels.
+	void    activateCurrentSelection();                                                                      ///< Fire selected weapon.
+	void    addDamage( PLAYER* damageFrom, double damage_ );                                                 ///< Record incoming damage.
+	void    applyDamage();                                                                                   ///< Apply recorded damage.
+	void    applyPhysics() final;                                                                            ///< Advance physics.
+	void    check_weapon();                                                                                  ///< Validate weapon index.
+	void    deactivate();                                                                                    ///< Hide turn labels.
+	void    draw() final;                                                                                    ///< Render the tank.
+	void    explode( bool allow_vengeance );                                                                 ///< Destroy the tank.
+	int32_t getBottom();                                                                                     ///< Lowest tank pixel.
+	void    getGuntop( int32_t angle_, double& top_x, double& top_y );                                       ///< Muzzle position.
+	int32_t howBuried( int32_t* left, int32_t* right );                                                      ///< Measure dirt burial.
+	bool    isFlying();                                                                                      ///< Test airborne state.
+	bool    isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );                                       ///< Test box overlap.
+	bool    isInBox( double x1, double y1, double x2, double y2 );                                           ///< Rounded box overlap.
+	bool    isInEllipse( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y ); ///< Test ellipse overlap.
+	bool    moveTank( int32_t direction );                                                                   ///< Drive the tank.
+	void    newRound( int32_t pos_x, int32_t pos_y );                                                        ///< Spawn for a new round.
+	void    reactivate_shield();                                                                             ///< Reload the shield.
+	void    repair();                                                                                        ///< Field-repair the tank.
+	bool    repulse( double xpos, double ypos, double* xa, double* ya, ePhysType phys_type );                ///< Repulsor pushback.
+	void    resetFlashDamage();                                                                              ///< Flush flash damage.
+	bool    shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );                   ///< Check shot clearance.
+	void    simActivateCurrentSelection();                                                                   ///< Fire simultaneously.
 
+	/// Return the object class.
 	eClass  getClass() final { return CLASS_TANK; }
 
 	/* Status Getters */
-	[[nodiscard]] double  getDiameter() const;
-	[[nodiscard]] int32_t getMaxLife() const;
-	[[nodiscard]] bool    hasRepulsorActivated() const;
+	[[nodiscard]] double  getDiameter() const;          ///< Tank diameter.
+	[[nodiscard]] int32_t getMaxLife() const;           ///< Maximum life.
+	[[nodiscard]] bool    hasRepulsorActivated() const; ///< Repulsor shield active.
 
 
 	/* ----------------------
@@ -89,16 +95,16 @@ public:
 	 * ----------------------
 	 */
 
-	int32_t   a                 = 90;      // [a]ngle
-	int32_t   cw                = SML_MIS; // [c]urrent [w]eapon
-	int32_t   fire_another_shot = 0;
-	FLOATTEXT healthText;
-	int32_t   l = 100; // [l]ive
-	FLOATTEXT nameText;
-	int32_t   p  = MAX_POWER / 2; // [p]ower
-	int32_t   sh = 0;             // [sh]ield
-	FLOATTEXT shieldText;
-	int32_t   sht = 0; // [sh]ield [t]ype
+	int32_t   a                 = 90;      ///< Aim angle.
+	int32_t   cw                = SML_MIS; ///< Current weapon index.
+	int32_t   fire_another_shot = 0;       ///< Pending extra shots.
+	FLOATTEXT healthText;                  ///< Health label.
+	int32_t   l = 100;                     ///< Life.
+	FLOATTEXT nameText;                    ///< Name label.
+	int32_t   p  = MAX_POWER / 2;          ///< Shot power.
+	int32_t   sh = 0;                      ///< Shield strength.
+	FLOATTEXT shieldText;                  ///< Shield label.
+	int32_t   sht = 0;                     ///< Shield type.
 
 private:
 	/* -----------------------

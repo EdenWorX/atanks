@@ -23,13 +23,16 @@
 #include "globaltypes.h"
 #include "virtobj.h"
 
+/** @class TELEPORT
+ * @brief Teleport transit effect.
+ **/
 class TELEPORT final : public VIRTUAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
-	// Source constructor
+	/// Create the source end.
 	explicit TELEPORT(
 		VIRTUAL_OBJECT* targetObj,
 		int32_t         destinationX,
@@ -39,6 +42,7 @@ public:
 		int32_t         type
 	);
 
+	/// Delegate with a rounded radius.
 	TELEPORT(
 		VIRTUAL_OBJECT* targetObj,
 		int32_t         destinationX,
@@ -49,9 +53,11 @@ public:
 	)
 		: TELEPORT( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
 
+	/// Delegate with rounded coordinates.
 	TELEPORT( VIRTUAL_OBJECT* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
 		: TELEPORT( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
 
+	/// Destroy a teleport.
 	~TELEPORT() final;
 
 
@@ -60,9 +66,10 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
+	void   applyPhysics() final; ///< Advance physics.
+	void   draw() final;         ///< Render the teleport.
 
+	/// Return the object class.
 	eClass getClass() final { return CLASS_TELEPORT; }
 
 

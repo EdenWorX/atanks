@@ -26,6 +26,9 @@
 
 enum decorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
 
+/** @class DECOR
+ * @brief Dirt and smoke debris.
+ **/
 class DECOR final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
@@ -33,10 +36,10 @@ public:
 	 * -----------------------------------
 	 */
 
-	// ctor without bitmap
+	/// Create smoke or dirt without a bitmap.
 	explicit DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ );
 
-	// ctor with bitmap
+	/// Create debris with bitmaps.
 	DECOR( double       x_,
 	       double       y_,
 	       double       xv_,
@@ -48,6 +51,7 @@ public:
 	       sDebrisItem* met_item );
 
 
+	/// Destroy debris.
 	~DECOR() final;
 
 
@@ -56,10 +60,11 @@ public:
 	 * -----------------------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   force_aging( int32_t frames ); // Helper to work against FPS drops.
+	void   applyPhysics() final;                    ///< Advance physics.
+	void   draw() final;                            ///< Render the debris.
+	void   force_aging( int32_t frames );           ///< Catch up after FPS drops.
 
+	/// Return the object class.
 	eClass getClass() final { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
 
 

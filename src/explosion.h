@@ -25,6 +25,9 @@
 #include "physobj.h"
 #include "weapon.h"
 
+/** @class EXPLOSION
+ * @brief Detonation effect.
+ **/
 class EXPLOSION final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
@@ -32,10 +35,11 @@ public:
 	 * -----------------------------------
 	 */
 
-	// default ctor for all non-BEAM explosions
+	/// Detonate a standard explosion.
 	explicit EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
-	// Special ctor for BEAM:
+	/// Detonate a beam explosion with custom damage.
 	EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
+	/// Destroy an explosion.
 	~EXPLOSION() final;
 
 
@@ -44,10 +48,11 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   explode();
+	void   applyPhysics() final; ///< Advance physics.
+	void   draw() final;         ///< Render the explosion.
+	void   explode();            ///< Detonate the explosion.
 
+	/// Return the object class.
 	eClass getClass() final { return CLASS_EXPLOSION; }
 
 

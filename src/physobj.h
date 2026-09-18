@@ -54,12 +54,16 @@
 // Re-calculate angle_ into a value displayable on the top bar:
 #define GET_DISP_ANGLE( angle_ ) ( 180 - ( (angle_)-90 ) )
 
+/** @class PHYSICAL_OBJECT
+ * @brief Ballistic game object with gravity and drag.
+ **/
 class PHYSICAL_OBJECT : public VIRTUAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
+	/// Create a physical object.
 	explicit PHYSICAL_OBJECT( bool is_weapon );
 
 	// No explicit dtor needed
@@ -69,11 +73,14 @@ public:
 	 * ----------------------
 	 */
 
+	/// Render the object.
 	void inline draw() override { VIRTUAL_OBJECT::draw(); };
 
+	/// Read the current velocity.
 	void getVelocity( double &xv_, double &yv_ );
 
 	/* Status Getters */
+	/// Test whether this is weapon fire.
 	[[nodiscard]] bool isWeapon() const;
 
 
@@ -82,10 +89,10 @@ public:
 	 * ----------------------
 	 */
 
-	bool    allowDirtyWrap = true; //!< Whether ceiling wrap is allowed into dirt bottom
-	double  drag           = 0.;
-	bool    hitSomething   = false;
-	int32_t weapType       = 0;
+	bool    allowDirtyWrap = true;  //!< Whether ceiling wrap is allowed into dirt bottom
+	double  drag           = 0.;    ///< Air drag.
+	bool    hitSomething   = false; ///< Collision occurred.
+	int32_t weapType       = 0;     ///< Weapon type index.
 
 protected:
 	/* -------------------------
@@ -93,7 +100,9 @@ protected:
 	 * -------------------------
 	 */
 
+	/// Advance the physics simulation.
 	void applyPhysics() override;
+	/// Reset the physics state.
 	void initialise() override;
 
 
@@ -102,15 +111,15 @@ protected:
 	 * -------------------------
 	 */
 
-	int32_t bounces      = 0; //!< Bounces off walls, floor and ceiling
-	bool    isWeaponFire = true;
+	int32_t bounces      = 0;     //!< Bounces off walls, floor and ceiling
+	bool    isWeaponFire = true;  ///< Fired as a weapon.
 	bool    lacerated    = false; //!< Set to true if the velocity check fails.
-	double  mass         = 0.;
-	double  maxVel       = 0.; //!< maximum Velocity
-	double  mindDelay    = 0.; //!< for mind shots to travel through dirt if delayed
-	double  mindPassed   = 0.; //!< Counts the amount of dirt a delayed shot already passed through
-	bool    noimpact     = false;
-	int32_t spin         = 0;
+	double  mass         = 0.;    ///< Mass.
+	double  maxVel       = 0.;    //!< maximum Velocity
+	double  mindDelay    = 0.;    //!< for mind shots to travel through dirt if delayed
+	double  mindPassed   = 0.;    //!< Counts the amount of dirt a delayed shot already passed through
+	bool    noimpact     = false; ///< Skip impact handling.
+	int32_t spin         = 0;     ///< Spin.
 };
 
 /// global helper methods:

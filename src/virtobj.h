@@ -41,13 +41,18 @@ enum ePhysType {
 class PLAYER;
 #endif // HAS_PLAYER
 
+/** @class VIRTUAL_OBJECT
+ * @brief Root of the game object hierarchy.
+ **/
 class VIRTUAL_OBJECT {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
+	/// Construct an empty object.
 	explicit VIRTUAL_OBJECT() = default;
+	/// Destroy the object.
 	virtual ~VIRTUAL_OBJECT() = default;
 
 
@@ -57,27 +62,35 @@ public:
 	 */
 
 	/* --- non-inline methods --- */
-	void         addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+	void         addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ); ///< Queue a dirty rectangle.
+	/// Advance the object state.
 	virtual void applyPhysics();
+	/// Render the object.
 	virtual void draw();
+	/// Reset the object state.
 	virtual void initialise();
-	void         setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+	void         setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ); ///< Set the dirty rectangle.
 
 	/* variable helpers to also allow double coordinates */
+	/// Queue a dirty rectangle; coordinates are rounded.
 	void addUpdateArea( double left_, double top_, int32_t width_, int32_t height_ ) {
 		addUpdateArea( ROUND( left_ ), ROUND( top_ ), width_, height_ );
 	}
 
+	/// Set the dirty rectangle; coordinates are rounded.
 	void setUpdateArea( double left_, double top_, int32_t width_, int32_t height_ ) {
 		setUpdateArea( ROUND( left_ ), ROUND( top_ ), width_, height_ );
 	}
 
+	/// Redraw the object if required.
 	void update();
 
 	/* --- inline methods --- */
+	/// Flag the object for redraw.
 	void requireUpdate() { needsUpdate.store( true, ATOMIC_WRITE ); }
 
 	/* --- pure virtual (abstract) methods --- */
+	/// Return the object class.
 	virtual eClass getClass() = 0;
 
 	/* ------------------------------
@@ -106,12 +119,12 @@ public:
 	 * ----------------------
 	 */
 
-	bool            destroy = false;
-	VIRTUAL_OBJECT* next    = nullptr;
-	PLAYER*         player  = nullptr;
-	VIRTUAL_OBJECT* prev    = nullptr;
-	double          x       = 0.;
-	double          y       = 0.;
+	bool            destroy = false;   ///< Flagged for deletion.
+	VIRTUAL_OBJECT* next    = nullptr; ///< Successor in the class list.
+	PLAYER*         player  = nullptr; ///< Owning player.
+	VIRTUAL_OBJECT* prev    = nullptr; ///< Predecessor in the class list.
+	double          x       = 0.;      ///< Horizontal position.
+	double          y       = 0.;      ///< Vertical position.
 
 protected:
 	/* -------------------------
@@ -119,10 +132,13 @@ protected:
 	 * -------------------------
 	 */
 
+	/// Read the bitmap, if any.
 	[[nodiscard]] BITMAP* getBitmap() const { return bitmap; }
 
+	/// Test whether a bitmap is set.
 	[[nodiscard]] bool    hasBitmap() const { return ( bitmap != nullptr ); }
 
+	/// Replace the bitmap.
 	void                  setBitmap( BITMAP* bitmap_ );
 
 
@@ -131,17 +147,17 @@ protected:
 	 * -------------------------
 	 */
 
-	int32_t   age   = 0;
-	alignType align = LEFT;
-	int32_t   angle = 0;
-	BOX       dim_cur{};
-	BOX       dim_old{};
-	int32_t   height   = 0;
-	int32_t   maxAge   = -1;
-	ePhysType physType = PT_NORMAL; // Special physics processing?
-	int32_t   width    = 0;
-	double    xv       = 0.;
-	double    yv       = 0.;
+	int32_t   age       = 0;        ///< Age in frames.
+	alignType align     = LEFT;     ///< Label alignment.
+	int32_t   angle     = 0;        ///< Facing angle.
+	BOX       dim_cur{};            ///< Current dirty rectangle.
+	BOX       dim_old{};            ///< Previous dirty rectangle.
+	int32_t   height    = 0;        ///< Bitmap height.
+	int32_t   maxAge    = -1;       ///< Lifespan in frames (-1 is forever).
+	ePhysType physType = PT_NORMAL; ///< Special physics processing.
+	int32_t   width     = 0;        ///< Bitmap width.
+	double    xv        = 0.;       ///< Horizontal velocity.
+	double    yv        = 0.;       ///< Vertical velocity.
 
 private:
 	/* -----------------------

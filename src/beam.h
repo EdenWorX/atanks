@@ -35,13 +35,19 @@ enum eBeamType {
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
+/** @struct POINT_t
+ * @brief 2D beam path point.
+ **/
 struct POINT_t {
-	int32_t x          = 0;
-	int32_t y          = 0;
+	int32_t x          = 0; ///< Horizontal coordinate.
+	int32_t y          = 0; ///< Vertical coordinate.
 
 	explicit POINT_t() = default;
 };
 
+/** @class BEAM
+ * @brief Laser weapon.
+ **/
 class BEAM final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
@@ -49,8 +55,11 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Fire an angled beam.
 	explicit BEAM( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
+	/// Fire a point-to-point beam.
 	BEAM( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
+	/// Destroy a beam.
 	~BEAM() final;
 
 
@@ -59,11 +68,12 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   getEndPoint( int32_t& x, int32_t& y ); // For mind shots to fetch
-	void   moveStart( double x_, double y_ );     // For the satellite
+	void   applyPhysics() final;                               ///< Advance physics.
+	void   draw() final;                                       ///< Render the beam.
+	void   getEndPoint( int32_t& x, int32_t& y );              ///< Fetch the beam end point for mind shots.
+	void   moveStart( double x_, double y_ );                  ///< Move the beam start for the satellite.
 
+	/// Return the object class.
 	eClass getClass() final { return CLASS_BEAM; }
 
 

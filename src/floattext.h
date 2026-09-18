@@ -33,6 +33,9 @@ enum eTextSway {
 	TS_HORIZONTAL = 22  //!< Horizontal swaying text, if turned on, used for damage and money.
 };
 
+/** @class FLOATTEXT
+ * @brief Floating label text.
+ **/
 class FLOATTEXT final : public VIRTUAL_OBJECT {
 public:
 	/* -----------------------------------
@@ -40,6 +43,7 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Create a floating text.
 	explicit FLOATTEXT(
 		char const* text_,
 		double      xpos,
@@ -52,6 +56,7 @@ public:
 		int32_t     max_age,
 		bool        is_fixed_
 	);
+	/// Destroy a floating text.
 	~FLOATTEXT() final;
 
 
@@ -60,17 +65,19 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   newRound();
-	void   set_color( int32_t color_ );
-	void   set_pos( int32_t xpos, int32_t ypos );
-	void   set_sway_type( eTextSway sway_type );
-	void   set_text( char const* text_ );
+	void   applyPhysics() final;                       ///< Advance physics.
+	void   draw() final;                               ///< Render the text.
+	void   newRound();                                 ///< Expire round-scoped texts.
+	void   set_color( int32_t color_ );                ///< Set the text color.
+	void   set_pos( int32_t xpos, int32_t ypos );      ///< Set the text position.
+	void   set_sway_type( eTextSway sway_type );       ///< Set the sway type.
+	void   set_text( char const* text_ );              ///< Set the text content.
 
+	/// Return the object class.
 	eClass getClass() final { return CLASS_FLOATTEXT; }
 
 	/* Little inline helper */
+	/// Set the text position; coordinates are rounded.
 	inline void set_pos( double xpos, double ypos ) { set_pos( ROUND( xpos ), ROUND( ypos ) ); }
 
 private:

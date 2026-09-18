@@ -322,7 +322,7 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
   `src/extern/dirent.h` and MSVC-generated `src/resource.h`).
 - [x] **PF-1.12.3.2**: Document core state and hub headers
   (`main.h`, `globaldata.h`, `environment.h`, `globaltypes.h`, `externs.h`, `globals.h`).
-- [ ] **PF-1.12.3.3**: Document entities
+- [x] **PF-1.12.3.3**: Document entities
   (`virtobj.h`, `physobj.h`, `tank.h`, `missile.h`, `explosion.h`, `beam.h`, `debris_pool.h`, `decor.h`, `teleport.h`,
   `floattext.h`).
 - [ ] **PF-1.12.3.4**: Document player state and AI

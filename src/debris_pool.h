@@ -27,13 +27,15 @@
  * @brief represent one entry in the debris pool
  **/
 struct sDebrisItem {
-	BITMAP*      bmp     = nullptr;
-	int32_t      idx     = 0; //!< calculated index from diameter (aka radius/2-1)
-	bool         is_free = true;
-	sDebrisItem* next    = nullptr;
-	sDebrisItem* prev    = nullptr;
+	BITMAP*      bmp     = nullptr; ///< Pooled bitmap.
+	int32_t      idx     = 0;       //!< calculated index from diameter (aka radius/2-1)
+	bool         is_free = true;    ///< Available for reuse.
+	sDebrisItem* next    = nullptr; ///< Next pool entry.
+	sDebrisItem* prev    = nullptr; ///< Previous pool entry.
 
+	/// Create a debris item.
 	explicit sDebrisItem( int32_t diameter_, sDebrisItem* next_ );
+	/// Destroy a debris item.
 	~sDebrisItem();
 };
 
@@ -44,12 +46,17 @@ struct sDebrisItem {
  *       debris can have. That is five series of bitmaps.
  **/
 struct sDebrisPool {
+	/// Pooled debris bitmap type.
 	typedef sDebrisItem item_t;
 
+	/// Create a pool with a per-radius limit.
 	explicit sDebrisPool( int32_t limit_ );
+	/// Destroy the pool.
 	~sDebrisPool();
 
+	/// Return an item to the pool.
 	void    free_item( item_t* itm );
+	/// Take an item sized by blast radius.
 	item_t* get_item( int32_t radius );
 
 private:

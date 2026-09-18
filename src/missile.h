@@ -45,6 +45,9 @@ enum eMissileType {
 	MT_MIND_SHOT   //!< AI thinking.
 };
 
+/** @class MISSILE
+ * @brief Ballistic projectile.
+ **/
 class MISSILE final : public PHYSICAL_OBJECT {
 public:
 	/* -----------------------------------
@@ -52,6 +55,7 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Fire a missile.
 	explicit MISSILE(
 		PLAYER*      player_,
 		double       xpos,
@@ -63,6 +67,7 @@ public:
 		int32_t      ai_level_,
 		int32_t      delay_idx_
 	);
+	/// Destroy a missile.
 	~MISSILE() final;
 
 
@@ -71,15 +76,16 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   update_submun( ePhysType p_type, int32_t cnt_down );
+	void   applyPhysics() final;                                ///< Advance physics.
+	void   draw() final;                                        ///< Render the missile.
+	void   update_submun( ePhysType p_type, int32_t cnt_down ); ///< Release submunitions.
 
+	/// Return the object class.
 	eClass getClass() final { return CLASS_MISSILE; }
 
 	/* Status Getters */
-	[[nodiscard]] int32_t bounced() const;
-	[[nodiscard]] int32_t direction() const;
+	[[nodiscard]] int32_t bounced() const;   ///< Bounce count.
+	[[nodiscard]] int32_t direction() const; ///< Flight direction.
 
 
 private:
