@@ -7,6 +7,9 @@
 
 #include "main.h"
 
+/** @enum ePlayerStages
+ * @brief AI planning stages.
+ **/
 enum ePlayerStages {
 	PS_AI_IS_IDLE = 0, //!< AI has nothing to do and is free to get work
 	PS_AI_INITIALIZE,  //!< AI is initializing its data
@@ -21,11 +24,18 @@ enum ePlayerStages {
 	PS_STAGE_COUNT
 };
 
+/// Shift the stage by a signed offset.
 ePlayerStages &operator+= ( ePlayerStages &src, int32_t val );
+/// Shift the stage by a negated signed offset.
 ePlayerStages &operator-= ( ePlayerStages &src, int32_t val );
+/// Advance to the next stage.
 ePlayerStages &operator++ ( ePlayerStages &src );
-ePlayerStages  operator++ ( ePlayerStages &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Advance to the next stage (postfix form).
+ePlayerStages operator++ ( ePlayerStages &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
+/** @enum playerType
+ * @brief Player skill levels and special types.
+ **/
 enum playerType {
 	HUMAN_PLAYER = 0,
 	USELESS_PLAYER,
@@ -47,20 +57,28 @@ enum playerType {
 int32_t const maxAiLevel = DEADLY_PLAYER + 1;
 
 
+/// Shift the type by a signed offset.
 playerType &operator+= ( playerType &src, int32_t val );
+/// Shift the type by a negated signed offset.
 playerType &operator-= ( playerType &src, int32_t val );
+/// Advance to the next type.
 playerType &operator++ ( playerType &src );
-playerType  operator++ ( playerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Advance to the next type (postfix form).
+playerType operator++ ( playerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
-// player weapon preference type
-// ALWAYS_PREF - only choose weapon preferences once on player creation
-// PERPLAY_PREF - choose weapon preferences once per game
+/** @enum playerPrefType
+ * @brief Weapon preference lifetime.
+ **/
 enum playerPrefType { PERPLAY_PREF = 0, ALWAYS_PREF, PREF_COUNT };
 
+/// Shift the preference scope by a signed offset.
 playerPrefType &operator+= ( playerPrefType &src, int32_t val );
+/// Shift the preference scope by a negated signed offset.
 playerPrefType &operator-= ( playerPrefType &src, int32_t val );
+/// Advance to the next preference scope.
 playerPrefType &operator++ ( playerPrefType &src );
-playerPrefType  operator++ ( playerPrefType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Advance to the next preference scope (postfix form).
+playerPrefType operator++ ( playerPrefType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 /** @enum ePlayerEdit
  * @brief return codes used by the sub menus when editing players
@@ -78,10 +96,14 @@ enum ePlayerEdit {
  **/
 enum eTeamTypes { TEAM_SITH = 0, TEAM_NEUTRAL, TEAM_JEDI, TEAM_COUNT };
 
+/// Shift the team by a signed offset.
 eTeamTypes &operator+= ( eTeamTypes &src, int32_t val );
+/// Shift the team by a negated signed offset.
 eTeamTypes &operator-= ( eTeamTypes &src, int32_t val );
+/// Advance to the next team.
 eTeamTypes &operator++ ( eTeamTypes &src );
-eTeamTypes  operator++ ( eTeamTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Advance to the next team (postfix form).
+eTeamTypes operator++ ( eTeamTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 /** @enum eTankOffsets
  * @brief Centrally store the bitmap offsets of the tank images
@@ -105,10 +127,14 @@ enum eTankTypes {
 	TT_TANK_COUNT
 };
 
+/// Shift the tank type by a signed offset.
 eTankTypes &operator+= ( eTankTypes &src, int32_t val );
+/// Shift the tank type by a negated signed offset.
 eTankTypes &operator-= ( eTankTypes &src, int32_t val );
+/// Advance to the next tank type.
 eTankTypes &operator++ ( eTankTypes &src );
-eTankTypes  operator++ ( eTankTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Advance to the next tank type (postfix form).
+eTankTypes operator++ ( eTankTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 
 #endif // ATANKS_SRC_PLAYER_TYPES_H_INCLUDED

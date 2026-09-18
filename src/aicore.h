@@ -1,6 +1,6 @@
 #pragma once
 #ifndef ATANKS_SRC_AICORE_H_INCLUDED
-#  define ATANKS_SRC_AICORE_H_INCLUDED
+#  define ATANKS_SRC_AICORE_H_INCLUDED ///< Include guard.
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -51,6 +51,7 @@
 #  include <condition_variable>
 
 // Init and check for round scores
+/// Neutral round score baseline.
 #  define NEUTRAL_ROUND_SCORE ( -1000000 )
 
 #  ifndef HAS_PLAYER
@@ -760,7 +761,9 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Create the AI core.
 	explicit AICore();
+	/// Destroy the AI core.
 	~AICore();
 
 	// No copying, no assignment
@@ -774,20 +777,28 @@ public:
 	 */
 
 	// Getters
-	[[nodiscard]] PLAYER* active_player() const;
-	[[nodiscard]] bool    can_work() const;
-	[[nodiscard]] bool    hasExited() const;
+	[[nodiscard]] PLAYER* active_player() const; ///< Planned player.
+	[[nodiscard]] bool    can_work() const;      ///< Planning may proceed.
+	[[nodiscard]] bool    hasExited() const;     ///< Planning thread finished.
 
 	// Setters
+	/// Enable AI speech.
 	void allowText();
+	/// Disable AI speech.
 	void forbidText();
+	/// Report the movement result.
 	void hasMoved( int32_t direction );
+	/// Start planning for a player.
 	bool start( PLAYER* player_ );
+	/// Fetch the attack setup.
 	bool status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
+	/// Stop planning.
 	void stop();
+	/// Note the shot was taken.
 	void weapon_fired();
 
 	// Operators
+	/// Run background planning.
 	void operator() ();
 
 

@@ -65,7 +65,9 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct a player.
 	explicit PLAYER();
+	/// Destroy a player.
 	~PLAYER();
 
 	// no copying, no assignments
@@ -78,49 +80,50 @@ public:
 	 * ----------------------
 	 */
 
-	void     checkOppMem();
-	int32_t  chooseItemToBuy( int32_t max_boost, int32_t& last_idx );
-	eControl controlTank( AICore* aicore, bool allow_fire );
-	void     drawIndicator( int32_t x, int32_t y, int32_t h ) const;
+	void     checkOppMem();                                           ///< Prune opponent memory.
+	int32_t  chooseItemToBuy( int32_t max_boost, int32_t& last_idx ); ///< Choose the shop item to buy.
+	eControl controlTank( AICore* aicore, bool allow_fire );          ///< Run the turn control.
+	void     drawIndicator( int32_t x, int32_t y, int32_t h ) const;  ///< Draw the turn indicator.
 #ifdef NETWORK
 	eControl executeNetCmd( bool my_turn, AICore* aicore );
 #endif // NETWORK
-	void       exitShop();
-	void       generatePreferences();
-	int32_t    getBoostValue();
-	int32_t    getItemPref( int32_t idx );
-	int32_t    getMoneyToSave( bool first_look );
-	bool       getNetCmd();
-	sOpponent* getOppMem( int32_t idx );
-	int32_t    getWeapPref( int32_t idx );
-	void       initialise( bool loaded_game );
-	bool       load_from_file( FILE* file );
-	void       load_game_data( FILE* file, int32_t file_version );
-	void       newGame();
-	void       newRound();
-	void       noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed );
-	void       noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );
-	void       reclaimShield(); // restore unused shield
-	bool       reduceClock();
-	void       save_game_data( FILE* file );
-	void       save_to_file( FILE* file );
-	void       setLastOpponent( sOpponent* last_opp );
-	void       setName( char const* name_ );
-	void       updatePreferences( int32_t max_boost, int32_t max_score );
+	void       exitShop();                                                         ///< Leave the shop screen.
+	void       generatePreferences();                                              ///< Build AI personality.
+	int32_t    getBoostValue();                                                    ///< Compute shop boost value.
+	int32_t    getItemPref( int32_t idx );                                         ///< Read item preference.
+	int32_t    getMoneyToSave( bool first_look );                                  ///< Compute round savings.
+	bool       getNetCmd();                                                        ///< Read the network command.
+	sOpponent* getOppMem( int32_t idx );                                           ///< Fetch opponent memory.
+	int32_t    getWeapPref( int32_t idx );                                         ///< Read weapon preference.
+	void       initialise( bool loaded_game );                                     ///< Initialize for a round.
+	bool       load_from_file( FILE* file );                                       ///< Read settings.
+	void       load_game_data( FILE* file, int32_t file_version );                 ///< Read savegame data.
+	void       newGame();                                                          ///< Reset for a new game.
+	void       newRound();                                                         ///< Reset for a new round.
+	void       noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ); ///< Record received damage.
+	void       noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );   ///< Record dealt damage.
+	void       reclaimShield();                                                    ///< Restore unused shield.
+	bool       reduceClock();                                                      ///< Tick the aim clock.
+	void       save_game_data( FILE* file );                                       ///< Write savegame data.
+	void       save_to_file( FILE* file );                                         ///< Write settings.
+	void       setLastOpponent( sOpponent* last_opp );                             ///< Remember last attacker.
+	void       setName( char const* name_ );                                       ///< Set the player name.
+	void       updatePreferences( int32_t max_boost, int32_t max_score );          ///< Refresh AI preferences.
 
 	/* Get the names of the player and their team */
-	[[nodiscard]] char const* getName() const;
-	[[nodiscard]] char const* getTeamName() const;
+	[[nodiscard]] char const* getName() const;     ///< Player name.
+	[[nodiscard]] char const* getTeamName() const; ///< Team name.
 
 	/* Get a (somewhat) personalized retaliation phrase (MUST be freed!) */
+	/// Select a personalized retaliation phrase.
 	[[nodiscard]] char const* selectRetaliationPhrase() const;
 
 	/* Other phrase selectors are unpersonalized and can therefore be static. (Must NOT be freed!) */
-	static char const* selectGloatPhrase();
-	static char const* selectPanicPhrase( PLAYER* shocker );
-	static char const* selectKamikazePhrase();
-	static char const* selectRevengePhrase();
-	static char const* selectSuicidePhrase();
+	static char const* selectGloatPhrase();                  ///< Select a gloating line.
+	static char const* selectPanicPhrase( PLAYER* shocker ); ///< Select a panic line.
+	static char const* selectKamikazePhrase();               ///< Select a kamikaze line.
+	static char const* selectRevengePhrase();                ///< Select a revenge line.
+	static char const* selectSuicidePhrase();                ///< Select a suicide line.
 
 
 	/* ----------------------
@@ -128,40 +131,40 @@ public:
 	 * ----------------------
 	 */
 
-	int32_t        color            = BLACK;
-	double         damageMultiplier = 1.;
-	double         defensive        = 0.; // [-1.0;1.0], offensive - defensive
-	double         errorMultiplier  = 0.;
-	bool           changed_weapon   = false;
-	double         focusRate        = 0.;
-	bool           gloating         = false;
-	int32_t        index            = -1; // To note where in allPlayers this player is saved
-	int32_t        killed           = 0;
-	int32_t        kills            = 0;
-	int32_t        last_shield_used = 0;
-	double         painSensitivity  = .5; // How sensitive to damage
-	uint32_t       played           = 0;
-	playerPrefType preftype         = PERPLAY_PREF;
-	playerType     previous_type    = HUMAN_PLAYER;
-	int32_t        money            = 15000;
-	int32_t        ni[ ITEMS ]{};
-	int32_t        nm[ WEAPONS ]{};
-	PLAYER*        revenge = nullptr;
-	int32_t        score   = 0;
-	abool_t        sdi_has_fired{ false }; // Only one shot per frame
-	int32_t        sdiShots           = 0;
-	bool           selected           = false;
-	double         selfPreservation   = .5; // Lengths gone to to avoid self-harm
-	bool           skip_me            = false;
-	TANK*          tank               = nullptr;
-	int32_t        tankbitmap         = TT_NORMAL;
-	eTeamTypes     team               = TEAM_NEUTRAL;
-	int32_t        time_left_to_fire  = 0;
-	playerType     type               = HUMAN_PLAYER;
-	playerType     type_saved         = HUMAN_PLAYER;
-	double         vengeanceThreshold = .5; // Damage required to warrant revenge
-	int32_t        vengeful           = 50; // 0-100 chance of retaliation
-	uint32_t       won                = 0;
+	int32_t        color            = BLACK;          ///< Player color.
+	double         damageMultiplier = 1.;             ///< Damage multiplier.
+	double         defensive        = 0.;             ///< Offense/defense balance.
+	double         errorMultiplier  = 0.;             ///< Aim error multiplier.
+	bool           changed_weapon   = false;          ///< Weapon changed this turn.
+	double         focusRate        = 0.;             ///< Aim focus rate.
+	bool           gloating         = false;          ///< Gloating now.
+	int32_t        index            = -1;             ///< Index in allPlayers.
+	int32_t        killed           = 0;              ///< Deaths.
+	int32_t        kills            = 0;              ///< Kills.
+	int32_t        last_shield_used = 0;              ///< Last used shield type.
+	double         painSensitivity  = .5;             ///< Damage sensitivity.
+	uint32_t       played           = 0;              ///< Rounds played.
+	playerPrefType preftype         = PERPLAY_PREF;   ///< Preference scope.
+	playerType     previous_type    = HUMAN_PLAYER;   ///< Type kept while overridden.
+	int32_t        money            = 15000;          ///< Cash.
+	int32_t        ni[ ITEMS ]{};                     ///< Item inventory.
+	int32_t        nm[ WEAPONS ]{};                   ///< Weapon inventory.
+	PLAYER*        revenge = nullptr;                 ///< Revenge target.
+	int32_t        score   = 0;                       ///< Score.
+	abool_t        sdi_has_fired{ false };            ///< Only one shot per frame.
+	int32_t        sdiShots           = 0;            ///< SDI shots fired.
+	bool           selected           = false;        ///< Selected in menus.
+	double         selfPreservation   = .5;           ///< Self-harm avoidance.
+	bool           skip_me            = false;        ///< Skip this turn.
+	TANK*          tank               = nullptr;      ///< Controlled tank.
+	int32_t        tankbitmap         = TT_NORMAL;    ///< Tank skin.
+	eTeamTypes     team               = TEAM_NEUTRAL; ///< Team.
+	int32_t        time_left_to_fire  = 0;            ///< Aim time left.
+	playerType     type               = HUMAN_PLAYER; ///< Player type.
+	playerType     type_saved         = HUMAN_PLAYER; ///< Type kept across savegames.
+	double         vengeanceThreshold = .5;           ///< Damage warranting revenge.
+	int32_t        vengeful           = 50;           ///< Retaliation chance.
+	uint32_t       won                = 0;            ///< Rounds won.
 #ifdef NETWORK
 	int32_t server_socket                   = 0;
 	char    net_command[ NET_COMMAND_SIZE ] = { 0 };
@@ -233,24 +236,27 @@ private:
  * names becomes very easy.
  **/
 struct PLAYER_mini {
-	int32_t        color = GREEN;
-	int32_t        index = -1;
-	char           name[ NAME_LEN + 1 ]{ "New Player" };
-	uint32_t       played     = 0;
-	PLAYER*        player     = nullptr;
-	playerPrefType preftype   = ALWAYS_PREF;
-	int32_t        tankbitmap = TT_NORMAL;
-	eTeamTypes     team       = TEAM_NEUTRAL;
-	playerType     type       = HUMAN_PLAYER;
-	uint32_t       won        = 0;
+	int32_t        color = GREEN;                        ///< Edited color.
+	int32_t        index = -1;                           ///< Edited index.
+	char           name[ NAME_LEN + 1 ]{ "New Player" }; ///< Edited name.
+	uint32_t       played     = 0;                       ///< Edited rounds played.
+	PLAYER*        player     = nullptr;                 ///< Edited player.
+	playerPrefType preftype   = ALWAYS_PREF;             ///< Edited preference scope.
+	int32_t        tankbitmap = TT_NORMAL;               ///< Edited tank skin.
+	eTeamTypes     team       = TEAM_NEUTRAL;            ///< Edited team.
+	playerType     type       = HUMAN_PLAYER;            ///< Edited type.
+	uint32_t       won        = 0;                       ///< Edited rounds won.
 
 	// a ctor, needed by VisualC++ for the name.
+	/// Construct edit defaults.
 	explicit PLAYER_mini();
 
 	// "Backup a player"
+	/// Copy a player for editing.
 	void copy_from( PLAYER* source );
 
 	// Write back the values
+	/// Write edits back.
 	void write_back( PLAYER* target = nullptr );
 };
 
