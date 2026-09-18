@@ -20,16 +20,16 @@
  *
  */
 
-#define DEFAULT_SCREEN_WIDTH  800
-#define DEFAULT_SCREEN_HEIGHT 600
-#define GAMENAMELEN           64
-#define MAX_INTEREST_AMOUNT   100000
-#define MAX_TEAM_AMOUNT       500000
-#define DEMO_WAIT_TIME        60
+#define DEFAULT_SCREEN_WIDTH  800    ///< Default window width in pixels.
+#define DEFAULT_SCREEN_HEIGHT 600    ///< Default window height in pixels.
+#define GAMENAMELEN           64     ///< Maximum game name length.
+#define MAX_INTEREST_AMOUNT   100000 ///< Maximum bank interest payout.
+#define MAX_TEAM_AMOUNT       500000 ///< Maximum team fee.
+#define DEMO_WAIT_TIME        60     ///< Idle seconds before demo mode starts.
 #ifdef ATANKS_IS_WINDOWS
-#  define MAX_AI_TIME 30 // DirectDraw is too slow, allow more time
+#  define MAX_AI_TIME 30 ///< DirectDraw is too slow, allow more time
 #else
-#  define MAX_AI_TIME 10 // Standard with anything but windows
+#  define MAX_AI_TIME 10 ///< Standard with anything but windows
 #endif                   // ATANKS_IS_WINDOWS
 
 // Start enforcing unified integer typing
@@ -37,9 +37,9 @@
 
 // Use atomic types for thread safety where locks are a bad idea
 #include <atomic>
-typedef std::atomic_bool    abool_t;
-typedef std::atomic_flag    aflag_t;
-typedef std::atomic_int32_t ai32_t;
+typedef std::atomic_bool    abool_t; ///< Atomic boolean for lock-free thread safety.
+typedef std::atomic_flag    aflag_t; ///< Atomic flag for lock-free thread safety.
+typedef std::atomic_int32_t ai32_t;  ///< Atomic 32-bit integer for lock-free thread safety.
 
 /** @file globaltypes.h
  * @brief Definitions of types relevant to global data.
@@ -67,7 +67,7 @@ enum eBoxModes { BM_OFF = 0, BM_ON, BM_RANDOM };
  **/
 enum eColourTheme { CT_REGULAR = 0, CT_CRISPY };
 
-/** @enum eCOntrol
+/** @enum eControl
  * @brief control results for human and computer control
  **/
 enum eControl {
@@ -83,7 +83,8 @@ enum eControl {
  **/
 enum eDataStage { DS_NAME = 0, DS_DESC, DS_DATA };
 
-eDataStage &operator++ ( eDataStage &ds ); // Enable pre-increment
+/// Advance to the next weapons-text loading stage.
+eDataStage &operator++ ( eDataStage &ds );
 
 /** @enum eFileStage
  * @brief The file stage of the weapons text file loading
@@ -141,14 +142,20 @@ enum eLanguages {
 };
 
 // Helper operators to rotate languages:
+/// Rotate to the next language.
 eLanguages &operator++ ( eLanguages &lang );
-eLanguages  operator++ ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Rotate to the next language (postfix form).
+eLanguages operator++ ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+/// Rotate to the previous language.
 eLanguages &operator-- ( eLanguages &lang );
-eLanguages  operator-- ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp)
+/// Rotate to the previous language (postfix form).
+eLanguages operator-- ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp)
+/// Shift the language by a signed offset.
 eLanguages &operator+= ( eLanguages &lang, int32_t val );
+/// Shift the language by a negated signed offset.
 eLanguages &operator-= ( eLanguages &lang, int32_t val );
 
-/** @enum eStages
+/** @enum eRoundStages
  * @brief General stages for the game flow.
  **/
 enum eRoundStages {
@@ -230,6 +237,9 @@ enum eSounds {
 };
 
 // turns
+/** @enum eTurnTypes
+ * @brief Turn order modes.
+ **/
 enum eTurnTypes { TURN_HIGH = 0, TURN_LOW, TURN_RANDOM, TURN_SIMUL };
 
 /** @enum eViolentDeath
