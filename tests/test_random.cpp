@@ -63,6 +63,7 @@ TEST(Random, AiMacrosStayInRange) {
     for (int i = 0; i < 200; ++i) {
         int const v = RAND_AI_0P;
         CHECK(v >= 0);
+        // cppcheck-suppress knownConditionTrueFalse // upper bound holds by % construction; kept as runtime contract
         CHECK(v < ai_level);
     }
 }

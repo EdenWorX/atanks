@@ -20,10 +20,13 @@ TEST_GROUP(GlobalTypes){};
 TEST(GlobalTypes, DataStageFullRotation) {
     eDataStage stage = DS_NAME;
     ++stage;
+    // cppcheck-suppress knownConditionTrueFalse // rotation steps below are regression checks, not tautologies by intent
     CHECK(stage == DS_DESC);
     ++stage;
+    // cppcheck-suppress knownConditionTrueFalse // see above
     CHECK(stage == DS_DATA);
     ++stage;
+    // cppcheck-suppress knownConditionTrueFalse // see above
     CHECK(stage == DS_NAME);
 }
 

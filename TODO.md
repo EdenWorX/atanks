@@ -298,7 +298,7 @@ Add `tools/run-cppcheck.sh`, clang-tidy integration (`clang-tidy -p cmake-build-
 Doxygen comments for all public APIs, so `make doc` is warning-free per the release checklist. Verify `make install` and `make
 install PREFIX=/tmp/ewx-test` as part of this work.
 
-#### [ ] PF-1.12.1: Add tools/run-cppcheck.sh
+#### [x] PF-1.12.1: Add tools/run-cppcheck.sh
 
 Add the `tools/run-cppcheck.sh` runner referenced by `docs/release_process.md` with the project's include paths and
 suppressions, and document when to run it. Expected result: the script runs clean on the tree (or reports only triaged

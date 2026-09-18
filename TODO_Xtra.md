@@ -7,11 +7,26 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
 
 ## Important Issues
 
-No open items — decomposition of `WP PF-1.1`–`WP PF-1.17` surfaced no blocking or high-risk issue outside Work Package scope.
-(This is a planning-only pass; no source code was changed.)
+- [ ] **High**: potential null-pointer dereference in `src/missile.cpp:413-423` (`MISSILE::applyPhysicsFunky`). `launchWeap`
+  is null for any weapon type other than `FUNKY_BOMBLET`/`FUNKY_DEATHLET`, but line 419 dereferences it unconditionally
+  while lines 420-422 guard with ternaries. Verified safe with shipped data (parents map to bomblet submunitions, and AI
+  mind-shots reuse those types), so any new weapon data or physics assignment putting `PT_FUNKY_FLOAT` on another type
+  segfaults. Found via cppcheck `nullPointer` during `WP PF-1.12`; fix with a defensive guard when that function is next
+  touched, not here (gameplay physics needs in-game validation).
 
 ## General Issues
 
+- [ ] **Medium**: `src/tank.cpp:1066-1067` assigns `cur_x`/`cur_y` without ever reading them (cppcheck `unreadVariable`,
+  `variableScope`). Found during `WP PF-1.12` triage; needs gameplay-context review to decide whether the assignments (and
+  their computations) can go or something was meant to consume them.
+- [ ] **Medium**: `src/teleport.cpp:91,101,207` conditions reported always-true (cppcheck `knownConditionTrueFalse`), and
+  `src/teleport.cpp:112` lacks copy semantics (`noCopyConstructor`, `noOperatorEq`). Found during `WP PF-1.12` triage; needs
+  gameplay-context review.
+- [ ] **Low**: `if (x) x=false` patterns logically equivalent to plain assignment (cppcheck `duplicateConditionalAssign`)
+  in `src/tank.cpp:632`, `src/explosion.cpp:744`, and `src/floattext.cpp:342`. Found during `WP PF-1.12` triage; simplify when
+  those functions are next touched.
+- [ ] **Low**: `src/shop.cpp:831,912,931` (raw loop vs `std::fill`, `weap` const-correctness, unused `teamFee`) needs
+  gameplay-context review. Found during `WP PF-1.12` triage.
 - [ ] **Low**: `src/atanks.rc:52` references `COPYING.txt`, but the file is named `COPYING` (no `.txt`). Left untouched because
   version-string work on that file belongs to `WP PF-1.2`; fix the filename reference when that package edits the resource.
 - [ ] **Low**: `src/optiontypes.h:10` says "or (at your menu) any later version" — "menu" is a typo for "option" in the
