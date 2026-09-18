@@ -243,6 +243,33 @@ if(BUILD_TESTING)
     add_test(NAME units COMMAND atanks_tests)
   endif()
 endif()
+
+# Documentation (WP PF-1.12). `make doc` builds the public API reference from
+# the headers into <builddir>/doc; undocumented public APIs fail the build so
+# coverage gaps stay visible. Plain builds never need Doxygen, so the
+# dependency stays optional and only the doc target reports its absence.
+find_package(Doxygen QUIET)
+set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+  @ONLY)
+if(DOXYGEN_FOUND)
+  set(ATANK_DOC_WARN_LOG "${DOXYGEN_OUTPUT_DIR}/warnings.log")
+  add_custom_target(doc
+    COMMAND ${CMAKE_COMMAND} -E rm -f "${ATANK_DOC_WARN_LOG}"
+    COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+    COMMAND ${CMAKE_COMMAND} -DDOC_WARN_LOG=${ATANK_DOC_WARN_LOG}
+      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/doc-fail-on-warnings.cmake"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Generating API documentation with Doxygen"
+    VERBATIM)
+else()
+  add_custom_target(doc
+    COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/doc-missing.cmake"
+    COMMENT "Doxygen not found")
+endif()
+
 install(TARGETS atanks RUNTIME DESTINATION ${ATANKS_INSTALL_BINDIR}
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 install(FILES io.github.EdenWorX.atanks.metainfo.xml DESTINATION share/metainfo)

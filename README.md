@@ -412,8 +412,8 @@ Standalone helpers (not built by `Makefile`):
   - `make debug` / `aidebug` / `fulldebug` builds plus the Valgrind helpers (`do_memcheck.sh`, `do_helgrind.sh`,
     `gdb_memcheck.sh` with `allegro.supp`) for memory/thread validation.
   - `CHANGELOG.md` entries as regression notes (e.g. 6.7 lists fixed crashes, AI, and land-creation bugs).
-  - Static-analysis and doc targets (`tools/run-cppcheck.sh`, `make doc`) do not exist yet; adding them is part of the
-    Cleanup and Modernization task (`TODO.md`, `WP PF-1.12`).
+  - Static-analysis and doc targets exist (`tools/run-cppcheck.sh`, `make doc`); full Doxygen coverage of public APIs is
+    still pending as part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.12`).
 - Accepted validation bar (the game is an interactive GUI application): a green `make test` (plus `make test-all` where
   affordable), plus manual validation — developers actually test their changes in-game.
 - Known-issue sources: `TODO.md` itself (canonical planning file, first item `TODO-PF-1` Cleanup and Modernization). The legacy

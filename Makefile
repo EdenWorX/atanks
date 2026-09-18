@@ -1,4 +1,4 @@
-.PHONY: aidebug all bsduser clean debug dist fulldebug i686-dist install osxuser \
+.PHONY: aidebug all bsduser clean debug dist doc fulldebug i686-dist install osxuser \
     source-dist tarball test test-all test-asan test-tsan test-ubsan ubuntu user veryclean zipfile
 
 # Note: Submit as "YES" to enable debugging
@@ -194,6 +194,12 @@ test-ubsan:
 
 test-tsan:
 	$(MAKE) -f Makefile test SANITIZE_THREAD=YES
+
+# API documentation (WP PF-1.12). Builds the Doxygen reference into
+# $(BUILDDIR)/doc without compiling the game; undocumented public APIs fail
+# the build until the PF-1.12.3 coverage items land.
+doc: configure
+	$(CMAKE) --build $(BUILDDIR) --target doc
 
 clean:
 	$(RM) -r cmake-build*

@@ -44,7 +44,7 @@ to the `LICENSE` identifier. Coordinate with `WP PF-1.4` (the spec file is delet
 Either remove `COPYING` or replace it with a pointer to `LICENSE` (decision with the user), then verify the `Makefile`
 `INCOMMON` install list and any other file enumerations are consistent with the outcome.
 
-### [ ] PF-1.2: Consolidate version information
+### [x] PF-1.2: Consolidate version information
 
 The `VERSION` variable in `Makefile` (currently `6.7`) is the single source of truth. Propagate it to `vs12/atanks.vcxproj` and
 `vs14/atanks.vcxproj` (currently `6.5_rc1`), `src/atanks.rc` (currently `6, 4, 99`), and
@@ -68,7 +68,7 @@ Update `VERSIONINFO` in `src/atanks.rc` to the `Makefile` version and verify the
 Set the release entry in `io.github.EdenWorX.atanks.metainfo.xml` to version `6.7`, released `2023-08-09` (verified from git
 log, commit `571c0be`).
 
-#### [ ] PF-1.2.4: Sweep for stale version strings
+#### [x] PF-1.2.4: Sweep for stale version strings
 
 After `WP PF-1.3`/`WP PF-1.4` removals, grep the tracked tree for leftover stale versions (`6.5_rc1`, `6, 4, 99`, `4.3`) outside
 `docs/Changelog.history` (created in `WP PF-1.10`). Expected result: zero hits.
@@ -127,7 +127,7 @@ Delete `cb/atanks.cbp` and `cb/atanks.workspace`, and remove the Code::Blocks ro
 
 Confirm `git grep -E "exporter/|atanks\.cbp"` returns no hits outside `docs/Changelog.history`.
 
-### [ ] PF-1.6: Move project references from SourceForge to GitHub
+### [x] PF-1.6: Move project references from SourceForge to GitHub
 
 Issue reports go to `https://github.com/EdenWorX/atanks/issues` from now on. Historical `Changelog` entries keep their
 SourceForge URLs untouched (preserved as `docs/Changelog.history` in `WP PF-1.10`).
@@ -143,11 +143,14 @@ strings (all 7 languages, strings only). No functional changes besides the endpo
 
 Replace the `xxx` bug-tracker placeholder (`README:240-241`) with `https://github.com/EdenWorX/atanks/issues`.
 
-#### [ ] PF-1.6.3: Verify the migration is complete and history untouched
+#### [x] PF-1.6.3: Verify the migration is complete and history untouched
 
-Confirm `git grep -i sourceforge` returns hits only in `docs/Changelog.history`, the `TODO*.md` plan records, and the `#if 0`
--masked legacy checker in `src/atanks.cpp` (kept deliberately, with its replacement tracked in `TODO_Xtra.md`), and that the
-history file is byte-identical to the former `Changelog` (`git diff` against the pre-rename blob, see `WP PF-1.10`).
+Confirm `git grep -i sourceforge` returns hits only in `docs/Changelog.history`, the `TODO*.md` plan records, the `#if 0`
+-masked legacy checker in `src/atanks.cpp` (kept deliberately, with its replacement tracked in `TODO_Xtra.md`), the
+descriptive migration prose in `README.md`, the historical contributor addresses in `credits.txt` (kept per user decision),
+and the metainfo `update_contact` plus screenshot URLs (contact kept per user decision; screenshots carved out in
+`TODO_Xtra.md`), and that the history file is byte-identical to the former `Changelog` (verified: commit `89ce8a3` renames
+with zero changes; empty `git diff` between the pre- and post-rename blobs, see `WP PF-1.10`).
 
 #### [x] PF-1.6.4: Rename the AppStream component ID to the fork
 
@@ -312,7 +315,31 @@ record the invocation in the workflow docs.
 #### [ ] PF-1.12.3: Add make doc and Doxygen coverage for public APIs
 
 Add the `make doc` target (Doxygen config included) and write Doxygen comments for all public APIs module by module — split into
-Action Items per module in a later pass. Expected result: `make doc` builds with no undocumented-public-API warnings.
+Action Items per module below. Expected result: `make doc` builds with no undocumented-public-API warnings.
+
+- [x] **PF-1.12.3.1**: Add the Doxygen config and wire the `make doc` target
+  (Doxyfile with undocumented-API warnings as errors, CMake custom target, Makefile wrapper goal; exclude third-party
+  `src/extern/dirent.h` and MSVC-generated `src/resource.h`).
+- [ ] **PF-1.12.3.2**: Document core state and hub headers
+  (`main.h`, `globaldata.h`, `environment.h`, `globaltypes.h`, `externs.h`, `globals.h`).
+- [ ] **PF-1.12.3.3**: Document entities
+  (`virtobj.h`, `physobj.h`, `tank.h`, `missile.h`, `explosion.h`, `beam.h`, `debris_pool.h`, `decor.h`, `teleport.h`,
+  `floattext.h`).
+- [ ] **PF-1.12.3.4**: Document player state and AI
+  (`player.h`, `player_types.h`, `aicore.h`).
+- [ ] **PF-1.12.3.5**: Document menus, options, and UI widgets
+  (`menu.h`, `optionscreens.h`, `optiontypes.h`, `optioncontent.h`, `optionitem.h`, `optionitembase.h`,
+  `optionitemcolour.h`, `optionitemmenu.h`, `optionitemplayer.h`, `box.h`, `button.h`).
+- [ ] **PF-1.12.3.6**: Document world generation
+  (`land.h`, `sky.h`, `levelcreator.h`, `moon.h`, `satellite.h`, `random.h`; `perlin.cpp` has no header, cover it from the
+  `levelcreator.h`/`sky.h` docs).
+- [ ] **PF-1.12.3.7**: Document services
+  (`files.h`, `text.h`, `sound.h`, `clock.h`, `winclock.h`, `spinlock.h`, `zbuffer.h`, `debug.h`, `update.h`, `gfxData.h`,
+  `bitmap.h`, `wrap_dirent.h`).
+- [ ] **PF-1.12.3.8**: Document round driver, meta, arsenal, and network
+  (`gameloop.h`, `shop.h`, `score.h`, `weapon.h`, `item.h`, `network.h`, `client.h`).
+- [ ] **PF-1.12.3.9**: Verify `make doc` builds warning-free
+  (full run with zero undocumented-public-API warnings; record the invocation in `README.md`/`AGENTS.md`).
 
 #### [ ] PF-1.12.4: Verify install targets per the checklist
 
@@ -430,7 +457,7 @@ quantities/prices, fired shots).
 - [ ] `git grep "either version 2" -- src` returns zero hits (license headers consolidated, `WP PF-1.1`).
 - [ ] `git grep -i "GPL-2.0" -- io.github.EdenWorX.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
   PF-1.1`).
-- [ ] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
+- [x] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
 - [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
 - [ ] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).
 - [ ] `make test` and `make test-all` run green (unit suite in release and debug dirs, `WP PF-1.11`).
