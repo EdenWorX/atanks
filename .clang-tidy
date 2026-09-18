@@ -1,0 +1,10 @@
+# clang-tidy configuration for atanks (TODO.md, WP PF-1.12).
+#
+# This toolchain build enables no checks by default, so the set below is
+# explicit. It is intentionally narrow: analyzer core findings plus a few
+# low-noise bugprone/misc checks that run clean on the tree. Widen it only
+# together with triage capacity; see tools/run-cppcheck.sh for the same
+# policy on the cppcheck side.
+Checks: '-*,clang-analyzer-core.*,bugprone-use-after-move,bugprone-integer-division,misc-unused-using-decls'
+WarningsAsErrors: ''
+HeaderFilterRegex: ''

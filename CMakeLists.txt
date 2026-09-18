@@ -13,6 +13,9 @@ if(NOT CMAKE_GENERATOR MATCHES "Ninja")
     "Windows builds use vs12/atanks.sln or vs14/atanks.sln instead.")
 endif()
 
+# Compile commands for clang-tidy and other tools (WP PF-1.12).
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)

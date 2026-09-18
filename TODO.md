@@ -304,7 +304,7 @@ Add the `tools/run-cppcheck.sh` runner referenced by `docs/release_process.md` w
 suppressions, and document when to run it. Expected result: the script runs clean on the tree (or reports only triaged
 findings).
 
-#### [ ] PF-1.12.2: Integrate clang-tidy via the CMake build
+#### [x] PF-1.12.2: Integrate clang-tidy via the CMake build
 
 Ensure the `WP PF-1.9` CMake build exports compile commands so `clang-tidy -p cmake-build-release src/**/*.cpp` works, and
 record the invocation in the workflow docs.

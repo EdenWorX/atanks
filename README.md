@@ -440,6 +440,8 @@ Standalone helpers (not built by `Makefile`):
   optionally `SANITIZE_ADDRESS/THREAD/UNDEF=YES` directly.
 - Run: `./cmake-build-release/atanks --windowed` for a window, `./cmake-build-release/atanks -h` for options.
 - Validate memory/threads: `./do_memcheck.sh`, `./do_helgrind.sh`, `./gdb_memcheck.sh`.
+- Static analysis: `bash tools/run-cppcheck.sh` (triaged list in its header), and `clang-tidy -p cmake-build-release
+  src/**/*.cpp` (checks from `.clang-tidy`; ensure `compile_commands.json` exists by configuring first).
 - Clean: `make clean` (removes `cmake-build*` directories plus legacy `obj/*` and `atanks` leftovers).
 - Format: `.clang-format` (clang-format 19 or later) is the defined style; the 6.7 `CHANGELOG.md` entry states the tree
   was uniformly formatted with it.
