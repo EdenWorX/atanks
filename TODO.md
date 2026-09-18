@@ -320,7 +320,7 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
 - [x] **PF-1.12.3.1**: Add the Doxygen config and wire the `make doc` target
   (Doxyfile with undocumented-API warnings as errors, CMake custom target, Makefile wrapper goal; exclude third-party
   `src/extern/dirent.h` and MSVC-generated `src/resource.h`).
-- [ ] **PF-1.12.3.2**: Document core state and hub headers
+- [x] **PF-1.12.3.2**: Document core state and hub headers
   (`main.h`, `globaldata.h`, `environment.h`, `globaltypes.h`, `externs.h`, `globals.h`).
 - [ ] **PF-1.12.3.3**: Document entities
   (`virtobj.h`, `physobj.h`, `tank.h`, `missile.h`, `explosion.h`, `beam.h`, `debris_pool.h`, `decor.h`, `teleport.h`,
