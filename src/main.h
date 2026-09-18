@@ -294,9 +294,10 @@ using std::string;
 #define ATOMIC_READ  std::memory_order_acquire
 #define ATOMIC_WRITE std::memory_order_release
 
+/// Color stop of a gradient strip.
 struct gradient {
-	RGB   color;
-	float point;
+	RGB   color; ///< Stop color.
+	float point; ///< Stop position (0.0-1.0); -1 terminates the strip.
 };
 
 // signals
