@@ -1,11 +1,12 @@
 # Doxyfile.in — Doxygen configuration for the Atomic Tanks public API reference.
 # Configured by CMakeLists.txt (WP PF-1.12): @PROJECT_VERSION@ and paths are
 # substituted at configure time, so the version cannot go stale.
-# Only public headers are fed in; all warnings land in warnings.log inside the
-# output directory, and the `doc` build target fails when that log is non-empty
-# (see cmake/doc-fail-on-warnings.cmake), so coverage gaps stay visible until
-# WP PF-1.12.3 lands. (WARN_AS_ERROR would abort on the first gap instead of
-# listing them all, and this Doxygen build has no FAIL_ON_WARNING tag.)
+# Only public headers are fed in; all warnings land in the configured log file
+# (kept in the build tree, out of the published docs), and the `doc` build
+# target fails when that log is non-empty (see cmake/doc-fail-on-warnings.cmake),
+# so coverage gaps stay visible until WP PF-1.12.3 lands. (WARN_AS_ERROR would
+# abort on the first gap instead of listing them all, and this Doxygen build
+# has no FAIL_ON_WARNING tag.)
 
 DOXYFILE_ENCODING  = UTF-8
 PROJECT_NAME       = "Atomic Tanks"
@@ -29,5 +30,5 @@ WARN_IF_UNDOCUMENTED = YES
 WARN_IF_DOC_ERROR  = YES
 WARN_NO_PARAMDOC   = NO
 WARN_AS_ERROR      = NO
-WARN_LOGFILE       = @DOXYGEN_OUTPUT_DIR@/warnings.log
+WARN_LOGFILE       = @DOXYGEN_WARN_LOG@
 QUIET              = NO

@@ -249,13 +249,16 @@ endif()
 # coverage gaps stay visible. Plain builds never need Doxygen, so the
 # dependency stays optional and only the doc target reports its absence.
 find_package(Doxygen QUIET)
-set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
+# Doxygen appends its own html/ subdir, so the output directory is docs/ and
+# the reference lands in docs/html/ (ignored build output, see .gitignore).
+set(DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs")
+set(DOXYGEN_WARN_LOG "${CMAKE_CURRENT_BINARY_DIR}/doc-warnings.log")
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in"
   "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
   @ONLY)
 if(DOXYGEN_FOUND)
-  set(ATANK_DOC_WARN_LOG "${DOXYGEN_OUTPUT_DIR}/warnings.log")
+  set(ATANK_DOC_WARN_LOG "${DOXYGEN_WARN_LOG}")
   add_custom_target(doc
     COMMAND ${CMAKE_COMMAND} -E rm -f "${ATANK_DOC_WARN_LOG}"
     COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
