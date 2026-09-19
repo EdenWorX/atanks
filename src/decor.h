@@ -29,7 +29,7 @@ enum decorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
 /** @class DECOR
  * @brief Dirt and smoke debris.
  **/
-class DECOR final : public PHYSICAL_OBJECT {
+class DECOR final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---

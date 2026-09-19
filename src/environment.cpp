@@ -30,7 +30,7 @@
 
 #include <cassert>
 
-ENVIRONMENT::ENVIRONMENT() {
+CEnvironment::CEnvironment() {
 	set_fps( 60 ); // rock solid default.
 
 	fontHeight = 10; // Initial value
@@ -56,12 +56,12 @@ ENVIRONMENT::ENVIRONMENT() {
 /** @brief default dtor
  * Cleanly remove created objects
  **/
-ENVIRONMENT::~ENVIRONMENT() {
+CEnvironment::~CEnvironment() {
 	this->destroy();
 }
 
 /// @brief add a player to the players[] array that will take part in the next game
-void ENVIRONMENT::addGamePlayer( PLAYER* player_ ) {
+void CEnvironment::addGamePlayer( PLAYER* player_ ) {
 	if ( player_ && ( numGamePlayers < MAXPLAYERS ) ) {
 
 		// Ensure the player isn't already there:
@@ -80,7 +80,7 @@ void ENVIRONMENT::addGamePlayer( PLAYER* player_ ) {
 }
 
 /// @brief create a new player or return nullptr if an error occurred
-PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
+PLAYER* CEnvironment::createNewPlayer( char const* player_name ) {
 	PLAYER** reallocatedPlayers = nullptr;
 	PLAYER*  player             = nullptr;
 
@@ -99,7 +99,7 @@ PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
 	if ( reallocatedPlayers ) {
 		allPlayers = reallocatedPlayers;
 	} else {
-		perror( "environment.cpp: Failed allocating memory for reallocatedPlayers in ENVIRONMENT::createNewPlayer" );
+		perror( "environment.cpp: Failed allocating memory for reallocatedPlayers in CEnvironment::createNewPlayer" );
 	}
 
 	try {
@@ -116,7 +116,7 @@ PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
 }
 
 /// @brief This function gives credits, score and money to the winner(s).
-void ENVIRONMENT::creditWinners( int32_t winner ) const {
+void CEnvironment::creditWinners( int32_t winner ) const {
 	if ( winner == WINNER_DRAW ) { // no winner
 		return;
 	}
@@ -157,14 +157,14 @@ void ENVIRONMENT::creditWinners( int32_t winner ) const {
 	}
 }
 
-void ENVIRONMENT::decreaseVolume() {
+void CEnvironment::decreaseVolume() {
 	if ( volume_factor > 0 ) {
 		--volume_factor;
 	}
 }
 
 /// @brief Remove one of the players, then gone for good.
-void ENVIRONMENT::deletePermPlayer( PLAYER* player_ ) {
+void CEnvironment::deletePermPlayer( PLAYER* player_ ) {
 	int32_t toCount = 0;
 
 	for ( int32_t fromCount = 0; fromCount < numPermanentPlayers; fromCount++ ) {
@@ -185,7 +185,7 @@ void ENVIRONMENT::deletePermPlayer( PLAYER* player_ ) {
  *
  * Important: This MUST be called *before* allegro shuts down!
  **/
-void ENVIRONMENT::destroy() {
+void CEnvironment::destroy() {
 	if ( sky ) {
 		destroy_bitmap( sky );
 		sky = nullptr;
@@ -360,7 +360,7 @@ void ENVIRONMENT::destroy() {
 }
 
 /// @brief Sets configDir to the path to the config directory used by atanks
-void ENVIRONMENT::find_config_dir() {
+void CEnvironment::find_config_dir() {
 	// If no config dir was given on the command line, try to find a valid one
 	if ( !configDir[ 0 ] ) {
 		// figure out file name
@@ -384,7 +384,7 @@ void ENVIRONMENT::find_config_dir() {
 }
 
 /// @brief Sets dataDir to the path 'unicode.dat' can be found in.
-bool ENVIRONMENT::find_data_dir() {
+bool CEnvironment::find_data_dir() {
 
 	// If the datadir set by command line options, try that first
 	if ( !dataDir.empty() ) {
@@ -415,8 +415,8 @@ bool ENVIRONMENT::find_data_dir() {
 	return !dataDir.empty();
 }
 
-/// @brief Must be called before GLOBALDATA::first_init() is called!
-void ENVIRONMENT::first_init() {
+/// @brief Must be called before CGlobalData::first_init() is called!
+void CEnvironment::first_init() {
 	// Determine maximum number of updates before doing
 	// a full update:
 	max_screen_updates = ROUND( std::sqrt( ROUND( screenWidth / 8 ) * ROUND( screenHeight / 8 ) ) );
@@ -448,7 +448,7 @@ void ENVIRONMENT::first_init() {
 }
 
 /// @brief Fill availableItems array with everything buyable with current settings.
-void ENVIRONMENT::genItemsList() {
+void CEnvironment::genItemsList() {
 	int32_t slot = 0;
 	for ( int32_t i = 0; i < THINGS; ++i ) {
 		if ( isItemAvailable( i ) ) {
@@ -459,7 +459,7 @@ void ENVIRONMENT::genItemsList() {
 }
 
 /// @brief return the index of the player with @a player_name or -1 if not found
-int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) const {
+int32_t CEnvironment::getPlayerByName( char const* player_name ) const {
 	int32_t result = -1;
 
 	assert( player_name && "ERROR: player_name is nullptr!" );
@@ -477,13 +477,13 @@ int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) const {
 	return result;
 }
 
-void ENVIRONMENT::increaseVolume() {
+void CEnvironment::increaseVolume() {
 	if ( volume_factor < MAX_VOLUME_FACTOR ) {
 		++volume_factor;
 	}
 }
 
-int32_t ENVIRONMENT::ingamemenu() const {
+int32_t CEnvironment::ingamemenu() const {
 	int32_t     pressed   = -1;
 	bool        need_draw = true;
 	int32_t     btns[ INGAMEBUTTONS ];
@@ -614,7 +614,7 @@ int32_t ENVIRONMENT::ingamemenu() const {
 	return pressed;
 }
 
-void ENVIRONMENT::initialise() {
+void CEnvironment::initialise() {
 	campaign_rounds = static_cast< double >( rounds ) / 5.;
 	if ( campaign_rounds < 1. ) {
 		campaign_rounds = 1.;
@@ -624,7 +624,7 @@ void ENVIRONMENT::initialise() {
 }
 
 /// @return true if the items tech level is not too high and if it is not a warhead.
-bool ENVIRONMENT::isItemAvailable( int32_t itemNum ) const {
+bool CEnvironment::isItemAvailable( int32_t itemNum ) const {
 	if ( itemNum < WEAPONS ) {
 		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].techLevel > weapontechLevel ) ) {
 			return false;
@@ -641,7 +641,7 @@ file. The function returns true on success and false if
 any erors are encountered.
 -- Jesse
 */
-void ENVIRONMENT::load_from_file( FILE* file ) {
+void CEnvironment::load_from_file( FILE* file ) {
 	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
 	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
 	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
@@ -658,7 +658,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 		} else if ( !strncmp( line, "*GLOBAL*", 8 ) ) {
 			// Old style config/save file
 			rewind( file );
-			GLOBALDATA::load_from_file( file );
+			CGlobalData::load_from_file( file );
 		}
 	} while ( 0 != strncmp( line, "*ENV*", 5 ) );
 	// read until we hit new record
@@ -963,7 +963,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
  * language, into memory. If a previous text was loaded, it is
  * removed from memory first.
  **/
-void ENVIRONMENT::load_text_files() {
+void CEnvironment::load_text_files() {
 	char   suffix[ 12 ] = { 0 };
 	int    r            = 0;
 	string text_base{ dataDir };
@@ -1035,7 +1035,7 @@ void ENVIRONMENT::load_text_files() {
  *
  * @return true if a sample is loaded, false otherwise.
  **/
-bool ENVIRONMENT::loadBackgroundMusic() {
+bool CEnvironment::loadBackgroundMusic() {
 	bool isSecondTry = false;
 
 	// see if we should bother
@@ -1111,7 +1111,7 @@ bool ENVIRONMENT::loadBackgroundMusic() {
  * data directory. The function returns true on success and
  * false if an error occurs.
  */
-bool ENVIRONMENT::loadBitmaps() {
+bool CEnvironment::loadBitmaps() {
 	int32_t  file_group   = 0;
 	BITMAP*  newbitmap    = nullptr;
 	BITMAP** bitmap_array = nullptr;
@@ -1288,7 +1288,7 @@ bool ENVIRONMENT::loadBitmaps() {
 // Fonts should be stored in the datafolder. On
 // success the function returns true. When an
 // error occurs, it returns false.
-bool ENVIRONMENT::loadFonts() {
+bool CEnvironment::loadFonts() {
 	string font_file{ dataDir + string( "/unicode.dat" ) };
 
 	main_font = load_font( font_file.c_str(), nullptr, nullptr );
@@ -1308,7 +1308,7 @@ bool ENVIRONMENT::loadFonts() {
 }
 
 /// @brief collection of all game text file loadings.
-bool ENVIRONMENT::loadGameFiles() {
+bool CEnvironment::loadGameFiles() {
 	// Before the (language specific) weapons texts can be loaded,
 	// the english one must be pre-loaded to get the weapons data.
 	// all other files only hold the texts.
@@ -1351,7 +1351,7 @@ bool ENVIRONMENT::loadGameFiles() {
  * in an array.
  * @return true on success or false if an error happens.
  **/
-bool ENVIRONMENT::loadSounds() {
+bool CEnvironment::loadSounds() {
 	SAMPLE* temp_sample = nullptr;
 
 	// allocate space for sound samples
@@ -1380,7 +1380,7 @@ bool ENVIRONMENT::loadSounds() {
 	return true;
 }
 
-void ENVIRONMENT::newRound() {
+void CEnvironment::newRound() {
 	// set wall type
 	if ( wallType == WALL_RANDOM ) {
 		current_wallType = get_rand() % 4;
@@ -1425,7 +1425,7 @@ void ENVIRONMENT::newRound() {
 	}
 }
 
-void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
+void CEnvironment::removeGamePlayer( PLAYER* player_ ) {
 	int32_t fromCount = 0;
 	int32_t toCount   = -1;
 
@@ -1455,7 +1455,7 @@ void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
  * to the config file.
  * -- Jesse
  *  */
-void ENVIRONMENT::Reset_Options() {
+void CEnvironment::Reset_Options() {
 	boxedMode          = BM_OFF;
 	check_for_updates  = true;
 	colourTheme        = CT_CRISPY;
@@ -1520,7 +1520,7 @@ void ENVIRONMENT::Reset_Options() {
  *
  * @return true on success and false on failure.
  */
-bool ENVIRONMENT::save_to_file( FILE* file ) {
+bool CEnvironment::save_to_file( FILE* file ) {
 	if ( !file ) {
 		return false;
 	}
@@ -1596,7 +1596,7 @@ bool ENVIRONMENT::save_to_file( FILE* file ) {
 
 /// @brief This function sends a message to all connected game clients.
 /// @return true on success or false if the message could not be sent
-bool ENVIRONMENT::sendToClients( char const* message ) const {
+bool CEnvironment::sendToClients( char const* message ) const {
 	if ( !message ) {
 		return false;
 	}
@@ -1624,7 +1624,7 @@ bool ENVIRONMENT::sendToClients( char const* message ) const {
 }
 
 /// @brief set new frames per second if valid and calculate dependent values.
-void ENVIRONMENT::set_fps( int32_t new_FPS ) {
+void CEnvironment::set_fps( int32_t new_FPS ) {
 	if ( !new_FPS || ( ( new_FPS > 0 ) && ( new_FPS != frames_per_second ) ) ) {
 		if ( new_FPS ) {
 			frames_per_second = new_FPS;
@@ -1635,7 +1635,7 @@ void ENVIRONMENT::set_fps( int32_t new_FPS ) {
 	}
 }
 
-void ENVIRONMENT::window_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
+void CEnvironment::window_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	if ( x < window.x ) {
 		window.x = x;
 	}

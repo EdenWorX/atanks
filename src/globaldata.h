@@ -52,18 +52,18 @@ struct sDebrisItem;
 struct sDebrisPool;
 class PLAYER;
 class TANK;
-class VIRTUAL_OBJECT;
+class CVirtualObject;
 
-/** @class GLOBALDATA
+/** @class CGlobalData
  * @brief Values used globally during a game round.
  *
  * This class holds all values and the corresponding functions for everything
  * that can change during a game round.
  *
- * Everything that is fixed during a game round is consolidated in ENVIRONMENT.
+ * Everything that is fixed during a game round is consolidated in CEnvironment.
  **/
-class GLOBALDATA {
-	typedef VIRTUAL_OBJECT vobj_t;
+class CGlobalData {
+	typedef CVirtualObject vobj_t;
 	typedef sDebrisItem    item_t;
 
 public:
@@ -73,9 +73,9 @@ public:
 	 */
 
 	/// Zero-initialize the round state.
-	explicit GLOBALDATA();
+	explicit CGlobalData();
 	/// Free the round state.
-	~GLOBALDATA();
+	~CGlobalData();
 
 
 	/* ----------------------

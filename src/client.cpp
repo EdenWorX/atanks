@@ -471,7 +471,7 @@ int Game_Client( int socket_number ) {
 	bool            screen_update = false;
 	int             count;                    // generic counter
 	int             stuff_going_down = false; // explosions, missiles etc on the screen
-	VIRTUAL_OBJECT *my_object, *next_obj;
+	CVirtualObject *my_object, *next_obj;
 	int32_t         class_ = 0;
 	bool            fired  = false;
 

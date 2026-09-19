@@ -385,17 +385,88 @@ Apply the planned convention throughout the tree: variables/functions → snake_
 (`MAX_SIZE`, `DO_NOTHING`); prefixes `C` for important classes, `T` for templates, `s` for widely-used structs. Record the
 convention in `AGENTS.md` / `README.md`.
 
-#### [ ] PF-1.15.1: Build the rename mapping and agree it with the user
+#### [x] PF-1.15.1: Build the rename mapping and agree it with the user
 
 Inventory the current names per module and produce the old→new mapping table (e.g. `GLOBALDATA`, `ENVIRONMENT`, `PLAYER`,
 `TANK`, `MISSILE`, `EXPLOSION`, `VIRTUAL_OBJECT`, `PHYSICAL_OBJECT`, `AICore` and helpers such as `sScore`, `sGfxData`,
 `TEXTBLOCK`, `ZBuffer`, `Menu`, `OptionItem`). No renames yet; the mapping is reviewed with the user first because of the
 refactoring size.
 
+Agreed mapping (reviewed with the user; decisions recorded below):
+- Important classes get the `C` prefix: `GLOBALDATA` → `CGlobalData`, `ENVIRONMENT` → `CEnvironment`, `PLAYER` → `CPlayer`,
+  `TANK` → `CTank`, `MISSILE` → `CMissile`, `EXPLOSION` → `CExplosion`, `VIRTUAL_OBJECT` → `CVirtualObject`,
+  `PHYSICAL_OBJECT` → `CPhysicalObject`, `BEAM` → `CBeam`, `DECOR` → `CDecor`, `TELEPORT` → `CTeleport`,
+  `FLOATTEXT` → `CFloatText`, `SATELLITE` → `CSatellite`, `TEXTBLOCK` → `CTextBlock`, `ZBuffer` → `CZBuffer`,
+  `Menu` → `CMenu`, `BUTTON` → `CButton`, `WEAPON` → `CWeapon`, `ITEM` → `CItem`, `MESSAGE_QUEUE` → `CMessageQueue`,
+  `LevelCreator` → `CLevelCreator`, `AICore` → `CAICore`.
+- Non-template option items get the `C` prefix: `OptionItemBase` → `COptionItemBase`,
+  `OptionItemColour` → `COptionItemColour`, `OptionItemMenu` → `COptionItemMenu`, `OptionItemPlayer` → `COptionItemPlayer`.
+- Only `OptionItem` in `optionitem.h` is a class template (verified: all other `template<>` declarations are member-function
+  templates, i.e. `getHeadOfClass`, `getPrev`/`getNext`, and the `optionitembase.h` dispatchers), so only it gets the `T`
+  prefix: `OptionItem` → `TOptionItem`.
+- Already conforming, keep: `CSpinLock`, `sScore`, `sGfxData`, `sOpponent`, `sDebrisItem`, `sDebrisPool`, `sItemListEntry`,
+  `sOppMemEntry`, `sWeapListEntry`, `sSDI`.
+- Structs to rename: `gradient` → `sGradient`, `MESSAGE` → `sMessage`, `SEND_RECEIVE_TYPE` → `sSendReceive`,
+  `POINT_t` → `Point`, `PLAYER_mini` → `PlayerMini`, `update_data` → `UpdateData`, `BOX` → `sBox`.
+- Enums get the `E` prefix in PascalCase (enumerators stay UPPER_SNAKE): `eBackgroundTypes` → `EBackgroundTypes`,
+  `eBoxModes` → `EBoxModes`, `eColourTheme` → `EColourTheme`, `eControl` → `EControl`, `eDataStage` → `EDataStage`,
+  `eFileStage` → `EFileStage`, `eFullScreen` → `EFullScreen`, `eLandscapeTypes` → `ELandscapeTypes`,
+  `eLandSlideTypes` → `ELandSlideTypes`, `eLanguages` → `ELanguages`, `eRoundStages` → `ERoundStages`,
+  `eSatelliteLaser` → `ESatelliteLaser`, `eSaveGameStage` → `ESaveGameStage`, `eSkipPlayType` → `ESkipPlayType`,
+  `eSoundDriver` → `ESoundDriver`, `eSounds` → `ESounds`, `eTurnTypes` → `ETurnTypes`, `eViolentDeath` → `EViolentDeath`,
+  `eWallTypes` → `EWallTypes`, `eWinner` → `EWinner`, `eMissileType` → `EMissileType`, `eBeamType` → `EBeamType`,
+  `eMenuClass` → `EMenuClass`, `eMenuReturnCodes` → `EMenuReturnCodes`, `eTextClass` → `ETextClass`,
+  `eTextSway` → `ETextSway`, `eEntryType` → `EEntryType`, `ePlayerStages` → `EPlayerStages`, `ePlayerEdit` → `EPlayerEdit`,
+  `ePhysType` → `EPhysType`, `eTeamTypes` → `ETeamTypes`, `eTankOffsets` → `ETankOffsets`, `eTankTypes` → `ETankTypes`,
+  `playerType` → `EPlayerType`, `playerPrefType` → `EPlayerPrefType`, `itemType` → `EItemType`,
+  `weaponType` → `EWeaponType`, `selfDestructVals` → `ESelfDestructVals`, `decorTypes` → `EDecorTypes`,
+  `alignType` → `EAlignType`.
+- Typedefs and template typename parameters are lowercase short names with a `_t` postfix: `plStage_t` → `plstage_t`,
+  `itEntry_t` → `itentry_t`, `opEntry_t` → `opentry_t`, `weEntry_t` → `weentry_t`, `Head_T` → `head_t`, `obj_T` → `obj_t`,
+  `tgt_T` → `tgt_t`, `opt_T` → `opt_t`, single `T` → `t_t`. Already conforming, keep: `abool_t`, `aflag_t`, `ai32_t`,
+  `vobj_t`, `item_t`, `debpool_t`, `opp_t`, `mutex_t`, `condv_t`, `lguard_t`, `luniq_t`.
+- Excluded (external, never rename): `BITMAP`, `dirent`, `DIR`, all Allegro/CRT/system APIs.
+- Functions/variables: mechanical snake_case per module in `PF-1.15.2`/`PF-1.15.3` (e.g. `addLandSlide` → `add_land_slide`,
+  `errorMultiplier` → `error_multiplier`); Allegro/CRT/system names excluded. No per-identifier table (thousands of names).
+
 #### [ ] PF-1.15.2: Rename core state and entity classes
 
 Apply the agreed mapping to global state and gameplay entities first. Pure renames, no logic changes; verify with a `make
-DEBUG=YES` build plus manual in-game validation (new game, buy screen, fired shots).
+DEBUG=YES` build plus manual in-game validation (new game, buy screen, fired shots). Split into Action Items below: type
+renames are applied globally per batch (every reference tree-wide, or the build breaks), member/function snake_case goes
+per module.
+
+- [x] **PF-1.15.2.1**: Global type renames, batch 1 (state and bases)
+
+  Rename `GLOBALDATA` → `CGlobalData`, `ENVIRONMENT` → `CEnvironment`, `VIRTUAL_OBJECT` → `CVirtualObject`, and
+  `PHYSICAL_OBJECT` → `CPhysicalObject`, updating every reference tree-wide. Pure renames; verify with a build.
+
+- [ ] **PF-1.15.2.2**: Global type renames, batch 2 (entities and arsenal)
+
+  Rename `TANK` → `CTank`, `PLAYER` → `CPlayer`, `MISSILE` → `CMissile`, `EXPLOSION` → `CExplosion`, `BEAM` → `CBeam`,
+  `DECOR` → `CDecor`, `TELEPORT` → `CTeleport`, `FLOATTEXT` → `CFloatText`, `AICore` → `CAICore`, `WEAPON` → `CWeapon`,
+  and `ITEM` → `CItem`, updating every reference tree-wide. Pure renames; verify with a build.
+
+- [ ] **PF-1.15.2.3**: Mechanical global renames (enums, typedefs, small structs)
+
+  Apply the `E`-prefix enum renames, the lowercase `_t` typedef/parameter fixes, and the small-struct renames (`sGradient`,
+  `sMessage`, `sSendReceive`, `Point`, `PlayerMini`, `UpdateData`, `sBox`) tree-wide. Pure renames; verify with a build.
+
+- [ ] **PF-1.15.2.4**: Member/function snake_case for `CGlobalData` and `CEnvironment`
+
+  Rename members and methods (e.g. `AI_clock` → `ai_clock`, `newRound` → `new_round`) with per-member review. Pure renames;
+  verify with a `make DEBUG=YES` build plus manual in-game validation.
+
+- [ ] **PF-1.15.2.5**: Member/function snake_case for entity classes
+
+  Rename members and methods of `CTank`, `CMissile`, `CExplosion`, `CBeam`, `CDecor`, `CTeleport`, and `CFloatText`,
+  including the hierarchy virtuals (e.g. `getClass` → `get_class`), with per-member review. Pure renames; verify with a
+  `make DEBUG=YES` build plus manual in-game validation.
+
+- [ ] **PF-1.15.2.6**: Member/function snake_case for `CPlayer` and `CAICore`
+
+  Rename members and methods of the player state and AI core with per-member review. Pure renames; verify with a `make
+  DEBUG=YES` build plus manual in-game validation.
 
 #### [ ] PF-1.15.3: Rename UI, services, and remaining modules
 

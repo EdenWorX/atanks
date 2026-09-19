@@ -52,14 +52,14 @@ TELEPORT::~TELEPORT() {
 }
 
 TELEPORT::TELEPORT(
-	VIRTUAL_OBJECT* targetObj,
+	CVirtualObject* targetObj,
 	int32_t         destinationX,
 	int32_t         destinationY,
 	int32_t         objRadius,
 	int32_t         duration,
 	int32_t         type
 )
-	: VIRTUAL_OBJECT()
+	: CVirtualObject()
 	, clock( duration )
 	, object( targetObj )
 	, radius( objRadius )
@@ -142,7 +142,7 @@ TELEPORT::TELEPORT(
 	global.addObject( this );
 }
 
-TELEPORT::TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : VIRTUAL_OBJECT(), remote( remoteEnd ) {
+TELEPORT::TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : CVirtualObject(), remote( remoteEnd ) {
 	this->x = destX;
 	this->y = destY;
 	if ( remote ) {

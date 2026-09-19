@@ -37,7 +37,7 @@ class EXPLOSION;
 /** @class TANK
  * @brief Player tank avatar.
  **/
-class TANK final : public PHYSICAL_OBJECT {
+class TANK final : public CPhysicalObject {
 
 public:
 	/* -----------------------------------

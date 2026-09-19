@@ -41,19 +41,19 @@ enum ePhysType {
 class PLAYER;
 #endif // HAS_PLAYER
 
-/** @class VIRTUAL_OBJECT
+/** @class CVirtualObject
  * @brief Root of the game object hierarchy.
  **/
-class VIRTUAL_OBJECT {
+class CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 	/// Construct an empty object.
-	explicit VIRTUAL_OBJECT() = default;
+	explicit CVirtualObject() = default;
 	/// Destroy the object.
-	virtual ~VIRTUAL_OBJECT() = default;
+	virtual ~CVirtualObject() = default;
 
 
 	/* ----------------------
@@ -120,9 +120,9 @@ public:
 	 */
 
 	bool            destroy = false;   ///< Flagged for deletion.
-	VIRTUAL_OBJECT* next    = nullptr; ///< Successor in the class list.
+	CVirtualObject* next    = nullptr; ///< Successor in the class list.
 	PLAYER*         player  = nullptr; ///< Owning player.
-	VIRTUAL_OBJECT* prev    = nullptr; ///< Predecessor in the class list.
+	CVirtualObject* prev    = nullptr; ///< Predecessor in the class list.
 	double          x       = 0.;      ///< Horizontal position.
 	double          y       = 0.;      ///< Vertical position.
 
@@ -170,6 +170,6 @@ private:
 };
 
 /// === Shorten the usage of virtual objects ===
-typedef VIRTUAL_OBJECT vobj_t;
+typedef CVirtualObject vobj_t;
 
 #endif // VIRTOBJ_DEFINE

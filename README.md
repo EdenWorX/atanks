@@ -102,7 +102,7 @@ narrow responsibilities:
 | Module | Files | Responsibility |
 |---|---|---|
 | Debug/platform layer | `src/debug.h`, `src/debug.cpp` | OS detection (`ATANKS_IS_WINDOWS/LINUX/BSD/MSVC`), `snprintf`/`localtime` shims, `DEBUG_LOG*` macros |
-| Global state | `src/globals.h`, `src/externs.h`, `src/globaldata.h/.cpp`, `src/environment.h/.cpp`, `src/globaltypes.h/.cpp` | The two globals (`GLOBALDATA global`, `ENVIRONMENT env`), enums, constants |
+| Global state | `src/globals.h`, `src/externs.h`, `src/globaldata.h/.cpp`, `src/environment.h/.cpp`, `src/globaltypes.h/.cpp` | The two globals (`CGlobalData global`, `CEnvironment env`), enums, constants |
 | Persistence | `src/files.h`, `src/files.cpp` | Config, savegames, weapon-text loading, directory scans |
 | Text/localization | `src/text.h`, `src/text.cpp` | `TEXTBLOCK` file loading, line selection, text rendering helpers |
 | Audio | `src/sound.h`, `src/sound.cpp` | Thin wrappers over `env.sounds` / `env.background_music` |
@@ -135,11 +135,11 @@ narrow responsibilities:
 
 | Area | Key files | Notes |
 |---|---|---|
-| Object hierarchy root | `src/virtobj.h/.cpp` (`VIRTUAL_OBJECT`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `getClass()` |
-| Physics mixin | `src/physobj.h/.cpp` (`PHYSICAL_OBJECT : VIRTUAL_OBJECT`) | Gravity/drag/mass, bounces, `weapType`, angle macros |
-| Tank avatar | `src/tank.h/.cpp` (`TANK final : PHYSICAL_OBJECT`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
-| Projectile | `src/missile.h/.cpp` (`MISSILE final : PHYSICAL_OBJECT`) | `eMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
-| Detonation | `src/explosion.h/.cpp` (`EXPLOSION final : PHYSICAL_OBJECT`) | Terrain deformation, throwing, damage, napalm/debris |
+| Object hierarchy root | `src/virtobj.h/.cpp` (`CVirtualObject`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `getClass()` |
+| Physics mixin | `src/physobj.h/.cpp` (`CPhysicalObject : CVirtualObject`) | Gravity/drag/mass, bounces, `weapType`, angle macros |
+| Tank avatar | `src/tank.h/.cpp` (`TANK final : CPhysicalObject`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
+| Projectile | `src/missile.h/.cpp` (`MISSILE final : CPhysicalObject`) | `eMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
+| Detonation | `src/explosion.h/.cpp` (`EXPLOSION final : CPhysicalObject`) | Terrain deformation, throwing, damage, napalm/debris |
 | Beams (lasers) | `src/beam.h/.cpp` | Laser-class weapons parallel to ballistic missiles |
 | Arsenal data | `src/weapon.h/.cpp`, `src/item.h/.cpp` | Plain records: 56 weapons + 6 naturals + 24 items; unified index `THINGS = WEAPONS+ITEMS` |
 | Player state | `src/player.h/.cpp` | Economy, inventories `nm[WEAPONS]/ni[ITEMS]`, personality, opponent memory, shop prefs, save/load, speech-line selection |
@@ -205,8 +205,8 @@ The following were classified as external by metadata inspection; their internal
  CLI (atanks.cpp: parse_args)
    |
    v
- ENVIRONMENT env ......... fixed config + asset registry (environment.h)
- GLOBALDATA global ........ per-round mutable state (globaldata.h)
+ CEnvironment env ......... fixed config + asset registry (environment.h)
+ CGlobalData global ........ per-round mutable state (globaldata.h)
    |                               |
    +-- main-menu loop .............+-- round driver game() (gameloop.cpp)
    |    (menu/options/players/       |    |
@@ -229,7 +229,7 @@ The following were classified as external by metadata inspection; their internal
   and joins them at `:497-541`. `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
   `CMakeLists.txt`).
 - Data flow for content: `text/weapons*.txt` -> `Load_Weapons_Text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
-  -> shop UI, AI planning, firing, explosions. `text/*.txt` (speech/help) -> `ENVIRONMENT::load_text_files()`
+  -> shop UI, AI planning, firing, explosions. `text/*.txt` (speech/help) -> `CEnvironment::load_text_files()`
   (`src/environment.cpp:966ff`) -> `TEXTBLOCK*` fields -> menus, AI taunts, help screens.
 
 ## Build System
@@ -302,9 +302,9 @@ None exist in the repository.
 - Compile-time: `DATA_DIR` (`ATANKS_DATA_DIR` setting, default `<prefix>/share/atanks`, `"."` for `*user` goals), `VERSION`
   (`project(VERSION 6.7)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
   BSD only), `ATANKS_DEBUG*` flavors.
-- Runtime data directory, resolved by `ENVIRONMENT::find_data_dir()` (`src/environment.cpp:387-416`): `--datadir` if readable,
+- Runtime data directory, resolved by `CEnvironment::find_data_dir()` (`src/environment.cpp:387-416`): `--datadir` if readable,
   else the compiled `DATA_DIR` (verified by probing `unicode.dat` inside it), else `./` fallback.
-- Runtime config directory, resolved by `ENVIRONMENT::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
+- Runtime config directory, resolved by `CEnvironment::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
   else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, `src/main.h:144-148`). `Copy_Config_File()`
   (`src/files.cpp:334-390`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
 - Main settings file: `<configDir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
@@ -314,10 +314,10 @@ None exist in the repository.
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
   always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
   `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`eDataStage`, `src/globaltypes.h:81-86`).
-- Speech/help text: `ENVIRONMENT::load_text_files()` (`src/environment.cpp:966ff`) loads `text/<base><suffix>` for `gloat`,
+- Speech/help text: `CEnvironment::load_text_files()` (`src/environment.cpp:966ff`) loads `text/<base><suffix>` for `gloat`,
   `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
   `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (`src/environment.h:248-257`).
-- Savegames: `<configDir>/<game_name>.sav`, format `VERSION/GLOBAL/ENVIRONMENT/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
+- Savegames: `<configDir>/<game_name>.sav`, format `VERSION/GLOBAL/CEnvironment/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
   listing via `Find_Saved_Games()` (`*.sav` filter, `src/files.cpp:786-840`).
 - Music: `Create_Music_Folder()` ensures a `music/` folder in the config dir (`src/files.cpp:395-412`); custom `*.bmp` files are
   picked up by `Find_Bitmaps()` (`:848-893`).
@@ -372,8 +372,8 @@ Standalone helpers (not built by `Makefile`):
 ## Data Flow
 
 1. Startup resolves `dataDir` and `configDir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
-   sounds, and background music (`ENVIRONMENT::loadGameFiles()`, `src/environment.cpp:1311`).
-2. Menu/options/player/shop screens mutate `ENVIRONMENT` (options, rosters) and `PLAYER` objects (names, colors, teams,
+   sounds, and background music (`CEnvironment::loadGameFiles()`, `src/environment.cpp:1311`).
+2. Menu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `PLAYER` objects (names, colors, teams,
    inventories, money).
 3. `game()` (`src/gameloop.cpp:246`) runs a round: `init_new_round()` (`:261`), `set_tank_settings()` (`:270`), spawn of the
    `AICore` thread and per-class `ObjectUpdater` threads, then the frame loop (`:316-489`) over stages `STAGE_AIM -> STAGE_FIRE
@@ -381,7 +381,7 @@ Standalone helpers (not built by `Makefile`):
 4. Firing creates `MISSILE`/`BEAM` objects; impacts create `EXPLOSION`s, which deform `global.surface`/`global.terrain`, throw
    tanks, apply damage (with `TANK::damage_lock`), spawn debris/floattext, and may trigger AI revenge/panic logic via opponent
    memory.
-5. Round end credits winners (`ENVIRONMENT::creditWinners`), sorts scores (`sort_scores()`), opens the shop for the next round,
+5. Round end credits winners (`CEnvironment::creditWinners`), sorts scores (`sort_scores()`), opens the shop for the next round,
    and persists settings and optional savegames to the config directory.
 
 ## Error Handling and Logging
@@ -446,18 +446,18 @@ Standalone helpers (not built by `Makefile`):
 
 ## Adding or Modifying Code
 
-- New gameplay entity: subclass `VIRTUAL_OBJECT` (or `PHYSICAL_OBJECT` for ballistic behavior) in a new `src/<name>.h/.cpp`
+- New gameplay entity: subclass `CVirtualObject` (or `CPhysicalObject` for ballistic behavior) in a new `src/<name>.h/.cpp`
   pair, return the matching `eClass` from `getClass()`, add the files to the VS projects' file lists (CMake picks up
   `src/*.cpp` via `file(GLOB ...)` automatically), and wire creation/update/draw into `gameloop.cpp` and teardown into
-  `GLOBALDATA::destroy` paths.
+  `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
   strings), keep the numeric field count in sync with `Load_Weapons_Text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
-  `src/main.h:264-267` if the count changes; check AI selection (`AICore`), shop availability (`ENVIRONMENT::genItemsList`), and
+  `src/main.h:264-267` if the count changes; check AI selection (`AICore`), shop availability (`CEnvironment::genItemsList`), and
   sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
   (INI or YAML) with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
 - New option/menu entry: add the `eMenuClass`/`eEntryType` value in `src/optiontypes.h`, construct the item in
-  `menu.cpp`/`optionscreens.cpp`, and persist it in `ENVIRONMENT::save_to_file/load_from_file`.
-- New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `ENVIRONMENT::load_text_files()`
+  `menu.cpp`/`optionscreens.cpp`, and persist it in `CEnvironment::save_to_file/load_from_file`.
+- New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `CEnvironment::load_text_files()`
   and `Load_Weapons_Text()`, and add the language to the `eLanguages` enum.
 - New asset: drop the numbered `N.bmp` / `N.wav` into the right folder (renumber existing files upward by hand to make room
   for inserted frames) and update the loader ranges in `environment.cpp` (`loadBitmaps`/`loadSounds`) and the `Makefile` install
@@ -501,8 +501,8 @@ Standalone helpers (not built by `Makefile`):
 |---|---|---|
 | `src/atanks.cpp` | entry point + menus | `main()`, `parse_args()`, menu dispatch, config load/save |
 | `src/gameloop.h/.cpp` | round driver | `game()`, `ObjectUpdater` threads, frame loop, winner logic |
-| `src/globaldata.h/.cpp` | per-round state | `GLOBALDATA`: canvases, surface, turn order, object lists, locks |
-| `src/environment.h/.cpp` | config + assets | `ENVIRONMENT`: options, players, bitmaps/sounds/text, dir resolution |
+| `src/globaldata.h/.cpp` | per-round state | `CGlobalData`: canvases, surface, turn order, object lists, locks |
+| `src/environment.h/.cpp` | config + assets | `CEnvironment`: options, players, bitmaps/sounds/text, dir resolution |
 | `src/globaltypes.h/.cpp` | enums/types | Stages, classes, wall/landslide/box modes, enum operators |
 | `src/globals.h`, `src/externs.h` | state wiring | Single definitions vs `extern` declarations |
 | `src/main.h` | common hub | Includes, shims, macros, catalog sizes |

@@ -681,7 +681,7 @@ static void init_game_settings() {
 	YELLOW      = makecol( 0xff, 0xff, 0x00 );
 
 	// Start preparing environment
-	env.first_init();    // *MUST* be done before GLOBALDATA or
+	env.first_init();    // *MUST* be done before CGlobalData or
 	global.first_init(); // max_screen_updates is not correct!
 
 	// Prepare remaining environment

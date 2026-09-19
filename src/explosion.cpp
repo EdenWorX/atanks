@@ -31,7 +31,7 @@
 
 /// @brief constructor for all detonations that are not caused by BEAMs
 EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon )
-	: PHYSICAL_OBJECT( is_weapon )
+	: CPhysicalObject( is_weapon )
 	, impact_xv( xv_ )
 	, impact_yv( yv_ ) {
 	xv = xv_;
@@ -185,7 +185,7 @@ void EXPLOSION::applyPhysics() {
 
 		if ( can_move ) {
 			// If the dirt below is falling away, napalm can fall, too:
-			PHYSICAL_OBJECT::applyPhysics();
+			CPhysicalObject::applyPhysics();
 
 			// And falling napalm can be repulsed
 			TANK*  lt     = nullptr;
@@ -959,7 +959,7 @@ void EXPLOSION::do_throw() {
 
 
 /// @brief draw one blob of Napalm (display be locked!)
-void draw_Napalm_Blob( VIRTUAL_OBJECT* blob, double x, double y, int32_t radius, int32_t frame ) {
+void draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius, int32_t frame ) {
 	if ( nullptr == blob ) {
 		return;
 	}

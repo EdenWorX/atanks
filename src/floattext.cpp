@@ -14,7 +14,7 @@ FLOATTEXT::FLOATTEXT(
 	int32_t     max_age,
 	bool        is_fixed_
 )
-	: VIRTUAL_OBJECT()
+	: CVirtualObject()
 	, color( color_ )
 	, is_fixed( is_fixed_ )
 	, is_pushed( !is_fixed )

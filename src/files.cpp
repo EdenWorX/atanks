@@ -55,7 +55,7 @@ bool Save_Game() {
 	fprintf( game_file, "***\n" );
 
 	// write environment data
-	fprintf( game_file, "ENVIRONMENT\n" );
+	fprintf( game_file, "CEnvironment\n" );
 	fprintf( game_file, "CAMPAIGNMODE=%d\n", env.campaign_mode ? 1 : 0 );
 	fprintf( game_file, "CAMPAIGNROUNDS=%lf\n", env.campaign_rounds );
 	fprintf( game_file, "NEXTCAMPROUND=%lf\n", env.nextCampaignRound );
@@ -154,7 +154,7 @@ bool Load_Game() {
 			// check to see if we found a new stage
 			if ( !strcasecmp( line, "GLOBAL" ) ) {
 				stage = SGS_GLOBAL;
-			} else if ( !strcasecmp( line, "ENVIRONMENT" ) ) {
+			} else if ( !strcasecmp( line, "CEnvironment" ) ) {
 				stage = SGS_ENVIRONMENT;
 			} else if ( !strcasecmp( line, "PLAYERS" ) ) {
 				// Here the file version must be known, or it is not set.

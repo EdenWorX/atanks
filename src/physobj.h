@@ -54,17 +54,17 @@
 // Re-calculate angle_ into a value displayable on the top bar:
 #define GET_DISP_ANGLE( angle_ ) ( 180 - ( (angle_)-90 ) )
 
-/** @class PHYSICAL_OBJECT
+/** @class CPhysicalObject
  * @brief Ballistic game object with gravity and drag.
  **/
-class PHYSICAL_OBJECT : public VIRTUAL_OBJECT {
+class CPhysicalObject : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 	/// Create a physical object.
-	explicit PHYSICAL_OBJECT( bool is_weapon );
+	explicit CPhysicalObject( bool is_weapon );
 
 	// No explicit dtor needed
 
@@ -74,7 +74,7 @@ public:
 	 */
 
 	/// Render the object.
-	void inline draw() override { VIRTUAL_OBJECT::draw(); };
+	void inline draw() override { CVirtualObject::draw(); };
 
 	/// Read the current velocity.
 	void getVelocity( double &xv_, double &yv_ );

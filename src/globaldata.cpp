@@ -28,7 +28,7 @@
 
 #include <cassert>
 
-GLOBALDATA::GLOBALDATA() {
+CGlobalData::CGlobalData() {
 	// memset initialization, because Visual C++ 2013 can't do lists, yet.
 	memset( order, 0, sizeof( TANK* ) * MAXPLAYERS );
 	memset( tank_status, 0, sizeof( char ) * 128 );
@@ -36,12 +36,12 @@ GLOBALDATA::GLOBALDATA() {
 	memset( tails, 0, sizeof( vobj_t* ) * CLASS_COUNT );
 }
 
-GLOBALDATA::~GLOBALDATA() {
+CGlobalData::~CGlobalData() {
 	this->destroy();
 }
 
 /// @brief goes through the columns from @a left to @a right and sets slide type according to @a do_lock
-void GLOBALDATA::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
+void CGlobalData::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
 	// Opt out soon if no landslide is to be done
 	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) {
 		return;
@@ -70,7 +70,7 @@ void GLOBALDATA::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
 	}
 }
 
-void GLOBALDATA::addObject( vobj_t* object ) {
+void CGlobalData::addObject( vobj_t* object ) {
 	if ( nullptr == object ) {
 		return;
 	}
@@ -97,7 +97,7 @@ void GLOBALDATA::addObject( vobj_t* object ) {
 
 // Combine both make_update and make_bgupdate with safety checks for
 // the dimensions. This reduces code duplication.
-void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count ) const {
+void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count ) const {
 	assert( target && "ERROR: addUpdate called with nullptr target!" );
 
 	bool combined = false;
@@ -157,7 +157,7 @@ void GLOBALDATA::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* tar
 
 // return true if any living tank is in the given box.
 // left/right and top/bottom are determined automatically.
-bool GLOBALDATA::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
+bool CGlobalData::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	TANK* lt = dynamic_cast< TANK* >( heads[ CLASS_TANK ] );
 
 	while ( lt ) {
@@ -171,12 +171,12 @@ bool GLOBALDATA::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 )
 	return false;
 }
 
-bool GLOBALDATA::areTanksInBox( double x1, double y1, double x2, double y2 ) {
+bool CGlobalData::areTanksInBox( double x1, double y1, double x2, double y2 ) {
 	return areTanksInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
 }
 
 /// @brief remove and delete *all* objects stored.
-void GLOBALDATA::clear_objects() {
+void CGlobalData::clear_objects() {
 	int32_t class_ = 0;
 
 	while ( class_ < CLASS_COUNT ) {
@@ -188,7 +188,7 @@ void GLOBALDATA::clear_objects() {
 }
 
 // Call before calling allegro_exit()!
-void GLOBALDATA::destroy() {
+void CGlobalData::destroy() {
 	clear_objects();
 
 	if ( debris_pool ) {
@@ -230,7 +230,7 @@ void GLOBALDATA::destroy() {
 	lastUpdates = nullptr;
 }
 
-void GLOBALDATA::do_updates() {
+void CGlobalData::do_updates() {
 	bool isBgUpdNeeded = lastUpdatesCount > 0;
 
 	acquire_bitmap( screen );
@@ -257,7 +257,7 @@ void GLOBALDATA::do_updates() {
 }
 
 // Do what has to be done after the game starts
-void GLOBALDATA::first_init() {
+void CGlobalData::first_init() {
 	// get memory for updates
 	try {
 		updates = new BOX[ env.max_screen_updates ];
@@ -321,11 +321,11 @@ void GLOBALDATA::first_init() {
  * exists as a point where locking, if it becomes necessary, can be
  * added without having to rewrite a lot of code.
  **/
-void GLOBALDATA::free_debris_item( item_t* i ) {
+void CGlobalData::free_debris_item( item_t* i ) {
 	debris_pool->free_item( i );
 }
 
-int32_t GLOBALDATA::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv ) const {
+int32_t CGlobalData::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t y2, double xv, double yv ) const {
 	// Movement
 	auto mvx      = ROUND( 10. * xv ); // eliminate slow movement
 	auto mvy      = ROUND( 10. * yv ); // eliminate slow movement
@@ -482,14 +482,14 @@ int32_t GLOBALDATA::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_t
 
 // Locks global->command for reading, reads value, then unlocks the variable
 // and returns the value.
-int32_t GLOBALDATA::get_command() {
+int32_t CGlobalData::get_command() {
 	cmdLock.lock();
 	int32_t c = command;
 	cmdLock.unlock();
 	return c;
 }
 
-TANK* GLOBALDATA::get_curr_tank() {
+TANK* CGlobalData::get_curr_tank() {
 	return currTank;
 }
 
@@ -499,11 +499,11 @@ TANK* GLOBALDATA::get_curr_tank() {
  * exists as a point where locking, if it becomes necessary, can be
  * added without having to rewrite a lot of code.
  **/
-sDebrisItem* GLOBALDATA::get_debris_item( int32_t radius ) {
+sDebrisItem* CGlobalData::get_debris_item( int32_t radius ) {
 	return debris_pool->get_item( radius );
 }
 
-TANK* GLOBALDATA::get_next_tank( bool* wrapped_around ) {
+TANK* CGlobalData::get_next_tank( bool* wrapped_around ) {
 	bool    found    = false;
 	int32_t index    = tankindex + 1;
 	int32_t oldindex = tankindex;
@@ -543,7 +543,7 @@ TANK* GLOBALDATA::get_next_tank( bool* wrapped_around ) {
 }
 
 /// @brief randomly return one active tank
-TANK* GLOBALDATA::get_random_tank() {
+TANK* CGlobalData::get_random_tank() {
 	int32_t idx      = get_rand() % MAXPLAYERS;
 	int32_t attempts = 2;
 	while ( ( !order[ idx ] || order[ idx ]->destroy ) && ( idx < MAXPLAYERS ) && attempts ) {
@@ -556,7 +556,7 @@ TANK* GLOBALDATA::get_random_tank() {
 	return order[ idx ];
 }
 
-void GLOBALDATA::initialise() {
+void CGlobalData::initialise() {
 	clear_objects();
 	numTanks = 0;
 	clear_to_color( canvas, WHITE );
@@ -571,7 +571,7 @@ void GLOBALDATA::initialise() {
 
 // return true if the dirt reaches into the given box.
 // left/right and top/bottom are determined automatically.
-bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) const {
+bool CGlobalData::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) const {
 	int32_t top = std::max( std::min( y1, y2 ), env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT );
 	// Exit early if the box is below the playing area
 	if ( top >= env.screenHeight ) {
@@ -598,7 +598,7 @@ bool GLOBALDATA::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) c
 }
 
 /// @return true if the close button was pressed
-bool GLOBALDATA::isCloseBtnPressed() {
+bool CGlobalData::isCloseBtnPressed() {
 	cbpLock.lock();
 	bool result = close_button_pressed;
 	cbpLock.unlock();
@@ -609,9 +609,9 @@ bool GLOBALDATA::isCloseBtnPressed() {
 /** @brief load global data from a file
  * This method is still present to provide backwards
  * compatibility with configurations that were saved
- * before the values were moved to ENVIRONMENT
+ * before the values were moved to CEnvironment
  **/
-void GLOBALDATA::load_from_file( FILE* file ) {
+void CGlobalData::load_from_file( FILE* file ) {
 	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
 	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
 	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
@@ -665,7 +665,7 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 			strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
 
 
-			// Values that were moved to ENVIRONMENT:
+			// Values that were moved to CEnvironment:
 			// They are loaded, for compatibility, but the next
 			// save will put them into the correct section anyway.
 			// So these can eventually be removed.
@@ -775,15 +775,15 @@ void GLOBALDATA::load_from_file( FILE* file ) {
 	}         // end of while not is_done
 }
 
-void GLOBALDATA::lockClass( eClass class_ ) {
+void CGlobalData::lockClass( eClass class_ ) {
 	objLocks[ class_ ].lock();
 }
 
-void GLOBALDATA::lockLand() {
+void CGlobalData::lockLand() {
 	landLock.lock();
 }
 
-void GLOBALDATA::make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h ) {
+void CGlobalData::make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	if ( lastUpdatesCount >= env.max_screen_updates ) {
 		make_fullUpdate();
 		return;
@@ -796,7 +796,7 @@ void GLOBALDATA::make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	}
 }
 
-void GLOBALDATA::make_fullUpdate() {
+void CGlobalData::make_fullUpdate() {
 	// Replace Updates with a full-screen update:
 	combineUpdates   = false;
 	updateCount      = 0;
@@ -813,7 +813,7 @@ void GLOBALDATA::make_fullUpdate() {
 	combineUpdates = true;
 }
 
-void GLOBALDATA::make_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
+void CGlobalData::make_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	if ( updateCount >= env.max_screen_updates ) {
 		make_fullUpdate();
 		return;
@@ -828,7 +828,7 @@ void GLOBALDATA::make_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	}
 }
 
-void GLOBALDATA::newRound() {
+void CGlobalData::newRound() {
 	if ( ( currentround > 0 ) && ( currentround-- < env.nextCampaignRound ) ) {
 		env.nextCampaignRound -= env.campaign_rounds;
 	}
@@ -863,14 +863,14 @@ void GLOBALDATA::newRound() {
 }
 
 /// @brief Tell global that the close button was pressed
-void GLOBALDATA::pressCloseButton() {
+void CGlobalData::pressCloseButton() {
 	cbpLock.lock();
 	close_button_pressed = true;
 	cbpLock.unlock();
 	set_command( GLOBAL_COMMAND_QUIT );
 }
 
-void GLOBALDATA::removeObject( vobj_t* object ) {
+void CGlobalData::removeObject( vobj_t* object ) {
 	if ( nullptr == object ) {
 		return;
 	}
@@ -907,7 +907,7 @@ void GLOBALDATA::removeObject( vobj_t* object ) {
 	objLocks[ class_ ].unlock();
 }
 
-void GLOBALDATA::removeTank( TANK* tank ) {
+void CGlobalData::removeTank( TANK* tank ) {
 	if ( nullptr == tank ) {
 		return;
 	}
@@ -919,7 +919,7 @@ void GLOBALDATA::removeTank( TANK* tank ) {
 	}
 }
 
-void GLOBALDATA::replace_canvas() {
+void CGlobalData::replace_canvas() {
 
 	for ( int32_t i = 0; i < lastUpdatesCount; ++i ) {
 		if ( ( lastUpdates[ i ].y + lastUpdates[ i ].h ) > MENUHEIGHT ) {
@@ -962,13 +962,13 @@ void GLOBALDATA::replace_canvas() {
 }
 
 // Set a new command, lock guarded
-void GLOBALDATA::set_command( int32_t cmd ) {
+void CGlobalData::set_command( int32_t cmd ) {
 	cmdLock.lock();
 	command = cmd;
 	cmdLock.unlock();
 }
 
-void GLOBALDATA::set_curr_tank( TANK* tank_ ) {
+void CGlobalData::set_curr_tank( TANK* tank_ ) {
 	if ( tank_ != currTank ) {
 		if ( currTank ) {
 			currTank->deactivate();
@@ -987,7 +987,7 @@ void GLOBALDATA::set_curr_tank( TANK* tank_ ) {
  * done[x] == 2 : This column is about to be slid, but the base values aren't set.
  * done[x] == 3 : This column is about to be slid but locked. (Explosion not done)
  **/
-void GLOBALDATA::slideLand() {
+void CGlobalData::slideLand() {
 	// Opt out soon if no landslide is to be done
 	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType )
 	     || ( ( SLIDE_CARTOON == env.landSlideType ) && ( env.time_to_fall > 0 ) ) ) {
@@ -1139,16 +1139,16 @@ void GLOBALDATA::slideLand() {
 	}         // End of looping columns
 }
 
-void GLOBALDATA::unlockClass( eClass class_ ) {
+void CGlobalData::unlockClass( eClass class_ ) {
 	objLocks[ class_ ].unlock();
 }
 
-void GLOBALDATA::unlockLand() {
+void CGlobalData::unlockLand() {
 	landLock.unlock();
 }
 
 /// @brief goes through the columns from @a left to @a right and unlocks what is locked.
-void GLOBALDATA::unlockLandSlide( int32_t left, int32_t right ) {
+void CGlobalData::unlockLandSlide( int32_t left, int32_t right ) {
 	// Opt out soon if no landslide is to be done
 	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) {
 		return;

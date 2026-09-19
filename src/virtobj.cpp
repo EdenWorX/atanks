@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-void VIRTUAL_OBJECT::addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+void CVirtualObject::addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
 	// compute right and bottom coordinates for new and old areas
 	int32_t newRight  = left_ + width_;
 	int32_t newBottom = top_ + height_;
@@ -39,13 +39,13 @@ void VIRTUAL_OBJECT::addUpdateArea( int32_t left_, int32_t top_, int32_t width_,
 	dim_cur.h = std::max( newBottom, oldBottom ) - dim_cur.y + 1;
 }
 
-void VIRTUAL_OBJECT::applyPhysics() {
+void CVirtualObject::applyPhysics() {
 	x += xv;
 	y += yv;
 }
 
-void VIRTUAL_OBJECT::draw() {
-	assert( bitmap && "ERROR: VIRTUAL_OBJECT::draw() called without bitmap!" );
+void CVirtualObject::draw() {
+	assert( bitmap && "ERROR: CVirtualObject::draw() called without bitmap!" );
 
 	if ( !destroy && bitmap ) {
 
@@ -62,7 +62,7 @@ void VIRTUAL_OBJECT::draw() {
 	}
 }
 
-void VIRTUAL_OBJECT::initialise() {
+void CVirtualObject::initialise() {
 	age     = 0;
 	maxAge  = -1;
 	x       = 0;
@@ -74,7 +74,7 @@ void VIRTUAL_OBJECT::initialise() {
 }
 
 /// @brief Set a new bitmap and store width and height for easy drawing.
-void VIRTUAL_OBJECT::setBitmap( BITMAP* bitmap_ ) {
+void CVirtualObject::setBitmap( BITMAP* bitmap_ ) {
 	if ( bitmap_ != bitmap ) {
 		bitmap = bitmap_;
 
@@ -88,7 +88,7 @@ void VIRTUAL_OBJECT::setBitmap( BITMAP* bitmap_ ) {
 	}
 }
 
-void VIRTUAL_OBJECT::setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+void CVirtualObject::setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
 	dim_cur.x = left_;
 	dim_cur.y = top_;
 	dim_cur.w = width_;
@@ -100,7 +100,7 @@ void VIRTUAL_OBJECT::setUpdateArea( int32_t left_, int32_t top_, int32_t width_,
  * This method triggers an update of the canvas (aka drawing area) with the
  * dimensions and position of this object.
  */
-void VIRTUAL_OBJECT::update() {
+void CVirtualObject::update() {
 	if ( !needsUpdate.load( ATOMIC_READ ) ) {
 		return;
 	}

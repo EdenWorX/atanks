@@ -22,12 +22,12 @@
 
 #include "globaldata.h"
 #ifndef HAS_GLOBALDATA
-class GLOBALDATA;
+class CGlobalData;
 #endif // HAS_GLOBALDATA
 
 #include "environment.h"
 #ifndef HAS_ENVIRONMENT
-class ENVIRONMENT;
+class CEnvironment;
 #endif // HAS_ENVIRONMENT
 
 #ifndef HAS_ITEM
@@ -45,8 +45,8 @@ class WEAPON;
 #ifndef ATANKS_ATANKS_CPP
 
 // === The two most important things in the game: ;) ===
-extern GLOBALDATA  global;
-extern ENVIRONMENT env;
+extern CGlobalData  global;
+extern CEnvironment env;
 
 
 // === Defined colours used everywhere ===

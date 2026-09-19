@@ -5,8 +5,8 @@
 #include "globaldata.h"
 
 // === The two most important things in the game: ;) ===
-GLOBALDATA  global;
-ENVIRONMENT env;
+CGlobalData  global;
+CEnvironment env;
 
 // === Defined colours used everywhere ===
 int32_t BLACK, BLUE, DARK_GREEN, DARK_GREY, DARK_RED, GOLD, GREY, GREEN, LIGHT_GREEN, LIME_GREEN, ORANGE, PINK, PURPLE, RED,

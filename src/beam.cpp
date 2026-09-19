@@ -41,7 +41,7 @@ static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
 
 /// @brief BEAM constructor
 BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type )
-	: PHYSICAL_OBJECT( BT_WEAPON == beam_type )
+	: CPhysicalObject( BT_WEAPON == beam_type )
 	, beamType( beam_type )
 	, tgtRightX( env.screenWidth ) {
 	this->player   = player_;

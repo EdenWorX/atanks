@@ -48,7 +48,7 @@ enum eMissileType {
 /** @class MISSILE
  * @brief Ballistic projectile.
  **/
-class MISSILE final : public PHYSICAL_OBJECT {
+class MISSILE final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---

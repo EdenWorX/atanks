@@ -37,7 +37,7 @@
 enum shieldVals { SHIELD_ENERGY = 0, SHIELD_REPULSION, SHIELD_RED, SHIELD_GREEN, SHIELD_BLUE, SHIELD_THICKNESS };
 
 TANK::TANK()
-	: PHYSICAL_OBJECT( false )
+	: CPhysicalObject( false )
 	, healthText( nullptr, -1, -1, 0., 0., WHITE, CENTRE, TS_NO_SWAY, -1, true )
 	, nameText( nullptr, -1, -1, 0., 0., WHITE, CENTRE, TS_NO_SWAY, -1, true )
 	, shieldText( nullptr, -1, -1, 0., 0., TURQUOISE, CENTRE, TS_NO_SWAY, -1, true ) {

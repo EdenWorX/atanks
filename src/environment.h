@@ -29,9 +29,9 @@
 #include "wrap_dirent.h"
 
 
-// As everything depends on environment.h, PLAYER, TANK and VIRTUAL_OBJECT
-// Must be forwarded here, and included before the ENVIRONMENT definition
-class VIRTUAL_OBJECT;
+// As everything depends on environment.h, PLAYER, TANK and CVirtualObject
+// Must be forwarded here, and included before the CEnvironment definition
+class CVirtualObject;
 class TANK;
 class PLAYER;
 
@@ -60,7 +60,7 @@ extern int32_t GREEN;
 // Defined in sound.cpp:
 extern int32_t MAX_VOLUME_FACTOR;
 
-/** @class ENVIRONMENT
+/** @class CEnvironment
  * @brief Fixed values of the current environment the game takes place in.
  *
  * This class holds all values and the corresponding methods that define
@@ -73,16 +73,16 @@ extern int32_t MAX_VOLUME_FACTOR;
  * menu and by the game round initialization.
  *
  * Everything that can change between the game round start and the game round
- * end has to be managed by GLOBALDATA.
+ * end has to be managed by CGlobalData.
  **/
-class ENVIRONMENT {
+class CEnvironment {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
-	explicit ENVIRONMENT(); ///< Construct the environment.
-	~ENVIRONMENT();         ///< Destroy the environment.
+	explicit CEnvironment(); ///< Construct the environment.
+	~CEnvironment();         ///< Destroy the environment.
 
 
 	/* ----------------------

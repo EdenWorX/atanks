@@ -11,7 +11,7 @@ sGfxData::~sGfxData() {
 	this->destroy();
 }
 
-/// @brief should be called from ENVIRONMENT::destroy();
+/// @brief should be called from CEnvironment::destroy();
 void sGfxData::destroy() {
 	if ( initDone ) {
 		if ( topbar ) {

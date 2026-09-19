@@ -8,7 +8,7 @@
 
 /// @brief Default constructor
 DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ )
-	: PHYSICAL_OBJECT( false )
+	: CPhysicalObject( false )
 	, curWind( global.wind )
 	, delay( delay_ )
 	, maxGravAccel( -4. * env.fall_vector )
@@ -176,7 +176,7 @@ void DECOR::applyPhysics() {
 
 			// Now apply physics
 			repulseDecor();
-			PHYSICAL_OBJECT::applyPhysics();
+			CPhysicalObject::applyPhysics();
 
 			// Be sure x/y values are sane (Can drift into walls
 			// on rare wind conditions.)
@@ -297,7 +297,7 @@ void DECOR::draw() {
 
 		// And draw it:
 		if ( y > MENUHEIGHT ) {
-			PHYSICAL_OBJECT::draw();
+			CPhysicalObject::draw();
 			++calcRadius;
 		}
 	} else if ( DECOR_SMOKE == type ) {

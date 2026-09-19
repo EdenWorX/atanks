@@ -48,7 +48,7 @@ struct POINT_t {
 /** @class BEAM
  * @brief Laser weapon.
  **/
-class BEAM final : public PHYSICAL_OBJECT {
+class BEAM final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---

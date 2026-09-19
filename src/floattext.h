@@ -36,7 +36,7 @@ enum eTextSway {
 /** @class FLOATTEXT
  * @brief Floating label text.
  **/
-class FLOATTEXT final : public VIRTUAL_OBJECT {
+class FLOATTEXT final : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---

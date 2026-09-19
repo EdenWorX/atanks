@@ -151,7 +151,7 @@ public:
 				// Make sure we know when stuff is happening!
 				if ( !has_action.load( ATOMIC_READ )
 				     && ( ( ( ( CLASS_BEAM == class_ ) || ( CLASS_MISSILE == class_ ) )
-				            && dynamic_cast< PHYSICAL_OBJECT* >( obj )->isWeapon() )
+				            && dynamic_cast< CPhysicalObject* >( obj )->isWeapon() )
 				          || ( CLASS_TELEPORT == class_ ) ) ) {
 					has_action.store( true );
 				}

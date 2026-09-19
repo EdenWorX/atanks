@@ -28,7 +28,7 @@
 /** @class EXPLOSION
  * @brief Detonation effect.
  **/
-class EXPLOSION final : public PHYSICAL_OBJECT {
+class EXPLOSION final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -90,7 +90,7 @@ private:
 };
 
 // Global helpers:
-void   draw_Napalm_Blob( VIRTUAL_OBJECT* blob, double x, double y, int32_t radius, int32_t frame );
+void   draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius, int32_t frame );
 double get_hit_damage( TANK* tank, weaponType type, double hit_x, double hit_y );
 
 #endif

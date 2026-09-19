@@ -26,7 +26,7 @@
 /** @class TELEPORT
  * @brief Teleport transit effect.
  **/
-class TELEPORT final : public VIRTUAL_OBJECT {
+class TELEPORT final : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -34,7 +34,7 @@ public:
 	 */
 	/// Create the source end.
 	explicit TELEPORT(
-		VIRTUAL_OBJECT* targetObj,
+		CVirtualObject* targetObj,
 		int32_t         destinationX,
 		int32_t         destinationY,
 		int32_t         objRadius,
@@ -44,7 +44,7 @@ public:
 
 	/// Delegate with a rounded radius.
 	TELEPORT(
-		VIRTUAL_OBJECT* targetObj,
+		CVirtualObject* targetObj,
 		int32_t         destinationX,
 		int32_t         destinationY,
 		double          objRadius,
@@ -54,7 +54,7 @@ public:
 		: TELEPORT( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
 
 	/// Delegate with rounded coordinates.
-	TELEPORT( VIRTUAL_OBJECT* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
+	TELEPORT( CVirtualObject* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
 		: TELEPORT( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
 
 	/// Destroy a teleport.
@@ -89,7 +89,7 @@ private:
 	 */
 
 	int32_t         clock      = 0;
-	VIRTUAL_OBJECT* object     = nullptr;
+	CVirtualObject* object     = nullptr;
 	int32_t         radius     = 0;
 	TELEPORT*       remote     = nullptr;
 	int32_t         startClock = 0;

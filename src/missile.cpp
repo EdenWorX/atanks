@@ -49,7 +49,7 @@ MISSILE::MISSILE(
 	int32_t      ai_level_,
 	int32_t      delay_idx_
 )
-	: PHYSICAL_OBJECT( MT_WEAPON == missile_type )
+	: CPhysicalObject( MT_WEAPON == missile_type )
 	, ai_level( ai_level_ )
 	, missileType( missile_type ) {
 	this->player = player_;
@@ -82,7 +82,7 @@ MISSILE::MISSILE(
 	// The maxVel value results in a small missile being able to be accelerated
 	// by 25% over MAX_POWER, while a large Napalm Bomb can go up to 220%.
 	maxVel = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
-	DEBUG_LOG_PHY( "PHYSICAL_OBJECT", "env.maxVel: %5.2lf, mass: %5.2lf, obj.maxVel: %5.2lf", env.maxVelocity, mass, maxVel )
+	DEBUG_LOG_PHY( "CPhysicalObject", "env.maxVel: %5.2lf, mass: %5.2lf, obj.maxVel: %5.2lf", env.maxVelocity, mass, maxVel )
 
 	// Meteors and dirt balls are "volatile" and can not be accelerated
 	// over MAX_POWER. (Pre-caution against "forever" going naturals)
@@ -157,7 +157,7 @@ MISSILE::MISSILE(
 
 	// If this is a mind shot with a delay characteristic, like
 	// the chain missile, set a delay range by its index.
-	// This causes PHYSICAL_OBJECT::applyPhysics() to not detonate
+	// This causes CPhysicalObject::applyPhysics() to not detonate
 	// the missile unless the set distance was travelled through
 	// dirt. This simulates the clearing of the path by previous
 	// missiles, so the AI can track those weapons better.
@@ -313,7 +313,7 @@ void MISSILE::draw() {
 		setBitmap( env.misc[ 3 ] );
 		y     = MENUHEIGHT + ( height / 2. );
 		angle = 0;
-		PHYSICAL_OBJECT::draw();
+		CPhysicalObject::draw();
 
 		// restore original values:
 		setBitmap( bbitmap );
@@ -370,7 +370,7 @@ void MISSILE::draw() {
 			}         // end of looping scorches
 		}                 // end of scorching
 
-		PHYSICAL_OBJECT::draw();
+		CPhysicalObject::draw();
 	}
 }
 
@@ -472,7 +472,7 @@ void MISSILE::applyPhysicsFunky() {
 
 void MISSILE::applyPhysicsNormal() {
 	// Standard physics can be applied
-	PHYSICAL_OBJECT::applyPhysics();
+	CPhysicalObject::applyPhysics();
 
 	// If a mind shot napalm jelly hit something, it is counted as
 	// destroyed immediately.
