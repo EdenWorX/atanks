@@ -39,11 +39,12 @@ GCCUSESGOLD := $(if $(GCCUSESGOLD),$(GCCUSESGOLD),NO)
 # -----------------------------------------------------------------------------------------------------------------------------
 # Install and target directories
 # -----------------------------------------------------------------------------------------------------------------------------
-PREFIX     := $(if $(PREFIX),$(PREFIX),/usr)
-DESTDIR    := $(if $(DESTDIR),$(DESTDIR),)
-BINPREFIX  := $(if $(BINPREFIX),$(BINPREFIX),$(PREFIX))
-BINDIR     := $(if $(BINDIR),$(BINDIR),${BINPREFIX}/bin)
-INSTALLDIR := $(if $(INSTALLDIR),$(INSTALLDIR),${PREFIX}/share/atanks)
+PROJECT_DIR := $(CURDIR)
+PREFIX      := $(if $(PREFIX),$(PREFIX),$(PROJECT_DIR)/install)
+DESTDIR     := $(if $(DESTDIR),$(DESTDIR),)
+BINPREFIX   := $(if $(BINPREFIX),$(BINPREFIX),$(PREFIX))
+BINDIR      := $(if $(BINDIR),$(BINDIR),${BINPREFIX}/bin)
+INSTALLDIR  := $(if $(INSTALLDIR),$(INSTALLDIR),${PREFIX}/share/atanks)
 
 
 # If this is a user make goal, the install directory is forced to be local:
