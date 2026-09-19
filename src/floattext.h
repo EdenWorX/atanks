@@ -33,10 +33,10 @@ enum eTextSway {
 	TS_HORIZONTAL = 22  //!< Horizontal swaying text, if turned on, used for damage and money.
 };
 
-/** @class FLOATTEXT
+/** @class CFloatText
  * @brief Floating label text.
  **/
-class FLOATTEXT final : public CVirtualObject {
+class CFloatText final : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -44,7 +44,7 @@ public:
 	 */
 
 	/// Create a floating text.
-	explicit FLOATTEXT(
+	explicit CFloatText(
 		char const* text_,
 		double      xpos,
 		double      ypos,
@@ -57,7 +57,7 @@ public:
 		bool        is_fixed_
 	);
 	/// Destroy a floating text.
-	~FLOATTEXT() final;
+	~CFloatText() final;
 
 
 	/* ----------------------
@@ -87,7 +87,7 @@ private:
 	 */
 
 	void    check_pos( bool is_new );
-	int32_t overlaps_by( const FLOATTEXT* other );
+	int32_t overlaps_by( const CFloatText* other );
 	void    push_down( int32_t ydiff, bool is_new );
 	void    reset_sway();
 	void    set_speed( double xv_, double yv_ );

@@ -46,7 +46,7 @@
 #include <cstdint>
 
 #ifndef ATANKS_PLAYER_H_INCLUDED
-struct PLAYER;
+struct CPlayer;
 #endif // ATANKS_PLAYER_H_INCLUDED
 
 // This function takes some data from the server
@@ -60,10 +60,10 @@ void Create_Sky();
 
 // Sends fire command to the server
 // Message must be in format "FIRE item angle power"
-bool Client_Fire( PLAYER *my_player, int my_socket );
-bool Client_Power( PLAYER *my_player, int more_or_less );
-bool Client_Angle( PLAYER *my_player, int left_or_right );
-bool Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back );
+bool Client_Fire( CPlayer *my_player, int my_socket );
+bool Client_Power( CPlayer *my_player, int more_or_less );
+bool Client_Angle( CPlayer *my_player, int left_or_right );
+bool Client_Cycle_Weapon( CPlayer *my_player, int forward_or_back );
 
 // Take an error code and return a string with readable info.
 // The returning string should NOT be freed after use.

@@ -37,9 +37,9 @@
 #define BURIED_LEVEL         135
 #define BURIED_LEVEL_HALF    68
 
-class TANK;
-class PLAYER;
-class AICore;
+class CTank;
+class CPlayer;
+class CAICore;
 
 /// @brief minimal struct to allow AI players to keep track of friend and foe.
 struct sOpponent {
@@ -51,14 +51,14 @@ struct sOpponent {
 	int32_t index       = -1;      //!< Needed for saving/loading to work.
 	int32_t killed_me   = 0;       //!< How many times this opponent has killed this player.
 	int32_t killed_them = 0;       //!< How many times this opponent was killed by this player.
-	PLAYER* opponent    = nullptr; //!< The PLAYER memorized here.
+	CPlayer* opponent    = nullptr; //!< The CPlayer memorized here.
 	int32_t revenge_dmg = 0;       //!< Summed up damage to determine when it is time for revenge.
 };
 
-/** @class PLAYER
+/** @class CPlayer
  * @brief All data concerning human and A players
  **/
-class PLAYER {
+class CPlayer {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -66,13 +66,13 @@ public:
 	 */
 
 	/// Construct a player.
-	explicit PLAYER();
+	explicit CPlayer();
 	/// Destroy a player.
-	~PLAYER();
+	~CPlayer();
 
 	// no copying, no assignments
-	PLAYER( const PLAYER& )             = delete;
-	PLAYER& operator= ( const PLAYER& ) = delete;
+	CPlayer( const CPlayer& )             = delete;
+	CPlayer& operator= ( const CPlayer& ) = delete;
 
 
 	/* ----------------------
@@ -82,10 +82,10 @@ public:
 
 	void     checkOppMem();                                           ///< Prune opponent memory.
 	int32_t  chooseItemToBuy( int32_t max_boost, int32_t& last_idx ); ///< Choose the shop item to buy.
-	eControl controlTank( AICore* aicore, bool allow_fire );          ///< Run the turn control.
+	eControl controlTank( CAICore* aicore, bool allow_fire );          ///< Run the turn control.
 	void     drawIndicator( int32_t x, int32_t y, int32_t h ) const;  ///< Draw the turn indicator.
 #ifdef NETWORK
-	eControl executeNetCmd( bool my_turn, AICore* aicore );
+	eControl executeNetCmd( bool my_turn, CAICore* aicore );
 #endif // NETWORK
 	void       exitShop();                                                         ///< Leave the shop screen.
 	void       generatePreferences();                                              ///< Build AI personality.
@@ -100,8 +100,8 @@ public:
 	void       load_game_data( FILE* file, int32_t file_version );                 ///< Read savegame data.
 	void       newGame();                                                          ///< Reset for a new game.
 	void       newRound();                                                         ///< Reset for a new round.
-	void       noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ); ///< Record received damage.
-	void       noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed );   ///< Record dealt damage.
+	void       noteDamageFrom( CPlayer* opponent, int32_t damage, bool destroyed ); ///< Record received damage.
+	void       noteDamageTo( CPlayer* opponent, int32_t damage, bool destroyed );   ///< Record dealt damage.
 	void       reclaimShield();                                                    ///< Restore unused shield.
 	bool       reduceClock();                                                      ///< Tick the aim clock.
 	void       save_game_data( FILE* file );                                       ///< Write savegame data.
@@ -120,7 +120,7 @@ public:
 
 	/* Other phrase selectors are unpersonalized and can therefore be static. (Must NOT be freed!) */
 	static char const* selectGloatPhrase();                  ///< Select a gloating line.
-	static char const* selectPanicPhrase( PLAYER* shocker ); ///< Select a panic line.
+	static char const* selectPanicPhrase( CPlayer* shocker ); ///< Select a panic line.
 	static char const* selectKamikazePhrase();               ///< Select a kamikaze line.
 	static char const* selectRevengePhrase();                ///< Select a revenge line.
 	static char const* selectSuicidePhrase();                ///< Select a suicide line.
@@ -149,14 +149,14 @@ public:
 	int32_t        money            = 15000;          ///< Cash.
 	int32_t        ni[ ITEMS ]{};                     ///< Item inventory.
 	int32_t        nm[ WEAPONS ]{};                   ///< Weapon inventory.
-	PLAYER*        revenge = nullptr;                 ///< Revenge target.
+	CPlayer*        revenge = nullptr;                 ///< Revenge target.
 	int32_t        score   = 0;                       ///< Score.
 	abool_t        sdi_has_fired{ false };            ///< Only one shot per frame.
 	int32_t        sdiShots           = 0;            ///< SDI shots fired.
 	bool           selected           = false;        ///< Selected in menus.
 	double         selfPreservation   = .5;           ///< Self-harm avoidance.
 	bool           skip_me            = false;        ///< Skip this turn.
-	TANK*          tank               = nullptr;      ///< Controlled tank.
+	CTank*          tank               = nullptr;      ///< Controlled tank.
 	int32_t        tankbitmap         = TT_NORMAL;    ///< Tank skin.
 	eTeamTypes     team               = TEAM_NEUTRAL; ///< Team.
 	int32_t        time_left_to_fire  = 0;            ///< Aim time left.
@@ -189,12 +189,12 @@ private:
 	void     boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons );
 
 	bool     buy_item( int32_t itemindex, int32_t max_boost );
-	eControl computerControls( AICore* aicore, bool allow_fire );
+	eControl computerControls( CAICore* aicore, bool allow_fire );
 	int32_t  computerSelectPreBuyItem( int32_t max_boost );
 	int32_t  generateDesiredList();
 	int32_t  getAmpValue();
 	int32_t  getArmourValue();
-	eControl humanControls( AICore* aicore );
+	eControl humanControls( CAICore* aicore );
 
 
 	/* -----------------------
@@ -240,7 +240,7 @@ struct PLAYER_mini {
 	int32_t        index = -1;                           ///< Edited index.
 	char           name[ NAME_LEN + 1 ]{ "New Player" }; ///< Edited name.
 	uint32_t       played     = 0;                       ///< Edited rounds played.
-	PLAYER*        player     = nullptr;                 ///< Edited player.
+	CPlayer*        player     = nullptr;                 ///< Edited player.
 	playerPrefType preftype   = ALWAYS_PREF;             ///< Edited preference scope.
 	int32_t        tankbitmap = TT_NORMAL;               ///< Edited tank skin.
 	eTeamTypes     team       = TEAM_NEUTRAL;            ///< Edited team.
@@ -253,18 +253,18 @@ struct PLAYER_mini {
 
 	// "Backup a player"
 	/// Copy a player for editing.
-	void copy_from( PLAYER* source );
+	void copy_from( CPlayer* source );
 
 	// Write back the values
 	/// Write edits back.
-	void write_back( PLAYER* target = nullptr );
+	void write_back( CPlayer* target = nullptr );
 };
 
 #define HAS_PLAYER_MINI 1
 
 // Helper functions to be used as action function with ET_BUTTON entries
-int32_t edit_player( PLAYER** target, int32_t );
-int32_t new_player( PLAYER** target, int32_t );
+int32_t edit_player( CPlayer** target, int32_t );
+int32_t new_player( CPlayer** target, int32_t );
 
 
 #endif // ATANKS_PLAYER_H_INCLUDED

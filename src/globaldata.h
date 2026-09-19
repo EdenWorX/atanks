@@ -50,8 +50,8 @@ extern int32_t BLACK;
 /// Forwards that do not need to be known here
 struct sDebrisItem;
 struct sDebrisPool;
-class PLAYER;
-class TANK;
+class CPlayer;
+class CTank;
 class CVirtualObject;
 
 /** @class CGlobalData
@@ -105,10 +105,10 @@ public:
 	/// Return a debris item to the pool.
 	void free_debris_item( item_t* item );
 	int32_t                          get_command();                         ///< Read the pending menu command.
-	TANK*                            get_curr_tank();                       ///< Read the tank whose turn it is.
+	CTank*                            get_curr_tank();                       ///< Read the tank whose turn it is.
 	item_t*                          get_debris_item( int32_t radius );     ///< Take a pool debris item.
-	TANK*                            get_next_tank( bool* wrapped_around ); ///< Advance to the next live tank.
-	TANK*                            get_random_tank();                     ///< Pick a random live tank.
+	CTank*                            get_next_tank( bool* wrapped_around ); ///< Advance to the next live tank.
+	CTank*                            get_random_tank();                     ///< Pick a random live tank.
 	void                             initialise();                          ///< Clear objects and reset per-round state.
 	bool                             isCloseBtnPressed();                   ///< Read the close-button flag.
 	void                             lockClass( eClass class_ );            ///< Lock an object-class list.
@@ -121,9 +121,9 @@ public:
 	void                             newRound();                                                ///< Clear objects, reset counters.
 	void                             pressCloseButton();                                        ///< Set the close-button flag.
 	void                             removeObject( vobj_t* object );                            ///< Unlink an object.
-	void                             removeTank( TANK* tank );                                  ///< Remove a tank from the turn order.
+	void                             removeTank( CTank* tank );                                  ///< Remove a tank from the turn order.
 	void                             replace_canvas();                                          ///< Repaint after mode change.
-	void                             set_curr_tank( TANK* tank_ );                              ///< Set the tank whose turn it is.
+	void                             set_curr_tank( CTank* tank_ );                              ///< Set the tank whose turn it is.
 	void                             set_command( int32_t cmd );                                ///< Store the pending menu command.
 	void                             slideLand();                                               ///< Apply queued landslides.
 	void                             unlockClass( eClass class_ );                              ///< Unlock an object-class list.
@@ -164,7 +164,7 @@ public:
 	int32_t     AI_clock{ -1 };                          ///< Elapsed AI thinking time.
 	BITMAP*     canvas{ nullptr };                       ///< Main drawing canvas.
 	char const* client_message{ nullptr };               ///< Message sent from client to main menu.
-	PLAYER*     client_player{ nullptr };                ///< Player on the client side.
+	CPlayer*     client_player{ nullptr };                ///< Player on the client side.
 	int32_t     curland{ 0 };                            ///< Current land gradient index.
 	int32_t     current_drawing_mode{ DRAW_MODE_SOLID }; ///< Active Allegro drawing mode.
 	uint32_t    currentround{ 0 };                       ///< Current round number.
@@ -176,7 +176,7 @@ public:
 	double      lastwind{ 0. };                          ///< Wind of the previous turn.
 	int32_t     naturals_activated{ 0 };                 ///< Naturals triggered this round.
 	int32_t     numTanks{ 0 };                           ///< Live tanks in the turn order.
-	TANK*       order[ MAXPLAYERS ]{ nullptr };          ///< Turn order.
+	CTank*       order[ MAXPLAYERS ]{ nullptr };          ///< Turn order.
 	bool        showScoreBoard{ false };                 ///< Scoreboard overlay requested.
 	bool        skippingComputerPlay{ false };           ///< AI turns are fast-forwarded.
 	int32_t     stage{ STAGE_AIM };                      ///< Current round stage.
@@ -215,7 +215,7 @@ private:
 	CSpinLock  cmdLock;
 	bool       combineUpdates{ true };
 	int32_t    command{ 0 };
-	TANK*      currTank{ nullptr };
+	CTank*      currTank{ nullptr };
 	debpool_t* debris_pool{ nullptr };
 	int8_t*    done{ nullptr };
 	double*    dropIncr{ nullptr };

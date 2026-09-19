@@ -23,17 +23,17 @@
 #include "globaltypes.h"
 #include "virtobj.h"
 
-/** @class TELEPORT
+/** @class CTeleport
  * @brief Teleport transit effect.
  **/
-class TELEPORT final : public CVirtualObject {
+class CTeleport final : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 	/// Create the source end.
-	explicit TELEPORT(
+	explicit CTeleport(
 		CVirtualObject* targetObj,
 		int32_t         destinationX,
 		int32_t         destinationY,
@@ -43,7 +43,7 @@ public:
 	);
 
 	/// Delegate with a rounded radius.
-	TELEPORT(
+	CTeleport(
 		CVirtualObject* targetObj,
 		int32_t         destinationX,
 		int32_t         destinationY,
@@ -51,14 +51,14 @@ public:
 		int32_t         duration,
 		int32_t         type
 	)
-		: TELEPORT( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
+		: CTeleport( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
 
 	/// Delegate with rounded coordinates.
-	TELEPORT( CVirtualObject* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
-		: TELEPORT( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
+	CTeleport( CVirtualObject* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
+		: CTeleport( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
 
 	/// Destroy a teleport.
-	~TELEPORT() final;
+	~CTeleport() final;
 
 
 	/* ----------------------
@@ -80,7 +80,7 @@ private:
 	 */
 
 	// Target constructor
-	TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY );
+	CTeleport( CTeleport* remoteEnd, int32_t destX, int32_t destY );
 
 
 	/* -----------------------
@@ -91,7 +91,7 @@ private:
 	int32_t         clock      = 0;
 	CVirtualObject* object     = nullptr;
 	int32_t         radius     = 0;
-	TELEPORT*       remote     = nullptr;
+	CTeleport*       remote     = nullptr;
 	int32_t         startClock = 0;
 };
 

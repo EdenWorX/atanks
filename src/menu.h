@@ -104,10 +104,10 @@ public:
 	);
 
 
-	/// Add a sub menu option with PLAYER target (set title_idx to -1 to use player name).
+	/// Add a sub menu option with CPlayer target (set title_idx to -1 to use player name).
 	int32_t addMenu(
-		PLAYER** player,
-		int32_t ( *action_ )( PLAYER** player_, int32_t ),
+		CPlayer** player,
+		int32_t ( *action_ )( CPlayer** player_, int32_t ),
 		int32_t title_idx,
 		int32_t left,
 		int32_t top,
@@ -217,8 +217,8 @@ public:
 	);
 
 
-	/// Special minimum variant for toggle types handling PLAYER::selected.
-	int32_t addToggle( PLAYER** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
+	/// Special minimum variant for toggle types handling CPlayer::selected.
+	int32_t addToggle( CPlayer** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
 
 	/** @brief Simple ET_VALUE option with direct value representation
 	 *

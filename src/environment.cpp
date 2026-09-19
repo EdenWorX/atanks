@@ -41,7 +41,7 @@ CEnvironment::CEnvironment() {
 	// Reserve space for the players array:
 	// Note: The allPlayers array is dynamically (re-)allocated while loading
 	//       stored players from the configuration.
-	if ( ( players = (PLAYER**)calloc( MAXPLAYERS, sizeof( PLAYER* ) ) ) == nullptr ) {
+	if ( ( players = (CPlayer**)calloc( MAXPLAYERS, sizeof( CPlayer* ) ) ) == nullptr ) {
 		perror( "environment.cpp: Failed allocating memory for players" );
 	}
 
@@ -61,7 +61,7 @@ CEnvironment::~CEnvironment() {
 }
 
 /// @brief add a player to the players[] array that will take part in the next game
-void CEnvironment::addGamePlayer( PLAYER* player_ ) {
+void CEnvironment::addGamePlayer( CPlayer* player_ ) {
 	if ( player_ && ( numGamePlayers < MAXPLAYERS ) ) {
 
 		// Ensure the player isn't already there:
@@ -80,9 +80,9 @@ void CEnvironment::addGamePlayer( PLAYER* player_ ) {
 }
 
 /// @brief create a new player or return nullptr if an error occurred
-PLAYER* CEnvironment::createNewPlayer( char const* player_name ) {
-	PLAYER** reallocatedPlayers = nullptr;
-	PLAYER*  player             = nullptr;
+CPlayer* CEnvironment::createNewPlayer( char const* player_name ) {
+	CPlayer** reallocatedPlayers = nullptr;
+	CPlayer*  player             = nullptr;
 
 	assert( player_name && "ERROR: player_name is nullptr!" );
 
@@ -94,7 +94,7 @@ PLAYER* CEnvironment::createNewPlayer( char const* player_name ) {
 		return nullptr;
 	}
 
-	reallocatedPlayers = (PLAYER**)realloc( allPlayers, sizeof( PLAYER* ) * ( numPermanentPlayers + 1 ) );
+	reallocatedPlayers = (CPlayer**)realloc( allPlayers, sizeof( CPlayer* ) * ( numPermanentPlayers + 1 ) );
 
 	if ( reallocatedPlayers ) {
 		allPlayers = reallocatedPlayers;
@@ -103,9 +103,9 @@ PLAYER* CEnvironment::createNewPlayer( char const* player_name ) {
 	}
 
 	try {
-		player = new PLAYER();
+		player = new CPlayer();
 	} catch ( std::exception& e ) {
-		std::cerr << __func__ << " new PLAYER: " << e.what() << std::endl;
+		std::cerr << __func__ << " new CPlayer: " << e.what() << std::endl;
 	}
 
 	player->index = numPermanentPlayers;
@@ -164,7 +164,7 @@ void CEnvironment::decreaseVolume() {
 }
 
 /// @brief Remove one of the players, then gone for good.
-void CEnvironment::deletePermPlayer( PLAYER* player_ ) {
+void CEnvironment::deletePermPlayer( CPlayer* player_ ) {
 	int32_t toCount = 0;
 
 	for ( int32_t fromCount = 0; fromCount < numPermanentPlayers; fromCount++ ) {
@@ -1425,7 +1425,7 @@ void CEnvironment::newRound() {
 	}
 }
 
-void CEnvironment::removeGamePlayer( PLAYER* player_ ) {
+void CEnvironment::removeGamePlayer( CPlayer* player_ ) {
 	int32_t fromCount = 0;
 	int32_t toCount   = -1;
 

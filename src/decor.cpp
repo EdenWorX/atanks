@@ -7,7 +7,7 @@
 
 
 /// @brief Default constructor
-DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ )
+CDecor::CDecor( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ )
 	: CPhysicalObject( false )
 	, curWind( global.wind )
 	, delay( delay_ )
@@ -74,7 +74,7 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 }
 
 /// @brief Constructor with bitmap
-DECOR::DECOR(
+CDecor::CDecor(
 	double       x_,
 	double       y_,
 	double       xv_,
@@ -85,7 +85,7 @@ DECOR::DECOR(
 	sDebrisItem* deb_item,
 	sDebrisItem* met_item
 )
-	: DECOR( x_, y_, xv_, yv_, maxRadius, type_, delay_ ) {
+	: CDecor( x_, y_, xv_, yv_, maxRadius, type_, delay_ ) {
 	// Everything done in delegated ctor, only img to set
 	dirt = deb_item;
 	setBitmap( dirt ? dirt->bmp : nullptr );
@@ -100,7 +100,7 @@ DECOR::DECOR(
 }
 
 /// @brief default destructor
-DECOR::~DECOR() {
+CDecor::~CDecor() {
 	if ( DECOR_DIRT == type ) {
 		// Draw dirt on terrain and add landslide
 		rotate_sprite( global.terrain, dirt->bmp, ROUND( x - radius ), ROUND( y - radius ), itofix( angle ) );
@@ -136,7 +136,7 @@ DECOR::~DECOR() {
 }
 
 /// @brief let smoke drift and disperse with the wind
-void DECOR::applyPhysics() {
+void CDecor::applyPhysics() {
 	if ( destroy ) {
 		return;
 	}
@@ -265,7 +265,7 @@ void DECOR::applyPhysics() {
 }
 
 /// @brief draw decor according to current settings and type.
-void DECOR::draw() {
+void CDecor::draw() {
 	if ( !ready && !destroy ) {
 		updateDirt();
 		if ( ready ) {
@@ -316,7 +316,7 @@ void DECOR::draw() {
 }
 
 /// In case of too much decor for the machine, allow forced ageing
-void DECOR::force_aging( int32_t frames ) {
+void CDecor::force_aging( int32_t frames ) {
 	age += frames;
 	if ( age > maxAge ) {
 		destroy = true;
@@ -325,7 +325,7 @@ void DECOR::force_aging( int32_t frames ) {
 
 /// return true if a dirt debris item "lies" on the floor, or is squeezed in a
 /// dirt slide.
-bool DECOR::isOnFloor() {
+bool CDecor::isOnFloor() {
 	int32_t scr_r_x = env.screenWidth - 2;  // shortcut;
 	int32_t scr_b_y = env.screenHeight - 2; // ditto;
 
@@ -380,8 +380,8 @@ bool DECOR::isOnFloor() {
 }
 
 /// DIRT and Smoke (somewhat) can be repulsed, too
-void DECOR::repulseDecor() {
-	TANK*  lt     = nullptr;
+void CDecor::repulseDecor() {
+	CTank*  lt     = nullptr;
 	double xaccel = 0;
 	double yaccel = 0;
 
@@ -400,7 +400,7 @@ void DECOR::repulseDecor() {
 }
 
 /// Small scale dirt grabber
-void DECOR::updateDirt() {
+void CDecor::updateDirt() {
 	int32_t togo    = grabPerCall + 1;
 	auto    deb_rad = static_cast< double >( radius );
 

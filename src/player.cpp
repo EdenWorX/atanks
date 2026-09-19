@@ -39,7 +39,7 @@ static bool has_ctrl_pressed  = false;
 static bool has_shift_pressed = false;
 
 /// @brief default ctor
-PLAYER::PLAYER() {
+CPlayer::CPlayer() {
 
 	// 25% of the time set to perplay weapon preferences
 	preftype = ( get_rand() % 4 ) ? ALWAYS_PREF : PERPLAY_PREF;
@@ -69,7 +69,7 @@ PLAYER::PLAYER() {
 }
 
 /// @brief default dtor
-PLAYER::~PLAYER() {
+CPlayer::~CPlayer() {
 	if ( tank ) {
 		delete ( tank );
 		tank = nullptr;
@@ -82,7 +82,7 @@ PLAYER::~PLAYER() {
 }
 
 /// @brief specifically boost amp preference item[idx] from @arg old_pref using @arg ai_level
-double PLAYER::boostAmpPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
+double CPlayer::boostAmpPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
 	double pref  = old_pref;
 	double boost = 1. + ( ( -1. * defensive + 2. + RAND_AI_10P /* [1;12] */ ) / 10. );
 	if ( pref < 1. ) {
@@ -94,7 +94,7 @@ double PLAYER::boostAmpPref( double old_pref, int32_t idx [[maybe_unused]], int3
 }
 
 /// @brief specifically boost armour preference item[idx] from @arg old_pref using @arg ai_level
-double PLAYER::boostArmourPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
+double CPlayer::boostArmourPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
 	double pref  = old_pref;
 	double boost = 1. + ( ( defensive + 2. + RAND_AI_10P /* [1;12] */ ) / 10. );
 	if ( pref < 1. ) {
@@ -106,7 +106,7 @@ double PLAYER::boostArmourPref( double old_pref, int32_t idx [[maybe_unused]], i
 }
 
 /// @brief update currPrefs array with considering needs and stock amounts
-void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons ) {
+void CPlayer::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons ) {
 	auto ai_level = static_cast< int32_t >( type );
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
@@ -248,7 +248,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
  * The function returns true if we successfully bought the item or
  * false if we could not get it for some reason.
  **/
-bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
+bool CPlayer::buy_item( int32_t itemindex, int32_t max_boost ) {
 	bool bought = false;
 
 	if ( itemindex < WEAPONS ) {
@@ -315,14 +315,14 @@ bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
 }
 
 /// @brief call this after loading a game to ensure backwards compatibility
-void PLAYER::checkOppMem() {
+void CPlayer::checkOppMem() {
 	if ( !oppCount ) {
 		newGame();
 	}
 }
 
 /// @brief Have the AI choosing something to buy.
-int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
+int32_t CPlayer::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 
 	// Do not do this if there is no money:
 	if ( money < 1000 ) {
@@ -406,7 +406,7 @@ int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 	return -1;
 }
 
-eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
+eControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 	// Don't act at all when in scoreboard or endgame stage
 	if ( STAGE_SCOREBOARD <= global.stage ) {
 		return CONTROL_NONE;
@@ -572,7 +572,7 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 	return CONTROL_NONE;
 }
 
-int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
+int32_t CPlayer::computerSelectPreBuyItem( int32_t max_boost ) {
 	auto   max_level = static_cast< int32_t >( DEADLY_PLAYER );
 	auto   ai_level  = static_cast< int32_t >( type );
 	double mood = 1. + defensive + ( ( static_cast< double >( get_rand() ) / ( static_cast< double >( RAND_MAX ) / 2. ) ) );
@@ -853,7 +853,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	return -1;
 }
 
-eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
+eControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 	// Handle User input, this is read for providing the ingame menu
 	// even when no human player is active. Otherwise, the player would
 	// not be able to enter the ingame menu whenever an AI player is
@@ -908,7 +908,7 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 			// make sure the value is within range
 			if ( ( value < env.numGamePlayers ) && env.players[ value ] ) {
 
-				TANK* my_tank = env.players[ value ]->tank;
+				CTank* my_tank = env.players[ value ]->tank;
 
 				if ( my_tank ) {
 					snprintf(
@@ -997,7 +997,7 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 	return CONTROL_NONE;
 }
 
-void PLAYER::drawIndicator( int32_t x, int32_t y, int32_t h ) const {
+void CPlayer::drawIndicator( int32_t x, int32_t y, int32_t h ) const {
 	if ( HUMAN_PLAYER == type ) {
 		int32_t radius = ROUND( static_cast< double >( h ) / 2. ) - 2;
 		circlefill( global.canvas, x + radius + 2, y + radius + 2, radius, makecol( 200, 100, 255 ) );
@@ -1019,7 +1019,7 @@ void PLAYER::drawIndicator( int32_t x, int32_t y, int32_t h ) const {
 //
 // We should have some time keeping in here before this goes live
 // to avoid hanging the game.
-eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
+eControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 	static int playerindex = -1;
 	static int fire_delay = 0, net_delay = 0;
 
@@ -1084,11 +1084,11 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 			}
 		}
 
-	} else if ( !strncmp( net_command, "ITEM", 4 ) ) {
+	} else if ( !strncmp( net_command, "CItem", 4 ) ) {
 		int itemindex = 0;
 		SAFE_STOI( itemindex, &( net_command[ 5 ] ) );
 		if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) ) {
-			SAFE_WRITE( server_socket, "ITEM %d %d", itemindex, ni[ itemindex ] );
+			SAFE_WRITE( server_socket, "CItem %d %d", itemindex, ni[ itemindex ] );
 		}
 	} else if ( !strncmp( net_command, "MOVE", 4 ) ) {
 		if ( !my_turn ) {
@@ -1216,11 +1216,11 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		}
 	} else if ( !strncmp( net_command, "WALLTYPE", 8 ) ) {
 		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wallType );
-	} else if ( !strncmp( net_command, "WEAPON", 6 ) ) {
+	} else if ( !strncmp( net_command, "CWeapon", 6 ) ) {
 		int weapon_number = 0;
 		SAFE_STOI( weapon_number, &( net_command[ 7 ] ) );
 		if ( ( weapon_number >= 0 ) && ( weapon_number < WEAPONS ) ) {
-			SAFE_WRITE( server_socket, "WEAPON %d %d", weapon_number, nm[ weapon_number ] );
+			SAFE_WRITE( server_socket, "CWeapon %d %d", weapon_number, nm[ weapon_number ] );
 		}
 	}
 
@@ -1231,7 +1231,7 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 #endif // NETWORK
 
 
-void PLAYER::exitShop() {
+void CPlayer::exitShop() {
 	double tmpDM = ( ni[ ITEM_INTENSITY_AMP ] * item[ ITEM_INTENSITY_AMP ].vals[ 0 ] )
 	             + ( ni[ ITEM_VIOLENT_FORCE ] * item[ ITEM_VIOLENT_FORCE ].vals[ 0 ] );
 
@@ -1251,7 +1251,7 @@ void PLAYER::exitShop() {
 }
 
 /// @brief fill the list of desired items and return the number of damaging weapons
-int32_t PLAYER::generateDesiredList() {
+int32_t CPlayer::generateDesiredList() {
 	int32_t result = 0;
 
 	memset( desired, 0, sizeof( int32_t ) * THINGS );
@@ -1293,7 +1293,7 @@ int32_t PLAYER::generateDesiredList() {
 	return result;
 }
 
-void PLAYER::generatePreferences() {
+void CPlayer::generatePreferences() {
 	double  baseProb    = static_cast< double >( MAX_WEAP_PROBABILITY ) / 2.;
 	int32_t currItem    = 0;
 	double  worth       = 0.;
@@ -1632,34 +1632,34 @@ void PLAYER::generatePreferences() {
 	}
 }
 
-int PLAYER::getAmpValue() {
+int CPlayer::getAmpValue() {
 	double amp_val = ni[ ITEM_INTENSITY_AMP ] * item[ ITEM_INTENSITY_AMP ].vals[ 0 ];
 	double vio_val = ni[ ITEM_VIOLENT_FORCE ] * item[ ITEM_VIOLENT_FORCE ].vals[ 0 ];
 	return ROUNDu( ( amp_val + vio_val ) / static_cast< double >( item[ ITEM_VIOLENT_FORCE ].vals[ 0 ] ) );
 }
 
-int PLAYER::getArmourValue() {
+int CPlayer::getArmourValue() {
 	double arm_val = ni[ ITEM_ARMOUR ] * item[ ITEM_ARMOUR ].vals[ 0 ];
 	double pla_val = ni[ ITEM_PLASTEEL ] * item[ ITEM_PLASTEEL ].vals[ 0 ];
 	return ROUNDu( ( arm_val + pla_val ) / static_cast< double >( item[ ITEM_PLASTEEL ].vals[ 0 ] ) );
 }
 
-int PLAYER::getBoostValue() {
+int CPlayer::getBoostValue() {
 	return ( getAmpValue() + getArmourValue() );
 }
 
 /// @brief return the item preference of item @a idx or -1 if @a idx is out of
 /// range
 /// Note: This uses the static weapPref instead of the adapted currPref,
-///       because it is used by AICore for point calculation.
-int32_t PLAYER::getItemPref( int32_t idx ) {
+///       because it is used by CAICore for point calculation.
+int32_t CPlayer::getItemPref( int32_t idx ) {
 	if ( ( idx > -1 ) && ( idx < ITEMS ) ) {
 		return weapPref[ WEAPONS + idx ];
 	}
 	return -1;
 }
 
-int32_t PLAYER::getMoneyToSave( bool first_look ) {
+int32_t CPlayer::getMoneyToSave( bool first_look ) {
 	// If this is the first look in a shopping round,
 	// the list of items to save money for must be built:
 
@@ -1790,7 +1790,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 }
 
 // return the player name
-char const* PLAYER::getName() const {
+char const* CPlayer::getName() const {
 	return name.c_str();
 }
 
@@ -1798,7 +1798,7 @@ char const* PLAYER::getName() const {
 // If data is coming in, we put the incoming data in the net_command
 // variable. If the socket connection is broken, then we will
 // close the socket and hand control over to the AI.
-bool PLAYER::getNetCmd() {
+bool CPlayer::getNetCmd() {
 #ifdef NETWORK
 	if ( Check_For_Incoming_Data( server_socket ) ) {
 		// we have something coming down the pipe
@@ -1823,7 +1823,7 @@ bool PLAYER::getNetCmd() {
 /** @brief Get one entry of the opponent memory or the last one attacked
  * @param[in] idx Index of the opponent memory to get, or -1 to get the last attacked.
  **/
-sOpponent* PLAYER::getOppMem( int32_t idx ) {
+sOpponent* CPlayer::getOppMem( int32_t idx ) {
 	// regular memory
 	if ( ( idx > -1 ) && ( idx < oppCount ) ) {
 		return &opponents[ idx ];
@@ -1839,7 +1839,7 @@ sOpponent* PLAYER::getOppMem( int32_t idx ) {
 }
 
 // returns a static string to the player's team name
-char const* PLAYER::getTeamName() const {
+char const* CPlayer::getTeamName() const {
 	static char team_name[ 9 ] = { 0 };
 
 	switch ( team ) {
@@ -1864,15 +1864,15 @@ char const* PLAYER::getTeamName() const {
 /// @brief return the weapon preference of weapon @a idx or -1 if @a idx is out
 /// of range.
 /// Note: This uses the static weapPref instead of the adapted currPref,
-///       because it is used by AICore for point calculation.
-int32_t PLAYER::getWeapPref( int32_t idx ) {
+///       because it is used by CAICore for point calculation.
+int32_t CPlayer::getWeapPref( int32_t idx ) {
 	if ( ( idx > -1 ) && ( idx < WEAPONS ) ) {
 		return weapPref[ idx ];
 	}
 	return -1;
 }
 
-eControl PLAYER::humanControls( AICore* aicore ) {
+eControl CPlayer::humanControls( CAICore* aicore ) {
 	bool     moved  = false;
 	eControl status = CONTROL_NONE;
 
@@ -2040,7 +2040,7 @@ eControl PLAYER::humanControls( AICore* aicore ) {
 	return status;
 }
 
-void PLAYER::initialise( bool loaded_game ) {
+void CPlayer::initialise( bool loaded_game ) {
 	// Initialize basic values if this is not loaded
 	if ( !loaded_game ) {
 		memset( nm, 0, sizeof( int32_t ) * WEAPONS );
@@ -2058,7 +2058,7 @@ void PLAYER::initialise( bool loaded_game ) {
 }
 
 /// @brief read player data from a dump file.
-bool PLAYER::load_from_file( FILE* file ) {
+bool CPlayer::load_from_file( FILE* file ) {
 	if ( !file ) {
 		return false;
 	}
@@ -2070,14 +2070,14 @@ bool PLAYER::load_from_file( FILE* file ) {
 
 	setlocale( LC_NUMERIC, "C" );
 
-	// read until we hit line "*PLAYER*" or "***" or EOF
+	// read until we hit line "*CPlayer*" or "***" or EOF
 	do {
 		result = fgets( line, MAX_CONFIG_LINE, file );
 		if ( !result || !strncmp( line, "***", 3 ) ) {
 			// eof OR end of record
 			return false;
 		}
-	} while ( 0 != strncmp( line, "*PLAYER*", 8 ) );
+	} while ( 0 != strncmp( line, "*CPlayer*", 8 ) );
 
 	bool done = false;
 
@@ -2217,7 +2217,7 @@ bool PLAYER::load_from_file( FILE* file ) {
  * </ul>
  *
  **/
-void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
+void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 	if ( !file ) {
 		return;
 	}
@@ -2372,7 +2372,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Inventory of the weapons
-			else if ( !strcasecmp( field, "WEAPON" ) ) {
+			else if ( !strcasecmp( field, "CWeapon" ) ) {
 				int32_t            weap_idx = -1;
 				int32_t            weap_val = -1;
 				std::istringstream iss( value );
@@ -2395,7 +2395,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Inventory of the items
-			else if ( !strcasecmp( field, "ITEM" ) ) {
+			else if ( !strcasecmp( field, "CItem" ) ) {
 				int32_t            item_idx = -1;
 				int32_t            item_val = -1;
 				std::istringstream iss( value );
@@ -2501,7 +2501,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 }
 
 /// @brief reserve memory for the opponents array and fill it
-void PLAYER::newGame() {
+void CPlayer::newGame() {
 	if ( env.numGamePlayers ) {
 
 		if ( opponents ) {
@@ -2529,7 +2529,7 @@ void PLAYER::newGame() {
 }
 
 // run this at the beginning of each turn
-void PLAYER::newRound() {
+void CPlayer::newRound() {
 	// if the player is under computer control, give it back to the player
 	if ( type == PART_TIME_BOT ) {
 		type = HUMAN_PLAYER;
@@ -2537,10 +2537,10 @@ void PLAYER::newRound() {
 
 	if ( !tank ) {
 		try {
-			tank         = new TANK();
+			tank         = new CTank();
 			tank->player = this;
 		} catch ( std::exception& e ) {
-			cerr << "FATAL: Error allocating memory for TANK in player.cpp:";
+			cerr << "FATAL: Error allocating memory for CTank in player.cpp:";
 			cerr << __LINE__ << " : " << e.what() << endl;
 			global.set_command( GLOBAL_COMMAND_QUIT );
 		}
@@ -2576,7 +2576,7 @@ void PLAYER::newRound() {
 	}
 }
 
-void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) {
+void CPlayer::noteDamageFrom( CPlayer* opponent, int32_t damage, bool destroyed ) {
 	if ( opponent ) {
 		int32_t idx       = oppCount;
 		int32_t max_score = 0;
@@ -2607,7 +2607,7 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 
 				if ( !global.skippingComputerPlay ) {
 					try {
-						new FLOATTEXT(
+						new CFloatText(
 							selectRevengePhrase(),
 							tank->x,
 							tank->y - 30,
@@ -2620,7 +2620,7 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 							false
 						);
 					} catch ( std::exception& e ) {
-						std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+						std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 					}
 				}
 			}
@@ -2628,7 +2628,7 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 	}         // end of having any opponent
 }
 
-void PLAYER::noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed ) {
+void CPlayer::noteDamageTo( CPlayer* opponent, int32_t damage, bool destroyed ) {
 	if ( opponent ) {
 		int32_t idx = 0;
 
@@ -2647,7 +2647,7 @@ void PLAYER::noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed ) {
 
 // if we have some shield strength at the end of the round, then
 // reclaim this shield back into our inventory
-void PLAYER::reclaimShield() {
+void CPlayer::reclaimShield() {
 	if ( tank && last_shield_used && ( tank->sh > 0 ) ) {
 		ni[ last_shield_used ] += 1;
 	}
@@ -2658,7 +2658,7 @@ void PLAYER::reclaimShield() {
 // If the player runs out of time, the function returns true.
 // If the player has time left, or no time clock is being used,
 // then the function returns false.
-bool PLAYER::reduceClock() {
+bool CPlayer::reduceClock() {
 	if ( !time_left_to_fire ) {
 		// not using clock
 		return false;
@@ -2673,7 +2673,7 @@ bool PLAYER::reduceClock() {
 }
 
 /// @brief save game relevant data to @a file
-void PLAYER::save_game_data( FILE* file ) {
+void CPlayer::save_game_data( FILE* file ) {
 	fprintf( file, "KILLED=%d\n", killed );
 	fprintf( file, "KILLS=%d\n", kills );
 	fprintf( file, "MONEY=%d\n", money );
@@ -2697,12 +2697,12 @@ void PLAYER::save_game_data( FILE* file ) {
 
 	// Inventory of the weapons
 	for ( int32_t i = 0; i < WEAPONS; ++i ) {
-		fprintf( file, "WEAPON=%d %d\n", i, nm[ i ] );
+		fprintf( file, "CWeapon=%d %d\n", i, nm[ i ] );
 	}
 
 	// Inventory of the items
 	for ( int32_t i = 0; i < ITEMS; ++i ) {
-		fprintf( file, "ITEM=%d %d\n", i, ni[ i ] );
+		fprintf( file, "CItem=%d %d\n", i, ni[ i ] );
 	}
 
 	// Opponents memory
@@ -2727,13 +2727,13 @@ void PLAYER::save_game_data( FILE* file ) {
 }
 
 /// @brief dump full player data to @a file
-void PLAYER::save_to_file( FILE* file ) {
+void CPlayer::save_to_file( FILE* file ) {
 	if ( !file ) {
 		return;
 	}
 
-	// start section with "*PLAYER*"
-	fprintf( file, "*PLAYER*\n" );
+	// start section with "*CPlayer*"
+	fprintf( file, "*CPlayer*\n" );
 	fprintf( file, "NAME=%s\n", name.c_str() ); // Set first for easier debugging
 	fprintf( file, "COLOR=%d\n", color );
 	fprintf( file, "DEFENSIVE=%lf\n", defensive );
@@ -2761,12 +2761,12 @@ void PLAYER::save_to_file( FILE* file ) {
 	fprintf( file, "***\n" );
 }
 
-char const* PLAYER::selectGloatPhrase() {
+char const* CPlayer::selectGloatPhrase() {
 	return env.gloat->Get_Random_Line();
 }
 
 /// @return a constructed panic phrase which must be freed!
-char const* PLAYER::selectPanicPhrase( PLAYER* shocker ) {
+char const* CPlayer::selectPanicPhrase( CPlayer* shocker ) {
 	if ( !shocker ) {
 		return nullptr;
 	}
@@ -2784,12 +2784,12 @@ char const* PLAYER::selectPanicPhrase( PLAYER* shocker ) {
 	return pText;
 }
 
-char const* PLAYER::selectKamikazePhrase() {
+char const* CPlayer::selectKamikazePhrase() {
 	return env.kamikaze->Get_Random_Line();
 }
 
 /// @return a constructed retaliation phrase which must be freed!
-char const* PLAYER::selectRetaliationPhrase() const {
+char const* CPlayer::selectRetaliationPhrase() const {
 	if ( !revenge ) {
 		return nullptr;
 	}
@@ -2806,27 +2806,27 @@ char const* PLAYER::selectRetaliationPhrase() const {
 	return pText;
 }
 
-char const* PLAYER::selectRevengePhrase() {
+char const* CPlayer::selectRevengePhrase() {
 	return env.revenge->Get_Random_Line();
 }
 
-char const* PLAYER::selectSuicidePhrase() {
+char const* CPlayer::selectSuicidePhrase() {
 	return env.suicide->Get_Random_Line();
 }
 
 /// @brief store @a last_opp to be remembered as the current/last target
-void PLAYER::setLastOpponent( sOpponent* last_opp ) {
+void CPlayer::setLastOpponent( sOpponent* last_opp ) {
 	last_opponent = last_opp;
 }
 
-void PLAYER::setName( char const* name_ ) {
+void CPlayer::setName( char const* name_ ) {
 	if ( !name_ || ( ( name != name_ ) ) ) {
 		name.assign( name_ ? name_ : "" );
 	}
 }
 
 /// @brief fill in the list of desired items and update their preferences
-void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
+void CPlayer::updatePreferences( int32_t max_boost, int32_t max_score ) {
 	// 1.: Fill cart and preference array.
 	// The preferences are copied, as they might get boosted this round
 	int32_t weapons_in_stock = generateDesiredList();
@@ -2916,9 +2916,9 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 PLAYER_mini::PLAYER_mini() = default;
 
 /// @brief backup a players editable data
-void PLAYER_mini::copy_from( PLAYER* source ) {
+void PLAYER_mini::copy_from( CPlayer* source ) {
 	if ( source ) {
-		assert( ( source->index > -1 ) && "INDEX ERROR on PLAYER!" );
+		assert( ( source->index > -1 ) && "INDEX ERROR on CPlayer!" );
 		color = source->color;
 		index = source->index;
 		strncpy( name, source->getName(), NAME_LEN );
@@ -2933,7 +2933,7 @@ void PLAYER_mini::copy_from( PLAYER* source ) {
 }
 
 /// @brief copy backed up values back to the source player
-void PLAYER_mini::write_back( PLAYER* target ) {
+void PLAYER_mini::write_back( CPlayer* target ) {
 	if ( target ) {
 		player = target;
 	}
@@ -2950,7 +2950,7 @@ void PLAYER_mini::write_back( PLAYER* target ) {
 }
 
 /// @brief action function to display the edit player screen
-int32_t edit_player( PLAYER** target, int32_t ) {
+int32_t edit_player( CPlayer** target, int32_t ) {
 	int32_t result = 0;
 
 	assert( target && "ERROR: target must be set" );
@@ -3141,7 +3141,7 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 static PLAYER_mini player_new; //!< Used by new_player to keep previous settings
 
 /// @brief action function to display the edit player screen
-int32_t new_player( PLAYER** target, int32_t ) {
+int32_t new_player( CPlayer** target, int32_t ) {
 	int32_t result = 0;
 
 	assert( target && "ERROR: target must be set" );

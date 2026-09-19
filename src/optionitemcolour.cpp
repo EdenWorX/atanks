@@ -4,7 +4,7 @@
  *
  * The target is the color instance to handle.
  *
- * @param[in,out] player_ Pointer to the PLAYER instance to handle.
+ * @param[in,out] player_ Pointer to the CPlayer instance to handle.
  * @param[in,out] action_ Pointer to the action function handling the button click.
  * @param[in] title_ The title of the option to display.
  * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.

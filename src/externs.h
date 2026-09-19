@@ -31,15 +31,15 @@ class CEnvironment;
 #endif // HAS_ENVIRONMENT
 
 #ifndef HAS_ITEM
-class ITEM;
+class CItem;
 #endif // HAS_ITEM
 
 #  ifndef HAS_ITEM
-class ITEM;
+class CItem;
 #  endif // HAS_ITEM
 
 #  ifndef HAS_WEAPON
-class WEAPON;
+class CWeapon;
 #  endif // HAS_WEAPON
 
 #ifndef ATANKS_ATANKS_CPP
@@ -64,9 +64,9 @@ extern int32_t     errorX, errorY;
 extern int32_t     k, K;
 extern int32_t     fi, lx, ly;
 extern int32_t     game_version;
-extern WEAPON      weapon[ WEAPONS ];    // from files.cpp
-extern WEAPON      naturals[ NATURALS ]; // from files.cpp
-extern ITEM        item[ ITEMS ];        // from files.cpp
+extern CWeapon      weapon[ WEAPONS ];    // from files.cpp
+extern CWeapon      naturals[ NATURALS ]; // from files.cpp
+extern CItem        item[ ITEMS ];        // from files.cpp
 
 
 // === Gradients ===

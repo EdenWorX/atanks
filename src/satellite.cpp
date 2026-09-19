@@ -43,7 +43,7 @@ void SATELLITE::shoot() {
 	     // 1% chance to fire
 	     && ( !( get_rand() % 100 ) ) ) {
 		try {
-			beam = new BEAM(
+			beam = new CBeam(
 				nullptr,
 				xv < 0 ? x + 10 : x + 40,
 				y + 20,

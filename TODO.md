@@ -441,7 +441,7 @@ per module.
   Rename `GLOBALDATA` → `CGlobalData`, `ENVIRONMENT` → `CEnvironment`, `VIRTUAL_OBJECT` → `CVirtualObject`, and
   `PHYSICAL_OBJECT` → `CPhysicalObject`, updating every reference tree-wide. Pure renames; verify with a build.
 
-- [ ] **PF-1.15.2.2**: Global type renames, batch 2 (entities and arsenal)
+- [x] **PF-1.15.2.2**: Global type renames, batch 2 (entities and arsenal)
 
   Rename `TANK` → `CTank`, `PLAYER` → `CPlayer`, `MISSILE` → `CMissile`, `EXPLOSION` → `CExplosion`, `BEAM` → `CBeam`,
   `DECOR` → `CDecor`, `TELEPORT` → `CTeleport`, `FLOATTEXT` → `CFloatText`, `AICore` → `CAICore`, `WEAPON` → `CWeapon`,

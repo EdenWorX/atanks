@@ -29,7 +29,7 @@
 #  include "player.h"
 #endif
 
-TELEPORT::~TELEPORT() {
+CTeleport::~CTeleport() {
 	requireUpdate();
 	update();
 	if ( dim_cur.w > 0 ) {
@@ -51,7 +51,7 @@ TELEPORT::~TELEPORT() {
 	global.removeObject( this );
 }
 
-TELEPORT::TELEPORT(
+CTeleport::CTeleport(
 	CVirtualObject* targetObj,
 	int32_t         destinationX,
 	int32_t         destinationY,
@@ -73,7 +73,7 @@ TELEPORT::TELEPORT(
 	// Ensure the destination is not occupied by another tank:
 	bool need_check = ( type != ITEM_SWAPPER );
 	while ( need_check ) {
-		TANK* lt   = nullptr;
+		CTank* lt   = nullptr;
 		need_check = false;
 
 		global.getHeadOfClass( CLASS_TANK, &lt );
@@ -109,9 +109,9 @@ TELEPORT::TELEPORT(
 	} // end of needing to check the destination
 
 	try {
-		remote = new TELEPORT( this, destinationX, destinationY );
+		remote = new CTeleport( this, destinationX, destinationY );
 	} catch ( std::bad_alloc& e ) {
-		std::cerr << "Error creating TELEPORT: " << e.what() << std::endl;
+		std::cerr << "Error creating CTeleport: " << e.what() << std::endl;
 	}
 
 	play_fire_sound( ITEM_TELEPORT + WEAPONS, ROUND( x ), 255, 1000 );
@@ -120,7 +120,7 @@ TELEPORT::TELEPORT(
 	// this seems to be the teleport we usually use
 	int   playerindex = 0;
 	bool  found       = false;
-	TANK* the_tank    = dynamic_cast< TANK* >( targetObj );
+	CTank* the_tank    = dynamic_cast< CTank* >( targetObj );
 
 	// match the player with the tank
 	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
@@ -133,7 +133,7 @@ TELEPORT::TELEPORT(
 
 	if ( found ) {
 		char buffer[ 64 ] = { 0x0 };
-		snprintf( buffer, 63, "TELEPORT %d %d %d", playerindex, destinationX, destinationY );
+		snprintf( buffer, 63, "CTeleport %d %d %d", playerindex, destinationX, destinationY );
 		env.sendToClients( buffer );
 	}
 #endif // NETWORK
@@ -142,7 +142,7 @@ TELEPORT::TELEPORT(
 	global.addObject( this );
 }
 
-TELEPORT::TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : CVirtualObject(), remote( remoteEnd ) {
+CTeleport::CTeleport( CTeleport* remoteEnd, int32_t destX, int32_t destY ) : CVirtualObject(), remote( remoteEnd ) {
 	this->x = destX;
 	this->y = destY;
 	if ( remote ) {
@@ -155,7 +155,7 @@ TELEPORT::TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY ) : CVirtu
 	global.addObject( this );
 }
 
-void TELEPORT::applyPhysics() {
+void CTeleport::applyPhysics() {
 	if ( object ) {
 		if ( !clock ) {
 			object->x      = remote->x;
@@ -173,7 +173,7 @@ void TELEPORT::applyPhysics() {
 	}
 }
 
-void TELEPORT::draw() {
+void CTeleport::draw() {
 	if ( !remote ) {
 		return;
 	}

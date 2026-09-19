@@ -24,15 +24,15 @@
 
 /** @file optionitemplayer.h
  * @brief declaration of the option entry class specialized on handling
- * PLAYER instances
+ * CPlayer instances
  **/
 
 
 /** @class OptionItemPlayer
- * @brief abstract one option menu entry to handle a PLAYER instance
+ * @brief abstract one option menu entry to handle a CPlayer instance
  *
  * This class is a special version of the OptionItem template that can only
- * handle PLAYER instances.
+ * handle CPlayer instances.
  *
  * The the only entry type supported is the ET_MENU.
  **/
@@ -45,8 +45,8 @@ public:
 
 	/// Create a player entry.
 	explicit OptionItemPlayer(
-		PLAYER** player_,
-		int32_t ( *action_ )( PLAYER** player_, int32_t ),
+		CPlayer** player_,
+		int32_t ( *action_ )( CPlayer** player_, int32_t ),
 		char const* title_,
 		int32_t     titleIdx_,
 		int32_t     top_,
@@ -80,7 +80,7 @@ private:
 	 * ----------------------------------------------
 	 */
 
-	int32_t ( *actionFunc )( PLAYER** target, int32_t ) = nullptr;
+	int32_t ( *actionFunc )( CPlayer** target, int32_t ) = nullptr;
 
 
 	/* -----------------------
@@ -88,7 +88,7 @@ private:
 	 * -----------------------
 	 */
 
-	PLAYER** player = nullptr; //!< PLAYER instance to handle
+	CPlayer** player = nullptr; //!< CPlayer instance to handle
 };
 
 

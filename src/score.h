@@ -21,7 +21,7 @@ struct sScore {
 	int32_t     score  = 0;       ///< Score.
 
 	/// Copy player stats into a score entry.
-	sScore&     operator= ( PLAYER& rhs ) {
+	sScore&     operator= ( CPlayer& rhs ) {
                 color  = rhs.color;
                 idx    = rhs.index;
                 killed = rhs.killed;

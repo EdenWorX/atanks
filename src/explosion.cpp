@@ -30,7 +30,7 @@
 #include <stack>
 
 /// @brief constructor for all detonations that are not caused by BEAMs
-EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon )
+CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon )
 	: CPhysicalObject( is_weapon )
 	, impact_xv( xv_ )
 	, impact_yv( yv_ ) {
@@ -50,7 +50,7 @@ EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double 
 	y            = y_;
 	maxVel       = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
-	WEAPON* weap = nullptr;
+	CWeapon* weap = nullptr;
 	weapType     = type;
 	if ( weapType < WEAPONS ) {
 		weap = &weapon[ weapType ];
@@ -137,14 +137,14 @@ EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double 
 }
 
 /// This one is just for the beam and lightning dirt mills.
-EXPLOSION::EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon )
+CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon )
 	: // delegate base settings
-	EXPLOSION( player_, x_, y_, xv_, yv_, type, is_weapon ) {
+	CExplosion( player_, x_, y_, xv_, yv_, type, is_weapon ) {
 	damage = ROUND( damage_ );
 }
 
 /// @brief default dtor
-EXPLOSION::~EXPLOSION() {
+CExplosion::~CExplosion() {
 	// If this is a tremor, the landslide has to be released
 	if ( ( TREMOR <= weapType ) && ( TECTONIC >= weapType ) ) {
 		global.unlockLandSlide( dim_cur.x, dim_cur.x + dim_cur.w );
@@ -155,13 +155,13 @@ EXPLOSION::~EXPLOSION() {
 }
 
 /// @brief Physics for the Napalm Jelly, the only explosion that can 'move'
-void EXPLOSION::applyPhysics() {
+void CExplosion::applyPhysics() {
 	if ( NAPALM_JELLY == weapType ) {
 		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 2 ) ) ) {
 			try {
-				new DECOR( x, y, 0, -2. * env.fall_vector, radius / 2, DECOR_SMOKE, 0 );
+				new CDecor( x, y, 0, -2. * env.fall_vector, radius / 2, DECOR_SMOKE, 0 );
 			} catch ( std::exception& e ) {
-				std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CDecor: " << e.what() << std::endl;
 			}
 		}
 
@@ -188,7 +188,7 @@ void EXPLOSION::applyPhysics() {
 			CPhysicalObject::applyPhysics();
 
 			// And falling napalm can be repulsed
-			TANK*  lt     = nullptr;
+			CTank*  lt     = nullptr;
 			double xaccel = 0;
 			double yaccel = 0;
 
@@ -216,7 +216,7 @@ void EXPLOSION::applyPhysics() {
 		// Napalm keeps burning, check all tanks
 		double in_rate_x  = 0.;
 		double in_rate_y  = 0.;
-		TANK*  lt         = nullptr;
+		CTank*  lt         = nullptr;
 		double damage_mod = blobSize / static_cast< double >( radius );
 
 		global.getHeadOfClass( CLASS_TANK, &lt );
@@ -253,7 +253,7 @@ void EXPLOSION::applyPhysics() {
 }
 
 /// @brief draw the explosions according to weapon type and shape
-void EXPLOSION::draw() {
+void CExplosion::draw() {
 	if ( ( curFrame > 1 ) && ( curFrame <= ( EXPLOSIONFRAMES + 1 ) ) && ( NAPALM_JELLY != weapType ) ) {
 		/* This group includes:
 		 * - all regular explosives,
@@ -450,7 +450,7 @@ void EXPLOSION::draw() {
 						setUpdateArea( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
 					} else {
 						// This is something else. But what?
-						fprintf( stderr, "EXPLOSION::draw() Unknown weapon type %d\n", weapType );
+						fprintf( stderr, "CExplosion::draw() Unknown weapon type %d\n", weapType );
 						circlefill( global.canvas, x, y, rad, RED );
 						setUpdateArea( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
 					}
@@ -501,7 +501,7 @@ void EXPLOSION::draw() {
 }
 
 /// @brief Draw recursive fractures
-void EXPLOSION::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse ) {
+void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse ) {
 	typedef struct FracParams {
 		int32_t x;
 		int32_t y;
@@ -597,7 +597,7 @@ void EXPLOSION::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t 
 	dim_cur.h -= dim_cur.y;
 }
 
-void EXPLOSION::explode() {
+void CExplosion::explode() {
 	/// === Time and frame advancement ===
 	///------------------------------------
 	if ( curFrame <= ( EXPLOSIONFRAMES + 1 ) ) {
@@ -617,7 +617,7 @@ void EXPLOSION::explode() {
 	///---------------------------------------
 	if ( apply_damage ) {
 		// In this case, the affected tanks must be checked first
-		TANK* lt    = nullptr;
+		CTank* lt    = nullptr;
 		auto  wType = static_cast< weaponType >( weapType );
 
 		// But do not check dirt balls, they deal no damage
@@ -648,7 +648,7 @@ void EXPLOSION::explode() {
 						if ( !global.skippingComputerPlay ) {
 							// show how much the shooter gets
 							try {
-								new FLOATTEXT(
+								new CFloatText(
 									the_money,
 									lt->x,
 									lt->y - 30,
@@ -664,7 +664,7 @@ void EXPLOSION::explode() {
 									global.updateMenu = true;
 								}
 							} catch ( std::exception& e ) {
-								std::cerr << __func__ << " new FLOATTEXT: " << e.what()
+								std::cerr << __func__ << " new CFloatText: " << e.what()
 									  << std::endl;
 							}
 						}
@@ -688,7 +688,7 @@ void EXPLOSION::explode() {
 // ======================================
 
 /// @brief Clear the background (Display must be locked!)
-void EXPLOSION::do_clear() {
+void CExplosion::do_clear() {
 	if ( hasCleared && hasSlid ) {
 		return;
 	}
@@ -748,7 +748,7 @@ void EXPLOSION::do_clear() {
 }
 
 /// @brief Throw some debris
-void EXPLOSION::do_throw() {
+void CExplosion::do_throw() {
 	// Do never throw when skipping AI play, and
 	// opt out if debris generation is forbidden
 	if ( !hasThrown && ( global.skippingComputerPlay || ( hasDebris >= maxDebris ) || ( curFrame > maxFrame ) ) ) {
@@ -763,7 +763,7 @@ void EXPLOSION::do_throw() {
 	// The delay used for smoke and debris.
 	int32_t delay_dirt  = ( etime * ( maxFrame - curFrame ) ) - exclock;
 	int32_t delay_smoke = ( etime * ( EXPLODEFRAMES - curFrame ) ) - exclock;
-	// Note: DECOR checks against delay>0, thus a negative delay
+	// Note: CDecor checks against delay>0, thus a negative delay
 	//       is no problem here.
 
 	// The radius is not always the radius, so use shortcuts:
@@ -916,7 +916,7 @@ void EXPLOSION::do_throw() {
 			double rimy = y - ROUND( std::sin( alpha ) * yrad );
 
 			try {
-				new DECOR( rimx, rimy, dxv, dyv, deb_rad, DECOR_DIRT, delay_dirt, deb_item, met_item );
+				new CDecor( rimx, rimy, dxv, dyv, deb_rad, DECOR_DIRT, delay_dirt, deb_item, met_item );
 				// Clear the source to not take these pixels again.
 				circlefill( global.terrain, xpos, ypos, deb_rad, PINK );
 				addUpdateArea( xpos - deb_rad, ypos - deb_rad, diameter, diameter );
@@ -931,7 +931,7 @@ void EXPLOSION::do_throw() {
 
 			// Every throw needs a smoke... ;)
 			try {
-				new DECOR( xpos, ypos, dxv, dyv, deb_rad * 3, DECOR_SMOKE, delay_smoke );
+				new CDecor( xpos, ypos, dxv, dyv, deb_rad * 3, DECOR_SMOKE, delay_smoke );
 			} catch ( ... ) { /* nothing.. really... it doesn't matter */
 			}
 
@@ -989,7 +989,7 @@ void draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius,
  * @param[in] hit_y Y coordinate of the impact
  * @return The part damage of the weapon without player modification
  **/
-double get_hit_damage( TANK* tank, weaponType type, double hit_x, double hit_y ) {
+double get_hit_damage( CTank* tank, weaponType type, double hit_x, double hit_y ) {
 	if ( ( nullptr == tank ) || ( tank->destroy ) ) {
 		return 0.;
 	}

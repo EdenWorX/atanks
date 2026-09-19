@@ -25,10 +25,10 @@
 #include "physobj.h"
 #include "weapon.h"
 
-/** @class EXPLOSION
+/** @class CExplosion
  * @brief Detonation effect.
  **/
-class EXPLOSION final : public CPhysicalObject {
+class CExplosion final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -36,11 +36,11 @@ public:
 	 */
 
 	/// Detonate a standard explosion.
-	explicit EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
+	explicit CExplosion( CPlayer* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
 	/// Detonate a beam explosion with custom damage.
-	EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
+	CExplosion( CPlayer* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
 	/// Destroy an explosion.
-	~EXPLOSION() final;
+	~CExplosion() final;
 
 
 	/* ----------------------
@@ -91,6 +91,6 @@ private:
 
 // Global helpers:
 void   draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius, int32_t frame );
-double get_hit_damage( TANK* tank, weaponType type, double hit_x, double hit_y );
+double get_hit_damage( CTank* tank, weaponType type, double hit_x, double hit_y );
 
 #endif

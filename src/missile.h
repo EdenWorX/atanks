@@ -45,10 +45,10 @@ enum eMissileType {
 	MT_MIND_SHOT   //!< AI thinking.
 };
 
-/** @class MISSILE
+/** @class CMissile
  * @brief Ballistic projectile.
  **/
-class MISSILE final : public CPhysicalObject {
+class CMissile final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -56,8 +56,8 @@ public:
 	 */
 
 	/// Fire a missile.
-	explicit MISSILE(
-		PLAYER*      player_,
+	explicit CMissile(
+		CPlayer*      player_,
 		double       xpos,
 		double       ypos,
 		double       xvel,
@@ -68,7 +68,7 @@ public:
 		int32_t      delay_idx_
 	);
 	/// Destroy a missile.
-	~MISSILE() final;
+	~CMissile() final;
 
 
 	/* ----------------------
@@ -121,7 +121,7 @@ private:
 	int32_t      growRadius   = 0;
 	bool         isGrowing    = false;
 	eMissileType missileType  = MT_WEAPON;
-	WEAPON*      weap         = nullptr;
+	CWeapon*      weap         = nullptr;
 };
 
 #endif // MISSILE_DEFINE

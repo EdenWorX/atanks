@@ -67,9 +67,9 @@ static int32_t client_socket = -1;
 /*************************
 *** External variables ***
 *************************/
-extern WEAPON weapon[ WEAPONS ];    // from files.cpp
-extern WEAPON naturals[ NATURALS ]; // from files.cpp
-extern ITEM   item[ ITEMS ];        // from files.cpp
+extern CWeapon weapon[ WEAPONS ];    // from files.cpp
+extern CWeapon naturals[ NATURALS ]; // from files.cpp
+extern CItem   item[ ITEMS ];        // from files.cpp
 
 
 /*****************************
@@ -178,7 +178,7 @@ static void createConfig() {
 	init_mouse_cursor();
 
 	// At least one human player must be created
-	PLAYER* tempPlayer        = nullptr;
+	CPlayer* tempPlayer        = nullptr;
 	int32_t tempRes           = PE_BACK; // ePlayerEdit, player_types.h
 	char    noHumanMsg[ 200 ] = { 0 };
 
@@ -248,7 +248,7 @@ static char const* do_winner() {
 	int32_t  maxkills               = -1;
 	int32_t  minkilled              = INT32_MAX;
 	bool     multiwinner            = false;
-	PLAYER** players                = env.players; // short cut
+	CPlayer** players                = env.players; // short cut
 	int32_t  pl_money[ MAXPLAYERS ] = { 0 };
 
 	for ( int32_t z = 0; z < env.numGamePlayers; z++ ) {
@@ -765,7 +765,7 @@ static bool loadPlayers( FILE* file ) {
 		env.allPlayers = nullptr;
 	}
 
-	env.allPlayers = (PLAYER**)malloc( sizeof( PLAYER* ) * max_pl );
+	env.allPlayers = (CPlayer**)malloc( sizeof( CPlayer* ) * max_pl );
 
 	if ( !env.allPlayers ) {
 		fprintf( stderr, "%s:%d : Failed to allocate memory for allPlayers\n", __FILE__, __LINE__ );
@@ -780,9 +780,9 @@ static bool loadPlayers( FILE* file ) {
 	bool    status   = true;
 
 	while ( status ) {
-		PLAYER* player_new = nullptr;
+		CPlayer* player_new = nullptr;
 		try {
-			player_new = new PLAYER();
+			player_new = new CPlayer();
 		} catch ( std::exception& e ) {
 			fprintf( stderr, "%s:%d : Failed to allocate memory for player (%s)\n", __FILE__, __LINE__, e.what() );
 			status = false;
@@ -797,7 +797,7 @@ static bool loadPlayers( FILE* file ) {
 			env.allPlayers[ pl_count++ ] = player_new;
 			if ( pl_count == max_pl ) {
 				max_pl               += 5;
-				auto new_player_list  = (PLAYER**)realloc( env.allPlayers, sizeof( PLAYER* ) * max_pl );
+				auto new_player_list  = (CPlayer**)realloc( env.allPlayers, sizeof( CPlayer* ) * max_pl );
 				if ( new_player_list ) {
 					env.allPlayers = new_player_list;
 				}
@@ -1109,8 +1109,8 @@ static void newgame() {
 	}
 
 	// There must not be any tanks!
-	TANK* tank      = nullptr;
-	TANK* next_tank = nullptr;
+	CTank* tank      = nullptr;
+	CTank* next_tank = nullptr;
 	global.getHeadOfClass( CLASS_TANK, &tank );
 	while ( tank ) {
 		tank->getNext( &next_tank );

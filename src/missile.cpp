@@ -32,14 +32,14 @@
 
 #include <cassert>
 
-/* Note: If you wonder why the MISSILE ctor needs the AI_LEVEL, it is used
+/* Note: If you wonder why the CMissile ctor needs the AI_LEVEL, it is used
  *       for two things:
  *       1. Whether repulsion is considered for mind shots depends on the
  *          ai_level of the bot tracking the missile, and
  *       2. the SDI check must make sure to not re-test its own mind shots.
  */
-MISSILE::MISSILE(
-	PLAYER*      player_,
+CMissile::CMissile(
+	CPlayer*      player_,
 	double       xpos,
 	double       ypos,
 	double       xvel,
@@ -56,7 +56,7 @@ MISSILE::MISSILE(
 
 #ifdef NETWORK
 	char buffer[ 256 ];
-	sprintf( buffer, "MISSILE %d %d %lf %lf %d", ROUND( xpos ), ROUND( ypos ), xvel, yvel, weapon_type );
+	sprintf( buffer, "CMissile %d %d %lf %lf %d", ROUND( xpos ), ROUND( ypos ), xvel, yvel, weapon_type );
 	env.sendToClients( buffer );
 #endif
 
@@ -174,14 +174,14 @@ MISSILE::MISSILE(
 	}
 }
 
-MISSILE::~MISSILE() {
+CMissile::~CMissile() {
 	// Take out of the chain:
 	if ( MT_MIND_SHOT != missileType ) {
 		global.removeObject( this );
 	}
 }
 
-void MISSILE::applyPhysics() {
+void CMissile::applyPhysics() {
 	// Increase age and get rid of the missile if it
 	// is caught in some endless loop.
 	if ( ( ++age > maxAge ) || ( y < -65535 ) ) {
@@ -285,17 +285,17 @@ void MISSILE::applyPhysics() {
 }
 
 /// @return The number of bounces done since the missile was fired
-int32_t MISSILE::bounced() const {
+int32_t CMissile::bounced() const {
 	return bounces;
 }
 
 /// @return -1 if the missile flies to the left, 1 if it flies to the right
 /// or does not have any vertical movement
-int32_t MISSILE::direction() const {
+int32_t CMissile::direction() const {
 	return SIGN( xv );
 }
 
-void MISSILE::draw() {
+void CMissile::draw() {
 	if ( destroy
 	     // Do not draw mind shots
 	     || ( MT_MIND_SHOT == missileType ) ) {
@@ -386,12 +386,12 @@ struct sSDI {
 	double  mod   = 0.; // Level mod in the range of 1.0 to 1.5 (Caps levels at 10 which is 50xSDI this way)
 	sSDI*   next  = nullptr;
 	double  range = 100.; // The more SDI, the further the shot
-	TANK*   tank  = nullptr;
+	CTank*   tank  = nullptr;
 	double  x     = 0.;
 	double  y     = 0.;
 };
 
-void MISSILE::applyPhysicsFunky() {
+void CMissile::applyPhysicsFunky() {
 	// Funky Floats have a 0.75% chance to randomly change their direction
 	if ( 0 == ( get_rand() % 150 ) ) {
 
@@ -408,9 +408,9 @@ void MISSILE::applyPhysicsFunky() {
 		} else if ( ( 3 == floatee_action ) && ( std::abs( yv ) > 0.5 ) ) {
 			yv *= -1.;
 		} else {
-			TANK* floatee_tgt = global.get_random_tank();
+			CTank* floatee_tgt = global.get_random_tank();
 			if ( floatee_tgt ) {
-				WEAPON* launchWeap =
+				CWeapon* launchWeap =
 					FUNKY_BOMBLET == weapType ? &weapon[ FUNKY_BOMB ]
 					: FUNKY_DEATHLET == weapType
 						? &weapon[ FUNKY_DEATH ]
@@ -470,7 +470,7 @@ void MISSILE::applyPhysicsFunky() {
 	y += yv;
 }
 
-void MISSILE::applyPhysicsNormal() {
+void CMissile::applyPhysicsNormal() {
 	// Standard physics can be applied
 	CPhysicalObject::applyPhysics();
 
@@ -502,14 +502,14 @@ void MISSILE::applyPhysicsNormal() {
 	if ( !hitSomething && !global.skippingComputerPlay && ( MT_MIND_SHOT != missileType )
 	     && !( get_rand() % ( env.frames_per_second / 10 ) ) ) {
 		try {
-			new DECOR( x, y, xv / env.frames_per_second, xv / env.frames_per_second, weap->radius / 20, DECOR_SMOKE, 0 );
+			new CDecor( x, y, xv / env.frames_per_second, xv / env.frames_per_second, weap->radius / 20, DECOR_SMOKE, 0 );
 		} catch ( std::exception& e ) {
-			std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
+			std::cerr << __func__ << " new CDecor: " << e.what() << std::endl;
 		}
 	}
 }
 
-void MISSILE::applyPhysicsOther() {
+void CMissile::applyPhysicsOther() {
 	// Check X:
 	if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screenWidth - 1 ) ) ) {
 		if ( WALL_RUBBER == env.current_wallType ) {
@@ -543,7 +543,7 @@ void MISSILE::applyPhysicsOther() {
 	x += xv;
 }
 
-void MISSILE::applyPhysicsRolling() {
+void CMissile::applyPhysicsRolling() {
 	// check whether anything is hit
 	auto round_x = ROUND( x );
 	auto round_y = ROUND( y );
@@ -608,14 +608,14 @@ void MISSILE::applyPhysicsRolling() {
 	} // End of rolling projectile movement
 }
 
-sSDI* MISSILE::Build_SDI_List( sSDI* sdi ) {
+sSDI* CMissile::Build_SDI_List( sSDI* sdi ) {
 	// Reset SDI list:
 	for ( int32_t i = 0; i < MAXPLAYERS; i++ ) {
 		sdi[ i ].next = nullptr;
 	}
 
 	// Create the SDI list
-	TANK*   lt   = nullptr;
+	CTank*   lt   = nullptr;
 	sSDI*   pSDI = nullptr;
 	int32_t idx  = 0;
 
@@ -679,8 +679,8 @@ sSDI* MISSILE::Build_SDI_List( sSDI* sdi ) {
 	return pSDI;
 }
 
-void MISSILE::Check_Cluster() {
-	WEAPON* submunition    = &weapon[ weap->submunition ];
+void CMissile::Check_Cluster() {
+	CWeapon* submunition    = &weapon[ weap->submunition ];
 	double  divergenceStep = static_cast< double >( weap->divergence ) / static_cast< double >( weap->numSubmunitions - 1 );
 	int32_t startPoint     = divergenceStep < 0. ? 0 : 180;
 	int32_t randStart      = get_rand() % 1000000;
@@ -744,7 +744,7 @@ void MISSILE::Check_Cluster() {
 
 	// The spread can be created!
 	for ( int32_t sc = 0; sc < weap->numSubmunitions; ++sc ) {
-		MISSILE* newmis       = nullptr;
+		CMissile* newmis       = nullptr;
 		double   launchSpeed  = weap->launchSpeed;
 		int32_t  newMissCount = submunition->countdown;
 		auto     newMissAngle = ROUND(
@@ -787,7 +787,7 @@ void MISSILE::Check_Cluster() {
 		// tanks when started, it is just a possibility in
 		// applyPhysics() *only*
 		try {
-			newmis = new MISSILE(
+			newmis = new CMissile(
 				player,
 				x,
 				startY,
@@ -802,16 +802,16 @@ void MISSILE::Check_Cluster() {
 			newmis->countdown = newMissCount;
 			newmis->setUpdateArea( newmis->x - 20, newmis->y - 20, 40, 40 );
 		} catch ( std::exception& e ) {
-			std::cerr << __func__ << " new MISSILE: " << e.what() << std::endl;
+			std::cerr << __func__ << " new CMissile: " << e.what() << std::endl;
 		}
 	} // End of looping submunitions
 }
 
-bool MISSILE::Check_Missile_Hit( sSDI* sdi ) {
+bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 	bool will_hit = false;
 
 	// Try to predict the coordinates where the missile will go down:
-	MISSILE mind_shot( player, x, y, xv, yv, weapType, MT_MIND_SHOT, SDI_PREDICTOR, 0 );
+	CMissile mind_shot( player, x, y, xv, yv, weapType, MT_MIND_SHOT, SDI_PREDICTOR, 0 );
 
 	// Adapt missile drag if the player has dimpled/slick projectiles
 	if ( player->ni[ ITEM_DIMPLEP ] ) {
@@ -848,7 +848,7 @@ bool MISSILE::Check_Missile_Hit( sSDI* sdi ) {
 	// d) will not be repulsed.
 	// If so, shoot it down!
 	if ( mind_shot.destroy ) {
-		TANK*   lt    = sdi->tank;
+		CTank*   lt    = sdi->tank;
 		int32_t x_rad = DRILLER == weapType ? weap->radius / 20 : weap->radius;
 		int32_t y_rad = ( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) ? weap->radius / 20 : weap->radius;
 		double  tank_rad = lt->getDiameter() / 2.;
@@ -874,7 +874,7 @@ bool MISSILE::Check_Missile_Hit( sSDI* sdi ) {
 	return will_hit;
 }
 
-bool MISSILE::Check_Roller( double old_delta_x ) {
+bool CMissile::Check_Roller( double old_delta_x ) {
 	bool quell = noimpact;
 	if ( age > 1 ) {
 		quell    = true; // No detonation, just switch to rolling
@@ -965,7 +965,7 @@ bool MISSILE::Check_Roller( double old_delta_x ) {
  * the result is many times more accurate. ;-)
  * - Sven
  */
-void MISSILE::Check_SDI() {
+void CMissile::Check_SDI() {
 	static sSDI sdi[ MAXPLAYERS ];
 
 	if (    // The Predictor don't checks itself:
@@ -982,7 +982,7 @@ void MISSILE::Check_SDI() {
 	sSDI* pSDI = Build_SDI_List( sdi );
 
 	// Create the SDI list
-	TANK* lt       = nullptr;
+	CTank* lt       = nullptr;
 	bool  shotDown = false;
 
 
@@ -1006,7 +1006,7 @@ void MISSILE::Check_SDI() {
 					bool    burnt  = ( get_rand() % 100 ) < chance;
 
 					try {
-						new BEAM(
+						new CBeam(
 							lt->player,
 							pSDI->x,
 							pSDI->y,
@@ -1040,8 +1040,8 @@ void MISSILE::Check_SDI() {
 	} // End of going through SDI list
 }
 
-void MISSILE::Check_Tanks() {
-	TANK* lt = nullptr;
+void CMissile::Check_Tanks() {
+	CTank* lt = nullptr;
 
 	// Has it hit a tank?
 	global.getHeadOfClass( CLASS_TANK, &lt );
@@ -1064,7 +1064,7 @@ void MISSILE::Check_Tanks() {
 
 // This function returns the distance above ground of
 // the missile.
-int32_t MISSILE::Height_Above_Ground() {
+int32_t CMissile::Height_Above_Ground() {
 	auto rx = ROUND( x );
 
 	if ( ( rx < 1 ) || ( rx >= env.screenWidth ) ) {
@@ -1097,8 +1097,8 @@ int32_t MISSILE::Height_Above_Ground() {
 }
 
 // Modify xv/yv according to repulse shields in the vicinity of the missile
-void MISSILE::Repulse_Missile() {
-	TANK*  lt     = nullptr;
+void CMissile::Repulse_Missile() {
+	CTank*  lt     = nullptr;
 	double xaccel = 0;
 	double yaccel = 0;
 
@@ -1116,12 +1116,12 @@ void MISSILE::Repulse_Missile() {
 	}
 }
 
-void MISSILE::trigger() {
+void CMissile::trigger() {
 	// Create explosion
 	try {
-		new EXPLOSION( player, x, y, xv, yv, weapType, isWeaponFire );
+		new CExplosion( player, x, y, xv, yv, weapType, isWeaponFire );
 	} catch ( std::exception& e ) {
-		std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
+		std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 	}
 
 	// If the explosion is near a wrapping wall, a second "fake"
@@ -1163,9 +1163,9 @@ void MISSILE::trigger() {
 			int32_t new_x = left ? left : ROUND( x );
 			int32_t new_y = top ? top : ROUND( y );
 			try {
-				new EXPLOSION( player, new_x, new_y, xv, yv, weapType, isWeaponFire );
+				new CExplosion( player, new_x, new_y, xv, yv, weapType, isWeaponFire );
 			} catch ( std::exception& e ) {
-				std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 			}
 		}
 	}
@@ -1179,7 +1179,7 @@ void MISSILE::trigger() {
 	}
 }
 
-void MISSILE::triggerTest() {
+void CMissile::triggerTest() {
 	bool quell = noimpact;
 
 	// No tests are needed if a too high velocity has
@@ -1266,8 +1266,8 @@ void MISSILE::triggerTest() {
 }
 
 /// @brief special method to update private members iof sub munition missiles.
-/// This method is only interesting for AICore tracing clusters.
-void MISSILE::update_submun( ePhysType p_type, int32_t cnt_down ) {
+/// This method is only interesting for CAICore tracing clusters.
+void CMissile::update_submun( ePhysType p_type, int32_t cnt_down ) {
 	physType  = p_type;
 	countdown = cnt_down;
 }

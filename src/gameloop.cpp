@@ -32,14 +32,14 @@ class ObjectUpdater;
 static inline bool advance_tank();
 static inline void change_wind_strength();
 static inline void check_fps( ObjectUpdater* upd );
-static inline void check_overtime( AICore& aicore );
+static inline void check_overtime( CAICore& aicore );
 static inline void check_skiptime();
 static inline void clear_voices();
 static inline void check_winner();
-static inline void delete_destroyed( AICore& aicore );
+static inline void delete_destroyed( CAICore& aicore );
 static inline void do_naturals();
 static inline void draw_FPS_Counter();
-static inline void draw_objects( AICore& aicore );
+static inline void draw_objects( CAICore& aicore );
 static inline void draw_eor_scoreboard();  // The [e]nd-[o]f-[r]ound score board
 static inline void draw_mini_scoreboard(); // The ingame mini score board
 void               draw_top_bar();
@@ -48,7 +48,7 @@ static inline void fire_weapon();
 static inline void graph_bar( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
 static inline void graph_bar_center( int32_t x, int32_t y, int32_t col, int32_t actual, int32_t max );
 static inline void init_new_round();
-static inline bool manage_input( AICore& aicore );
+static inline bool manage_input( CAICore& aicore );
 static inline void set_tank_settings();
 static inline void update_display();
 static inline void update_objects( ObjectUpdater* upd );
@@ -56,7 +56,7 @@ static inline void update_objects( ObjectUpdater* upd );
 
 /// === Static helper values ===
 static int32_t AI_time_change         = 0;
-static TANK*   curr_tank              = nullptr;
+static CTank*   curr_tank              = nullptr;
 static bool    death_substitute       = false;
 static bool    fire                   = false;
 static int32_t FPS_counter            = 0;
@@ -67,7 +67,7 @@ static abool_t volatile has_action    = ATOMIC_VAR_INIT( false );
 static abool_t volatile has_deco      = ATOMIC_VAR_INIT( false );
 static abool_t volatile has_explosion = ATOMIC_VAR_INIT( false );
 static int32_t human_players          = 0;
-static TANK*   next_tank              = nullptr;
+static CTank*   next_tank              = nullptr;
 static bool    order_wrapped          = false;
 static int32_t score_name_pos         = 0;
 static int32_t score_money_pos        = 0;
@@ -106,7 +106,7 @@ public:
 	void operator() () {
 		vobj_t* next_obj = nullptr;
 		vobj_t* obj      = nullptr;
-		TANK*   tmp_tank = nullptr;
+		CTank*   tmp_tank = nullptr;
 
 
 		// The thread is valid until someone tells it to exit
@@ -123,7 +123,7 @@ public:
 				continue;
 			}
 
-			// If this is the TANK class, yield once if
+			// If this is the CTank class, yield once if
 			// there is no known explosion, yet.
 			if ( ( CLASS_TANK == class_ ) && !has_explosion.load() ) {
 				// Note: No argument to load(), use the most strict default!
@@ -160,17 +160,17 @@ public:
 
 				// Trigger Explosion progress
 				if ( CLASS_EXPLOSION == class_ ) {
-					dynamic_cast< EXPLOSION* >( obj )->explode();
+					dynamic_cast< CExplosion* >( obj )->explode();
 				}
 
 				// Apply forced smoke ageing
 				if ( ( CLASS_DECOR_SMOKE == class_ ) && force_age ) {
-					dynamic_cast< DECOR* >( obj )->force_aging( force_age );
+					dynamic_cast< CDecor* >( obj )->force_aging( force_age );
 				}
 
 				// Do tank special handling
 				if ( CLASS_TANK == class_ ) {
-					tmp_tank = dynamic_cast< TANK* >( obj );
+					tmp_tank = dynamic_cast< CTank* >( obj );
 
 					if ( !tmp_tank->destroy ) {
 						// Activate next volley shot if applicable
@@ -248,7 +248,7 @@ void game() {
 	int32_t volatile round_end_count = 0;
 	SATELLITE*    satellite          = nullptr;
 	int32_t const EndOfRoundFrames   = env.frames_per_second * WAIT_AT_END_OF_ROUND;
-	AICore        aicore;
+	CAICore        aicore;
 
 	// Check whether the AI Core is in any state to do work:
 	if ( !aicore.can_work() ) {
@@ -703,7 +703,7 @@ static inline void check_fps( ObjectUpdater* upd ) {
 // Check whether the AI time is up and force a draw if it is.
 // This method does not check whether it is needed and must not
 // be called if global.skippingComputerPlay is false!
-static inline void check_overtime( AICore& aicore ) {
+static inline void check_overtime( CAICore& aicore ) {
 	// Check every second whether the AI clock
 	// should be changed:
 	if ( second_passed ) {
@@ -725,7 +725,7 @@ static inline void check_overtime( AICore& aicore ) {
 		}
 
 		// in over-time, kill all tanks
-		TANK* tank = nullptr;
+		CTank* tank = nullptr;
 		global.getHeadOfClass( CLASS_TANK, &tank );
 		while ( tank ) {
 			// reclaim shield. This is fair, because technically
@@ -808,7 +808,7 @@ static inline void check_winner() {
 	int32_t last_alive   = -1;
 
 	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
-		TANK* tank = env.players[ i ]->tank;
+		CTank* tank = env.players[ i ]->tank;
 		if ( tank && tank->l && !tank->destroy && tank->player ) {
 			eTeamTypes team = tank->player->team;
 			if ( TEAM_SITH != team ) {
@@ -845,11 +845,11 @@ static inline void check_winner() {
 	}
 }
 
-static inline void delete_destroyed( AICore& aicore ) {
+static inline void delete_destroyed( CAICore& aicore ) {
 	vobj_t* next_obj = nullptr;
 	vobj_t* obj      = nullptr;
 
-	// do not create new FLOATTEXT instance while deletion is in progress
+	// do not create new CFloatText instance while deletion is in progress
 	aicore.forbidText();
 
 	// Now loop classes and delete destroyed objects
@@ -886,7 +886,7 @@ static inline void delete_destroyed( AICore& aicore ) {
 		global.unlockClass( e_class );
 	} // End of looping classes
 
-	// Eventually re-allow AICore to create FLOATTEXT instances again
+	// Eventually re-allow CAICore to create CFloatText instances again
 	aicore.allowText();
 }
 
@@ -900,7 +900,7 @@ void do_naturals() {
 
 		if ( !( get_rand() % chance ) ) {
 			try {
-				new BEAM(
+				new CBeam(
 					nullptr,
 					1 + ( get_rand() % ( env.screenWidth - 2 ) ),
 					MENUHEIGHT + ( env.isBoxed ? 1 : 0 ),
@@ -929,7 +929,7 @@ void do_naturals() {
 			double  myv = env.slope[ ca ][ 1 ] * 5;
 
 			try {
-				new MISSILE(
+				new CMissile(
 					nullptr,
 					1 + ( get_rand() % ( env.screenWidth - 2 ) ),
 					MENUHEIGHT + ( env.isBoxed ? 1 : 0 ),
@@ -956,7 +956,7 @@ void do_naturals() {
 			double myv = env.slope[ ca ][ 1 ] * 5;
 
 			try {
-				new MISSILE(
+				new CMissile(
 					nullptr,
 					1 + ( get_rand() % ( env.screenWidth - 2 ) ),
 					MENUHEIGHT + ( env.isBoxed ? 1 : 0 ),
@@ -998,13 +998,13 @@ static inline void draw_FPS_Counter() {
 	global.make_update( FPS_pos - 1, MENUHEIGHT + 5, FPS_pos + 60, MENUHEIGHT + 20 );
 }
 
-static inline void draw_objects( AICore& aicore ) {
+static inline void draw_objects( CAICore& aicore ) {
 	vobj_t* obj = nullptr;
 
 	has_deco.store( false, ATOMIC_WRITE );
 	set_clip_rect( global.canvas, 0, MENUHEIGHT, ( env.screenWidth - 1 ), ( env.screenHeight - 1 ) );
 
-	// do not create new FLOATTEXT instance while drawing is in progress
+	// do not create new CFloatText instance while drawing is in progress
 	aicore.forbidText();
 
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
@@ -1027,7 +1027,7 @@ static inline void draw_objects( AICore& aicore ) {
 
 	} // End of looping classes
 
-	// Eventually re-allow AICore to create FLOATTEXT instances again
+	// Eventually re-allow CAICore to create CFloatText instances again
 	aicore.allowText();
 }
 
@@ -1036,7 +1036,7 @@ static inline void draw_mini_scoreboard() {
 	int32_t line = MENUHEIGHT + 2;
 
 	for ( int i = 0; i < env.maxNumTanks; ++i ) {
-		PLAYER* player = env.playerOrder[ i ];
+		CPlayer* player = env.playerOrder[ i ];
 
 		assert( player && "ERROR: player in playerOrder is nullptr!" );
 
@@ -1087,8 +1087,8 @@ static inline void draw_mini_scoreboard() {
 
 /// @brief This method draws the top bar with all current information
 void draw_top_bar() {
-	TANK*          tank          = global.get_curr_tank();
-	PLAYER*        player        = tank ? tank->player : nullptr;
+	CTank*          tank          = global.get_curr_tank();
+	CPlayer*        player        = tank ? tank->player : nullptr;
 	char const*    name          = player ? player->getName() : nullptr;
 	char const*    team_name     = player ? player->getTeamName() : nullptr;
 	int32_t        color         = player ? player->color : BLACK;
@@ -1233,8 +1233,8 @@ static inline bool explode_tanks() {
 		return true; // true, because an explosion is present.
 	}
 
-	TANK* tank       = nullptr;
-	TANK* tmp        = nullptr;
+	CTank* tank       = nullptr;
+	CTank* tmp        = nullptr;
 	bool  res        = false;
 	bool  tanks_left = false;
 
@@ -1354,7 +1354,7 @@ static inline void fire_weapon() {
 
 	// Have everything launched in simultaneous mode
 	if ( TURN_SIMUL == env.turntype ) {
-		TANK* tank = nullptr;
+		CTank* tank = nullptr;
 
 		global.getHeadOfClass( CLASS_TANK, &tank );
 		while ( tank ) {
@@ -1400,7 +1400,7 @@ static inline void init_new_round() {
 	global.newRound();
 
 	// clear floating text
-	FLOATTEXT* txt = nullptr;
+	CFloatText* txt = nullptr;
 	global.getHeadOfClass( CLASS_FLOATTEXT, &txt );
 	while ( txt ) {
 		txt->newRound();
@@ -1455,12 +1455,12 @@ static inline void init_new_round() {
 }
 
 /// @brief Wrapper to combine both human input and AI actions.
-static inline bool manage_input( AICore& aicore ) {
+static inline bool manage_input( CAICore& aicore ) {
 	bool done = false;
 
 	if ( curr_tank && curr_tank->player ) {
 		global.updateMenu = false;
-		PLAYER* player    = curr_tank->player;
+		CPlayer* player    = curr_tank->player;
 		bool    can_fire  = !( has_action.load( ATOMIC_READ ) || has_explosion.load( ATOMIC_READ ) );
 		int32_t result    = player->controlTank( &aicore, can_fire );
 
@@ -1550,7 +1550,7 @@ static inline void set_tank_settings() {
 			for ( int32_t round = 0; round < middle; ++round ) {
 				int32_t target = get_rand() % global.numTanks;
 				if ( target != index ) {
-					TANK* tmp_tank         = global.order[ index ];
+					CTank* tmp_tank         = global.order[ index ];
 					global.order[ index ]  = global.order[ target ];
 					global.order[ target ] = tmp_tank;
 				}
@@ -1575,7 +1575,7 @@ static inline void set_tank_settings() {
 					}
 				}
 				if ( swap ) {
-					TANK* tempTank            = global.order[ index ];
+					CTank* tempTank            = global.order[ index ];
 					global.order[ index ]     = global.order[ index + 1 ];
 					global.order[ index + 1 ] = tempTank;
 					sorted                    = false;
@@ -1864,7 +1864,7 @@ static inline void update_objects( ObjectUpdater* upd ) {
 	}
 
 	// Reset SDI shot status on all tanks
-	TANK* lt = nullptr;
+	CTank* lt = nullptr;
 	global.getHeadOfClass( CLASS_TANK, &lt );
 	while ( lt ) {
 		if ( lt->player ) {

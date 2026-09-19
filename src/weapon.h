@@ -73,10 +73,10 @@ enum weaponType {
 
 #define LAST_EXPLOSIVE DRILLER
 
-/** @class WEAPON
+/** @class CWeapon
  * @brief Weapon stats record.
  **/
-class WEAPON {
+class CWeapon {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -84,7 +84,7 @@ public:
 	 */
 
 	/// Construct default weapon stats.
-	explicit WEAPON();
+	explicit CWeapon();
 
 
 	/* -----------------------------------

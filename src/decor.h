@@ -26,10 +26,10 @@
 
 enum decorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
 
-/** @class DECOR
+/** @class CDecor
  * @brief Dirt and smoke debris.
  **/
-class DECOR final : public CPhysicalObject {
+class CDecor final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -37,10 +37,10 @@ public:
 	 */
 
 	/// Create smoke or dirt without a bitmap.
-	explicit DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ );
+	explicit CDecor( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ );
 
 	/// Create debris with bitmaps.
-	DECOR( double       x_,
+	CDecor( double       x_,
 	       double       y_,
 	       double       xv_,
 	       double       yv_,
@@ -52,7 +52,7 @@ public:
 
 
 	/// Destroy debris.
-	~DECOR() final;
+	~CDecor() final;
 
 
 	/* -----------------------------------

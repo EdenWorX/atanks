@@ -38,7 +38,7 @@ enum ePhysType {
 
 
 #ifndef HAS_PLAYER
-class PLAYER;
+class CPlayer;
 #endif // HAS_PLAYER
 
 /** @class CVirtualObject
@@ -121,7 +121,7 @@ public:
 
 	bool            destroy = false;   ///< Flagged for deletion.
 	CVirtualObject* next    = nullptr; ///< Successor in the class list.
-	PLAYER*         player  = nullptr; ///< Owning player.
+	CPlayer*         player  = nullptr; ///< Owning player.
 	CVirtualObject* prev    = nullptr; ///< Predecessor in the class list.
 	double          x       = 0.;      ///< Horizontal position.
 	double          y       = 0.;      ///< Vertical position.

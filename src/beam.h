@@ -45,10 +45,10 @@ struct POINT_t {
 	explicit POINT_t() = default;
 };
 
-/** @class BEAM
+/** @class CBeam
  * @brief Laser weapon.
  **/
-class BEAM final : public CPhysicalObject {
+class CBeam final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -56,11 +56,11 @@ public:
 	 */
 
 	/// Fire an angled beam.
-	explicit BEAM( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
+	explicit CBeam( CPlayer* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
 	/// Fire a point-to-point beam.
-	BEAM( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
+	CBeam( CPlayer* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
 	/// Destroy a beam.
-	~BEAM() final;
+	~CBeam() final;
 
 
 	/* ----------------------
@@ -102,7 +102,7 @@ private:
 	int32_t   seed      = 0;
 	int32_t   tgtLeftX  = 0;
 	int32_t   tgtRightX = 0;
-	WEAPON*   weap      = nullptr;
+	CWeapon*   weap      = nullptr;
 };
 
 #endif // BEAM_DEFINE

@@ -31,13 +31,13 @@
 #define VIOLENT_CHANCE 6
 
 
-class PLAYER;
-class EXPLOSION;
+class CPlayer;
+class CExplosion;
 
-/** @class TANK
+/** @class CTank
  * @brief Player tank avatar.
  **/
-class TANK final : public CPhysicalObject {
+class CTank final : public CPhysicalObject {
 
 public:
 	/* -----------------------------------
@@ -46,9 +46,9 @@ public:
 	 */
 
 	/// Construct a tank.
-	explicit TANK();
+	explicit CTank();
 	/// Destroy a tank.
-	~TANK() final;
+	~CTank() final;
 
 
 	/* ----------------------
@@ -58,7 +58,7 @@ public:
 
 	void    activate();                                                                                      ///< Show turn labels.
 	void    activateCurrentSelection();                                                                      ///< Fire selected weapon.
-	void    addDamage( PLAYER* damageFrom, double damage_ );                                                 ///< Record inbound damage.
+	void    addDamage( CPlayer* damageFrom, double damage_ );                                                 ///< Record inbound damage.
 	void    applyDamage();                                                                                   ///< Apply recorded damage.
 	void    applyPhysics() final;                                                                            ///< Advance physics.
 	void    check_weapon();                                                                                  ///< Validate weapon index.
@@ -98,12 +98,12 @@ public:
 	int32_t   a                 = 90;      ///< Aim angle.
 	int32_t   cw                = SML_MIS; ///< Current weapon index.
 	int32_t   fire_another_shot = 0;       ///< Pending extra shots.
-	FLOATTEXT healthText;                  ///< Health label.
+	CFloatText healthText;                  ///< Health label.
 	int32_t   l = 100;                     ///< Life.
-	FLOATTEXT nameText;                    ///< Name label.
+	CFloatText nameText;                    ///< Name label.
 	int32_t   p  = MAX_POWER / 2;          ///< Shot power.
 	int32_t   sh = 0;                      ///< Shield strength.
-	FLOATTEXT shieldText;                  ///< Shield label.
+	CFloatText shieldText;                  ///< Shield label.
 	int32_t   sht = 0;                     ///< Shield type.
 
 private:
@@ -122,7 +122,7 @@ private:
 	 * -----------------------
 	 */
 
-	PLAYER*   creditTo = nullptr;
+	CPlayer*   creditTo = nullptr;
 	double    damage   = 0.;
 	CSpinLock damage_lock;
 	int32_t   delay_fall       = env.landSlideDelay * 100; //!< time the tank will hover

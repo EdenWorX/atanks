@@ -23,9 +23,9 @@
 
 // They are filled here, declaring them here prevents the linker
 // from 'optimizing' them away.
-WEAPON weapon[ WEAPONS ];
-WEAPON naturals[ NATURALS ];
-ITEM   item[ ITEMS ];
+CWeapon weapon[ WEAPONS ];
+CWeapon naturals[ NATURALS ];
+CItem   item[ ITEMS ];
 
 /** @brief Save the current game in progress
  * This function saves the game in progress.
@@ -65,7 +65,7 @@ bool Save_Game() {
 	// write player data
 	fprintf( game_file, "PLAYERS\n" );
 	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
-		PLAYER* my_player = env.players[ i ];
+		CPlayer* my_player = env.players[ i ];
 
 		if ( my_player->index > -1 ) {
 			// Note: This line is needed to know which player to load

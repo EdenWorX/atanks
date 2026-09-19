@@ -122,7 +122,7 @@ narrow responsibilities:
   `:119-127`), and MSVC portability shims (`:102-115`).
 - `src/externs.h:48-49` re-exports the two globals as `extern` for every translation unit except `src/atanks.cpp` (guarded by
   `ATANKS_ATANKS_CPP`, `:45-80`). It also declares shared scalars and the three content catalogs (`:53-69`).
-- Content catalogs, defined in `src/files.cpp:26-28`: `WEAPON weapon[WEAPONS]`, `WEAPON naturals[NATURALS]`, `ITEM item[ITEMS]`,
+- Content catalogs, defined in `src/files.cpp:26-28`: `CWeapon weapon[WEAPONS]`, `CWeapon naturals[NATURALS]`, `CItem item[ITEMS]`,
   with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (`src/main.h:264-267`).
 - `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct gradient;`.
 - `src/gfxData.h` (`sGfxData`) owns generated gradient strips and explosion graphics.
@@ -137,14 +137,14 @@ narrow responsibilities:
 |---|---|---|
 | Object hierarchy root | `src/virtobj.h/.cpp` (`CVirtualObject`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `getClass()` |
 | Physics mixin | `src/physobj.h/.cpp` (`CPhysicalObject : CVirtualObject`) | Gravity/drag/mass, bounces, `weapType`, angle macros |
-| Tank avatar | `src/tank.h/.cpp` (`TANK final : CPhysicalObject`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
-| Projectile | `src/missile.h/.cpp` (`MISSILE final : CPhysicalObject`) | `eMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
-| Detonation | `src/explosion.h/.cpp` (`EXPLOSION final : CPhysicalObject`) | Terrain deformation, throwing, damage, napalm/debris |
+| Tank avatar | `src/tank.h/.cpp` (`CTank final : CPhysicalObject`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
+| Projectile | `src/missile.h/.cpp` (`CMissile final : CPhysicalObject`) | `eMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
+| Detonation | `src/explosion.h/.cpp` (`CExplosion final : CPhysicalObject`) | Terrain deformation, throwing, damage, napalm/debris |
 | Beams (lasers) | `src/beam.h/.cpp` | Laser-class weapons parallel to ballistic missiles |
 | Arsenal data | `src/weapon.h/.cpp`, `src/item.h/.cpp` | Plain records: 56 weapons + 6 naturals + 24 items; unified index `THINGS = WEAPONS+ITEMS` |
 | Player state | `src/player.h/.cpp` | Economy, inventories `nm[WEAPONS]/ni[ITEMS]`, personality, opponent memory, shop prefs, save/load, speech-line selection |
 | Player/AI types | `src/player_types.h/.cpp` | `playerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `ePlayerStages`, `eTeamTypes{SITH,NEUTRAL,JEDI}`, modular enum arithmetic |
-| AI | `src/aicore.h/.cpp` (`AICore`) | Background-thread bot with documented pipeline: initialize, target/weapon selection, attack calculation, aiming traces, writeback |
+| AI | `src/aicore.h/.cpp` (`CAICore`) | Background-thread bot with documented pipeline: initialize, target/weapon selection, attack calculation, aiming traces, writeback |
 | Shop | `src/shop.h/.cpp` (`bool shop(LevelCreator*)`) | Inter-round buy/sell UI |
 | Scoring | `src/score.h/.cpp` (`sScore`, `sort_scores()`) | Caller deletes the returned array |
 | Terrain/sky | `src/land.h/.cpp`, `src/sky.h/.cpp`, `src/levelcreator.h/.cpp`, `src/moon.h/.cpp`, `src/satellite.h/.cpp`, `src/teleport.h/.cpp`, `src/decor.h/.cpp`, `src/debris_pool.h/.cpp`, `src/floattext.h/.cpp` | 16 land + 16 sky gradients each (8 classic + 8 crispy), generators, decor, debris, floating text |
@@ -210,10 +210,10 @@ The following were classified as external by metadata inspection; their internal
    |                               |
    +-- main-menu loop .............+-- round driver game() (gameloop.cpp)
    |    (menu/options/players/       |    |
-   |     shop/selectPlayers)         |    +-- AICore thread (aicore.h) per AI tank
+   |     shop/selectPlayers)         |    +-- CAICore thread (aicore.h) per AI tank
    |                                 |    +-- ObjectUpdater threads per eClass
-   |                                 |    +-- object lists: TANK / MISSILE / BEAM /
-   |                                 |         EXPLOSION / TELEPORT / DECOR / FLOATTEXT
+   |                                 |    +-- object lists: CTank / CMissile / CBeam /
+   |                                 |         CExplosion / CTeleport / CDecor / CFloatText
    v                                 v
  files.cpp ................. config/save/weapon-text loading
  text.cpp .................. TEXTBLOCK localization
@@ -221,10 +221,10 @@ The following were classified as external by metadata inspection; their internal
  network.cpp / client.cpp .. host/client transport (NETWORK builds)
 ```
 
-- Draw/update ordering follows `eClass` in `src/globaltypes.h` (`CLASS_MISSILE, BEAM, TANK, TELEPORT, DECOR_DIRT, SMOKE,
-  EXPLOSION, FLOATTEXT, COUNT`).
+- Draw/update ordering follows `eClass` in `src/globaltypes.h` (`CLASS_MISSILE, CBeam, CTank, CTeleport, DECOR_DIRT, SMOKE,
+  CExplosion, CFloatText, COUNT`).
 - Round stages follow `eRoundStages` (`STAGE_AIM, STAGE_FIRE, STAGE_SCOREBOARD, STAGE_ENDGAME`).
-- Threading: `AICore` runs bot planning off the main thread (`mutex`/`condition_variable`, `start/stop/status` in
+- Threading: `CAICore` runs bot planning off the main thread (`mutex`/`condition_variable`, `start/stop/status` in
   `src/aicore.h`); `gameloop.cpp:89-243` spawns one `ObjectUpdater` thread per class behind `updMutex/updCondition` (`:85-86`)
   and joins them at `:497-541`. `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
   `CMakeLists.txt`).
@@ -308,7 +308,7 @@ None exist in the repository.
   else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, `src/main.h:144-148`). `Copy_Config_File()`
   (`src/files.cpp:334-390`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
 - Main settings file: `<configDir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
-  `env.load_from_file()` plus per-player `PLAYER::load_from_file`) and written by `Save_Game_Settings()` (`:1448-1463`).
+  `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `Save_Game_Settings()` (`:1448-1463`).
   `--noconfig` skips loading.
 - Weapon/item stats: `Load_Weapons_Text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<dataDir>/text/weapons*.txt`,
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
@@ -373,13 +373,13 @@ Standalone helpers (not built by `Makefile`):
 
 1. Startup resolves `dataDir` and `configDir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
    sounds, and background music (`CEnvironment::loadGameFiles()`, `src/environment.cpp:1311`).
-2. Menu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `PLAYER` objects (names, colors, teams,
+2. Menu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `CPlayer` objects (names, colors, teams,
    inventories, money).
 3. `game()` (`src/gameloop.cpp:246`) runs a round: `init_new_round()` (`:261`), `set_tank_settings()` (`:270`), spawn of the
-   `AICore` thread and per-class `ObjectUpdater` threads, then the frame loop (`:316-489`) over stages `STAGE_AIM -> STAGE_FIRE
+   `CAICore` thread and per-class `ObjectUpdater` threads, then the frame loop (`:316-489`) over stages `STAGE_AIM -> STAGE_FIRE
    -> STAGE_SCOREBOARD -> STAGE_ENDGAME`.
-4. Firing creates `MISSILE`/`BEAM` objects; impacts create `EXPLOSION`s, which deform `global.surface`/`global.terrain`, throw
-   tanks, apply damage (with `TANK::damage_lock`), spawn debris/floattext, and may trigger AI revenge/panic logic via opponent
+4. Firing creates `CMissile`/`CBeam` objects; impacts create `CExplosion`s, which deform `global.surface`/`global.terrain`, throw
+   tanks, apply damage (with `CTank::damage_lock`), spawn debris/floattext, and may trigger AI revenge/panic logic via opponent
    memory.
 5. Round end credits winners (`CEnvironment::creditWinners`), sorts scores (`sort_scores()`), opens the shop for the next round,
    and persists settings and optional savegames to the config directory.
@@ -452,7 +452,7 @@ Standalone helpers (not built by `Makefile`):
   `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
   strings), keep the numeric field count in sync with `Load_Weapons_Text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
-  `src/main.h:264-267` if the count changes; check AI selection (`AICore`), shop availability (`CEnvironment::genItemsList`), and
+  `src/main.h:264-267` if the count changes; check AI selection (`CAICore`), shop availability (`CEnvironment::genItemsList`), and
   sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
   (INI or YAML) with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
 - New option/menu entry: add the `eMenuClass`/`eEntryType` value in `src/optiontypes.h`, construct the item in
@@ -468,7 +468,7 @@ Standalone helpers (not built by `Makefile`):
 - `src/main.h` include order is load-bearing: `debug.h` must precede Allegro headers on Windows (`src/main.h:39-42`).
 - `globals.h` may only be included from `src/atanks.cpp`; every other unit uses `externs.h` (`src/globals.h:1-3`,
   `src/externs.h:45-80`).
-- `WEAPON::getDelayDiv()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
+- `CWeapon::getDelayDiv()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
 - The `NETWORK` define reaches the code via generated `config.h` on Linux and BSD builds; macOS builds do not get it, and
   there is no CMake Windows build. Network play is currently a Linux-only first draft; proper network development is deferred
   until after the Cleanup and Modernization task (`TODO.md`).

@@ -111,7 +111,7 @@ void editPlayers() {
 	Menu    menu( MC_PLAYERS, env.halfWidth - menuMid, env.menuBeginY );
 
 	// "Create New"
-	PLAYER *player_new  = nullptr;
+	CPlayer *player_new  = nullptr;
 	int32_t first_idx   = menu.addMenu( &player_new, new_player, 1, menuMid - 53, itemY, 100, itemHeight, itemPadding );
 	itemY              += itemHeight + itemPadding;
 
@@ -166,7 +166,7 @@ void editPlayers() {
 			--last_idx;
 
 			// The player has to be deleted, too:
-			PLAYER *to_delete = env.allPlayers[ num ];
+			CPlayer *to_delete = env.allPlayers[ num ];
 			env.deletePermPlayer( to_delete );
 
 			// redistribute the remaining:

@@ -63,7 +63,7 @@ bool Parse_Client_Data( char *buffer ) {
 			SAFE_STOD( ( global.client_player->tank->x ), args[ 1 ] );
 			SAFE_STOD( ( global.client_player->tank->y ), args[ 2 ] );
 		}
-	} else if ( !strcmp( args[ 0 ], "BEAM" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CBeam" ) ) {
 		double my_x = 0., my_y = 0.;
 		int    my_angle = 0, my_type = 0;
 		SAFE_STOD( my_x, args[ 1 ] );
@@ -71,7 +71,7 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( my_angle, args[ 3 ] );
 		SAFE_STOI( my_type, args[ 4 ] );
 		try {
-			new BEAM( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
+			new CBeam( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create beam failed in client code: %s\n", e.what() );
 		}
@@ -84,19 +84,19 @@ bool Parse_Client_Data( char *buffer ) {
 			env.isBoxed = false;
 		}
 		return true;
-	} else if ( !strcmp( args[ 0 ], "EXPLOSION" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CExplosion" ) ) {
 		double my_x = 0., my_y = 0.;
 		int    my_type = 0;
 		SAFE_STOD( my_x, args[ 1 ] );
 		SAFE_STOD( my_y, args[ 2 ] );
 		SAFE_STOI( my_type, args[ 3 ] );
 		try {
-			new EXPLOSION( nullptr, my_x, my_y, 0., 0., my_type, true );
+			new CExplosion( nullptr, my_x, my_y, 0., 0., my_type, true );
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create explosion failed in client code: %s\n", e.what() );
 		}
 		return false;
-	} else if ( !strcmp( args[ 0 ], "ITEM" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CItem" ) ) {
 		int itemindex = 0, amount = 0;
 		SAFE_STOI( itemindex, args[ 1 ] );
 		SAFE_STOI( amount, args[ 2 ] );
@@ -135,7 +135,7 @@ bool Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "WIND" ) ) {
 		SAFE_STOD( ( global.wind ), args[ 1 ] );
 		return true;
-	} else if ( !strcmp( args[ 0 ], "MISSILE" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CMissile" ) ) {
 		int    my_type = 0;
 		double my_x = 0., my_y = 0., delta_x = 0., delta_y = 0.;
 		SAFE_STOD( my_x, args[ 1 ] );
@@ -144,7 +144,7 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOD( delta_y, args[ 4 ] );
 		SAFE_STOI( my_type, args[ 5 ] );
 		try {
-			new MISSILE( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
+			new CMissile( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create missile failed in client code: %s\n", e.what() );
 		}
@@ -154,14 +154,14 @@ bool Parse_Client_Data( char *buffer ) {
 		// create the players in question
 		for ( int counter = 0; counter < env.numGamePlayers; counter++ ) {
 			try {
-				env.players[ counter ] = new PLAYER();
+				env.players[ counter ] = new CPlayer();
 			} catch ( std::bad_alloc &e ) {
-				printf( "Attempt to create PLAYER failed in client code: %s\n", e.what() );
+				printf( "Attempt to create CPlayer failed in client code: %s\n", e.what() );
 			}
 			try {
-				env.players[ counter ]->tank = new TANK();
+				env.players[ counter ]->tank = new CTank();
 			} catch ( std::bad_alloc &e ) {
-				printf( "Attempt to create TANK failed in client code: %s\n", e.what() );
+				printf( "Attempt to create CTank failed in client code: %s\n", e.what() );
 			}
 			env.players[ counter ]->tank->player = env.players[ counter ];
 			env.players[ counter ]->tank->nameText.set_text( nullptr );
@@ -233,7 +233,7 @@ bool Parse_Client_Data( char *buffer ) {
 		return true;
 	} else if ( !strcmp( args[ 0 ], "TANKPOSITION" ) ) {
 		int     player_number = 0, x = 0, y = 0;
-		PLAYER *my_player;
+		CPlayer *my_player;
 
 		SAFE_STOI( player_number, args[ 1 ] );
 		my_player = env.players[ player_number ];
@@ -269,7 +269,7 @@ bool Parse_Client_Data( char *buffer ) {
 		if ( player_number == ( env.numGamePlayers - 1 ) ) {
 			return true;
 		}
-	} else if ( !strcmp( args[ 0 ], "TELEPORT" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CTeleport" ) ) {
 		int player_num = 0;
 		int new_x = 0, new_y = 0;
 
@@ -277,9 +277,9 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( new_x, args[ 2 ] );
 		SAFE_STOI( new_y, args[ 3 ] );
 		if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
-			TANK *lt = env.players[ player_num ]->tank;
+			CTank *lt = env.players[ player_num ]->tank;
 			try {
-				new TELEPORT( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
+				new CTeleport( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
 			} catch ( std::bad_alloc &e ) {
 				printf( "Attempt to create teleport failed in client code: %s\n", e.what() );
 			}
@@ -302,7 +302,7 @@ bool Parse_Client_Data( char *buffer ) {
 				break;
 		}
 		return true;
-	} else if ( !strcmp( args[ 0 ], "WEAPON" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CWeapon" ) ) {
 		int weaponindex = 0, amount = 0;
 		SAFE_STOI( weaponindex, args[ 1 ] );
 		SAFE_STOI( amount, args[ 2 ] );
@@ -351,7 +351,7 @@ void Create_Sky() {
 } // end of create sky function
 
 // Send a shot command to the server
-bool Client_Fire( PLAYER *my_player, int my_socket ) {
+bool Client_Fire( CPlayer *my_player, int my_socket ) {
 	if ( !my_player ) {
 		return false;
 	}
@@ -365,7 +365,7 @@ bool Client_Fire( PLAYER *my_player, int my_socket ) {
 }
 
 // Adjust our power on the client side
-bool Client_Power( PLAYER *my_player, int more_or_less ) {
+bool Client_Power( CPlayer *my_player, int more_or_less ) {
 	if ( ( my_player ) && ( my_player->tank ) ) {
 		if ( ( more_or_less == CLIENT_UP ) && ( my_player->tank->p < 1996 ) ) {
 			my_player->tank->p += 5;
@@ -377,7 +377,7 @@ bool Client_Power( PLAYER *my_player, int more_or_less ) {
 	return false;
 }
 
-bool Client_Angle( PLAYER *my_player, int left_or_right ) {
+bool Client_Angle( CPlayer *my_player, int left_or_right ) {
 	if ( !my_player ) {
 		return false;
 	}
@@ -393,7 +393,7 @@ bool Client_Angle( PLAYER *my_player, int left_or_right ) {
 	return true;
 }
 
-bool Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
+bool Client_Cycle_Weapon( CPlayer *my_player, int forward_or_back ) {
 	bool found = false;
 
 	if ( !my_player->tank ) {
@@ -483,7 +483,7 @@ int Game_Client( int socket_number ) {
 	global.getHeadOfClass( CLASS_FLOATTEXT, &my_object );
 	while ( my_object ) {
 		my_object->getNext( &next_obj );
-		dynamic_cast< FLOATTEXT * >( my_object )->newRound();
+		dynamic_cast< CFloatText * >( my_object )->newRound();
 		delete my_object;
 	}
 
@@ -555,10 +555,10 @@ int Game_Client( int socket_number ) {
 									strcpy( buffer, "WHOAMI" );
 									break;
 								case CLIENT_WEAPONS:
-									strcpy( buffer, "WEAPON 0" );
+									strcpy( buffer, "CWeapon 0" );
 									break;
 								case CLIENT_ITEMS:
-									strcpy( buffer, "ITEM 0" );
+									strcpy( buffer, "CItem 0" );
 									break;
 								case CLIENT_ROUNDS:
 									strcpy( buffer, "ROUNDS" );
@@ -593,13 +593,13 @@ int Game_Client( int socket_number ) {
 								if ( global.client_player->tank->cw < WEAPONS ) {
 									SAFE_WRITE(
 										socket_number,
-										"WEAPON %d",
+										"CWeapon %d",
 										global.client_player->tank->cw
 									);
 								} else {
 									SAFE_WRITE(
 										socket_number,
-										"ITEM %d",
+										"CItem %d",
 										global.client_player->tank->cw - WEAPONS
 									);
 								}
@@ -608,7 +608,7 @@ int Game_Client( int socket_number ) {
 							SAFE_WRITE( socket_number, "SURFACE %d", surface_x );
 							surface_x++;
 						} else if ( game_stage == CLIENT_ITEMS ) {
-							SAFE_WRITE( socket_number, "ITEM %d", item_number );
+							SAFE_WRITE( socket_number, "CItem %d", item_number );
 							item_number++;
 						} else if ( game_stage == CLIENT_TANK_POSITION ) {
 							SAFE_WRITE( socket_number, "TANKPOSITION %d", tank_position );
@@ -629,7 +629,7 @@ int Game_Client( int socket_number ) {
 							SAFE_WRITE( socket_number, "PLAYERNAME %d", name_number );
 							name_number++;
 						} else if ( game_stage == CLIENT_WEAPONS ) {
-							SAFE_WRITE( socket_number, "WEAPON %d", weapon_number );
+							SAFE_WRITE( socket_number, "CWeapon %d", weapon_number );
 							weapon_number++;
 						} else if ( game_stage == CLIENT_PLAYING ) {
 							time_clock++;
@@ -671,7 +671,7 @@ int Game_Client( int socket_number ) {
 				my_object->getNext( &next_obj );
 
 				if ( CLASS_EXPLOSION == class_ ) {
-					dynamic_cast< EXPLOSION * >( my_object )->explode();
+					dynamic_cast< CExplosion * >( my_object )->explode();
 				}
 
 				my_object->applyPhysics();

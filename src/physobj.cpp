@@ -37,7 +37,7 @@ bool CPhysicalObject::isWeapon() const {
 	return isWeaponFire;
 }
 
-/// @brief get the current velocity. Only important for AICore to track clusters.
+/// @brief get the current velocity. Only important for CAICore to track clusters.
 void CPhysicalObject::getVelocity( double &xv_, double &yv_ ) {
 	xv_ = xv;
 	yv_ = yv;

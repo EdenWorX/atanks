@@ -39,8 +39,8 @@ static int32_t beamSeed   = 0;
 static void lazerPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t color );
 static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
 
-/// @brief BEAM constructor
-BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type )
+/// @brief CBeam constructor
+CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type )
 	: CPhysicalObject( BT_WEAPON == beam_type )
 	, beamType( beam_type )
 	, tgtRightX( env.screenWidth ) {
@@ -49,11 +49,11 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 
 	assert( ( ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) )
 	          || ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) )
-	        && "ERROR: BEAM ctor called with something else than Lightning or Laser!" );
+	        && "ERROR: CBeam ctor called with something else than Lightning or Laser!" );
 
 #ifdef NETWORK
 	char buffer[ 256 ];
-	sprintf( buffer, "BEAM %d %d %d %d", (int)x_, (int)y_, fireAngle, weaponType );
+	sprintf( buffer, "CBeam %d %d %d %d", (int)x_, (int)y_, fireAngle, weaponType );
 	env.sendToClients( buffer );
 #endif // NETWORK
 
@@ -124,8 +124,8 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, int32_t fireAngle, int32_t we
 }
 
 /// @brief special constructor for SDI lasers
-BEAM::BEAM( PLAYER *player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out )
-	: BEAM( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, weaponType, BT_SDI ) {
+CBeam::CBeam( CPlayer *player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out )
+	: CBeam( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, weaponType, BT_SDI ) {
 	if ( player ) {
 		++player->sdiShots;
 	}
@@ -142,8 +142,8 @@ BEAM::BEAM( PLAYER *player_, double x_, double y_, double tx, double ty, int32_t
 	points[ numPoints - 1 ].y = ROUND( ty );
 }
 
-/// @brief BEAM destructor
-BEAM::~BEAM() {
+/// @brief CBeam destructor
+CBeam::~CBeam() {
 	requireUpdate();
 	update();
 
@@ -155,7 +155,7 @@ BEAM::~BEAM() {
 		global.addLandSlide( tgtLeftX, tgtRightX, false );
 
 		// Apply damage to all hit tanks:
-		TANK *lt = nullptr;
+		CTank *lt = nullptr;
 		global.getHeadOfClass( CLASS_TANK, &lt );
 		while ( lt ) {
 			lt->applyDamage();
@@ -172,7 +172,7 @@ BEAM::~BEAM() {
 	}
 }
 
-void BEAM::applyPhysics() {
+void CBeam::applyPhysics() {
 	if ( ++age > maxAge ) {
 		destroy = true;
 	}
@@ -184,7 +184,7 @@ void BEAM::applyPhysics() {
 	if ( BT_MIND_SHOT != beamType ) {
 		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 5 ) ) ) {
 			try {
-				new DECOR(
+				new CDecor(
 					points[ numPoints - 1 ].x,
 					points[ numPoints - 1 ].y,
 					( get_rand() % 7 ) - 3,
@@ -194,12 +194,12 @@ void BEAM::applyPhysics() {
 					0
 				);
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new DECOR: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CDecor: " << e.what() << std::endl;
 			}
 		}
 
 		try {
-			new EXPLOSION(
+			new CExplosion(
 				player,
 				points[ numPoints - 1 ].x,
 				points[ numPoints - 1 ].y,
@@ -210,12 +210,12 @@ void BEAM::applyPhysics() {
 				isWeaponFire
 			);
 		} catch ( std::exception &e ) {
-			std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
+			std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 		}
 	}
 }
 
-void BEAM::draw() {
+void CBeam::draw() {
 	// never draw mind shots!
 	if ( BT_MIND_SHOT == beamType ) {
 		return;
@@ -257,7 +257,7 @@ void BEAM::draw() {
 // ======================================
 
 /// @brief Create the basic points array with path tracing
-void BEAM::createBeamPath() {
+void CBeam::createBeamPath() {
 	// First determine the direct target - where does the beam end?
 	double tx = x, ty = y;
 	hitSomething = false;
@@ -311,13 +311,13 @@ void BEAM::createBeamPath() {
 }
 
 /// @brief get the end of a mind shot laser
-void BEAM::getEndPoint( int32_t &x, int32_t &y ) {
+void CBeam::getEndPoint( int32_t &x, int32_t &y ) {
 	x = points[ numPoints - 1 ].x;
 	y = points[ numPoints - 1 ].y;
 }
 
 /// @brief create the lightning steps between the beginning and the end
-void BEAM::makeLightningPath() {
+void CBeam::makeLightningPath() {
 	if ( ( numPoints > 2 ) && ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) {
 		int32_t maxP     = numPoints - 1;
 		double  stepping = FABSDISTANCE2( points[ 0 ].x, points[ 0 ].y, points[ maxP ].x, points[ maxP ].y ) / maxP;
@@ -338,7 +338,7 @@ void BEAM::makeLightningPath() {
 }
 
 /// @brief this method is used by the satellite to move the beam with itself.
-void BEAM::moveStart( double x_, double y_ ) {
+void CBeam::moveStart( double x_, double y_ ) {
 	x             = x_;
 	y             = y_;
 	points[ 0 ].x = ROUND( x );
@@ -346,7 +346,7 @@ void BEAM::moveStart( double x_, double y_ ) {
 }
 
 /// @brief walk through the beam points and check whether anything is hit
-void BEAM::traceBeamPath() {
+void CBeam::traceBeamPath() {
 	int32_t minRange = radius + 2;
 	bool    canHit   = false;
 
@@ -385,7 +385,7 @@ void BEAM::traceBeamPath() {
 				canHit = true;
 			}
 			if ( canHit && chkTanks ) {
-				TANK *lt = nullptr;
+				CTank *lt = nullptr;
 				global.getHeadOfClass( CLASS_TANK, &lt );
 				while ( lt ) {
 					// Tank found, is it hit?

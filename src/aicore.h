@@ -23,9 +23,9 @@
  */
 
 /** @file aicore.h
- * @brief Home of the AICore class
+ * @brief Home of the CAICore class
  *
- * This class substituted the old AI code in the PLAYER class.
+ * This class substituted the old AI code in the CPlayer class.
  *
  * While the old AI worked pretty well in most situations, it did
  * lag the game on more intense calculations.
@@ -55,11 +55,11 @@
 #  define NEUTRAL_ROUND_SCORE ( -1000000 )
 
 #  ifndef HAS_PLAYER
-class PLAYER;
+class CPlayer;
 struct sOpponent;
 #  endif // HAS_PLAYER
 #  ifndef HAS_TANK
-class TANK; // forwarding if not known
+class CTank; // forwarding if not known
 #  endif    // HAS_TANK
 
 // These are restricted to aicore.cpp, as
@@ -68,7 +68,7 @@ struct sItemListEntry;
 struct sOppMemEntry;
 struct sWeapListEntry;
 
-/** @class AICore
+/** @class CAICore
  * @brief Core AI, written to be used as a background thread.
  *
  * The AI operator() is the main function that does all the work.
@@ -76,7 +76,7 @@ struct sWeapListEntry;
  * If you need to edit something in that work flow, please try to
  * keep the documentation up-to-date.
  *
- * The following is the work flow in AICore::operator().
+ * The following is the work flow in CAICore::operator().
  *
  *
  * Initialization in initialize():
@@ -406,7 +406,7 @@ struct sWeapListEntry;
  *
  *               Param 1 : The value of is_last is simply transported.
  *
- *             This method calculate x and y offsets for weapons that need it. These offsets are stored in the AICore
+ *             This method calculate x and y offsets for weapons that need it. These offsets are stored in the CAICore
  *             members offset_x and offset_y, as they are needed in multiple places.
  *
  *             If the needed offset is off the screen, or makes no sense, the method returns false. But if is_last is
@@ -623,7 +623,7 @@ struct sWeapListEntry;
  *
  *               Param 1 : Reference to the angle modifier to adapt.
  *               Param 2 : Reference to the power modifier to adapt.
- *               Param 3 : The hit_score achieved with the shot. This is local to AICore::aim() and must be submitted.
+ *               Param 3 : The hit_score achieved with the shot. This is local to CAICore::aim() and must be submitted.
  *
  *             bool angle_was_optimized : true  if the last modification brought the angle nearer to 45° on its side,
  *                                              and false otherwise.
@@ -754,7 +754,7 @@ struct sWeapListEntry;
  *
  *  11  If a different target than in the last round is attacked, add some "last-second-errors".
  **/
-class AICore {
+class CAICore {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -762,13 +762,13 @@ public:
 	 */
 
 	/// Create the AI core.
-	explicit AICore();
+	explicit CAICore();
 	/// Destroy the AI core.
-	~AICore();
+	~CAICore();
 
 	// No copying, no assignment
-	AICore( AICore const& )             = delete;
-	AICore& operator= ( AICore const& ) = delete;
+	CAICore( CAICore const& )             = delete;
+	CAICore& operator= ( CAICore const& ) = delete;
 
 
 	/* ----------------------
@@ -777,7 +777,7 @@ public:
 	 */
 
 	// Getters
-	[[nodiscard]] PLAYER* active_player() const; ///< Planned player.
+	[[nodiscard]] CPlayer* active_player() const; ///< Planned player.
 	[[nodiscard]] bool    can_work() const;      ///< Planning may proceed.
 	[[nodiscard]] bool    hasExited() const;     ///< Planning thread finished.
 
@@ -789,7 +789,7 @@ public:
 	/// Report the movement result.
 	void hasMoved( int32_t direction );
 	/// Start planning for a player.
-	bool start( PLAYER* player_ );
+	bool start( CPlayer* player_ );
 	/// Fetch the attack setup.
 	bool status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
 	/// Stop planning.
@@ -906,7 +906,7 @@ private:
 	plStage_t  plStage       = PS_AI_IS_IDLE;
 	sOpponent* revengee      = nullptr;                 //!< If set, it is tried first as a target
 	sOpponent* shocker       = nullptr;                 //!< The current fear shock winner
-	abool_t    textAllowed   = ATOMIC_VAR_INIT( true ); //!< Is new FLOATTEXT allowed?
+	abool_t    textAllowed   = ATOMIC_VAR_INIT( true ); //!< Is new CFloatText allowed?
 	int32_t    weap_idx      = SML_MIS;
 
 	// Values taken from the player and their tank
@@ -936,9 +936,9 @@ private:
 	opEntry_t* mem_head    = nullptr; //!< Last selected entry
 	opEntry_t* mem_last    = nullptr; //!< Entry with highest score
 	bool       needMoney   = false;   //!< Might alter some decisions
-	PLAYER*    player      = nullptr;
+	CPlayer*    player      = nullptr;
 	int32_t    power       = 0; //!< The currently determined best power
-	TANK*      tank        = nullptr;
+	CTank*      tank        = nullptr;
 	weEntry_t* weap_curr   = nullptr; //!< Currently selected entry
 	weEntry_t* weap_head   = nullptr; //!< Last selected entry
 	weEntry_t* weap_last   = nullptr; //!< Entry with highest score

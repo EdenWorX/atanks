@@ -39,10 +39,10 @@ enum itemType {
 
 enum selfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
 
-/** @class ITEM
+/** @class CItem
  * @brief Shop item stats record.
  **/
-class ITEM {
+class CItem {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
@@ -50,7 +50,7 @@ public:
 	 */
 
 	/// Construct default item stats.
-	explicit ITEM();
+	explicit CItem();
 
 
 	/* -----------------------------------

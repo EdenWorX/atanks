@@ -267,7 +267,7 @@ int32_t Menu::
  * Please note: The position @a left / @a top are relative to
  * the menu position.
  *
- * @param[in,out] player_ Pointer to the PLAYER instance to handle.
+ * @param[in,out] player_ Pointer to the CPlayer instance to handle.
  * @param[in,out] action_ Pointer to the action function handling the button click.
  * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
  * @param[in] left Relative left position of the display area to the menu.
@@ -278,8 +278,8 @@ int32_t Menu::
  * @return Number of options in the menu after adding the button.
  **/
 int32_t Menu::addMenu(
-	PLAYER** player,
-	int32_t ( *action_ )( PLAYER** player_, int32_t ),
+	CPlayer** player,
+	int32_t ( *action_ )( CPlayer** player_, int32_t ),
 	int32_t title_idx,
 	int32_t left,
 	int32_t top,
@@ -479,7 +479,7 @@ int32_t Menu::addToggle( bool* target, char const* title_, int32_t color, int le
 	return this->insert_option( curr );
 }
 
-/** @brief This adds an TC_TOGGLE handling PLAYER::selected
+/** @brief This adds an TC_TOGGLE handling CPlayer::selected
  *
  * Please note: The position @a left / @a top are relative to
  * the menu position.
@@ -491,7 +491,7 @@ int32_t Menu::addToggle( bool* target, char const* title_, int32_t color, int le
  * @param[in] height Height of the display area.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addToggle( PLAYER** player, int left, int top, int width, int height, int padding ) {
+int32_t Menu::addToggle( CPlayer** player, int left, int top, int width, int height, int padding ) {
 	OptionItemBase* curr = nullptr;
 
 	assert( player && *player && "ERROR: For a player toggle *player must be valid." );

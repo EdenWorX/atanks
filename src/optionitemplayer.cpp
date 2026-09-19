@@ -17,7 +17,7 @@
  * This class can be both, an ET_MENU (If an @a action_ function is set)
  * or an ET_TOGGLE otherwise.
  *
- * @param[in,out] player_ Pointer to the PLAYER instance to handle.
+ * @param[in,out] player_ Pointer to the CPlayer instance to handle.
  * @param[in,out] action_ Pointer to the action function handling the button click.
  * @param[in] title_ The title of the option to display.
  * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
@@ -28,8 +28,8 @@
  * @param[in] padding_ Padding of the title and buttons to the display area.
  **/
 OptionItemPlayer::OptionItemPlayer(
-	PLAYER** player_,
-	int32_t ( *action_ )( PLAYER** player_, int32_t ),
+	CPlayer** player_,
+	int32_t ( *action_ )( CPlayer** player_, int32_t ),
 	char const* title_,
 	int32_t     titleIdx_,
 	int32_t     top_,

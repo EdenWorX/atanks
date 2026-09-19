@@ -8,7 +8,7 @@
 #define SATELLITE_IMAGE 16
 
 #ifndef BEAM_DEFINE
-class BEAM;
+class CBeam;
 #endif // BEAM_DEFINE
 
 /** @class SATELLITE
@@ -44,7 +44,7 @@ private:
 	 * -----------------------
 	 */
 
-	BEAM*   beam   = nullptr;
+	CBeam*   beam   = nullptr;
 	int32_t x      = 0;
 	int32_t y      = MENUHEIGHT + 5;
 	int32_t xv     = -2;

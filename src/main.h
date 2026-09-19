@@ -332,7 +332,7 @@ enum eClass {
 
 
 #ifndef HAS_TANK
-class TANK; // forwarding if not known
+class CTank; // forwarding if not known
 #endif      // HAS_TANK
 
 /// === Global functions used in several compilation units ====

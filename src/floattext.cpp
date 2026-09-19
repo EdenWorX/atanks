@@ -2,7 +2,7 @@
 
 #include "random.h"
 
-FLOATTEXT::FLOATTEXT(
+CFloatText::CFloatText(
 	char const* text_,
 	double      xpos,
 	double      ypos,
@@ -47,7 +47,7 @@ FLOATTEXT::FLOATTEXT(
 	global.addObject( this );
 }
 
-FLOATTEXT::~FLOATTEXT() {
+CFloatText::~CFloatText() {
 	requireUpdate();
 	this->update();
 
@@ -87,7 +87,7 @@ FLOATTEXT::~FLOATTEXT() {
 	global.removeObject( this );
 }
 
-void FLOATTEXT::applyPhysics() {
+void CFloatText::applyPhysics() {
 	// Opt out early if there is no text to be drawn.
 	if ( ( nullptr == text ) || ( dim_cur.w < 1 ) ) {
 		return;
@@ -131,11 +131,11 @@ void FLOATTEXT::applyPhysics() {
 	}
 }
 
-void FLOATTEXT::check_pos( bool is_new ) {
+void CFloatText::check_pos( bool is_new ) {
 	if ( is_fixed ) {
 		is_pushed = false; // Do nothing.
 	} else {
-		FLOATTEXT* curr          = nullptr;
+		CFloatText* curr          = nullptr;
 		bool       curr_is_older = true; // We start with head, which is the oldest.
 		global.getHeadOfClass( CLASS_FLOATTEXT, &curr );
 
@@ -164,7 +164,7 @@ void FLOATTEXT::check_pos( bool is_new ) {
 #define SAFE_MAKECOL( r_, g_, b_ ) \
 	makecol( r_ < 0 ? 0 : r_ > 255 ? 255 : r_, g_ < 0 ? 0 : g_ > 255 ? 255 : g_, b_ < 0 ? 0 : b_ > 255 ? 255 : b_ )
 
-void FLOATTEXT::draw() {
+void CFloatText::draw() {
 	// Opt out early if there is no text to be drawn.
 	if ( ( nullptr == text ) || !dim_cur.w ) {
 		return;
@@ -245,7 +245,7 @@ void FLOATTEXT::draw() {
 	textout_ex( global.canvas, font, text, left, top, frontCol, -1 );
 }
 
-void FLOATTEXT::newRound() {
+void CFloatText::newRound() {
 	if ( maxAge > 0 ) {
 		age = maxAge + 1;
 	}
@@ -258,7 +258,7 @@ void FLOATTEXT::newRound() {
  *
  * Note: If either is fixed, the method always returns 0.
  **/
-int32_t FLOATTEXT::overlaps_by( const FLOATTEXT* other ) {
+int32_t CFloatText::overlaps_by( const CFloatText* other ) {
 	if ( other && ( other != this ) ) {
 
 		// return at once if either is fixed.
@@ -292,7 +292,7 @@ int32_t FLOATTEXT::overlaps_by( const FLOATTEXT* other ) {
 }
 
 /// @brief push down this text by ydiff pixels
-void FLOATTEXT::push_down( int32_t ydiff, bool is_new ) {
+void CFloatText::push_down( int32_t ydiff, bool is_new ) {
 	if ( ydiff && !is_fixed ) {
 
 		// new(er) texts can be pushed by up to 3, older texts
@@ -322,7 +322,7 @@ void FLOATTEXT::push_down( int32_t ydiff, bool is_new ) {
 }
 
 // Reset movement to begin neutrally if the text is swaying
-void FLOATTEXT::reset_sway() {
+void CFloatText::reset_sway() {
 	xv    = 0.;
 	yv    = 0.;
 	pos_x = x;
@@ -338,7 +338,7 @@ void FLOATTEXT::reset_sway() {
 	dim_cur.y = ROUND( pos_y );
 }
 
-void FLOATTEXT::set_color( int32_t color_ ) {
+void CFloatText::set_color( int32_t color_ ) {
 	if ( color != color_ ) {
 		color = color_;
 	}
@@ -354,7 +354,7 @@ void FLOATTEXT::set_color( int32_t color_ ) {
 	halfColor = GetShadeColor( color, true, sky_col );
 }
 
-void FLOATTEXT::set_pos( int32_t xpos, int32_t ypos ) {
+void CFloatText::set_pos( int32_t xpos, int32_t ypos ) {
 	if ( ( xpos != x ) || ( ypos != y ) ) {
 		x = xpos;
 		y = ypos;
@@ -362,7 +362,7 @@ void FLOATTEXT::set_pos( int32_t xpos, int32_t ypos ) {
 	}
 }
 
-void FLOATTEXT::set_speed( double xv_, double yv_ ) {
+void CFloatText::set_speed( double xv_, double yv_ ) {
 	reset_sway();
 
 	if ( TS_HORIZONTAL != sway ) {
@@ -386,14 +386,14 @@ void FLOATTEXT::set_speed( double xv_, double yv_ ) {
 	}
 }
 
-void FLOATTEXT::set_sway_type( eTextSway sway_type ) {
+void CFloatText::set_sway_type( eTextSway sway_type ) {
 	if ( sway_type != sway ) {
 		sway = sway_type;
 		reset_sway();
 	}
 }
 
-void FLOATTEXT::set_text( char const* text_ ) {
+void CFloatText::set_text( char const* text_ ) {
 	if ( text && text_ && !strcmp( text, text_ ) ) {
 		return;
 	}

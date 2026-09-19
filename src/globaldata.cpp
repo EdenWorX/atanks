@@ -30,7 +30,7 @@
 
 CGlobalData::CGlobalData() {
 	// memset initialization, because Visual C++ 2013 can't do lists, yet.
-	memset( order, 0, sizeof( TANK* ) * MAXPLAYERS );
+	memset( order, 0, sizeof( CTank* ) * MAXPLAYERS );
 	memset( tank_status, 0, sizeof( char ) * 128 );
 	memset( heads, 0, sizeof( vobj_t* ) * CLASS_COUNT );
 	memset( tails, 0, sizeof( vobj_t* ) * CLASS_COUNT );
@@ -158,7 +158,7 @@ void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* ta
 // return true if any living tank is in the given box.
 // left/right and top/bottom are determined automatically.
 bool CGlobalData::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
-	TANK* lt = dynamic_cast< TANK* >( heads[ CLASS_TANK ] );
+	CTank* lt = dynamic_cast< CTank* >( heads[ CLASS_TANK ] );
 
 	while ( lt ) {
 		// Tank found, is it in the box?
@@ -489,7 +489,7 @@ int32_t CGlobalData::get_command() {
 	return c;
 }
 
-TANK* CGlobalData::get_curr_tank() {
+CTank* CGlobalData::get_curr_tank() {
 	return currTank;
 }
 
@@ -503,7 +503,7 @@ sDebrisItem* CGlobalData::get_debris_item( int32_t radius ) {
 	return debris_pool->get_item( radius );
 }
 
-TANK* CGlobalData::get_next_tank( bool* wrapped_around ) {
+CTank* CGlobalData::get_next_tank( bool* wrapped_around ) {
 	bool    found    = false;
 	int32_t index    = tankindex + 1;
 	int32_t oldindex = tankindex;
@@ -529,7 +529,7 @@ TANK* CGlobalData::get_next_tank( bool* wrapped_around ) {
 
 	// If this tank is valid, the currently selected weapon must be checked
 	// first and changed if depleted
-	TANK* next_tank = order[ index ];
+	CTank* next_tank = order[ index ];
 	if ( next_tank && next_tank->player ) {
 		next_tank->check_weapon();
 	}
@@ -543,7 +543,7 @@ TANK* CGlobalData::get_next_tank( bool* wrapped_around ) {
 }
 
 /// @brief randomly return one active tank
-TANK* CGlobalData::get_random_tank() {
+CTank* CGlobalData::get_random_tank() {
 	int32_t idx      = get_rand() % MAXPLAYERS;
 	int32_t attempts = 2;
 	while ( ( !order[ idx ] || order[ idx ]->destroy ) && ( idx < MAXPLAYERS ) && attempts ) {
@@ -907,7 +907,7 @@ void CGlobalData::removeObject( vobj_t* object ) {
 	objLocks[ class_ ].unlock();
 }
 
-void CGlobalData::removeTank( TANK* tank ) {
+void CGlobalData::removeTank( CTank* tank ) {
 	if ( nullptr == tank ) {
 		return;
 	}
@@ -968,7 +968,7 @@ void CGlobalData::set_command( int32_t cmd ) {
 	cmdLock.unlock();
 }
 
-void CGlobalData::set_curr_tank( TANK* tank_ ) {
+void CGlobalData::set_curr_tank( CTank* tank_ ) {
 	if ( tank_ != currTank ) {
 		if ( currTank ) {
 			currTank->deactivate();

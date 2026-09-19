@@ -29,11 +29,11 @@
 #include "wrap_dirent.h"
 
 
-// As everything depends on environment.h, PLAYER, TANK and CVirtualObject
+// As everything depends on environment.h, CPlayer, CTank and CVirtualObject
 // Must be forwarded here, and included before the CEnvironment definition
 class CVirtualObject;
-class TANK;
-class PLAYER;
+class CTank;
+class CPlayer;
 
 
 #ifndef MAX_GRAVITY_DELAY
@@ -89,11 +89,11 @@ public:
 	 * --- Public methods ---
 	 * ----------------------
 	 */
-	void    addGamePlayer( PLAYER* player_ );                            ///< Register a player for the next round.
-	PLAYER* createNewPlayer( char const* player_name );                  ///< Create a player with default settings.
+	void    addGamePlayer( CPlayer* player_ );                            ///< Register a player for the next round.
+	CPlayer* createNewPlayer( char const* player_name );                  ///< Create a player with default settings.
 	void    creditWinners( int32_t winner ) const;                       ///< Pay out round winnings.
 	void    decreaseVolume();                                            ///< Lower the sound volume.
-	void    deletePermPlayer( PLAYER* player_ );                         ///< Delete a permanent player.
+	void    deletePermPlayer( CPlayer* player_ );                         ///< Delete a permanent player.
 	void    destroy();                                                   ///< Free assets; call before Allegro shutdown.
 	void    find_config_dir();                                           ///< Locate or create the config directory.
 	bool    find_data_dir();                                             ///< Locate the data directory.
@@ -110,7 +110,7 @@ public:
 	bool    loadSounds();                                                ///< Load sounds.
 	void    load_text_files();                                           ///< Load localized text.
 	void    newRound();                                                  ///< Reset per-round options.
-	void    removeGamePlayer( PLAYER* player_ );                         ///< Unregister a round player.
+	void    removeGamePlayer( CPlayer* player_ );                         ///< Unregister a round player.
 	void    Reset_Options();                                             ///< Restore default options.
 	bool    save_to_file( FILE* file );                                  ///< Write settings.
 	bool    sendToClients( char const* message ) const;                  ///< Send a short message to all network clients.
@@ -127,7 +127,7 @@ public:
 	 * ----------------------
 	 */
 
-	PLAYER**     allPlayers               = nullptr;                    ///< All known players.
+	CPlayer**     allPlayers               = nullptr;                    ///< All known players.
 	int32_t      availableItems[ THINGS ] = { 0x0 };                    ///< Shop stock index.
 	SAMPLE*      background_music         = nullptr;                    ///< Menu background music.
 	char**       bitmap_filenames         = nullptr;                    ///< Custom bitmap names.
@@ -195,8 +195,8 @@ public:
 	int32_t      number_of_bitmaps         = 0;                         ///< Custom bitmap count.
 	bool         osMouse                   = true;                      ///< Whether we should use the OS or custom mouse.
 	bool         play_music                = true;                      ///< Background music enabled.
-	PLAYER**     players                   = nullptr;                   ///< Round players.
-	PLAYER*      playerOrder[ MAXPLAYERS ] = { nullptr };               ///< Ordered round players.
+	CPlayer**     players                   = nullptr;                   ///< Round players.
+	CPlayer*      playerOrder[ MAXPLAYERS ] = { nullptr };               ///< Ordered round players.
 	uint32_t     rounds                    = 5;                         ///< Round count.
 	int32_t      satellite                 = 0;                         ///< Satellite laser size.
 	uint32_t     saved_gameindex           = 0;                         ///< Selected savegame.

@@ -823,7 +823,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Back",
 	    nullptr } },
 	{   /* -------------------- *
-         * --- PLAYER       --- *
+         * --- CPlayer       --- *
          * -------------------- *
          * Note: The title says "New Player", but this class is used for the
          * player editing, too. There the title is substituted by the player

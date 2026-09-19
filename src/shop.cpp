@@ -16,8 +16,8 @@
 /// ==== helper functions ====
 static int32_t calcPotentialDmg( int32_t weapNum );
 static void    divide_team_money();
-static void    do_ai_shopping( PLAYER* pl, int32_t maxBoost, int32_t maxScore );
-static void    draw_shop( PLAYER* pl );
+static void    do_ai_shopping( CPlayer* pl, int32_t maxBoost, int32_t maxScore );
+static void    draw_shop( CPlayer* pl );
 
 /// ==== External functions used ====
 void draw_simple_bg( bool drawImage );
@@ -32,7 +32,7 @@ private:
 	void do_buy_sell( int32_t pl );
 	void do_human_shopping( int32_t pl );
 	void draw_shop_update( int32_t pl );
-	void draw_weapon_list( PLAYER* pl );
+	void draw_weapon_list( CPlayer* pl );
 	void finish( int32_t pl );
 	void give_interests();
 	void handle_move_up_down();
@@ -179,14 +179,14 @@ void Shop::check_mouse_position() {
 	if ( hoverOver != hoverOver_new ) {
 		if ( hoverOver_new > -1 ) {
 			if ( hoverOver_new < WEAPONS ) {
-				WEAPON* weap = &weapon[ hoverOver_new ];
+				CWeapon* weap = &weapon[ hoverOver_new ];
 				info_text.assign( "Radius: " ).append( std::to_string( weap->radius ) );
 				info_text.append( "\nYield : " )
 					.append( std::to_string( calcPotentialDmg( hoverOver_new ) * weap->spread ) );
 				info_text.append( "\n\n" ).append( weap->getDesc() );
 			} else {
 				int32_t itemNum = hoverOver_new - WEAPONS;
-				ITEM*   it      = &item[ itemNum ];
+				CItem*   it      = &item[ itemNum ];
 				if ( ( itemNum >= ITEM_VENGEANCE ) && ( itemNum <= ITEM_FATAL_FURY ) ) {
 					double potDmg = calcPotentialDmg( ROUND( it->vals[ 0 ] ) ) * it->vals[ 1 ];
 					info_text.assign( "Potential Damage: " ).append( std::to_string( ROUND( potDmg ) ) );
@@ -399,7 +399,7 @@ void Shop::do_human_shopping( int32_t pl ) {
 	}         // end of player shopping loop
 }
 
-void Shop::draw_weapon_list( PLAYER* pl ) {
+void Shop::draw_weapon_list( CPlayer* pl ) {
 	// Some pre-calculations and settings.
 	int32_t        startX         = env.screenWidth - STUFF_BAR_WIDTH;
 	int32_t        halfBar        = STUFF_BAR_HEIGHT / 2;
@@ -909,7 +909,7 @@ bool shop( LevelCreator* lvl_creator ) {
  *  Calculate the potential damage for a given weapon.
  */
 static int32_t calcPotentialDmg( int32_t weapNum ) {
-	WEAPON* weap = &weapon[ weapNum ];
+	CWeapon* weap = &weapon[ weapNum ];
 
 	if ( ( weap->submunition >= 0 ) && ( weap->numSubmunitions > 0 ) ) {
 		return weapon[ weap->submunition ].damage * weap->numSubmunitions;
@@ -988,7 +988,7 @@ static void divide_team_money() {
 }
 
 /// @brief dedicated function for AI shopping.
-void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
+void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 	// Print player info and inventory
 #ifdef ATANKS_DEBUG_FINANCE
 	DEBUG_LOG_FIN( player->getName(), "Starting to buy: (Defensiveness: %4.2lf)", player->defensive )
@@ -1086,7 +1086,7 @@ void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
 	DEBUG_LOG_FIN( player->getName(), "============================================", 0 )
 }
 
-static void draw_shop( PLAYER* pl ) {
+static void draw_shop( CPlayer* pl ) {
 	global.make_update( 0, 0, env.screenWidth, env.screenHeight );
 	global.lockLand();
 	SHOW_MOUSE( nullptr )
