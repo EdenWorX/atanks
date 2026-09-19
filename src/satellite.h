@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_SATELLITE_H_INCLUDED
-#define ATANKS_SRC_SATELLITE_H_INCLUDED 1
+#ifndef ATANKS_SATELLITE_H_INCLUDED
+#define ATANKS_SATELLITE_H_INCLUDED 1
 
 
 #include "environment.h"
@@ -51,4 +51,4 @@ private:
 	int32_t prev_x = 0;
 };
 
-#endif // ATANKS_SRC_SATELLITE_H_INCLUDED
+#endif // ATANKS_SATELLITE_H_INCLUDED

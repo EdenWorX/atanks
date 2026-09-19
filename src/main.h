@@ -1,5 +1,5 @@
-#ifndef MAIN_DEFINE
-#define MAIN_DEFINE
+#ifndef ATANKS_MAIN_H_INCLUDED
+#define ATANKS_MAIN_H_INCLUDED
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -48,7 +48,7 @@
 #  ifndef ALLEGRO_HAVE_STDINT_H
 #    define ALLEGRO_HAVE_STDINT_H 1
 #  endif // ALLEGRO_HAVE_STDINT_H
-#  if !defined( ATANKS_SRC_ATANKS_CPP )
+#  if !defined( ATANKS_ATANKS_CPP )
 #    define ALLEGRO_NO_MAGIC_MAIN
 #  endif // Not called from atanks.cpp
 #endif   // Windows build system
@@ -404,4 +404,4 @@ void   quickChange( bool clearerror );
 
 #include "externs.h"
 
-#endif // MAIN_DEFINE
+#endif // ATANKS_MAIN_H_INCLUDED

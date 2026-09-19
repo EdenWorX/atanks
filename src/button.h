@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_BUTTON_H_INCLUDED
-#define ATANKS_SRC_BUTTON_H_INCLUDED 1
+#ifndef ATANKS_BUTTON_H_INCLUDED
+#define ATANKS_BUTTON_H_INCLUDED 1
 
 #include "box.h"
 #include "main.h"
@@ -56,4 +56,4 @@ private:
 	int32_t     x1, y1, x2, y2, x3, y3; //!< Shortcuts, as those stay fixed.
 };
 
-#endif // ATANKS_SRC_BUTTON_H_INCLUDED
+#endif // ATANKS_BUTTON_H_INCLUDED

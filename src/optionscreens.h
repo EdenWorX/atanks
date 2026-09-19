@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
-#define ATANKS_SRC_OPTIONSCREENS_H_INCLUDED 1
+#ifndef ATANKS_OPTIONSCREENS_H_INCLUDED
+#define ATANKS_OPTIONSCREENS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -36,4 +36,4 @@ void    optionsMenu();
 int32_t selectPlayers();
 
 
-#endif // ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
+#endif // ATANKS_OPTIONSCREENS_H_INCLUDED

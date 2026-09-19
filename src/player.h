@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_PLAYER_H_INCLUDED
-#define ATANKS_SRC_PLAYER_H_INCLUDED 1
+#ifndef ATANKS_PLAYER_H_INCLUDED
+#define ATANKS_PLAYER_H_INCLUDED 1
 
 // Build configuration (CMake only): the NETWORK macro lives in the generated
 // config.h, which must be visible before the first #ifdef NETWORK below
@@ -267,4 +267,4 @@ int32_t edit_player( PLAYER** target, int32_t );
 int32_t new_player( PLAYER** target, int32_t );
 
 
-#endif // ATANKS_SRC_PLAYER_H_INCLUDED
+#endif // ATANKS_PLAYER_H_INCLUDED

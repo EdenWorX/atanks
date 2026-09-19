@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_OPTIONCONTENT_H_INCLUDED
-#define ATANKS_SRC_OPTIONCONTENT_H_INCLUDED 1
+#ifndef ATANKS_OPTIONCONTENT_H_INCLUDED
+#define ATANKS_OPTIONCONTENT_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -1659,4 +1659,4 @@ char const* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
 }; // End of MenuClassText
 
 
-#endif // ATANKS_SRC_OPTIONCONTENT_H_INCLUDED
+#endif // ATANKS_OPTIONCONTENT_H_INCLUDED

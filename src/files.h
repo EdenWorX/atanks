@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_FILES_H_INCLUDED
-#define ATANKS_SRC_FILES_H_INCLUDED 1
+#ifndef ATANKS_FILES_H_INCLUDED
+#define ATANKS_FILES_H_INCLUDED 1
 
 
 // Maximum numbers supported in configuration files
@@ -37,4 +37,4 @@ dirent** Find_Saved_Games( uint32_t& num_files_found );
 
 char**   Find_Bitmaps( int32_t* bitmaps_found );
 
-#endif // ATANKS_SRC_FILES_H_INCLUDED
+#endif // ATANKS_FILES_H_INCLUDED

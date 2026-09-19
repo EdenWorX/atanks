@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_SHOP_H_INCLUDED
-#define ATANKS_SRC_SHOP_H_INCLUDED 1
+#ifndef ATANKS_SHOP_H_INCLUDED
+#define ATANKS_SHOP_H_INCLUDED 1
 
 class LevelCreator; // From levelcreator.h
 
@@ -7,4 +7,4 @@ class LevelCreator; // From levelcreator.h
 bool shop( LevelCreator* lvl_creator );
 
 
-#endif // ATANKS_SRC_SHOP_H_INCLUDED
+#endif // ATANKS_SHOP_H_INCLUDED

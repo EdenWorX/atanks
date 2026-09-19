@@ -10,8 +10,8 @@
 struct BITMAP;
 #endif // ALLEGRO_GFX_H
 
-#ifndef MAIN_DEFINE
+#ifndef ATANKS_MAIN_H_INCLUDED
 struct gradient;
-#endif // MAIN_DEFINE
+#endif // ATANKS_MAIN_H_INCLUDED
 
 #endif // ATANKS_BITMAP_H

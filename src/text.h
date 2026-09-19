@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_TEXT_H_INCLUDED
-#define ATANKS_SRC_TEXT_H_INCLUDED 1
+#ifndef ATANKS_TEXT_H_INCLUDED
+#define ATANKS_TEXT_H_INCLUDED 1
 
 /* This file contains functions for reading text from files and
  * storing it in the game. The entire text file will be kept in memory.
@@ -89,4 +89,4 @@ void        draw_text_in_box( BOX* region, char const* text, bool with_box );
 // hack the newline off a string
 void Trim_Newline( char* line );
 
-#endif // ATANKS_SRC_TEXT_H_INCLUDED
+#endif // ATANKS_TEXT_H_INCLUDED

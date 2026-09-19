@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_CLIENT_H_INCLUDED
-#define ATANKS_SRC_CLIENT_H_INCLUDED 1
+#ifndef ATANKS_CLIENT_H_INCLUDED
+#define ATANKS_CLIENT_H_INCLUDED 1
 
 // Build configuration (CMake only): the NETWORK macro lives in the generated
 // config.h, which must be visible before the first #ifdef NETWORK below
@@ -45,9 +45,9 @@
 
 #include <cstdint>
 
-#ifndef ATANKS_SRC_PLAYER_H_INCLUDED
+#ifndef ATANKS_PLAYER_H_INCLUDED
 struct PLAYER;
-#endif // ATANKS_SRC_PLAYER_H_INCLUDED
+#endif // ATANKS_PLAYER_H_INCLUDED
 
 // This function takes some data from the server
 // and tries to figure out what to do with it.
@@ -72,4 +72,4 @@ char const *Explain_Error( int32_t error_code );
 
 int         Game_Client( int socket_number );
 
-#endif // ATANKS_SRC_CLIENT_H_INCLUDED
+#endif // ATANKS_CLIENT_H_INCLUDED

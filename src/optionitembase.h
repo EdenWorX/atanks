@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_OPTIONITEMBASE_H_INCLUDED
-#define ATANKS_SRC_OPTIONITEMBASE_H_INCLUDED 1
+#ifndef ATANKS_OPTIONITEMBASE_H_INCLUDED
+#define ATANKS_OPTIONITEMBASE_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -35,10 +35,10 @@
 extern int32_t select_text_len; ///< Needed for the item distribution.
 
 // Forward BUTTON if it isn't known, yet:
-#ifndef ATANKS_SRC_BUTTON_H_INCLUDED
+#ifndef ATANKS_BUTTON_H_INCLUDED
 // class BUTTON;
 #  include "button.h"
-#endif // ATANKS_SRC_BUTTON_H_INCLUDED
+#endif // ATANKS_BUTTON_H_INCLUDED
 
 // Forward Menu if it isn't known, yet:
 #ifndef MENU_CLASS_DECLARES
@@ -239,4 +239,4 @@ protected:
 	int32_t         width     = 0;       //!< Width of the display area.
 };
 
-#endif // ATANKS_SRC_OPTIONITEMBASE_H_INCLUDED
+#endif // ATANKS_OPTIONITEMBASE_H_INCLUDED

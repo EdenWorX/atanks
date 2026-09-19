@@ -1,6 +1,6 @@
-#ifndef ATANKS_SRC_ATANKS_CPP
+#ifndef ATANKS_ATANKS_CPP
 #  error "globals.h must not be included from anywhere but atanks.cpp!"
-#endif // ATANKS_SRC_ATANKS_CPP
+#endif // ATANKS_ATANKS_CPP
 
 #include "globaldata.h"
 

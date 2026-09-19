@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ATANKS_SRC_AICORE_H_INCLUDED
-#  define ATANKS_SRC_AICORE_H_INCLUDED ///< Include guard.
+#ifndef ATANKS_AICORE_H_INCLUDED
+#  define ATANKS_AICORE_H_INCLUDED ///< Include guard.
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -974,4 +974,4 @@ private:
 	weEntry_t* best_setup_weap      = nullptr;
 };
 
-#endif // ATANKS_SRC_AICORE_H_INCLUDED
+#endif // ATANKS_AICORE_H_INCLUDED

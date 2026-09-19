@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_MENU_H_INCLUDED
-#define ATANKS_SRC_MENU_H_INCLUDED 1
+#ifndef ATANKS_MENU_H_INCLUDED
+#define ATANKS_MENU_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -571,4 +571,4 @@ private:
 bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y );
 
 
-#endif // ATANKS_SRC_MENU_H_INCLUDED
+#endif // ATANKS_MENU_H_INCLUDED

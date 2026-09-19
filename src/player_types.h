@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_PLAYER_TYPES_H_INCLUDED
-#define ATANKS_SRC_PLAYER_TYPES_H_INCLUDED 1
+#ifndef ATANKS_PLAYER_TYPES_H_INCLUDED
+#define ATANKS_PLAYER_TYPES_H_INCLUDED 1
 
 /** @file player_types.h
  * @brief used enums plus operators for players and tanks
@@ -137,4 +137,4 @@ eTankTypes &operator++ ( eTankTypes &src );
 eTankTypes operator++ ( eTankTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 
-#endif // ATANKS_SRC_PLAYER_TYPES_H_INCLUDED
+#endif // ATANKS_PLAYER_TYPES_H_INCLUDED

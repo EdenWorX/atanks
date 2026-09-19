@@ -121,7 +121,7 @@ narrow responsibilities:
   `SIGNd`, `ROUND`, `ROUNDu`, `FABSDISTANCE2`, `:150-160`), sleep helpers (`USLEEP`, `MSLEEP`, `LINUX_SLEEP`, `LINUX_REST`,
   `:119-127`), and MSVC portability shims (`:102-115`).
 - `src/externs.h:48-49` re-exports the two globals as `extern` for every translation unit except `src/atanks.cpp` (guarded by
-  `ATANKS_SRC_ATANKS_CPP`, `:45-80`). It also declares shared scalars and the three content catalogs (`:53-69`).
+  `ATANKS_ATANKS_CPP`, `:45-80`). It also declares shared scalars and the three content catalogs (`:53-69`).
 - Content catalogs, defined in `src/files.cpp:26-28`: `WEAPON weapon[WEAPONS]`, `WEAPON naturals[NATURALS]`, `ITEM item[ITEMS]`,
   with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (`src/main.h:264-267`).
 - `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct gradient;`.

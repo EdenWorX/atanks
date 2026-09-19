@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_OPTIONITEM_H_INCLUDED
-#define ATANKS_SRC_OPTIONITEM_H_INCLUDED 1
+#ifndef ATANKS_OPTIONITEM_H_INCLUDED
+#define ATANKS_OPTIONITEM_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -559,4 +559,4 @@ private:
 };
 
 
-#endif // ATANKS_SRC_OPTIONITEM_H_INCLUDED
+#endif // ATANKS_OPTIONITEM_H_INCLUDED

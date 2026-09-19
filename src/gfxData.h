@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_GFXDATA_H_INCLUDED
-#define ATANKS_SRC_GFXDATA_H_INCLUDED 1
+#ifndef ATANKS_GFXDATA_H_INCLUDED
+#define ATANKS_GFXDATA_H_INCLUDED 1
 
 
 /*
@@ -68,4 +68,4 @@ BITMAP* create_gradient_strip( gradient const* grad, int32_t len );
 int32_t gradientColorPoint( gradient const* grad, double len, double line );
 
 
-#endif // ATANKS_SRC_GFXDATA_H_INCLUDED
+#endif // ATANKS_GFXDATA_H_INCLUDED

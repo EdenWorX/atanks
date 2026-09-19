@@ -1,4 +1,4 @@
-#define ATANKS_SRC_ATANKS_CPP 1
+#define ATANKS_ATANKS_CPP 1
 
 /*
  * atanks - obliterate each other with oversize weapons

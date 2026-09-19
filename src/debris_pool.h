@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
-#define ATANKS_SRC_DEBRIS_POOL_H_INCLUDED 1
+#ifndef ATANKS_DEBRIS_POOL_H_INCLUDED
+#define ATANKS_DEBRIS_POOL_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -71,4 +71,4 @@ private:
 };
 
 
-#endif // ATANKS_SRC_DEBRIS_POOL_H_INCLUDED
+#endif // ATANKS_DEBRIS_POOL_H_INCLUDED

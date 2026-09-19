@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_SOUNDS_H_INCLUDED
-#define ATANKS_SRC_SOUNDS_H_INCLUDED 1
+#ifndef ATANKS_SOUNDS_H_INCLUDED
+#define ATANKS_SOUNDS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -37,4 +37,4 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
 /// Play an interface sound.
 void play_interface_sound( eSounds sound );
 
-#endif // ATANKS_SRC_SOUNDS_H_INCLUDED
+#endif // ATANKS_SOUNDS_H_INCLUDED

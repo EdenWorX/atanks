@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_OPTIONTYPES_H_INCLUDED
-#define ATANKS_SRC_OPTIONTYPES_H_INCLUDED 1
+#ifndef ATANKS_OPTIONTYPES_H_INCLUDED
+#define ATANKS_OPTIONTYPES_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -102,4 +102,4 @@ char const* getMenuClassName( eMenuClass mclass );
 char const* getTextClassName( eTextClass tclass );
 #endif // ATANKS_DEBUG
 
-#endif // ATANKS_SRC_OPTIONTYPES_H_INCLUDED
+#endif // ATANKS_OPTIONTYPES_H_INCLUDED

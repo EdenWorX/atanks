@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_SKY_H_INCLUDED
-#define ATANKS_SRC_SKY_H_INCLUDED 1
+#ifndef ATANKS_SKY_H_INCLUDED
+#define ATANKS_SKY_H_INCLUDED 1
 
 #include "main.h"
 
@@ -152,4 +152,4 @@ class LevelCreator;
 
 void generate_sky( LevelCreator* lcr, gradient const* grad, int32_t flags );
 
-#endif // ATANKS_SRC_SKY_H_INCLUDED
+#endif // ATANKS_SKY_H_INCLUDED

@@ -362,18 +362,18 @@ compiles. No behavior change outside the removed workaround.
 Delete the Ubuntu sound-workaround instructions from `README` user docs and the `ubuntu` rows from the `README.md`/`AGENTS.md`
 build docs.
 
-### [ ] PF-1.14: Normalize header include guards
+### [x] PF-1.14: Normalize header include guards
 
 The `SRC` part in `ATANKS_SRC_<NAME>_H_INCLUDED` was a mistake (no headers live elsewhere). Rename all guards to
 `ATANKS_<header name>_H_INCLUDED` and record that form in `AGENTS.md` / `README.md`.
 
-#### [ ] PF-1.14.1: Rename all guards to ATANKS_<NAME>_H_INCLUDED
+#### [x] PF-1.14.1: Rename all guards to ATANKS_<NAME>_H_INCLUDED
 
 Rename every `ATANKS_SRC_*_H_INCLUDED` guard (plus outliers such as `MAIN_DEFINE` in `src/main.h`) to the `ATANKS_<header
 name>_H_INCLUDED` form, script-assisted with per-file review. Third-party `src/extern/dirent.h` keeps its own guard; the
 already-conforming `ATANKS_WRAP_DIRENT_H` is untouched.
 
-#### [ ] PF-1.14.2: Verify with a full rebuild
+#### [x] PF-1.14.2: Verify with a full rebuild
 
 Rebuild all GNU targets including the `DEBUG`/`aidebug`/`fulldebug` flavors to prove the renames broke nothing, and confirm the
 `AGENTS.md` guard rule matches the final tree.

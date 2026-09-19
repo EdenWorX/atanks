@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_EXTERNS_H_INCLUDED
-#define ATANKS_SRC_EXTERNS_H_INCLUDED 1
+#ifndef ATANKS_EXTERNS_H_INCLUDED
+#define ATANKS_EXTERNS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -42,7 +42,7 @@ class ITEM;
 class WEAPON;
 #  endif // HAS_WEAPON
 
-#ifndef ATANKS_SRC_ATANKS_CPP
+#ifndef ATANKS_ATANKS_CPP
 
 // === The two most important things in the game: ;) ===
 extern GLOBALDATA  global;
@@ -77,5 +77,5 @@ extern gradient  explosion_gradient1[ 3 ];
 extern gradient  explosion_gradient2[ 3 ];
 extern gradient* explosion_gradients[ 2 ];
 
-#endif // ATANKS_SRC_ATANKS_CPP
-#endif // ATANKS_SRC_EXTERNS_H_INCLUDED
+#endif // ATANKS_ATANKS_CPP
+#endif // ATANKS_EXTERNS_H_INCLUDED

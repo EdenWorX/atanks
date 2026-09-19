@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_UPDATE_H_INCLUDED
-#define ATANKS_SRC_UPDATE_H_INCLUDED 1
+#ifndef ATANKS_UPDATE_H_INCLUDED
+#define ATANKS_UPDATE_H_INCLUDED 1
 
 // rewritten struct to be used with C++11 threads.
 /** @struct update_data
@@ -20,4 +20,4 @@ struct update_data {
 	void operator() ();
 };
 
-#endif // ATANKS_SRC_UPDATE_H_INCLUDED
+#endif // ATANKS_UPDATE_H_INCLUDED
