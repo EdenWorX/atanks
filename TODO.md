@@ -295,7 +295,7 @@ test scope from `PF-1.11.1` under its sanitizer.
 Replace the interim `make DEBUG=YES` + manual in-game validation rule in `README.md`/`AGENTS.md` with the new test targets once
 they exist. Until then the interim rule stays.
 
-### [ ] PF-1.12: Add static analysis, doc builds, and Doxygen coverage
+### [x] PF-1.12: Add static analysis, doc builds, and Doxygen coverage
 
 Add `tools/run-cppcheck.sh`, clang-tidy integration (`clang-tidy -p cmake-build-release src/**/*.cpp`), a `make doc` target, and
 Doxygen comments for all public APIs, so `make doc` is warning-free per the release checklist. Verify `make install` and `make
@@ -312,7 +312,7 @@ findings).
 Ensure the `WP PF-1.9` CMake build exports compile commands so `clang-tidy -p cmake-build-release src/**/*.cpp` works, and
 record the invocation in the workflow docs.
 
-#### [ ] PF-1.12.3: Add make doc and Doxygen coverage for public APIs
+#### [x] PF-1.12.3: Add make doc and Doxygen coverage for public APIs
 
 Add the `make doc` target (Doxygen config included) and write Doxygen comments for all public APIs module by module — split into
 Action Items per module below. Expected result: `make doc` builds with no undocumented-public-API warnings.
@@ -341,7 +341,7 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
 - [x] **PF-1.12.3.9**: Verify `make doc` builds warning-free
   (full run with zero undocumented-public-API warnings; record the invocation in `README.md`/`AGENTS.md`).
 
-#### [ ] PF-1.12.4: Verify install targets per the checklist
+#### [x] PF-1.12.4: Verify install targets per the checklist
 
 Run `make install` and `make install PREFIX=/tmp/ewx-test` and verify the installed tree (binary, metainfo, desktop file, icons,
 data) matches expectations.
@@ -462,3 +462,4 @@ quantities/prices, fired shots).
 - [ ] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).
 - [ ] `make test` and `make test-all` run green (unit suite in release and debug dirs, `WP PF-1.11`).
 - [ ] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).
+- [x] `make install` populates `bin/atanks`, metainfo, desktop file, icons, and data with no stray files (`WP PF-1.12`).

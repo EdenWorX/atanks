@@ -24,6 +24,8 @@ dep/*.d
 atanks
 # CMake build directories owned by the Makefile wrapper
 cmake-build*/
+# Default make install destination (PROJECT_DIR/install)
+install/
 # Generated Doxygen API reference (make doc)
 docs/html/
 !vs12/atanks*

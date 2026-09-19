@@ -285,6 +285,8 @@ file(GLOB ATANKS_DATA_TOPFILES
   "${CMAKE_CURRENT_SOURCE_DIR}/docs/Changelog.history"
   "${CMAKE_CURRENT_SOURCE_DIR}/*.txt"
   "${CMAKE_CURRENT_SOURCE_DIR}/unicode.dat")
+# The build file itself matches *.txt; it is not data.
+list(REMOVE_ITEM ATANKS_DATA_TOPFILES "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt")
 install(FILES ${ATANKS_DATA_TOPFILES} DESTINATION share/atanks)
 foreach(ATANK_ASSET_DIR button misc missile sound stock tank tankgun title text)
   install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${ATANK_ASSET_DIR}/" DESTINATION share/atanks/${ATANK_ASSET_DIR})
