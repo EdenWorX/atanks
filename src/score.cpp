@@ -12,12 +12,12 @@
  * @return a pointer to the scores array. This must be deleted.
  **/
 sScore* sort_scores() {
-	auto*   scores     = new sScore[ env.numGamePlayers ];
+	auto*   scores     = new sScore[ env.num_game_players ];
 	sScore* score_head = scores;
 	sScore* score_tail = scores;
 	sScore* curr       = nullptr;
 
-	for ( int32_t z = 0; z < env.numGamePlayers; z++ ) {
+	for ( int32_t z = 0; z < env.num_game_players; z++ ) {
 		curr            = score_head;
 		scores[ z ]     = *( env.players[ z ] );
 		scores[ z ].idx = z; // The game index is needed.

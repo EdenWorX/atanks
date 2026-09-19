@@ -43,7 +43,7 @@ static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
 CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t EWeaponType, EBeamType beam_type )
 	: CPhysicalObject( BT_WEAPON == beam_type )
 	, beamType( beam_type )
-	, tgtRightX( env.screenWidth ) {
+	, tgtRightX( env.screen_width ) {
 	this->player   = player_;
 	this->weapType = EWeaponType;
 
@@ -54,7 +54,7 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t
 #ifdef NETWORK
 	char buffer[ 256 ];
 	sprintf( buffer, "CBeam %d %d %d %d", (int)x_, (int)y_, fireAngle, EWeaponType );
-	env.sendToClients( buffer );
+	env.send_to_clients( buffer );
 #endif // NETWORK
 
 	x     = x_;
@@ -99,7 +99,7 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t
 			// The SDI constructor produces its own color
 			color = makecol( 255 - ( ( weapType - SML_LAZER ) * 64 ), 128, 64 + ( ( weapType - SML_LAZER ) * 64 ) );
 		}
-		if ( !global.skippingComputerPlay && ( ( BT_WEAPON == beamType ) || ( BT_SDI == beamType ) ) ) {
+		if ( !global.skipping_computer_play && ( ( BT_WEAPON == beamType ) || ( BT_SDI == beamType ) ) ) {
 			play_fire_sound( weapType, ROUND( x ), 128 + ( radius * 10 ), 1500 - ( radius * 50 ) );
 		}
 	}
@@ -108,18 +108,18 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t
 	damage = static_cast< double >( weap->damage ) / static_cast< double >( maxAge );
 
 	// Set an offset seed
-	seed = get_rand() % std::max( env.screenWidth, env.screenHeight );
+	seed = get_rand() % std::max( env.screen_width, env.screen_height );
 
 	createBeamPath();
 
 	// Now that the points are clear, a lightning bolt can emit its thunder:
-	if ( !global.skippingComputerPlay && ( BT_NATURAL == beamType ) ) {
+	if ( !global.skipping_computer_play && ( BT_NATURAL == beamType ) ) {
 		play_natural_sound( weapType, ( points[ 0 ].x + points[ numPoints - 1 ].x ) / 2, 175 + ( radius * 10 ), 1000 );
 	}
 
 	// Add to the chain unless it is a mind shot:
 	if ( BT_MIND_SHOT != beamType ) {
-		global.addObject( this );
+		global.add_object( this );
 	}
 }
 
@@ -152,18 +152,18 @@ CBeam::~CBeam() {
 		global.make_bgupdate( dim_old.x, dim_old.y, dim_old.w, dim_old.h );
 
 		// Let the land slide where the beam burned through:
-		global.addLandSlide( tgtLeftX, tgtRightX, false );
+		global.add_land_slide( tgtLeftX, tgtRightX, false );
 
 		// Apply damage to all hit tanks:
 		CTank *lt = nullptr;
-		global.getHeadOfClass( CLASS_TANK, &lt );
+		global.get_head_of_class( CLASS_TANK, &lt );
 		while ( lt ) {
 			lt->applyDamage();
 			lt->getNext( &lt );
 		}
 
 		// Take out of the chain:
-		global.removeObject( this );
+		global.remove_object( this );
 
 		// The player is allowed to fire one more SDI laser again:
 		if ( ( BT_SDI == beamType ) && player ) {
@@ -182,7 +182,7 @@ void CBeam::applyPhysics() {
 	}
 
 	if ( BT_MIND_SHOT != beamType ) {
-		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 5 ) ) ) {
+		if ( !global.skipping_computer_play && !( get_rand() % ( env.frames_per_second / 5 ) ) ) {
 			try {
 				new CDecor(
 					points[ numPoints - 1 ].x,
@@ -264,7 +264,7 @@ void CBeam::createBeamPath() {
 
 	// If this is not the first call, use the already known endpoints
 	if ( ( points[ 0 ].x || points[ 0 ].y || points[ numPoints - 1 ].x || points[ numPoints - 1 ].y )
-	     && !global.isDirtInBox( points[ 0 ].x, points[ 0 ].y, points[ numPoints - 1 ].x, points[ numPoints - 1 ].y ) ) {
+	     && !global.is_dirt_in_box( points[ 0 ].x, points[ 0 ].y, points[ numPoints - 1 ].x, points[ numPoints - 1 ].y ) ) {
 		tx = points[ numPoints - 1 ].x;
 		ty = points[ numPoints - 1 ].y;
 	} else {
@@ -273,14 +273,14 @@ void CBeam::createBeamPath() {
 		points[ 0 ].y = ROUND( y );
 	}
 
-	while ( !hitSomething && ( tx > -radius ) && ( tx < ( env.screenWidth + radius ) ) && ( ty > -radius )
-	        && ( ty < ( env.screenHeight + radius ) ) ) {
+	while ( !hitSomething && ( tx > -radius ) && ( tx < ( env.screen_width + radius ) ) && ( ty > -radius )
+	        && ( ty < ( env.screen_height + radius ) ) ) {
 
 		// Assume PINK for off screen pixels
 		int32_t col = PINK;
 
-		if ( ( tx > 0 ) && ( tx < ( env.screenWidth - 1 ) ) && ( ty > MENUHEIGHT )
-		     && ( ty < ( env.screenHeight - 1 ) ) ) {
+		if ( ( tx > 0 ) && ( tx < ( env.screen_width - 1 ) ) && ( ty > MENUHEIGHT )
+		     && ( ty < ( env.screen_height - 1 ) ) ) {
 			col = getpixel( global.terrain, tx, ty );
 		}
 
@@ -357,8 +357,8 @@ void CBeam::traceBeamPath() {
 		double startY   = points[ i - 1 ].y;
 		double endX     = points[ i ].x;
 		double endY     = points[ i ].y;
-		bool   chkTanks = BT_SDI != beamType && global.areTanksInBox( startX, startY, endX, endY );
-		bool   chkDirt  = global.isDirtInBox( startX, startY, endX, endY );
+		bool   chkTanks = BT_SDI != beamType && global.are_tanks_in_box( startX, startY, endX, endY );
+		bool   chkDirt  = global.is_dirt_in_box( startX, startY, endX, endY );
 
 		// Break this if there is nothing possibly in between
 		if ( !( chkTanks || chkDirt ) ) {
@@ -375,8 +375,8 @@ void CBeam::traceBeamPath() {
 		auto    toMove = ROUND( std::max( absX, absY ) );
 
 		// Now wander along the path:
-		while ( !hitSomething && ( range < toMove ) && ( startX > 0 ) && ( startX < ( env.screenWidth - 1 ) )
-		        && ( startY > MENUHEIGHT ) && ( startY < ( env.screenHeight - 1 ) )
+		while ( !hitSomething && ( range < toMove ) && ( startX > 0 ) && ( startX < ( env.screen_width - 1 ) )
+		        && ( startY > MENUHEIGHT ) && ( startY < ( env.screen_height - 1 ) )
 		        && ( !chkDirt || ( PINK == getpixel( global.terrain, startX, startY ) ) ) ) {
 
 			// Only check for tanks if the total range is large enough
@@ -386,7 +386,7 @@ void CBeam::traceBeamPath() {
 			}
 			if ( canHit && chkTanks ) {
 				CTank *lt = nullptr;
-				global.getHeadOfClass( CLASS_TANK, &lt );
+				global.get_head_of_class( CLASS_TANK, &lt );
 				while ( lt ) {
 					// Tank found, is it hit?
 					if ( !lt->destroy

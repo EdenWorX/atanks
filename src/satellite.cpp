@@ -4,7 +4,7 @@
 #include "environment.h"
 #include "random.h"
 
-SATELLITE::SATELLITE() : x( env.screenWidth / 2 ) {
+SATELLITE::SATELLITE() : x( env.screen_width / 2 ) {
 	prev_x = x;
 }
 
@@ -24,7 +24,7 @@ void SATELLITE::move() {
 	// reverse movement if the satellite reaches the screen borders
 	if ( x < -5 ) {
 		xv += 1;
-	} else if ( x > ( env.screenWidth - 20 ) ) {
+	} else if ( x > ( env.screen_width - 20 ) ) {
 		xv -= 1;
 	}
 

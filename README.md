@@ -85,7 +85,7 @@ One program is built: `atanks` (`atanks.exe` on `WIN32`).
   2. `env.find_data_dir()` (`:1508`); failure exits with `EXIT_FAILURE`.
   3. `game_version` derived from `VERSION` (`:1513-1518`).
   4. `env.find_config_dir()` (`:1522`), then `loadConfig()` or `createConfig()` (`:1525-1526`).
-  5. `env.loadGameFiles()` (`:1530`); failure exits.
+  5. `env.load_game_files()` (`:1530`); failure exits.
   6. Optional `NETWORK` threads (`Send_And_Receive`, update checker, `:1535-1562`).
   7. Main-menu loop (`:1568-1613`) dispatching on `global.get_command()`: help, options, players, credits, network game, demo,
      or local play.
@@ -307,17 +307,17 @@ None exist in the repository.
 - Runtime config directory, resolved by `CEnvironment::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
   else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, `src/main.h:144-148`). `Copy_Config_File()`
   (`src/files.cpp:334-390`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
-- Main settings file: `<configDir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
+- Main settings file: `<config_dir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
   `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `Save_Game_Settings()` (`:1448-1463`).
   `--noconfig` skips loading.
-- Weapon/item stats: `Load_Weapons_Text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<dataDir>/text/weapons*.txt`,
+- Weapon/item stats: `Load_Weapons_Text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<data_dir>/text/weapons*.txt`,
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
   always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
   `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`EDataStage`, `src/globaltypes.h:81-86`).
 - Speech/help text: `CEnvironment::load_text_files()` (`src/environment.cpp:966ff`) loads `text/<base><suffix>` for `gloat`,
   `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
   `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (`src/environment.h:248-257`).
-- Savegames: `<configDir>/<game_name>.sav`, format `VERSION/GLOBAL/CEnvironment/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
+- Savegames: `<config_dir>/<game_name>.sav`, format `VERSION/GLOBAL/CEnvironment/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
   listing via `Find_Saved_Games()` (`*.sav` filter, `src/files.cpp:786-840`).
 - Music: `Create_Music_Folder()` ensures a `music/` folder in the config dir (`src/files.cpp:395-412`); custom `*.bmp` files are
   picked up by `Find_Bitmaps()` (`:848-893`).
@@ -350,8 +350,8 @@ Main binary flags, parsed by `parse_args()` (`src/atanks.cpp:1134-1255`, help te
 | `-d`, `--depth <16\|32>` | Color depth into `env.colourDepth` |
 | `-w`, `--width <>=512>` | Screen width (also half/temp variants) |
 | `-t`, `--tall` (`--height`) `<>=320>` | Screen height (also half/temp variants) |
-| `--datadir <path>` | Data directory into `env.dataDir` (must be readable) |
-| `-c <path>` | Config/save directory into `env.configDir` |
+| `--datadir <path>` | Data directory into `env.data_dir` (must be readable) |
+| `-c <path>` | Config/save directory into `env.config_dir` |
 | `--noconfig` | Do not load game settings |
 | `--nosound` | Disable sound (`env.sound_enabled=false`) |
 | `--noname` | Hide player names above tanks |
@@ -371,8 +371,8 @@ Standalone helpers (not built by `Makefile`):
 
 ## Data Flow
 
-1. Startup resolves `dataDir` and `configDir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
-   sounds, and background music (`CEnvironment::loadGameFiles()`, `src/environment.cpp:1311`).
+1. Startup resolves `data_dir` and `config_dir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
+   sounds, and background music (`CEnvironment::load_game_files()`, `src/environment.cpp:1311`).
 2. Menu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `CPlayer` objects (names, colors, teams,
    inventories, money).
 3. `game()` (`src/gameloop.cpp:246`) runs a round: `init_new_round()` (`:261`), `set_tank_settings()` (`:270`), spawn of the
@@ -452,7 +452,8 @@ Standalone helpers (not built by `Makefile`):
   `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
   strings), keep the numeric field count in sync with `Load_Weapons_Text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
-  `src/main.h:264-267` if the count changes; check AI selection (`CAICore`), shop availability (`CEnvironment::genItemsList`), and
+  `src/main.h:264-267` if the count changes; check AI selection (`CAICore`), shop availability
+  (`CEnvironment::gen_items_list`), and
   sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
   (INI or YAML) with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
 - New option/menu entry: add the `EMenuClass`/`EEntryType` value in `src/optiontypes.h`, construct the item in

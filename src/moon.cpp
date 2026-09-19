@@ -160,11 +160,11 @@ static void draw_amoon(
 	}
 
 	// Put the moon on the sky bitmap:
-	global.lockLand();
+	global.lock_land();
 	drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
 	blit( mn.bitmap, sky, 0, 0, startX, startY, mn.radius * 2, mn.radius * 2 );
 	drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
-	global.unlockLand();
+	global.unlock_land();
 }
 
 /** @brief paint a moon pixel into a moons bitmap

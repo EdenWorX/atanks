@@ -56,7 +56,7 @@ void UpdateData::operator() () {
 			return;
 		}
 
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			goto getout;
 		}
 
@@ -65,7 +65,7 @@ void UpdateData::operator() () {
 			goto getout;
 		}
 
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			goto getout;
 		}
 
@@ -79,7 +79,7 @@ void UpdateData::operator() () {
 			goto getout;
 		}
 
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			goto getout;
 		}
 
@@ -88,7 +88,7 @@ void UpdateData::operator() () {
 
 		got_bytes = static_cast< int >( read( socket_num, buffer, 1024 ) );
 
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			goto getout;
 		}
 

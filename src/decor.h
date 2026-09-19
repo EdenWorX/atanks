@@ -97,7 +97,7 @@ private:
 	int32_t grab_y       = 0;       //!< Helper for phased debris creation.
 	int32_t grabPerCall  = 0;       //!< Helper for phased debris creation.
 	double  maxGravAccel = 1.;      //!< Pre-calculated physics helper.
-	double  maxWind      = 8;       //!< env.windstrength cast to double.
+	double  maxWind      = 8;       //!< env.wind_strength cast to double.
 	double  maxWindAccel = 1.;      //!< Pre-calculated physics helper.
 	item_t* meteor       = nullptr; //!< Metor data if not enough dirt was found, but a meteor stroke.
 	int32_t radius       = 5;

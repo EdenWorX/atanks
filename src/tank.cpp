@@ -51,8 +51,8 @@ CTank::CTank()
 	a    += get_rand() % 180;
 
 	// Add to the chain:
-	global.addObject( this );
-	global.numTanks++;
+	global.add_object( this );
+	global.num_tanks++;
 }
 
 /*
@@ -67,13 +67,13 @@ CTank::~CTank() {
 	}
 	creditTo = nullptr;
 
-	global.numTanks--;
+	global.num_tanks--;
 	if ( global.get_curr_tank() == this ) {
 		global.set_curr_tank( nullptr );
 	}
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 /// @brief Set texts to vertical bounce and initialize text positions
@@ -107,7 +107,7 @@ void CTank::activateCurrentSelection() {
 
 	// reduce time to fall, but reset if already done
 	if ( --env.time_to_fall < 0 ) {
-		env.time_to_fall = ( get_rand() % env.landSlideDelay ) + 1;
+		env.time_to_fall = ( get_rand() % env.landslide_delay ) + 1;
 	}
 
 	/** ==============================
@@ -130,8 +130,8 @@ void CTank::activateCurrentSelection() {
 				int32_t ca  = a + ( ( SPREAD * z ) - ( SPREAD * ( weapon[ cw ].spread - 1 ) / 2 ) );
 				auto    dp  = static_cast< double >( p > 0 ? p : 1 ); // Just a shortcut against further casts
 
-				double  mxv = env.slope[ ca ][ 0 ] * dp * env.FPS_mod / 100.;
-				double  myv = env.slope[ ca ][ 1 ] * dp * env.FPS_mod / 100.;
+				double  mxv = env.slope[ ca ][ 0 ] * dp * env.fps_mod / 100.;
+				double  myv = env.slope[ ca ][ 1 ] * dp * env.fps_mod / 100.;
 
 				try {
 					auto *newmis = new CMissile(
@@ -200,8 +200,8 @@ void CTank::activateCurrentSelection() {
 		// --- Teleport ---
 		//-----------------
 		if ( ITEM_TELEPORT == ci ) {
-			auto right  = ROUND( env.screenWidth - ( tank_dia * 2. ) );
-			auto bottom = ROUND( env.screenHeight - ( tank_dia * 2. ) - MENUHEIGHT );
+			auto right  = ROUND( env.screen_width - ( tank_dia * 2. ) );
+			auto bottom = ROUND( env.screen_height - ( tank_dia * 2. ) - MENUHEIGHT );
 			auto new_x  = ROUND( ( get_rand() % right ) + tank_dia );
 			auto new_y  = ROUND( ( get_rand() % bottom ) + tank_dia + MENUHEIGHT );
 
@@ -229,16 +229,16 @@ void CTank::activateCurrentSelection() {
 			CTank *other = nullptr;
 
 			while ( !other ) {
-				global.getHeadOfClass( CLASS_TANK, &other );
+				global.get_head_of_class( CLASS_TANK, &other );
 
 				// If there are only two tanks, just take the other
-				if ( 2 == global.numTanks ) {
+				if ( 2 == global.num_tanks ) {
 					if ( other == this ) {
 						other->getNext( &other );
 					}
 				} else {
 					// Otherwise, select one by random
-					int32_t rtn = get_rand() % ( global.numTanks - 1 );
+					int32_t rtn = get_rand() % ( global.num_tanks - 1 );
 					while ( rtn-- ) {
 						other->getNext( &other );
 					}
@@ -275,11 +275,11 @@ void CTank::activateCurrentSelection() {
 		// --- Mass Teleport ---
 		//-----------------------
 		else if ( ITEM_MASS_TELEPORT == ci ) {
-			auto  right  = ROUND( env.screenWidth - ( tank_dia * 2 ) );
-			auto  bottom = ROUND( env.screenHeight - ( tank_dia * 2 ) - MENUHEIGHT );
+			auto  right  = ROUND( env.screen_width - ( tank_dia * 2 ) );
+			auto  bottom = ROUND( env.screen_height - ( tank_dia * 2 ) - MENUHEIGHT );
 			CTank *lt     = nullptr;
 
-			global.getHeadOfClass( CLASS_TANK, &lt );
+			global.get_head_of_class( CLASS_TANK, &lt );
 			while ( lt ) {
 				auto new_x = ROUND( ( get_rand() % right ) + tank_dia );
 				auto new_y = ROUND( ( get_rand() % bottom ) + tank_dia + MENUHEIGHT );
@@ -333,10 +333,10 @@ void CTank::activateCurrentSelection() {
 			}
 
 			// make sure wind is not too strong
-			if ( global.wind < ( -env.windstrength / 2. ) ) {
-				global.wind = -env.windstrength / 2.;
-			} else if ( global.wind > ( env.windstrength / 2. ) ) {
-				global.wind = env.windstrength / 2.;
+			if ( global.wind < ( -env.wind_strength / 2. ) ) {
+				global.wind = -env.wind_strength / 2.;
+			} else if ( global.wind > ( env.wind_strength / 2. ) ) {
+				global.wind = env.wind_strength / 2.;
 			}
 
 			global.lastwind = global.wind;
@@ -352,7 +352,7 @@ void CTank::activateCurrentSelection() {
 		}
 	} // End of items
 
-	player->time_left_to_fire = env.maxFireTime;
+	player->time_left_to_fire = env.max_fire_time;
 }
 
 /// @brief adds damage, sets creditTo and handles pending damage
@@ -435,7 +435,7 @@ void CTank::applyDamage() {
 		// If there is an award now, get the money text out
 		// and the register to ring.
 		if ( award > 0 ) {
-			if ( creditTo->tank && !global.skippingComputerPlay ) {
+			if ( creditTo->tank && !global.skipping_computer_play ) {
 				static char the_money[ 16 ] = { 0x0 };
 				snprintf( the_money, 15, "%s$%s", ( team_hit || self_hit ) ? "-" : "", Add_Comma( award ) );
 				// show how much the shooter gets
@@ -450,12 +450,12 @@ void CTank::applyDamage() {
 						: self_hit ? RED
 							   : GREEN,
 						CENTRE,
-						env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY,
+						env.swaying_text ? TS_HORIZONTAL : TS_NO_SWAY,
 						200,
 						false
 					);
 					if ( global.stage < STAGE_SCOREBOARD ) {
-						global.updateMenu = true;
+						global.update_menu = true;
 					}
 				} catch ( std::exception &e ) {
 					std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
@@ -467,7 +467,7 @@ void CTank::applyDamage() {
 		// If the tank is destroyed, and it was neither self nor team hit,
 		// the damager might spawn a gloating message
 		if ( destroy && !creditTo->gloating && !team_hit && !self_hit && creditTo->tank && !creditTo->tank->destroy
-		     && !global.skippingComputerPlay ) {
+		     && !global.skipping_computer_play ) {
 
 			creditTo->gloating = true;
 
@@ -490,7 +490,7 @@ void CTank::applyDamage() {
 		} // End of spawning gloating text
 
 		// Issue a suicide message if the player applied for a darwin award
-		if ( self_hit && destroy && !global.skippingComputerPlay ) {
+		if ( self_hit && destroy && !global.skipping_computer_play ) {
 			try {
 				new CFloatText(
 					CPlayer::selectSuicidePhrase(),
@@ -550,7 +550,7 @@ void CTank::applyDamage() {
 	if ( full_damage > 0 ) {
 		flashdamage = 1;
 
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			try {
 				new CFloatText(
 					std::to_string( full_damage ).c_str(),
@@ -560,7 +560,7 @@ void CTank::applyDamage() {
 					-.3,
 					RED,
 					CENTRE,
-					env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY,
+					env.swaying_text ? TS_HORIZONTAL : TS_NO_SWAY,
 					300,
 					false
 				);
@@ -618,11 +618,11 @@ void CTank::applyPhysics() {
 		++flashdamage; // Frame counted
 	} else {
 		bool    on_tank = tank_on_tank();
-		int32_t bottom  = env.screenHeight - tank_off_y; // shortcut
+		int32_t bottom  = env.screen_height - tank_off_y; // shortcut
 		int32_t pix_col = getpixel( global.terrain, x, y + tank_off_y - tank_sag );
 
 		// Hitting a wall only bounces the tank.
-		if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screenWidth - 1 ) ) ) {
+		if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screen_width - 1 ) ) ) {
 			xv *= -1.;
 		}
 
@@ -651,15 +651,15 @@ void CTank::applyPhysics() {
 			}
 
 			// Reset falling delay and apply damage at once
-			delay_fall = env.landSlideDelay * 100;
+			delay_fall = env.landslide_delay * 100;
 			applyDamage();
 		} // End of fall stop
 
 		// Check whether the tank currently is falling
-		else if ( ( y < bottom ) && ( PINK == pix_col ) && !on_tank && ( env.landSlideType > SLIDE_NONE ) ) {
+		else if ( ( y < bottom ) && ( PINK == pix_col ) && !on_tank && ( env.landslide_type > SLIDE_NONE ) ) {
 
 			// If this is set to cartoon falling, decrease delay and exit.
-			if ( ( SLIDE_CARTOON == env.landSlideType ) && ( --delay_fall > 0 ) ) {
+			if ( ( SLIDE_CARTOON == env.landslide_type ) && ( --delay_fall > 0 ) ) {
 				return;
 			}
 
@@ -841,7 +841,7 @@ void CTank::draw() {
 	draw_sprite( global.canvas, env.tank[ use_tankbitmap ], x - tank_off_x, y );
 	rotate_sprite(
 		global.canvas,
-		env.tankgun[ use_turretbitmap ],
+		env.tank_gun[ use_turretbitmap ],
 		x - turr_off_x,
 		y - turr_off_y,
 		itofix( ( 90 - a ) * 256 / 360 )
@@ -873,7 +873,7 @@ void CTank::explode( bool allow_vengeance ) {
 	// Note: player->revenge and revenge texts are handled in applyDamage()
 
 	try {
-		new CExplosion( player, x, y, 0., env.screenHeight / 10., MED_MIS, false );
+		new CExplosion( player, x, y, 0., env.screen_height / 10., MED_MIS, false );
 	} catch ( std::exception &e ) {
 		std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 	}
@@ -893,7 +893,7 @@ void CTank::explode( bool allow_vengeance ) {
 	bool    found       = false;
 
 	// get the player index
-	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
+	while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
 		if ( env.players[ playerindex ] && ( env.players[ playerindex ]->tank == this ) ) {
 			found = true;
 		} else {
@@ -903,7 +903,7 @@ void CTank::explode( bool allow_vengeance ) {
 
 	// we should have found a match, and now we send it to all clients
 	if ( found ) {
-		env.sendToClients( string( "REMOVETANK " + std::to_string( playerindex ) ).c_str() );
+		env.send_to_clients( string( "REMOVETANK " + std::to_string( playerindex ) ).c_str() );
 	}
 #endif // NETWORK
 
@@ -916,7 +916,7 @@ void CTank::explode( bool allow_vengeance ) {
 	// possibly sponsor one for the player unless they
 	// already have something better.
 	// But only if it is not the first 3 rounds.
-	if ( env.violent_death && ( ( env.rounds - global.currentround ) > 3 ) ) {
+	if ( env.violent_death && ( ( env.rounds - global.current_round ) > 3 ) ) {
 		int32_t ri = get_rand() % VIOLENT_CHANCE;
 
 		// Limit ri to the value of violent_death.
@@ -978,7 +978,7 @@ void CTank::explode( bool allow_vengeance ) {
 		int32_t med_x = 0;
 		int32_t tanks = 0;
 
-		global.getHeadOfClass( CLASS_TANK, &tank );
+		global.get_head_of_class( CLASS_TANK, &tank );
 
 		while ( tank ) {
 			if ( ( tank != this ) && !tank->destroy
@@ -994,7 +994,7 @@ void CTank::explode( bool allow_vengeance ) {
 		if ( tanks ) {
 			med_x /= tanks;
 		} else {
-			med_x = env.halfWidth;
+			med_x = env.half_width;
 		}
 
 		int32_t start_a = 45;
@@ -1112,7 +1112,7 @@ int32_t CTank::howBuried( int32_t *left, int32_t *right ) {
 		*right = ROUNDu( *right * angle_mod / 2. );
 	}
 
-	result *= ROUND( angle_mod * ( env.isBoxed ? 1.25 : 1. ) );
+	result *= ROUND( angle_mod * ( env.is_boxed ? 1.25 : 1. ) );
 
 	return ROUNDu( result );
 }
@@ -1479,7 +1479,7 @@ bool CTank::moveTank( int32_t direction ) {
 
 	// Check whether the target pixel is beyond the border or occupied
 	auto nextX = ROUND( x + direction );
-	if ( ( nextX < 1 ) || ( nextX >= env.screenWidth ) || ( env.landType == LAND_NONE ) ) {
+	if ( ( nextX < 1 ) || ( nextX >= env.screen_width ) || ( env.land_type == LAND_NONE ) ) {
 		return false;
 	}
 
@@ -1490,7 +1490,7 @@ bool CTank::moveTank( int32_t direction ) {
 	// be taken into account, too
 	int32_t afterX = nextX + direction;
 	double  afterY = nextY;
-	if ( ( afterX > 0 ) && ( afterX < env.screenWidth ) ) {
+	if ( ( afterX > 0 ) && ( afterX < env.screen_width ) ) {
 		afterY = global.surface[ afterX ].load( ATOMIC_READ ) - 1;
 	}
 
@@ -1504,8 +1504,8 @@ bool CTank::moveTank( int32_t direction ) {
 		y = nextY - tank_off_y + tank_sag;
 
 		// But secure y
-		if ( y > ( env.screenHeight - tank_off_y ) ) {
-			y = env.screenHeight - tank_off_y;
+		if ( y > ( env.screen_height - tank_off_y ) ) {
+			y = env.screen_height - tank_off_y;
 		}
 		return true;
 	}
@@ -1534,7 +1534,7 @@ void CTank::newRound( int32_t pos_x, int32_t pos_y ) {
 	sh         = 0;
 	sht        = ITEM_NO_SHIELD;
 	repulsion  = 0;
-	delay_fall = env.landSlideDelay * 100;
+	delay_fall = env.landslide_delay * 100;
 
 	// Re-calculate max life
 	double tmpL = ( player->ni[ ITEM_ARMOUR ] * item[ ITEM_ARMOUR ].vals[ 0 ] )
@@ -1558,7 +1558,7 @@ void CTank::newRound( int32_t pos_x, int32_t pos_y ) {
 	}
 
 	// (re-)init name text
-	if ( env.nameAboveTank ) {
+	if ( env.name_above_tank ) {
 		nameText.set_text( player->getName() );
 		nameText.set_color( player->color );
 	}
@@ -1628,7 +1628,7 @@ void CTank::repair() {
 		healthText.set_text( std::to_string( l ).c_str() );
 
 		// add float text
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			try {
 				snprintf( buf, 9, "+%d", l - old_life );
 				new CFloatText( buf, x, y - 30, .0, -.8, GREEN, CENTRE, TS_NO_SWAY, 120, false );
@@ -1712,8 +1712,8 @@ void CTank::setBitmap() {
 	tank_off_x = ROUNDu( env.tank[ use_tankbitmap ]->w / 2 );
 	tank_off_y = env.tank[ use_tankbitmap ]->h;
 	tank_sag   = ROUNDu( static_cast< double >( tank_off_y ) / 2.66 );
-	turr_off_x = ROUNDu( env.tankgun[ use_turretbitmap ]->w / 2 );
-	turr_off_y = ROUNDu( env.tankgun[ use_turretbitmap ]->h / 2 ) - 2;
+	turr_off_x = ROUNDu( env.tank_gun[ use_turretbitmap ]->w / 2 );
+	turr_off_y = ROUNDu( env.tank_gun[ use_turretbitmap ]->h / 2 ) - 2;
 	shld_rad_x = tank_off_x + ( turr_off_x / 2 ) + 1;
 	shld_rad_y = ( ( tank_off_y + turr_off_y ) / 2 ) + 1;
 
@@ -1731,14 +1731,14 @@ void CTank::setBitmap() {
 
 	// Be sure the placement is correct:
 	assert( ( ( x - tank_off_x ) > 2 ) && "Placement too far left" );
-	assert( ( ( x + tank_off_x ) < ( env.screenWidth - 3 ) ) && "Placement too far right" );
+	assert( ( ( x + tank_off_x ) < ( env.screen_width - 3 ) ) && "Placement too far right" );
 
 	// Without a debug mode, this must be fixed:
 	if ( ( x - tank_off_x ) < 3 ) {
 		x = tank_off_x + 3;
 	}
-	if ( ( x + tank_off_x ) > ( env.screenWidth - 4 ) ) {
-		x = env.screenWidth - 4 - tank_off_x;
+	if ( ( x + tank_off_x ) > ( env.screen_width - 4 ) ) {
+		x = env.screen_width - 4 - tank_off_x;
 	}
 }
 
@@ -1761,7 +1761,7 @@ void CTank::setTextPositions( bool renew_colour ) {
 		healthText.set_color( player ? player->color : WHITE );
 	}
 
-	if ( env.nameAboveTank ) {
+	if ( env.name_above_tank ) {
 		nameText.set_pos( x, y + textpos );
 		if ( renew_colour ) {
 			shieldText.set_color( player ? player->color : WHITE );
@@ -1782,7 +1782,7 @@ bool CTank::shootClearance( int32_t targetAngle, double minimumClearance, bool &
 		xpos += xmov;
 		ypos += ymov;
 
-		if ( ( ypos <= MENUHEIGHT ) || ( xpos < 2 ) || ( xpos > ( env.screenWidth - 2 ) ) ) {
+		if ( ( ypos <= MENUHEIGHT ) || ( xpos < 2 ) || ( xpos > ( env.screen_width - 2 ) ) ) {
 			clearance = ROUND( minimumClearance ); // done it! There can't be dirt any more!
 			done      = true;
 		} else {
@@ -1798,10 +1798,10 @@ bool CTank::shootClearance( int32_t targetAngle, double minimumClearance, bool &
 
 	// If a minimum clearance lower than the screen width is sought,
 	// check whether this results in a wall/ceiling hit.
-	if ( ( minimumClearance < env.screenWidth )
-	     && ( ( env.isBoxed && ( ypos <= MENUHEIGHT )
-	            && ( ( WALL_STEEL == env.current_wallType ) || ( WALL_WRAP == env.current_wallType ) ) )
-	          || ( ( WALL_STEEL == env.current_wallType ) && ( ( xpos < 2 ) || ( xpos > ( env.screenWidth - 3 ) ) ) ) ) ) {
+	if ( ( minimumClearance < env.screen_width )
+	     && ( ( env.is_boxed && ( ypos <= MENUHEIGHT )
+	            && ( ( WALL_STEEL == env.current_wall_type ) || ( WALL_WRAP == env.current_wall_type ) ) )
+	          || ( ( WALL_STEEL == env.current_wall_type ) && ( ( xpos < 2 ) || ( xpos > ( env.screen_width - 3 ) ) ) ) ) ) {
 		clearance = -1;
 		crashed   = true;
 	}
@@ -1815,7 +1815,7 @@ bool CTank::shootClearance( int32_t targetAngle, double minimumClearance, bool &
 /// activateCurrentSelection().
 void CTank::simActivateCurrentSelection() {
 
-	if ( env.turntype != TURN_SIMUL ) {
+	if ( env.turn_type != TURN_SIMUL ) {
 		activateCurrentSelection();
 
 		if ( fire_another_shot ) {
@@ -1843,7 +1843,7 @@ bool CTank::tank_on_tank() {
 	CTank *lt         = nullptr;
 	bool  found_tank = false;
 
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 	while ( lt && !found_tank ) {
 		if ( ( lt != this ) && ( std::abs( lt->x - x ) < tank_off_x ) && ( lt->y > y )
 		     && ( ( lt->y - y ) < tank_off_y ) ) {

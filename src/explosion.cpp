@@ -48,7 +48,7 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 	mass         = 3;
 	x            = x_;
 	y            = y_;
-	maxVel       = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	maxVel       = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
 	CWeapon* weap = nullptr;
 	weapType     = type;
@@ -64,13 +64,13 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 
 	// make sure dirt appears on the screen, not above the playing area,
 	// and all other explosions at least reach into the area:
-	int32_t minHeightMiss = MENUHEIGHT + ( env.isBoxed ? 1 : 0 );
+	int32_t minHeightMiss = MENUHEIGHT + ( env.is_boxed ? 1 : 0 );
 	int32_t minHeightDirt = minHeightMiss + radius;
 	if ( ( weapType >= DIRT_BALL ) && ( weapType <= SMALL_DIRT_SPREAD ) ) {
 		if ( y < minHeightDirt ) {
 			y = minHeightDirt;
 		}
-	} else if ( ( y < minHeightMiss ) && ( !env.isBoxed || !env.do_box_wrap || ( WALL_WRAP != env.current_wallType ) ) ) {
+	} else if ( ( y < minHeightMiss ) && ( !env.is_boxed || !env.do_box_wrap || ( WALL_WRAP != env.current_wall_type ) ) ) {
 		y = minHeightMiss;
 	}
 
@@ -129,11 +129,11 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 	// Unless this is a napalm jelly, that does not clear away any dirt,
 	// lock our field of devastation so no sliding into the explosion occurs
 	else {
-		global.addLandSlide( x - radius - 1, x + radius + 1, true );
+		global.add_land_slide( x - radius - 1, x + radius + 1, true );
 	}
 
 	// Add to the chain:
-	global.addObject( this );
+	global.add_object( this );
 }
 
 /// This one is just for the beam and lightning dirt mills.
@@ -147,17 +147,17 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 CExplosion::~CExplosion() {
 	// If this is a tremor, the landslide has to be released
 	if ( ( TREMOR <= weapType ) && ( TECTONIC >= weapType ) ) {
-		global.unlockLandSlide( dim_cur.x, dim_cur.x + dim_cur.w );
+		global.unlock_land_slide( dim_cur.x, dim_cur.x + dim_cur.w );
 	}
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 /// @brief Physics for the Napalm Jelly, the only explosion that can 'move'
 void CExplosion::applyPhysics() {
 	if ( NAPALM_JELLY == weapType ) {
-		if ( !global.skippingComputerPlay && !( get_rand() % ( env.frames_per_second / 2 ) ) ) {
+		if ( !global.skipping_computer_play && !( get_rand() % ( env.frames_per_second / 2 ) ) ) {
 			try {
 				new CDecor( x, y, 0, -2. * env.fall_vector, radius / 2, DECOR_SMOKE, 0 );
 			} catch ( std::exception& e ) {
@@ -175,9 +175,9 @@ void CExplosion::applyPhysics() {
 		}
 
 		// Stop all movement if dirt is hit:
-		bool can_move = ( y < env.screenHeight );
+		bool can_move = ( y < env.screen_height );
 
-		if ( can_move && ( y < ( env.screenHeight - 1 ) ) ) {
+		if ( can_move && ( y < ( env.screen_height - 1 ) ) ) {
 			if ( PINK != getpixel( global.terrain, x, y + 1 ) ) {
 				can_move = false;
 			}
@@ -192,7 +192,7 @@ void CExplosion::applyPhysics() {
 			double xaccel = 0;
 			double yaccel = 0;
 
-			global.getHeadOfClass( CLASS_TANK, &lt );
+			global.get_head_of_class( CLASS_TANK, &lt );
 
 			while ( lt ) {
 				if ( !lt->destroy ) {
@@ -219,7 +219,7 @@ void CExplosion::applyPhysics() {
 		CTank*  lt         = nullptr;
 		double damage_mod = blobSize / static_cast< double >( radius );
 
-		global.getHeadOfClass( CLASS_TANK, &lt );
+		global.get_head_of_class( CLASS_TANK, &lt );
 
 		while ( lt ) {
 
@@ -269,7 +269,7 @@ void CExplosion::draw() {
 			case CUTTER:
 				rotate_scaled_sprite(
 					global.canvas,
-					env.gfxData.flameFront[ flameIdx ],
+					env.gfx_data.flameFront[ flameIdx ],
 					x - radius,
 					y - ( radius / 20. ),
 					itofix( 0 ),
@@ -286,7 +286,7 @@ void CExplosion::draw() {
 			case DRILLER:
 				rotate_scaled_sprite(
 					global.canvas,
-					env.gfxData.flameFront[ flameIdx ],
+					env.gfx_data.flameFront[ flameIdx ],
 					x - radius,
 					y - ( radius / 20. ),
 					itofix( 192 ),
@@ -314,7 +314,7 @@ void CExplosion::draw() {
 						ROUND( radius * 1.75 ),
 						( weapType - TREMOR + 1 ) * 3
 					);
-					global.addLandSlide( dim_cur.x, dim_cur.x + dim_cur.w, true );
+					global.add_land_slide( dim_cur.x, dim_cur.x + dim_cur.w, true );
 				}
 				break;
 			case RIOT_BOMB:
@@ -346,7 +346,7 @@ void CExplosion::draw() {
 					triangle( global.terrain, sx, sy, x1, y1, x2, y2, PINK );
 
 					setUpdateArea( sx - rad - 1, sy - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
-					global.addLandSlide( sx - rad - 1, sx + rad + 1, true );
+					global.add_land_slide( sx - rad - 1, sx + rad + 1, true );
 				} else if ( !peaked ) {
 					// Do it here or the slide has an ugly delay.
 					peaked = true;
@@ -366,7 +366,7 @@ void CExplosion::draw() {
 				if ( ( weapType <= LAST_EXPLOSIVE ) || ( weapType >= WEAPONS ) || ( weapType == PERCENT_BOMB ) ) {
 					rotate_scaled_sprite(
 						global.canvas,
-						env.gfxData.explosions[ flameIdx ],
+						env.gfx_data.explosions[ flameIdx ],
 						x - radius,
 						y - radius,
 						itofix( 0 ),
@@ -379,7 +379,7 @@ void CExplosion::draw() {
 						int32_t colour = player ? player->color : GREEN;
 						clear_to_color( tmp, PINK );
 
-						if ( global.skippingComputerPlay ) {
+						if ( global.skipping_computer_play ) {
 							circlefill( tmp, rad, rad, rad - 1, colour );
 						} else {
 							auto fR   = static_cast< float >( getr( colour ) );
@@ -623,7 +623,7 @@ void CExplosion::explode() {
 		// But do not check dirt balls, they deal no damage
 		if ( ( DIRT_BALL > weapType ) || ( SUP_DIRT_BALL < weapType ) ) {
 
-			global.getHeadOfClass( CLASS_TANK, &lt );
+			global.get_head_of_class( CLASS_TANK, &lt );
 
 			while ( lt ) {
 				double dmg = get_hit_damage( lt, wType, x, y );
@@ -645,7 +645,7 @@ void CExplosion::explode() {
 						static char the_money[ 17 ] = { 0x0 };
 						snprintf( the_money, 16, "-$%s", Add_Comma( amount ) );
 
-						if ( !global.skippingComputerPlay ) {
+						if ( !global.skipping_computer_play ) {
 							// show how much the shooter gets
 							try {
 								new CFloatText(
@@ -656,12 +656,12 @@ void CExplosion::explode() {
 									-.5,
 									RED,
 									CENTRE,
-									env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY,
+									env.swaying_text ? TS_HORIZONTAL : TS_NO_SWAY,
 									200,
 									false
 								);
 								if ( global.stage < STAGE_SCOREBOARD ) {
-									global.updateMenu = true;
+									global.update_menu = true;
 								}
 							} catch ( std::exception& e ) {
 								std::cerr << __func__ << " new CFloatText: " << e.what()
@@ -716,16 +716,16 @@ void CExplosion::do_clear() {
 		if ( ( weapType >= SHAPED_CHARGE ) && ( weapType <= CUTTER ) ) {
 			int32_t yrad = ( rad - 1 ) / 20;
 			ellipsefill( global.terrain, x, y, rad, yrad, PINK );
-			global.addLandSlide( x - area_rad, x + area_rad, true );
+			global.add_land_slide( x - area_rad, x + area_rad, true );
 			addUpdateArea( x - area_rad, y - ( yrad + 1 ), area_rad * 2, ( yrad + 1 ) * 2 );
 		} else if ( weapType == DRILLER ) {
 			int32_t xrad = rad / 20;
 			ellipsefill( global.terrain, x, y, xrad, rad, PINK );
-			global.addLandSlide( x - xrad - 1, x + xrad + 1, true );
+			global.add_land_slide( x - xrad - 1, x + xrad + 1, true );
 			addUpdateArea( x - ( xrad + 1 ), y - area_rad, ( xrad + 1 ) * 2, area_rad * 2 );
 		} else if ( ( ( weapType <= LAST_EXPLOSIVE ) || ( weapType >= WEAPONS ) || ( weapType == PERCENT_BOMB ) || ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) || ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) ) && ( NAPALM_JELLY != weapType ) ) {
 			circlefill( global.terrain, x, y, rad, PINK );
-			global.addLandSlide( x - area_rad, x + area_rad, true );
+			global.add_land_slide( x - area_rad, x + area_rad, true );
 			addUpdateArea( x - area_rad, y - area_rad, area_rad * 2, area_rad * 2 );
 		}
 
@@ -737,7 +737,7 @@ void CExplosion::do_clear() {
 		if ( !hasSlid ) {
 			// Allow the land slide to happen:
 			area_rad = 1 + ( ( weapType == DRILLER ) ? rad / 20 : rad );
-			global.unlockLandSlide( ROUND( x - area_rad ), ROUND( x + area_rad ) );
+			global.unlock_land_slide( ROUND( x - area_rad ), ROUND( x + area_rad ) );
 			hasSlid = true;
 		}
 
@@ -751,12 +751,12 @@ void CExplosion::do_clear() {
 void CExplosion::do_throw() {
 	// Do never throw when skipping AI play, and
 	// opt out if debris generation is forbidden
-	if ( !hasThrown && ( global.skippingComputerPlay || ( hasDebris >= maxDebris ) || ( curFrame > maxFrame ) ) ) {
+	if ( !hasThrown && ( global.skipping_computer_play || ( hasDebris >= maxDebris ) || ( curFrame > maxFrame ) ) ) {
 		hasThrown = true;
 	}
 
 	// Early out if this is already done or no further deco is allowed
-	if ( hasThrown || global.hasTooMuchDeco ) {
+	if ( hasThrown || global.has_too_much_deco ) {
 		return;
 	}
 
@@ -796,7 +796,7 @@ void CExplosion::do_throw() {
 	// Now move through the x-axis and create debris and smoke.
 	double  xpos   = 0;
 	double  ypos   = 0;
-	double  bottom = env.screenHeight;
+	double  bottom = env.screen_height;
 	double  alpha  = 0.;
 	double  minX   = x - xrad;
 	double  maxY   = 0.;

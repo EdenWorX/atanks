@@ -527,7 +527,7 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 		int32_t xWidth   = 0;
 		int32_t xTop     = top;
 		int32_t xHeight  = height;
-		int32_t text_top = top + ( height / 2 ) - ( env.fontHeight / 2 );
+		int32_t text_top = top + ( height / 2 ) - ( env.font_height / 2 );
 		int32_t deco_top = text_top + 4;
 
 		// First: Title text
@@ -538,7 +538,7 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 			xWidth          = titleLen + padding;
 
 			// Add a nice shadow if wanted
-			if ( env.shadowedText ) {
+			if ( env.shadowed_text ) {
 				textout_ex(
 					global.canvas,
 					font,
@@ -647,7 +647,7 @@ void OptionItemBase::displayText( char const* target ) {
 
 		if ( txt_p ) {
 			int32_t len_available = width - 6;
-			int32_t text_top      = top + ( height / 2 ) - ( env.fontHeight / 2 );
+			int32_t text_top      = top + ( height / 2 ) - ( env.font_height / 2 );
 
 
 			// If this is a read/write selected ET_TEXT, it has a cursor being
@@ -665,7 +665,7 @@ void OptionItemBase::displayText( char const* target ) {
 			if ( txt_p && txt_p[ 0 ] ) {
 
 				// With a shadow? But not in text field mode
-				if ( env.shadowedText && textOnly ) {
+				if ( env.shadowed_text && textOnly ) {
 					textout_ex(
 						global.canvas,
 						font,

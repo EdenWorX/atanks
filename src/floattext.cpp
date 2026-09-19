@@ -21,7 +21,7 @@ CFloatText::CFloatText(
 	, pos_x( ROUND( xpos ) )
 	, pos_y( ROUND( ypos ) ) {
 	int32_t sky_col = TURQUOISE;
-	if ( ( pos_x > -1 ) && ( pos_y > MENUHEIGHT ) && ( pos_x < env.screenWidth ) && ( pos_y < env.screenWidth ) ) {
+	if ( ( pos_x > -1 ) && ( pos_y > MENUHEIGHT ) && ( pos_x < env.screen_width ) && ( pos_y < env.screen_width ) ) {
 		sky_col = getpixel( env.sky, pos_x, pos_y - MENUHEIGHT );
 	}
 
@@ -34,7 +34,7 @@ CFloatText::CFloatText(
 	}
 
 	// The font and thus its height is fixed:
-	dim_cur.h = env.fontHeight + ( env.fontHeight % 2 );
+	dim_cur.h = env.font_height + ( env.font_height % 2 );
 
 	x         = pos_x;
 	y         = pos_y;
@@ -44,7 +44,7 @@ CFloatText::CFloatText(
 	set_speed( xv_, yv_ );
 
 	// Add to the chain:
-	global.addObject( this );
+	global.add_object( this );
 }
 
 CFloatText::~CFloatText() {
@@ -61,16 +61,16 @@ CFloatText::~CFloatText() {
 		int32_t top    = LEFT == align  ? dim_cur.y
 		               : RIGHT == align ? dim_cur.y - dim_cur.h
 		                                : dim_cur.y - ( dim_cur.h / 2 );
-		int32_t right  = std::min( env.screenWidth, left + dim_cur.w + 1 );
-		int32_t bottom = std::min( env.screenHeight, top + dim_cur.h + 1 );
+		int32_t right  = std::min( env.screen_width, left + dim_cur.w + 1 );
+		int32_t bottom = std::min( env.screen_height, top + dim_cur.h + 1 );
 
 		global.make_bgupdate( left, top, right - left, bottom - top );
 
 		// Update previous position
 		left   = LEFT == align ? dim_old.x : RIGHT == align ? dim_old.x - dim_old.w : dim_old.x - ( dim_old.w / 2 );
 		top    = LEFT == align ? dim_old.y : RIGHT == align ? dim_old.y - dim_old.h : dim_old.y - ( dim_old.h / 2 );
-		right  = std::min( env.screenWidth, left + dim_old.w + 1 );
-		bottom = std::min( env.screenHeight, top + dim_old.h + 1 );
+		right  = std::min( env.screen_width, left + dim_old.w + 1 );
+		bottom = std::min( env.screen_height, top + dim_old.h + 1 );
 
 		if ( ( right > left ) && ( bottom > top ) ) {
 			global.make_bgupdate( left, top, right - left, bottom - top );
@@ -84,7 +84,7 @@ CFloatText::~CFloatText() {
 	}
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 void CFloatText::applyPhysics() {
@@ -137,7 +137,7 @@ void CFloatText::check_pos( bool is_new ) {
 	} else {
 		CFloatText* curr          = nullptr;
 		bool       curr_is_older = true; // We start with head, which is the oldest.
-		global.getHeadOfClass( CLASS_FLOATTEXT, &curr );
+		global.get_head_of_class( CLASS_FLOATTEXT, &curr );
 
 
 		is_pushed = false;
@@ -193,11 +193,11 @@ void CFloatText::draw() {
 
 	// If either shadowed or fading text is enabled, a background
 	// average colour is needed.
-	if ( ( env.shadowedText || env.fadingText ) && !global.skippingComputerPlay ) {
+	if ( ( env.shadowed_text || env.fading_text ) && !global.skipping_computer_play ) {
 		int32_t backCol = global.get_avg_bgcolor( left, top, left + dim_cur.w, top + dim_cur.h, xv, yv );
 
 		// If fading text is activated, the front colour must be calculated as well
-		if ( env.fadingText && ( maxAge > 0 ) && ( age >= ( maxAge / 2 ) ) ) {
+		if ( env.fading_text && ( maxAge > 0 ) && ( age >= ( maxAge / 2 ) ) ) {
 			double calcMax    = maxAge / 2.;
 			double calcAge    = age - calcMax;
 			double frontFade  = 1.0 - ( calcAge / calcMax );
@@ -223,7 +223,7 @@ void CFloatText::draw() {
 		} // end of calculating fading values
 
 		// The now current values must be applied to the shadow colour if needed
-		if ( env.shadowedText ) {
+		if ( env.shadowed_text ) {
 			double backFade = 1.0 - shadeFade;
 
 			if ( backFade < 0. ) {
@@ -239,7 +239,7 @@ void CFloatText::draw() {
 	}         // End of fading / shadow preparations
 
 	// Eventually print out the text:
-	if ( env.shadowedText && !global.skippingComputerPlay ) {
+	if ( env.shadowed_text && !global.skipping_computer_play ) {
 		textout_ex( global.canvas, font, text, left + 1, top + 1, shadeCol, -1 );
 	}
 	textout_ex( global.canvas, font, text, left, top, frontCol, -1 );
@@ -347,7 +347,7 @@ void CFloatText::set_color( int32_t color_ ) {
 	int32_t top     = LEFT == align ? dim_cur.y + ( dim_cur.h / 2 ) : dim_cur.y - ( dim_cur.h / 2 );
 
 	int32_t sky_col = TURQUOISE;
-	if ( ( left > -1 ) && ( top > MENUHEIGHT ) && ( left < env.screenWidth ) && ( top < env.screenWidth ) ) {
+	if ( ( left > -1 ) && ( top > MENUHEIGHT ) && ( left < env.screen_width ) && ( top < env.screen_width ) ) {
 		sky_col = getpixel( env.sky, left, top - MENUHEIGHT );
 	}
 

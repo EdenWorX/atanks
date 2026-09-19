@@ -12,8 +12,8 @@ CDecor::CDecor( double x_, double y_, double xv_, double yv_, int32_t maxRadius,
 	, curWind( global.wind )
 	, delay( delay_ )
 	, maxGravAccel( -4. * env.fall_vector )
-	, maxWind( env.windstrength )
-	, maxWindAccel( global.wind * env.FPS_mod )
+	, maxWind( env.wind_strength )
+	, maxWindAccel( global.wind * env.fps_mod )
 	, radius( maxRadius )
 	, type( type_ ) {
 	x  = x_;
@@ -67,10 +67,10 @@ CDecor::CDecor( double x_, double y_, double xv_, double yv_, int32_t maxRadius,
 		destroy = true;
 	}
 
-	maxVel = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	maxVel = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
 	// Add to the chain:
-	global.addObject( this );
+	global.add_object( this );
 }
 
 /// @brief Constructor with bitmap
@@ -104,7 +104,7 @@ CDecor::~CDecor() {
 	if ( DECOR_DIRT == type ) {
 		// Draw dirt on terrain and add landslide
 		rotate_sprite( global.terrain, dirt->bmp, ROUND( x - radius ), ROUND( y - radius ), itofix( angle ) );
-		global.addLandSlide(x - radius - 1, x + radius + 1, false );
+		global.add_land_slide(x - radius - 1, x + radius + 1, false );
 	}
 
 	if ( dirt ) {
@@ -132,7 +132,7 @@ CDecor::~CDecor() {
 	this->update();
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 /// @brief let smoke drift and disperse with the wind
@@ -161,7 +161,7 @@ void CDecor::applyPhysics() {
 
 			// fix y:
 			auto dirt_bottom = ROUND( y + dirt->bmp->h );
-			if ( ( ( y - radius ) > MENUHEIGHT ) && ( dirt_bottom < env.screenHeight )
+			if ( ( ( y - radius ) > MENUHEIGHT ) && ( dirt_bottom < env.screen_height )
 			     && ( PINK != getpixel( global.terrain, x, dirt_bottom ) ) ) {
 				--y;
 			}
@@ -183,15 +183,15 @@ void CDecor::applyPhysics() {
 			if ( x < 2 ) {
 				x = 2;
 			}
-			if ( x > ( env.screenWidth - 2 ) ) {
-				x = env.screenWidth - 2;
+			if ( x > ( env.screen_width - 2 ) ) {
+				x = env.screen_width - 2;
 			}
-			if ( y > ( env.screenHeight - 2 ) ) {
-				y = env.screenHeight - 2;
+			if ( y > ( env.screen_height - 2 ) ) {
+				y = env.screen_height - 2;
 			}
 
 			// Maybe play a sound on bounce
-			if ( !global.skippingComputerPlay && ( old_yv > .5 ) && ( yv < -0.1 ) ) {
+			if ( !global.skipping_computer_play && ( old_yv > .5 ) && ( yv < -0.1 ) ) {
 				play_natural_sound( DIRT_FRAGMENT, ROUND( x ), radius * 16, 1200 - ( radius * 50 ) );
 			}
 		}
@@ -236,7 +236,7 @@ void CDecor::applyPhysics() {
 		}
 
 		// Don't push through the floor
-		if ( ( y + yv ) >= env.screenHeight ) {
+		if ( ( y + yv ) >= env.screen_height ) {
 			yv *= -0.5;
 			xv *= 0.95;
 		}
@@ -257,7 +257,7 @@ void CDecor::applyPhysics() {
 		// Destroy the smoke if it goes off-screen or is diffused
 		auto calcRadius = ROUND( radius * ( 4.0 * age / maxAge ) );
 
-		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screenWidth + calcRadius ) )
+		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screen_width + calcRadius ) )
 		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > maxAge ) ) {
 			destroy = true;
 		}
@@ -326,8 +326,8 @@ void CDecor::force_aging( int32_t frames ) {
 /// return true if a dirt debris item "lies" on the floor, or is squeezed in a
 /// dirt slide.
 bool CDecor::isOnFloor() {
-	int32_t scr_r_x = env.screenWidth - 2;  // shortcut;
-	int32_t scr_b_y = env.screenHeight - 2; // ditto;
+	int32_t scr_r_x = env.screen_width - 2;  // shortcut;
+	int32_t scr_b_y = env.screen_height - 2; // ditto;
 
 	// If the debris is above the screen or directly on the floor,
 	// return at once:
@@ -385,7 +385,7 @@ void CDecor::repulseDecor() {
 	double xaccel = 0;
 	double yaccel = 0;
 
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 
 	while ( lt ) {
 		if ( !lt->destroy ) {

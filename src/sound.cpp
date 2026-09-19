@@ -86,7 +86,7 @@ void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) 
 /** @brief plays the currently set background music modified by set volume factor
  **/
 void play_music() {
-	if ( env.loadBackgroundMusic() ) {
+	if ( env.load_background_music() ) {
 		play_sound( SND_BG_MUSIC, 128, 255, 1000 );
 	}
 }
@@ -145,7 +145,7 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 
 void play_interface_sound( ESounds sound ) {
 	if ( SND_INTE_BUTTON_CLICK == sound ) {
-		play_sound( sound, env.halfWidth, 128, 1000 );
+		play_sound( sound, env.half_width, 128, 1000 );
 	}
 }
 
@@ -159,8 +159,8 @@ static void play_sound( ESounds sound, int32_t x, int32_t vol, int32_t freq ) {
 				env.sounds[ sound ],
 				xVol,
 				x <= 0                 ? 31
-				: x >= env.screenWidth ? 192
-						       : 31 + ( x * 191 / env.screenWidth ),
+				: x >= env.screen_width ? 192
+						       : 31 + ( x * 191 / env.screen_width ),
 				freq,
 				false
 			);

@@ -157,20 +157,20 @@ void CPlayer::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapon
 					ROUND( pref )
 				)
 
-				if ( env.sellpercent > 0.01 ) {
+				if ( env.sell_percent > 0.01 ) {
 
 					// saleable are the units considered to be sold:
 					int32_t saleable = ROUND( div_amount - RAND_AI_1P ) / one_amount;
 
 					if ( saleable > 0 ) {
-						money   += ROUND( weapon[ i ].cost * env.sellpercent * saleable );
+						money   += ROUND( weapon[ i ].cost * env.sell_percent * saleable );
 						nm[ i ] -= weapon[ i ].amt * saleable;
 						DEBUG_LOG_FIN(
 							name.c_str(),
 							"Sold %d %s for $%s",
 							saleable,
 							weapon[ i ].getName(),
-							Add_Comma( ROUNDu( weapon[ i ].cost * env.sellpercent ) * saleable )
+							Add_Comma( ROUNDu( weapon[ i ].cost * env.sell_percent ) * saleable )
 						)
 					}
 				} // end of selling allowed
@@ -216,20 +216,20 @@ void CPlayer::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapon
 						ROUND( pref )
 					)
 
-					if ( ( env.sellpercent > 0.01 ) && ( j < ITEM_VENGEANCE ) ) {
+					if ( ( env.sell_percent > 0.01 ) && ( j < ITEM_VENGEANCE ) ) {
 
 						// Note: Armour and Amps are not considered here!
 						auto saleable = ROUND( ( div_amount - RAND_AI_1P ) / one_amount );
 
 						if ( saleable > 0 ) {
-							money   += ROUND( item[ j ].cost * env.sellpercent * saleable );
+							money   += ROUND( item[ j ].cost * env.sell_percent * saleable );
 							ni[ j ] -= item[ j ].amt * saleable;
 							DEBUG_LOG_FIN(
 								name.c_str(),
 								"Sold %d %s for $%s",
 								saleable,
 								item[ j ].getName(),
-								Add_Comma( ROUND( item[ j ].cost * env.sellpercent * saleable ) )
+								Add_Comma( ROUND( item[ j ].cost * env.sell_percent * saleable ) )
 							)
 						}
 					} // end of selling allowed
@@ -257,7 +257,7 @@ bool CPlayer::buy_item( int32_t itemindex, int32_t max_boost ) {
 		// 2: Space free in stock?
 		// 3: Tech level not too high?
 		if ( ( money >= weapon[ itemindex ].cost ) && ( nm[ itemindex ] < MAX_ITEMS_IN_STOCK )
-		     && ( weapon[ itemindex ].techLevel <= env.weapontechLevel ) ) {
+		     && ( weapon[ itemindex ].techLevel <= env.weapontech_level ) ) {
 			money           -= weapon[ itemindex ].cost;
 			nm[ itemindex ] += weapon[ itemindex ].amt;
 
@@ -281,7 +281,7 @@ bool CPlayer::buy_item( int32_t itemindex, int32_t max_boost ) {
 		bool    isBoost  = ( ( itemNum >= ITEM_ARMOUR ) && ( itemNum <= ITEM_VIOLENT_FORCE ) );
 		bool    isShield = ( ( itemNum >= ITEM_LGT_SHIELD ) && ( itemNum <= ITEM_HVY_REPULSOR_SHIELD ) );
 
-		if ( ( money > item[ itemNum ].cost ) && ( ni[ itemNum ] < MAX_ITEMS_IN_STOCK ) && env.isItemAvailable( itemNum )
+		if ( ( money > item[ itemNum ].cost ) && ( ni[ itemNum ] < MAX_ITEMS_IN_STOCK ) && env.is_item_available( itemNum )
 		     && ( ( HUMAN_PLAYER == type ) || !( isBoost || isShield )
 		          || ( isBoost && ( ai_level > boostBought ) && ( getBoostValue() < max_boost ) )
 		          || ( isShield && ( ai_level > shieldBought ) ) ) ) {
@@ -497,9 +497,9 @@ EControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 		// If there is a difference between the AI selection and the
 		// display, transport the values on the screen.
 		if ( ( ai_angle != tank->a ) || ( ai_power != tank->p ) || ( ai_weap != tank->cw ) ) {
-			global.updateMenu = true;
+			global.update_menu = true;
 
-			if ( global.skippingComputerPlay ) {
+			if ( global.skipping_computer_play ) {
 				// When skipping, the values are simply copied:
 				tank->a  = ai_angle;
 				tank->p  = ai_power;
@@ -528,7 +528,7 @@ EControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 
 					// Skip unusable items and those that are
 					// out of stock
-					while ( ( !env.isItemAvailable( tank->cw ) || ( ( tank->cw < WEAPONS ) && !nm[ tank->cw ] )
+					while ( ( !env.is_item_available( tank->cw ) || ( ( tank->cw < WEAPONS ) && !nm[ tank->cw ] )
 					          || ( ( tank->cw >= WEAPONS ) && !ni[ tank->cw - WEAPONS ] ) )
 					        && ( tank->cw != ai_weap ) ) {
 						tank->cw += cw_mod;
@@ -540,7 +540,7 @@ EControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 		// otherwise, fire the current weapon if this is allowed
 		else if ( allow_fire ) {
 			aicore->weapon_fired();
-			global.updateMenu = true;
+			global.update_menu = true;
 
 			if ( type == VERY_PART_TIME_BOT ) {
 				type = NETWORK_CLIENT;
@@ -591,7 +591,7 @@ int32_t CPlayer::computerSelectPreBuyItem( int32_t max_boost ) {
 
 
 	// Step 1: Check for parachutes (if the bot remembers to check)
-	if ( ( ( type >= RANGEFINDER_PLAYER ) || RAND_AI_1P ) && ( env.landSlideType > SLIDE_NONE )
+	if ( ( ( type >= RANGEFINDER_PLAYER ) || RAND_AI_1P ) && ( env.landslide_type > SLIDE_NONE )
 	     && ( ni[ ITEM_PARACHUTE ] < 10 ) && ( money > item[ ITEM_PARACHUTE ].cost ) ) {
 
 		DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Parachute", 0 )
@@ -876,10 +876,10 @@ EControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 
 		// Enter ingame menu?
 		if ( ( KEY_ESC == K ) || ( KEY_P == K ) ) {
-			int32_t mm = env.ingamemenu();
+			int32_t mm = env.in_game_menu();
 
-			global.make_update( 0, 0, env.screenWidth, env.screenHeight );
-			global.make_bgupdate( 0, 0, env.screenWidth, env.screenHeight );
+			global.make_update( 0, 0, env.screen_width, env.screen_height );
+			global.make_bgupdate( 0, 0, env.screen_width, env.screen_height );
 
 			switch ( mm ) {
 				case 1:
@@ -906,7 +906,7 @@ EControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 			K             = 0;
 
 			// make sure the value is within range
-			if ( ( value < env.numGamePlayers ) && env.players[ value ] ) {
+			if ( ( value < env.num_game_players ) && env.players[ value ] ) {
 
 				CTank* my_tank = env.players[ value ]->tank;
 
@@ -921,7 +921,7 @@ EControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 						env.players[ value ]->getTeamName()
 					);
 					global.tank_status_colour = env.players[ value ]->color;
-					global.updateMenu         = true;
+					global.update_menu         = true;
 				} else {
 					memset( global.tank_status, 0, sizeof( char ) * 128 );
 				}
@@ -931,11 +931,11 @@ EControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 		// Check for scorboard toggle key
 		if ( ( K == KEY_TILDE ) || ( K == KEY_SLASH ) ) {
 			K                     = 0;
-			global.showScoreBoard = !global.showScoreBoard;
-			if ( !global.showScoreBoard ) {
+			global.show_score_board = !global.show_score_board;
+			if ( !global.show_score_board ) {
 				// erase it:
-				global.make_update( 0, MENUHEIGHT, 300, ( env.maxNumTanks + 1 ) * env.fontHeight );
-				global.make_bgupdate( 0, MENUHEIGHT, 300, ( env.maxNumTanks + 1 ) * env.fontHeight );
+				global.make_update( 0, MENUHEIGHT, 300, ( env.max_num_tanks + 1 ) * env.font_height );
+				global.make_bgupdate( 0, MENUHEIGHT, 300, ( env.max_num_tanks + 1 ) * env.font_height );
 			}
 		}
 
@@ -943,9 +943,9 @@ EControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 		if ( KEY_V == K ) {
 			K = 0;
 			if ( has_shift_pressed ) {
-				env.increaseVolume();
+				env.increase_volume();
 			} else {
-				env.decreaseVolume();
+				env.decrease_volume();
 			}
 		}
 	} // End of handling all time possible key presses.
@@ -1063,23 +1063,23 @@ EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 		close( server_socket );
 		type = DEADLY_PLAYER;
 	} else if ( !strncmp( net_command, "BOXED", 5 ) ) {
-		SAFE_WRITE( server_socket, "BOXED %d", env.isBoxed ? 1 : 0 );
+		SAFE_WRITE( server_socket, "BOXED %d", env.is_boxed ? 1 : 0 );
 	} else if ( !strncmp( net_command, "GOSSIP", 6 ) ) {
 		snprintf( global.tank_status, 127, "%s", &( net_command[ 7 ] ) );
-		global.updateMenu = true;
+		global.update_menu = true;
 	} else if ( !strncmp( net_command, "HEALTH", 6 ) ) {
-		int tankindex = 0;
+		int tank_index = 0;
 
-		SAFE_STOI( tankindex, &( net_command[ 7 ] ) );
-		if ( ( tankindex >= 0 ) && ( tankindex < env.numGamePlayers ) ) {
-			if ( env.players[ tankindex ]->tank ) {
+		SAFE_STOI( tank_index, &( net_command[ 7 ] ) );
+		if ( ( tank_index >= 0 ) && ( tank_index < env.num_game_players ) ) {
+			if ( env.players[ tank_index ]->tank ) {
 				SAFE_WRITE(
 					server_socket,
 					"HEALTH %d %d %d %d",
-					tankindex,
-					env.players[ tankindex ]->tank->l,
-					env.players[ tankindex ]->tank->sh,
-					env.players[ tankindex ]->tank->sht
+					tank_index,
+					env.players[ tank_index ]->tank->l,
+					env.players[ tank_index ]->tank->sh,
+					env.players[ tank_index ]->tank->sht
 				);
 			}
 		}
@@ -1100,7 +1100,7 @@ EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 			} else {
 				tank->moveTank( DIR_RIGHT );
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 		}
 	} else if ( !strncmp( net_command, "FIRE", 4 ) ) {
 		int angle = 180, power = 1000, item_to_use = 0;
@@ -1148,7 +1148,7 @@ EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 	else if ( !strncmp( net_command, "WHOAMI", 6 ) ) {
 		bool found = false;
 
-		while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
+		while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
 			if ( env.players[ playerindex ] == this ) {
 				found = true;
 				SAFE_WRITE( server_socket, "YOUARE %d", playerindex );
@@ -1168,25 +1168,25 @@ EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 
 	// find out how many players we have
 	else if ( !strncmp( net_command, "NUMPLAYERS", 10 ) ) {
-		SAFE_WRITE( server_socket, "NUMPLAYERS %d", env.numGamePlayers );
+		SAFE_WRITE( server_socket, "NUMPLAYERS %d", env.num_game_players );
 	} else if ( !strncmp( net_command, "PLAYERNAME", 10 ) ) {
 		int my_number = 0;
 		SAFE_STOI( my_number, &( net_command[ 11 ] ) );
-		if ( ( my_number >= 0 ) && ( my_number < env.numGamePlayers ) ) {
+		if ( ( my_number >= 0 ) && ( my_number < env.num_game_players ) ) {
 			SAFE_WRITE( server_socket, "PLAYERNAME %d %s", my_number, env.players[ my_number ]->getName() );
 		}
 	}
 
 	// how many rounds are we playing
 	else if ( !strncmp( net_command, "ROUNDS", 6 ) ) {
-		SAFE_WRITE( server_socket, "ROUNDS %d %d", env.rounds, global.currentround );
+		SAFE_WRITE( server_socket, "ROUNDS %d %d", env.rounds, global.current_round );
 	}
 	// send back the position of each tank
 	else if ( !strncmp( net_command, "TANKPOSITION", 12 ) ) {
 		int count = 0;
 
 		SAFE_STOI( count, &( net_command[ 13 ] ) );
-		if ( ( count >= 0 ) && ( count < env.numGamePlayers ) && ( env.players[ count ]->tank ) ) {
+		if ( ( count >= 0 ) && ( count < env.num_game_players ) && ( env.players[ count ]->tank ) ) {
 			SAFE_WRITE(
 				server_socket,
 				"TANKPOSITION %d %d %d",
@@ -1202,20 +1202,20 @@ EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 		int x = 0;
 
 		SAFE_STOI( x, &( net_command[ 8 ] ) );
-		if ( ( x >= 0 ) && ( x < env.screenWidth ) ) {
+		if ( ( x >= 0 ) && ( x < env.screen_width ) ) {
 			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() );
 		}
 	} else if ( !strncmp( net_command, "SCREEN", 6 ) ) {
-		SAFE_WRITE( server_socket, "SCREEN %d %d", env.screenWidth, env.screenHeight );
+		SAFE_WRITE( server_socket, "SCREEN %d %d", env.screen_width, env.screen_height );
 	} else if ( !strncmp( net_command, "TEAMS", 5 ) ) {
 		int count = 0;
 
 		SAFE_STOI( count, &( net_command[ 6 ] ) );
-		if ( ( count < env.numGamePlayers ) && ( count >= 0 ) ) {
+		if ( ( count < env.num_game_players ) && ( count >= 0 ) ) {
 			SAFE_WRITE( server_socket, "TEAM %d %d", count, (int)env.players[ count ]->team );
 		}
 	} else if ( !strncmp( net_command, "WALLTYPE", 8 ) ) {
-		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wallType );
+		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wall_type );
 	} else if ( !strncmp( net_command, "CWeapon", 6 ) ) {
 		int weapon_number = 0;
 		SAFE_STOI( weapon_number, &( net_command[ 7 ] ) );
@@ -1257,7 +1257,7 @@ int32_t CPlayer::generateDesiredList() {
 	memset( desired, 0, sizeof( int32_t ) * THINGS );
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
-		if ( env.isItemAvailable( i ) ) {
+		if ( env.is_item_available( i ) ) {
 			desired[ i ]   = i;
 			boostPref[ i ] = std::max( boostPref[ i ], currPref[ i ] - weapPref[ i ] );
 			currPref[ i ]  = weapPref[ i ] + boostPref[ i ];
@@ -1884,7 +1884,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			} else {
 				tank->a++;
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 			if ( has_ctrl_pressed ) {
 				ctrlUsedUp = true;
 			}
@@ -1896,7 +1896,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			} else {
 				tank->a--;
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 			if ( has_ctrl_pressed ) {
 				ctrlUsedUp = true;
 			}
@@ -1908,7 +1908,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			} else {
 				tank->p -= 5;
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 			if ( has_ctrl_pressed ) {
 				ctrlUsedUp = true;
 			}
@@ -1920,7 +1920,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			} else {
 				tank->p += 5;
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 			if ( has_ctrl_pressed ) {
 				ctrlUsedUp = true;
 			}
@@ -1931,7 +1931,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			if ( tank->p > MAX_POWER ) {
 				tank->p = MAX_POWER;
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 			if ( has_ctrl_pressed ) {
 				ctrlUsedUp = true;
 			}
@@ -1942,7 +1942,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			if ( tank->p < 0 ) {
 				tank->p = 0;
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 			if ( has_ctrl_pressed ) {
 				ctrlUsedUp = true;
 			}
@@ -1964,12 +1964,12 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 		if ( ( global.stage == STAGE_AIM ) && tank ) {
 			if ( K == KEY_N ) {
 				tank->a           = 180;
-				global.updateMenu = true;
+				global.update_menu = true;
 				K                 = 0;
 			}
 
 			if ( ( K == KEY_TAB ) || ( K == KEY_C ) ) {
-				global.updateMenu = true;
+				global.update_menu = true;
 				bool done         = false;
 				while ( !done ) {
 					if ( ++tank->cw >= THINGS ) {
@@ -1987,7 +1987,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			}
 
 			if ( ( K == KEY_BACKSPACE ) || ( K == KEY_Z ) ) {
-				global.updateMenu = true;
+				global.update_menu = true;
 				bool done         = false;
 				while ( !done ) {
 					if ( --tank->cw < 0 ) {
@@ -2020,7 +2020,7 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 			}
 
 			if ( moved ) {
-				global.updateMenu = true;
+				global.update_menu = true;
 				K                 = 0;
 			}
 
@@ -2442,7 +2442,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				iss >> opp_idx >> opp_val;
 				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
 					opponents[ opp_idx ].index    = opp_val;
-					opponents[ opp_idx ].opponent = env.allPlayers[ opp_val ];
+					opponents[ opp_idx ].opponent = env.all_players[ opp_val ];
 				}
 			} else if ( !strcasecmp( field, "OPPMEM_DDEA" ) ) {
 				int32_t            opp_idx = -1;
@@ -2502,7 +2502,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 
 /// @brief reserve memory for the opponents array and fill it
 void CPlayer::newGame() {
-	if ( env.numGamePlayers ) {
+	if ( env.num_game_players ) {
 
 		if ( opponents ) {
 			delete[] opponents;
@@ -2510,7 +2510,7 @@ void CPlayer::newGame() {
 		}
 
 		try {
-			oppCount  = env.numGamePlayers;
+			oppCount  = env.num_game_players;
 			opponents = new opp_t[ oppCount ];
 		} catch ( std::exception& e ) {
 			cerr << "ERROR: Unable to allocate " << ( sizeof( opp_t ) * oppCount );
@@ -2550,14 +2550,14 @@ void CPlayer::newRound() {
 
 	// if we are playing in a campaign, raise the AI level for every 20% played
 	// rounds, so that useless players become deadly at 80% played rounds
-	if ( env.campaign_mode && ( global.currentround < env.nextCampaignRound ) && ( type > HUMAN_PLAYER )
+	if ( env.campaign_mode && ( global.current_round < env.next_campaign_round ) && ( type > HUMAN_PLAYER )
 	     && ( type < DEADLY_PLAYER ) ) {
 		++type;
 	}
 
 	// reset some basic values
 	changed_weapon    = false;
-	time_left_to_fire = env.maxFireTime;
+	time_left_to_fire = env.max_fire_time;
 	skip_me           = false;
 	last_shield_used  = 0;
 
@@ -2605,7 +2605,7 @@ void CPlayer::noteDamageFrom( CPlayer* opponent, int32_t damage, bool destroyed 
 
 				revenge = opponents[ idx ].opponent;
 
-				if ( !global.skippingComputerPlay ) {
+				if ( !global.skipping_computer_play ) {
 					try {
 						new CFloatText(
 							selectRevengePhrase(),
@@ -2665,7 +2665,7 @@ bool CPlayer::reduceClock() {
 	}
 
 	if ( 0 == --time_left_to_fire ) {
-		time_left_to_fire = env.maxFireTime;
+		time_left_to_fire = env.max_fire_time;
 		return true;
 	}
 
@@ -2962,12 +2962,12 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 
 	int32_t menuMid        = 300;
 	int32_t itemLeft       = menuMid - 75;
-	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemHeight     = env.font_height + 2;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 3;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 
 
 	// Use "Mini-Player" struct to be able to cancel player editing
@@ -2975,7 +2975,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	player_bak.copy_from( *target );
 
 	// The "Are you sure" screen when deleting a player
-	Menu areyousure( MC_AREYOUSURE, env.halfWidth - menuMid, env.menuBeginY );
+	Menu areyousure( MC_AREYOUSURE, env.half_width - menuMid, env.menu_begin_y );
 	areyousure.addButton(
 		1,
 		nullptr,
@@ -3006,7 +3006,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	);
 
 	// The menu, but with the player name as title
-	Menu menu( MC_PLAYER, env.halfWidth - menuMid, env.menuBeginY );
+	Menu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
 	menu.setTitle( player_bak.name, false );
 
 	// "Name"
@@ -3153,15 +3153,15 @@ int32_t new_player( CPlayer** target, int32_t ) {
 
 	int32_t menuMid        = 300;
 	int32_t itemLeft       = menuMid - 75;
-	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemHeight     = env.font_height + 2;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 3;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 
 	// The menu, with title from the menu class
-	Menu menu( MC_PLAYER, env.halfWidth - menuMid, env.menuBeginY );
+	Menu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Name"
 	menu.addText( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
@@ -3278,16 +3278,16 @@ int32_t new_player( CPlayer** target, int32_t ) {
 		// First, ensure that the name is unique
 		// Second, create the real player
 		if ( PE_CONFIRM_NEW & result ) {
-			if ( -1 == env.getPlayerByName( player_new.name ) ) {
-				*target = env.createNewPlayer( player_new.name );
+			if ( -1 == env.get_player_by_name( player_new.name ) ) {
+				*target = env.create_new_player( player_new.name );
 				if ( *target ) {
 					player_new.write_back( *target );
 				}
 			} else {
 				snprintf( existsMessage, 199, "The player \"%s\" already exists!", player_new.name );
 				errorMessage = existsMessage;
-				errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
-				errorY       = env.menuBeginY + itemFullHeight;
+				errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+				errorY       = env.menu_begin_y + itemFullHeight;
 				result       = 0;
 			}
 		}

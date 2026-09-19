@@ -79,9 +79,9 @@ bool Parse_Client_Data( char *buffer ) {
 		int got_box = 0;
 		SAFE_STOI( got_box, args[ 1 ] );
 		if ( got_box ) {
-			env.isBoxed = true;
+			env.is_boxed = true;
 		} else {
-			env.isBoxed = false;
+			env.is_boxed = false;
 		}
 		return true;
 	} else if ( !strcmp( args[ 0 ], "CExplosion" ) ) {
@@ -107,27 +107,27 @@ bool Parse_Client_Data( char *buffer ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "HEALTH" ) ) {
-		int  tankindex = 0;
+		int  tank_index = 0;
 		int  health = 0, shield = 0, shield_type = 0;
 		char some_text[ 32 ];
 
-		SAFE_STOI( tankindex, args[ 1 ] );
-		if ( tankindex >= 0 ) {
+		SAFE_STOI( tank_index, args[ 1 ] );
+		if ( tank_index >= 0 ) {
 			SAFE_STOI( health, args[ 2 ] );
 			SAFE_STOI( shield, args[ 3 ] );
 			SAFE_STOI( shield_type, args[ 4 ] );
-			env.players[ tankindex ]->tank->l   = health;
-			env.players[ tankindex ]->tank->sh  = shield;
-			env.players[ tankindex ]->tank->sht = shield_type;
+			env.players[ tank_index ]->tank->l   = health;
+			env.players[ tank_index ]->tank->sh  = shield;
+			env.players[ tank_index ]->tank->sht = shield_type;
 			// set the text over the tank
 			sprintf( some_text, "%d", health );
-			env.players[ tankindex ]->tank->healthText.set_text( some_text );
-			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
+			env.players[ tank_index ]->tank->healthText.set_text( some_text );
+			env.players[ tank_index ]->tank->healthText.set_color( env.players[ tank_index ]->color );
 			sprintf( some_text, "%d", shield );
-			env.players[ tankindex ]->tank->shieldText.set_text( some_text );
-			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
+			env.players[ tank_index ]->tank->shieldText.set_text( some_text );
+			env.players[ tank_index ]->tank->healthText.set_color( env.players[ tank_index ]->color );
 		}
-		if ( tankindex == ( env.numGamePlayers - 1 ) ) {
+		if ( tank_index == ( env.num_game_players - 1 ) ) {
 			return true;
 		} else {
 			return false;
@@ -150,9 +150,9 @@ bool Parse_Client_Data( char *buffer ) {
 		}
 		return false;
 	} else if ( !strcmp( args[ 0 ], "NUMPLAYERS" ) ) {
-		SAFE_STOI( ( env.numGamePlayers ), args[ 1 ] );
+		SAFE_STOI( ( env.num_game_players ), args[ 1 ] );
 		// create the players in question
-		for ( int counter = 0; counter < env.numGamePlayers; counter++ ) {
+		for ( int counter = 0; counter < env.num_game_players; counter++ ) {
 			try {
 				env.players[ counter ] = new CPlayer();
 			} catch ( std::bad_alloc &e ) {
@@ -175,16 +175,16 @@ bool Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "PLAYERNAME" ) ) {
 		int number = 0;
 		SAFE_STOI( number, args[ 1 ] );
-		if ( ( number < env.numGamePlayers ) && ( number >= 0 ) ) {
+		if ( ( number < env.num_game_players ) && ( number >= 0 ) ) {
 			env.players[ number ]->setName( args[ 2 ] );
 		}
-		if ( number == ( env.numGamePlayers - 1 ) ) {
+		if ( number == ( env.num_game_players - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "REMOVETANK" ) ) {
 		int index = 0;
 		SAFE_STOI( index, args[ 1 ] );
-		if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
+		if ( ( index >= 0 ) && ( index < env.num_game_players ) ) {
 			// make sure this tank exists before we get rid of it
 			if ( env.players[ index ]->tank ) {
 				delete env.players[ index ]->tank;
@@ -193,7 +193,7 @@ bool Parse_Client_Data( char *buffer ) {
 		}
 	} else if ( !strcmp( args[ 0 ], "ROUNDS" ) ) {
 		SAFE_STOUL( env.rounds, args[ 1 ] );
-		SAFE_STOUL( global.currentround, args[ 2 ] );
+		SAFE_STOUL( global.current_round, args[ 2 ] );
 		return true;
 	} else if ( !strcmp( args[ 0 ], "SURFACE" ) ) {
 		int x = 0, y = 0;
@@ -205,10 +205,10 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( x, args[ 1 ] );
 		SAFE_STOI( y, args[ 2 ] );
 		global.surface[ x ].store( y );
-		my_height = env.screenHeight - y;
+		my_height = env.screen_height - y;
 		my_height = my_height / 50; // ratio of change
 		// fill in terrain...
-		for ( index = y; index < env.screenHeight; index++ ) {
+		for ( index = y; index < env.screen_height; index++ ) {
 			putpixel( global.terrain, x, index, makecol( 0, green, 0 ) );
 			colour_change++;
 			if ( colour_change >= my_height ) {
@@ -216,7 +216,7 @@ bool Parse_Client_Data( char *buffer ) {
 				green--;
 			}
 		}
-		if ( x >= ( env.screenWidth - 1 ) ) {
+		if ( x >= ( env.screen_width - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "SCREEN" ) ) {
@@ -224,11 +224,11 @@ bool Parse_Client_Data( char *buffer ) {
 
 		SAFE_STOI( width, args[ 1 ] );
 		SAFE_STOI( height, args[ 2 ] );
-		if ( ( width == env.screenWidth ) && ( height == env.screenHeight ) ) {
+		if ( ( width == env.screen_width ) && ( height == env.screen_height ) ) {
 			printf( "Host's screen resolution matches ours.\n" );
 		} else {
 			printf( "Host's screen resolution is %d by %d.\n", width, height );
-			printf( "Ours is %d by %d. This is going to cause problems!\n", env.screenWidth, env.screenHeight );
+			printf( "Ours is %d by %d. This is going to cause problems!\n", env.screen_width, env.screen_height );
 		}
 		return true;
 	} else if ( !strcmp( args[ 0 ], "TANKPOSITION" ) ) {
@@ -243,7 +243,7 @@ bool Parse_Client_Data( char *buffer ) {
 			my_player->tank->x = x;
 			my_player->tank->y = y;
 		}
-		if ( player_number == ( env.numGamePlayers - 1 ) ) {
+		if ( player_number == ( env.num_game_players - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "TEAM" ) ) {
@@ -252,7 +252,7 @@ bool Parse_Client_Data( char *buffer ) {
 		int     the_team      = 0;
 		SAFE_STOI( player_number, args[ 1 ] );
 		SAFE_STOI( the_team, args[ 2 ] );
-		if ( ( the_team < env.numGamePlayers ) && ( the_team >= 0 ) ) {
+		if ( ( the_team < env.num_game_players ) && ( the_team >= 0 ) ) {
 			env.players[ player_number ]->team = static_cast< ETeamTypes >( the_team );
 			if ( the_team == TEAM_JEDI ) {
 				colour = makecol( 0, 255, 0 );
@@ -266,7 +266,7 @@ bool Parse_Client_Data( char *buffer ) {
 			}
 			env.players[ player_number ]->color = colour;
 		}
-		if ( player_number == ( env.numGamePlayers - 1 ) ) {
+		if ( player_number == ( env.num_game_players - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "CTeleport" ) ) {
@@ -276,7 +276,7 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( player_num, args[ 1 ] );
 		SAFE_STOI( new_x, args[ 2 ] );
 		SAFE_STOI( new_y, args[ 3 ] );
-		if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
+		if ( ( player_num >= 0 ) && ( player_num < env.num_game_players ) && ( env.players[ player_num ]->tank ) ) {
 			CTank *lt = env.players[ player_num ]->tank;
 			try {
 				new CTeleport( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
@@ -286,19 +286,19 @@ bool Parse_Client_Data( char *buffer ) {
 		}
 
 	} else if ( !strcmp( args[ 0 ], "WALLTYPE" ) ) {
-		SAFE_STOI( ( env.current_wallType ), args[ 1 ] );
-		switch ( env.current_wallType ) {
+		SAFE_STOI( ( env.current_wall_type ), args[ 1 ] );
+		switch ( env.current_wall_type ) {
 			case WALL_RUBBER:
-				env.wallColour = makecol( 0, 255, 0 ); // GREEN;
+				env.wall_colour = makecol( 0, 255, 0 ); // GREEN;
 				break;
 			case WALL_STEEL:
-				env.wallColour = makecol( 255, 0, 0 ); // RED;
+				env.wall_colour = makecol( 255, 0, 0 ); // RED;
 				break;
 			case WALL_SPRING:
-				env.wallColour = makecol( 0, 0, 255 ); // BLUE;
+				env.wall_colour = makecol( 0, 0, 255 ); // BLUE;
 				break;
 			case WALL_WRAP:
-				env.wallColour = makecol( 255, 255, 0 ); // YELLOW;
+				env.wall_colour = makecol( 255, 255, 0 ); // YELLOW;
 				break;
 		}
 		return true;
@@ -315,7 +315,7 @@ bool Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "YOUARE" ) ) {
 		int index = 0;
 		SAFE_STOI( index, args[ 1 ] );
-		if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
+		if ( ( index >= 0 ) && ( index < env.num_game_players ) ) {
 			global.client_player = env.players[ index ];
 			global.set_curr_tank( global.client_player->tank );
 		}
@@ -334,18 +334,18 @@ void Create_Sky() {
 	}
 
 	if ( !env.custom_background || !env.sky ) {
-		if ( env.sky && ( ( env.sky->w != env.screenWidth ) || ( env.sky->h != ( env.screenHeight - MENUHEIGHT ) ) ) ) {
+		if ( env.sky && ( ( env.sky->w != env.screen_width ) || ( env.sky->h != ( env.screen_height - MENUHEIGHT ) ) ) ) {
 			destroy_bitmap( env.sky );
 			env.sky = nullptr;
 		}
 
 		if ( !env.sky ) {
-			env.sky = create_bitmap( env.screenWidth, env.screenHeight - MENUHEIGHT );
+			env.sky = create_bitmap( env.screen_width, env.screen_height - MENUHEIGHT );
 		}
 		generate_sky(
 			nullptr,
-			sky_gradients[ global.cursky ],
-			( env.ditherGradients ? GENSKY_DITHERGRAD : 0 ) | ( env.detailedSky ? GENSKY_DETAILED : 0 )
+			sky_gradients[ global.cur_sky ],
+			( env.dither_gradients ? GENSKY_DITHERGRAD : 0 ) | ( env.detailed_sky ? GENSKY_DETAILED : 0 )
 		);
 	}
 } // end of create sky function
@@ -480,7 +480,7 @@ int Game_Client( int socket_number ) {
 	clear_to_color( global.canvas, BLACK );
 
 	// clean up old text
-	global.getHeadOfClass( CLASS_FLOATTEXT, &my_object );
+	global.get_head_of_class( CLASS_FLOATTEXT, &my_object );
 	while ( my_object ) {
 		my_object->getNext( &next_obj );
 		dynamic_cast< CFloatText * >( my_object )->newRound();
@@ -565,7 +565,7 @@ int Game_Client( int socket_number ) {
 									break;
 								case CLIENT_TEAMS:
 									strcpy( buffer, "TEAMS 0" );
-									global.updateMenu = true;
+									global.update_menu = true;
 									break;
 								case CLIENT_WALL_TYPE:
 									strcpy( buffer, "WALLTYPE" );
@@ -613,13 +613,13 @@ int Game_Client( int socket_number ) {
 						} else if ( game_stage == CLIENT_TANK_POSITION ) {
 							SAFE_WRITE( socket_number, "TANKPOSITION %d", tank_position );
 							tank_position++;
-							if ( tank_position >= env.numGamePlayers ) {
+							if ( tank_position >= env.num_game_players ) {
 								tank_position = 0;
 							}
 						} else if ( game_stage == CLIENT_TANK_HEALTH ) {
 							SAFE_WRITE( socket_number, "HEALTH %d", tank_health );
 							tank_health++;
-							if ( tank_health >= env.numGamePlayers ) {
+							if ( tank_health >= env.num_game_players ) {
 								tank_health = 0;
 							}
 						} else if ( game_stage == CLIENT_TEAMS ) {
@@ -636,7 +636,7 @@ int Game_Client( int socket_number ) {
 							if ( time_clock > 1 ) // check positions every few inputs
 							{
 								time_clock = 0;
-								if ( surface_x < env.screenWidth ) {
+								if ( surface_x < env.screen_width ) {
 									game_stage = CLIENT_SURFACE;
 									SAFE_WRITE( socket_number, "SURFACE %d", surface_x );
 									surface_x++;
@@ -666,7 +666,7 @@ int Game_Client( int socket_number ) {
 				continue;
 			}
 
-			global.getHeadOfClass( static_cast< EClass >( class_ ), &my_object );
+			global.get_head_of_class( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->getNext( &next_obj );
 
@@ -695,16 +695,16 @@ int Game_Client( int socket_number ) {
 			++class_;
 		}
 
-		global.slideLand();
+		global.slide_land();
 
 		// update everything on the screen
-		if ( global.updateMenu ) {
+		if ( global.update_menu ) {
 			draw_top_bar();
 		}
 
 		if ( screen_update ) {
 			screen_update = false;
-			global.make_fullUpdate();
+			global.make_full_update();
 		}
 		global.replace_canvas();
 
@@ -712,7 +712,7 @@ int Game_Client( int socket_number ) {
 
 		class_        = 0;
 		while ( class_ < CLASS_COUNT ) {
-			global.getHeadOfClass( static_cast< EClass >( class_ ), &my_object );
+			global.get_head_of_class( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->draw();
 				if ( CLASS_FLOATTEXT == class_ ) {
@@ -749,11 +749,11 @@ int Game_Client( int socket_number ) {
 				Client_Cycle_Weapon( global.client_player, CYCLE_BACK );
 			} else if ( ( my_key == KEY_C ) || ( my_key == KEY_TAB ) ) {
 				Client_Cycle_Weapon( global.client_player, CYCLE_FORWARD );
-				global.updateMenu = true;
+				global.update_menu = true;
 			}
 
 			screen_update     = false;
-			global.updateMenu = true;
+			global.update_menu = true;
 		}
 
 		// pause for a moment
@@ -765,7 +765,7 @@ int Game_Client( int socket_number ) {
 	}
 
 	// we should clean up here
-	for ( count = 0; count < env.numGamePlayers; count++ ) {
+	for ( count = 0; count < env.num_game_players; count++ ) {
 		if ( env.players[ count ]->tank ) {
 			delete env.players[ count ]->tank;
 			env.players[ count ]->tank = nullptr;

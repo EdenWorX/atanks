@@ -452,7 +452,7 @@ per module.
   Apply the `E`-prefix enum renames, the lowercase `_t` typedef/parameter fixes, and the small-struct renames (`sGradient`,
   `sMessage`, `sSendReceive`, `Point`, `PlayerMini`, `UpdateData`, `sBox`) tree-wide. Pure renames; verify with a build.
 
-- [ ] **PF-1.15.2.4**: Member/function snake_case for `CGlobalData` and `CEnvironment`
+- [x] **PF-1.15.2.4**: Member/function snake_case for `CGlobalData` and `CEnvironment`
 
   Rename members and methods (e.g. `AI_clock` → `ai_clock`, `newRound` → `new_round`) with per-member review. Pure renames;
   verify with a `make DEBUG=YES` build plus manual in-game validation.

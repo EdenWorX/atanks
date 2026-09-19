@@ -39,10 +39,10 @@ void TEXTBLOCK::destroy() {
 /// This method releases the display and can therefore be used in parallel.
 void draw_text_in_box( sBox* region, char const* text, bool with_box ) {
 	if ( with_box ) {
-		global.lockLand();
+		global.lock_land();
 		rectfill( global.canvas, region->x, region->y, region->w, region->h, makecol( 0, 0, 128 ) );
 		rect( global.canvas, region->x, region->y, region->w, region->h, makecol( 128, 128, 255 ) );
-		global.unlockLand();
+		global.unlock_land();
 	}
 
 	char     buffer[ 1024 ] = { 0 };
@@ -94,7 +94,7 @@ void draw_text_in_box( sBox* region, char const* text, bool with_box ) {
 				font,
 				buffer,
 				ROUND( region->x + 5. ),
-				ROUND( region->y + ( lineCount * env.fontHeight ) + 5. ),
+				ROUND( region->y + ( lineCount * env.font_height ) + 5. ),
 				WHITE,
 				-1
 			);
@@ -177,10 +177,10 @@ int32_t TEXTBLOCK::Lines() const {
 
 // This method renders a part of the text to global.canvas
 void TEXTBLOCK::Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top, int32_t bottom ) {
-	int32_t txtheight = env.fontHeight * spacing;
-	int32_t xPos      = env.halfWidth;
-	int32_t yPos      = env.halfHeight + scrollOffset;
-	for ( int32_t i = 0; ( i < total_lines ) && ( yPos < env.screenHeight ); ++i ) {
+	int32_t txtheight = env.font_height * spacing;
+	int32_t xPos      = env.half_width;
+	int32_t yPos      = env.half_height + scrollOffset;
+	for ( int32_t i = 0; ( i < total_lines ) && ( yPos < env.screen_height ); ++i ) {
 
 		if ( ( yPos > ( top - txtheight ) ) && ( yPos < ( bottom + txtheight ) ) ) {
 			textout_centre_ex( global.canvas, font, complete_text[ i ], xPos + 2, yPos + 2, BLACK, -1 );

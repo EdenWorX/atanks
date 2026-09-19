@@ -191,7 +191,7 @@ void OptionItemPlayer::display( bool show_full ) {
 		if ( title && title[ 0 ] ) {
 
 			// Is the text shadowed, then create one:
-			if ( env.shadowedText ) {
+			if ( env.shadowed_text ) {
 				textout_ex(
 					global.canvas,
 					font,

@@ -52,22 +52,22 @@ bool LevelCreator::is_finished() const {
 
 void LevelCreator::print_state() const {
 	if ( in_progress[ 0 ] ) {
-		draw_sprite( global.canvas, env.misc[ 1 ], env.halfWidth - 120, env.halfHeight + 115 );
-		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 42 ), env.halfWidth, env.halfHeight + 116, WHITE, -1 );
-		global.make_update( env.halfWidth - 120, env.halfHeight + 115, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
+		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 115 );
+		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 42 ), env.half_width, env.half_height + 116, WHITE, -1 );
+		global.make_update( env.half_width - 120, env.half_height + 115, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
 	}
 
 	if ( in_progress[ 1 ] ) {
-		draw_sprite( global.canvas, env.misc[ 1 ], env.halfWidth - 120, env.halfHeight + 155 );
-		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 44 ), env.halfWidth, env.halfHeight + 156, WHITE, -1 );
-		global.make_update( env.halfWidth - 120, env.halfHeight + 155, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
+		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 155 );
+		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 44 ), env.half_width, env.half_height + 156, WHITE, -1 );
+		global.make_update( env.half_width - 120, env.half_height + 155, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
 	}
 
 
 	if ( in_progress[ 2 ] ) {
-		draw_sprite( global.canvas, env.misc[ 1 ], env.halfWidth - 120, env.halfHeight + 195 );
-		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 43 ), env.halfWidth, env.halfHeight + 196, WHITE, -1 );
-		global.make_update( env.halfWidth - 120, env.halfHeight + 195, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
+		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 195 );
+		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 43 ), env.half_width, env.half_height + 196, WHITE, -1 );
+		global.make_update( env.half_width - 120, env.half_height + 195, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
 	}
 }
 
@@ -124,39 +124,39 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 
 	// First the land:
 	if ( lcr->can_work() ) {
-		global.curland = ( get_rand() % LANDS ) + ( CT_CRISPY == env.colourTheme ? LANDS : 0 );
-		if ( !env.gfxData.land_gradient_strips[ global.curland ] ) {
+		global.cur_land = ( get_rand() % LANDS ) + ( CT_CRISPY == env.colour_theme ? LANDS : 0 );
+		if ( !env.gfx_data.land_gradient_strips[ global.cur_land ] ) {
 
-			global.lockLand();
+			global.lock_land();
 
-			env.gfxData.land_gradient_strips[ global.curland ] =
-				create_gradient_strip( land_gradients[ global.curland ], ( env.screenHeight - MENUHEIGHT ) );
+			env.gfx_data.land_gradient_strips[ global.cur_land ] =
+				create_gradient_strip( land_gradients[ global.cur_land ], ( env.screen_height - MENUHEIGHT ) );
 
-			global.unlockLand();
+			global.unlock_land();
 		}
 	}
 
 	// Then the sky
 	if ( lcr->can_work() ) {
-		global.cursky = ( get_rand() % SKIES ) + ( CT_CRISPY == env.colourTheme ? SKIES : 0 );
+		global.cur_sky = ( get_rand() % SKIES ) + ( CT_CRISPY == env.colour_theme ? SKIES : 0 );
 
-		if ( !env.gfxData.sky_gradient_strips[ global.cursky ] ) {
-			global.lockLand();
+		if ( !env.gfx_data.sky_gradient_strips[ global.cur_sky ] ) {
+			global.lock_land();
 
-			env.gfxData.sky_gradient_strips[ global.cursky ] =
-				create_gradient_strip( sky_gradients[ global.cursky ], ( env.screenHeight - MENUHEIGHT ) );
+			env.gfx_data.sky_gradient_strips[ global.cur_sky ] =
+				create_gradient_strip( sky_gradients[ global.cur_sky ], ( env.screen_height - MENUHEIGHT ) );
 
-			global.unlockLand();
+			global.unlock_land();
 		}
 	}
-	BITMAP* sky_gradient_strip = env.gfxData.sky_gradient_strips[ global.cursky ];
+	BITMAP* sky_gradient_strip = env.gfx_data.sky_gradient_strips[ global.cur_sky ];
 
 	//  -------------------------
 	// === Rendering Landscape ===
 	//=============================
 	lcr->working_on( 2 );
 	if ( lcr->can_work() ) {
-		generate_land( lcr, get_rand() % env.screenWidth, env.screenHeight );
+		generate_land( lcr, get_rand() % env.screen_width, env.screen_height );
 	}
 
 
@@ -164,9 +164,9 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 	// ===    Check Colours    ===
 	//=============================
 	if ( lcr->can_work() ) {
-		int32_t peak_height = env.screenHeight;
-		for ( int32_t z = 0; lcr->can_work() && ( z < env.screenWidth ); ++z ) {
-			auto local_height = ROUND( env.screenHeight - global.surface[ z ].load() );
+		int32_t peak_height = env.screen_height;
+		for ( int32_t z = 0; lcr->can_work() && ( z < env.screen_width ); ++z ) {
+			auto local_height = ROUND( env.screen_height - global.surface[ z ].load() );
 			if ( peak_height > local_height ) {
 				peak_height = local_height;
 			}
@@ -175,8 +175,8 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 		int32_t min_dist    = 128; // start with this colour distance wanted
 		int32_t max_tries   = 16;  // These many tries before lowering the distance
 		int32_t cur_try     = 1;
-		int32_t bottom      = env.screenHeight - MENUHEIGHT;
-		int32_t max_y       = std::min( env.screenHeight - peak_height, bottom );
+		int32_t bottom      = env.screen_height - MENUHEIGHT;
+		int32_t max_y       = std::min( env.screen_height - peak_height, bottom );
 		bool    has_colours = false;
 
 		while ( !has_colours && lcr->can_work() ) {
@@ -185,7 +185,7 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 			for ( int32_t y = 2; lcr->can_work() && has_colours && ( y < max_y ); ++y ) {
 				if ( colorDistance(
 					     getpixel( sky_gradient_strip, 0, bottom - y ),
-					     getpixel( global.terrain, 0, env.screenHeight - y )
+					     getpixel( global.terrain, 0, env.screen_height - y )
 				     )
 				     < min_dist ) {
 					has_colours = false;
@@ -194,19 +194,19 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 
 			if ( !has_colours && lcr->can_work() ) {
 				// Create new strip:
-				global.cursky = ( get_rand() % SKIES ) + ( CT_CRISPY == env.colourTheme ? SKIES : 0 );
+				global.cur_sky = ( get_rand() % SKIES ) + ( CT_CRISPY == env.colour_theme ? SKIES : 0 );
 
-				if ( !env.gfxData.sky_gradient_strips[ global.cursky ] ) {
-					global.lockLand();
+				if ( !env.gfx_data.sky_gradient_strips[ global.cur_sky ] ) {
+					global.lock_land();
 
-					env.gfxData.sky_gradient_strips[ global.cursky ] = create_gradient_strip(
-						sky_gradients[ global.cursky ],
-						( env.screenHeight - MENUHEIGHT )
+					env.gfx_data.sky_gradient_strips[ global.cur_sky ] = create_gradient_strip(
+						sky_gradients[ global.cur_sky ],
+						( env.screen_height - MENUHEIGHT )
 					);
 
-					global.unlockLand();
+					global.unlock_land();
 				}
-				sky_gradient_strip = env.gfxData.sky_gradient_strips[ global.cursky ];
+				sky_gradient_strip = env.gfx_data.sky_gradient_strips[ global.cur_sky ];
 
 				// Advance try and check:
 				if ( ++cur_try > max_tries ) {
@@ -228,35 +228,35 @@ static inline void set_level_settings( LevelCreator* lcr ) {
 	lcr->working_on( 3 );
 
 	if ( lcr->can_work() ) {
-		if ( env.sky && ( ( env.sky->w != env.screenWidth ) || ( env.sky->h != ( env.screenHeight - MENUHEIGHT ) ) ) ) {
+		if ( env.sky && ( ( env.sky->w != env.screen_width ) || ( env.sky->h != ( env.screen_height - MENUHEIGHT ) ) ) ) {
 			destroy_bitmap( env.sky );
 			env.sky = nullptr;
 		}
 
 		// see if we want a custom background
 		if ( env.custom_background && env.bitmap_filenames ) {
-			global.lockLand();
+			global.lock_land();
 			if ( env.sky ) {
 				destroy_bitmap( env.sky );
 			}
 			env.sky = load_bitmap( env.bitmap_filenames[ get_rand() % env.number_of_bitmaps ], nullptr );
-			global.unlockLand();
+			global.unlock_land();
 		}
 
 		// if we do not have a custom background (or do not want one) create a new background
 		if ( !env.custom_background || !env.sky ) {
-			global.lockLand();
+			global.lock_land();
 
 			if ( !env.sky ) {
-				env.sky = create_bitmap( env.screenWidth, env.screenHeight - MENUHEIGHT );
+				env.sky = create_bitmap( env.screen_width, env.screen_height - MENUHEIGHT );
 			}
 
-			global.unlockLand();
+			global.unlock_land();
 
 			generate_sky(
 				lcr,
-				sky_gradients[ global.cursky ],
-				( env.ditherGradients ? GENSKY_DITHERGRAD : 0 ) | ( env.detailedSky ? GENSKY_DETAILED : 0 )
+				sky_gradients[ global.cur_sky ],
+				( env.dither_gradients ? GENSKY_DITHERGRAD : 0 ) | ( env.detailed_sky ? GENSKY_DETAILED : 0 )
 			);
 		}
 	}

@@ -57,7 +57,7 @@ CMissile::CMissile(
 #ifdef NETWORK
 	char buffer[ 256 ];
 	sprintf( buffer, "CMissile %d %d %lf %lf %d", ROUND( xpos ), ROUND( ypos ), xvel, yvel, weapon_type );
-	env.sendToClients( buffer );
+	env.send_to_clients( buffer );
 #endif
 
 	// Set position and movement
@@ -81,8 +81,8 @@ CMissile::CMissile(
 
 	// The maxVel value results in a small missile being able to be accelerated
 	// by 25% over MAX_POWER, while a large Napalm Bomb can go up to 220%.
-	maxVel = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
-	DEBUG_LOG_PHY( "CPhysicalObject", "env.maxVel: %5.2lf, mass: %5.2lf, obj.maxVel: %5.2lf", env.maxVelocity, mass, maxVel )
+	maxVel = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	DEBUG_LOG_PHY( "CPhysicalObject", "env.maxVel: %5.2lf, mass: %5.2lf, obj.maxVel: %5.2lf", env.max_velocity, mass, maxVel )
 
 	// Meteors and dirt balls are "volatile" and can not be accelerated
 	// over MAX_POWER. (Pre-caution against "forever" going naturals)
@@ -170,14 +170,14 @@ CMissile::CMissile(
 	// will not only try to apply physics, but use delete on
 	// them when they get destroyed.
 	else {
-		global.addObject( this );
+		global.add_object( this );
 	}
 }
 
 CMissile::~CMissile() {
 	// Take out of the chain:
 	if ( MT_MIND_SHOT != missileType ) {
-		global.removeObject( this );
+		global.remove_object( this );
 	}
 }
 
@@ -260,7 +260,7 @@ void CMissile::applyPhysics() {
 	} // end of checking 'others'
 
 	// Final check against the terrain
-	if ( !hitSomething && ( y > MENUHEIGHT ) && ( y < ( env.screenHeight - 1 ) ) ) {
+	if ( !hitSomething && ( y > MENUHEIGHT ) && ( y < ( env.screen_height - 1 ) ) ) {
 		auto    round_x = ROUND( x );
 		auto    round_y = ROUND( y );
 		int32_t hitpix  = getpixel( global.terrain, round_x, round_y );
@@ -271,7 +271,7 @@ void CMissile::applyPhysics() {
 	}
 
 	// No "ceiling drops" are triggered in boxed mode
-	if ( !hitSomething && ( y <= MENUHEIGHT ) && env.isBoxed ) {
+	if ( !hitSomething && ( y <= MENUHEIGHT ) && env.is_boxed ) {
 		yv           = 0;
 		hitSomething = true;
 	}
@@ -355,8 +355,8 @@ void CMissile::draw() {
 				int32_t sx = ROUND( x ) + ( ( get_rand() % 5 ) - 2 ); // [-2;2]
 				int32_t sy = ROUND( y ) + ( ( get_rand() % 5 ) - 2 ); // [-2;2]
 
-				if ( ( sx > 1 ) && ( sx < env.screenWidth ) && ( sy > MENUHEIGHT )
-				     && ( sy < env.screenHeight ) ) {
+				if ( ( sx > 1 ) && ( sx < env.screen_width ) && ( sy > MENUHEIGHT )
+				     && ( sy < env.screen_height ) ) {
 					int32_t pc = getpixel( global.terrain, sx, sy );
 					if ( PINK != pc ) {
 						putpixel(
@@ -420,7 +420,7 @@ void CMissile::applyPhysicsFunky() {
 				          + ROUND( ( launchWeap ? launchWeap->speedVariation : 0.0 )
 				                   * ( launchWeap ? launchWeap->launchSpeed : 0.0 )
 				                   * Noise( get_rand() % 1000000 ) ) )
-					* env.FPS_mod;
+					* env.fps_mod;
 				double fdiff = ABSDISTANCE2( floatee_tgt->x, floatee_tgt->y, x, y );
 				xv           = ( floatee_tgt->x - x ) / fdiff * speed;
 				yv           = ( floatee_tgt->y - y ) / fdiff * speed;
@@ -429,7 +429,7 @@ void CMissile::applyPhysicsFunky() {
 	}
 
 	// Funky floats simply bounce on borders.
-	if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screenWidth - 1 ) ) ) {
+	if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screen_width - 1 ) ) ) {
 		xv = -xv;
 	} else {
 		x += xv;
@@ -437,17 +437,17 @@ void CMissile::applyPhysicsFunky() {
 
 	// The same applies to the screen bottom,
 	// but here according to floor type
-	if ( ( y + yv ) >= env.screenHeight ) {
-		if ( WALL_RUBBER == env.current_wallType ) {
+	if ( ( y + yv ) >= env.screen_height ) {
+		if ( WALL_RUBBER == env.current_wall_type ) {
 			yv *= -BOUNCE_CHANGE;
 			xv *= 0.95;
-		} else if ( WALL_SPRING == env.current_wallType ) {
+		} else if ( WALL_SPRING == env.current_wall_type ) {
 			yv *= -SPRING_CHANGE;
 			xv *= 1.05;
-		} else if ( ( WALL_WRAP == env.current_wallType ) && env.isBoxed && env.do_box_wrap ) {
+		} else if ( ( WALL_WRAP == env.current_wall_type ) && env.is_boxed && env.do_box_wrap ) {
 			y = MENUHEIGHT + 1;
 		} else {
-			y            = env.screenHeight;
+			y            = env.screen_height;
 			yv           = 0;
 			hitSomething = true;
 			age          = maxAge;
@@ -458,8 +458,8 @@ void CMissile::applyPhysicsFunky() {
 	// there is a ceiling in boxed mode. However, if it is a wrap
 	// ceiling, and the ceiling wrap is enabled, got to the bottom.
 	else if ( ( y + yv ) <= MENUHEIGHT ) {
-		if ( ( WALL_WRAP == env.current_wallType ) && env.isBoxed && env.do_box_wrap ) {
-			y = env.screenHeight - 2;
+		if ( ( WALL_WRAP == env.current_wall_type ) && env.is_boxed && env.do_box_wrap ) {
+			y = env.screen_height - 2;
 		} else {
 			yv *= -0.95;
 			xv *= 0.95;
@@ -492,14 +492,14 @@ void CMissile::applyPhysicsNormal() {
 
 
 	// Missiles that get too slow on a rubber floor, trigger when stopped.
-	if ( !hitSomething && ( WALL_RUBBER == env.current_wallType ) && ( ROUND( y ) >= ( env.screenHeight - 2 ) )
+	if ( !hitSomething && ( WALL_RUBBER == env.current_wall_type ) && ( ROUND( y ) >= ( env.screen_height - 2 ) )
 	     && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) ) {
 		hitSomething = true;
 	}
 
 
 	// Unless something is hit, smoke might be produced:
-	if ( !hitSomething && !global.skippingComputerPlay && ( MT_MIND_SHOT != missileType )
+	if ( !hitSomething && !global.skipping_computer_play && ( MT_MIND_SHOT != missileType )
 	     && !( get_rand() % ( env.frames_per_second / 10 ) ) ) {
 		try {
 			new CDecor( x, y, xv / env.frames_per_second, xv / env.frames_per_second, weap->radius / 20, DECOR_SMOKE, 0 );
@@ -511,22 +511,22 @@ void CMissile::applyPhysicsNormal() {
 
 void CMissile::applyPhysicsOther() {
 	// Check X:
-	if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screenWidth - 1 ) ) ) {
-		if ( WALL_RUBBER == env.current_wallType ) {
+	if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screen_width - 1 ) ) ) {
+		if ( WALL_RUBBER == env.current_wall_type ) {
 			xv *= -0.5;
-		} else if ( WALL_SPRING == env.current_wallType ) {
+		} else if ( WALL_SPRING == env.current_wall_type ) {
 			xv *= -SPRING_CHANGE;
-		} else if ( WALL_WRAP == env.current_wallType ) {
-			x = xv > 0. ? 1 : env.screenWidth - 1;
+		} else if ( WALL_WRAP == env.current_wall_type ) {
+			x = xv > 0. ? 1 : env.screen_width - 1;
 		} else {
-			x            = xv < 0. ? 1 : env.screenWidth - 1;
+			x            = xv < 0. ? 1 : env.screen_width - 1;
 			xv           = 0;
 			hitSomething = true;
 		}
 	}
 
 	// Check Y :
-	if ( ( ( y + yv ) >= env.screenHeight ) || ( ( y + yv ) < MENUHEIGHT ) ) {
+	if ( ( ( y + yv ) >= env.screen_height ) || ( ( y + yv ) < MENUHEIGHT ) ) {
 		yv *= -0.5;
 		xv *= 0.95;
 	}
@@ -547,7 +547,7 @@ void CMissile::applyPhysicsRolling() {
 	// check whether anything is hit
 	auto round_x = ROUND( x );
 	auto round_y = ROUND( y );
-	if ( ( x < 2 ) || ( x > ( env.screenWidth - 3 ) ) || ( y > ( env.screenHeight - 3 ) )
+	if ( ( x < 2 ) || ( x > ( env.screen_width - 3 ) ) || ( y > ( env.screen_height - 3 ) )
 	     || ( PINK != getpixel( global.terrain, round_x, round_y ) ) ) {
 		hitSomething = true;
 	}
@@ -573,8 +573,8 @@ void CMissile::applyPhysicsRolling() {
 				y += maxFall;
 			}
 			// Do not fall through the floor:
-			if ( y > ( env.screenHeight - maxClimb ) ) {
-				y = env.screenHeight - maxClimb;
+			if ( y > ( env.screen_height - maxClimb ) ) {
+				y = env.screen_height - maxClimb;
 			}
 		}
 
@@ -602,8 +602,8 @@ void CMissile::applyPhysicsRolling() {
 		}
 
 		// Fix y if the projectile threats to go through the floor
-		if ( !hitSomething && ( y > ( env.screenHeight - 5 ) ) ) {
-			y = env.screenHeight - 5;
+		if ( !hitSomething && ( y > ( env.screen_height - 5 ) ) ) {
+			y = env.screen_height - 5;
 		}
 	} // End of rolling projectile movement
 }
@@ -619,7 +619,7 @@ sSDI* CMissile::Build_SDI_List( sSDI* sdi ) {
 	sSDI*   pSDI = nullptr;
 	int32_t idx  = 0;
 
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 	while ( lt ) {
 		/* A tank is not considered for SDI shots if:
 		 * 1 The tank is destroyed (obviously)
@@ -694,12 +694,12 @@ void CMissile::Check_Cluster() {
 	// This applies for both steel ceilings and wrap ceilings,
 	// but the latter only if no ceiling wrap is activated or
 	// if the next pixel at the bottom is dirt.
-	if ( env.isBoxed && ( startY <= MENUHEIGHT ) // Base condition
-	     && ( ( ( WALL_WRAP == env.current_wallType )
+	if ( env.is_boxed && ( startY <= MENUHEIGHT ) // Base condition
+	     && ( ( ( WALL_WRAP == env.current_wall_type )
 	            && ( !env.do_box_wrap // <- No wrap makes it steel
 	                                  // \/ dirt makes the ceiling unwrapable
-	                 || ( global.surface[ ROUND( x ) ].load( ATOMIC_READ ) < env.screenHeight ) ) )
-	          || ( WALL_STEEL == env.current_wallType ) ) ) { // This always blasts
+	                 || ( global.surface[ ROUND( x ) ].load( ATOMIC_READ ) < env.screen_height ) ) )
+	          || ( WALL_STEEL == env.current_wall_type ) ) ) { // This always blasts
 		ceiling_crash = true;
 		// If the weapon is fired into a ceiling, adapt starting y
 		startY = MENUHEIGHT + 20;
@@ -717,17 +717,17 @@ void CMissile::Check_Cluster() {
 
 	// If this is a steel wall hit, the start point angle needs
 	// to be adapted.
-	if ( ( WALL_STEEL == env.current_wallType ) && !ceiling_crash ) {
+	if ( ( WALL_STEEL == env.current_wall_type ) && !ceiling_crash ) {
 		if ( ( CLUSTER <= weapType ) && ( SUP_CLUSTER >= weapType ) ) {
 			if ( x < 2 ) {
 				startPoint -= weap->divergence + 1 + ( get_rand() % 10 );
-			} else if ( x > ( env.screenWidth - 3 ) ) {
+			} else if ( x > ( env.screen_width - 3 ) ) {
 				startPoint += weap->divergence + 1 + ( get_rand() % 10 );
 			}
 		} else if ( ( SML_NAPALM <= weapType ) && ( LRG_NAPALM >= weapType ) ) {
 			if ( x < 2 ) {
 				startPoint -= 10 + get_rand() % 21;
-			} else if ( x > ( env.screenWidth - 3 ) ) {
+			} else if ( x > ( env.screen_width - 3 ) ) {
 				startPoint += 10 + get_rand() % 21;
 			}
 		}
@@ -791,8 +791,8 @@ void CMissile::Check_Cluster() {
 				player,
 				x,
 				startY,
-				env.slope[ newMissAngle ][ 0 ] * launchSpeed * env.FPS_mod + inheritedXV,
-				env.slope[ newMissAngle ][ 1 ] * launchSpeed * env.FPS_mod + inheritedYV,
+				env.slope[ newMissAngle ][ 0 ] * launchSpeed * env.fps_mod + inheritedXV,
+				env.slope[ newMissAngle ][ 1 ] * launchSpeed * env.fps_mod + inheritedYV,
 				weap->submunition,
 				missileType,
 				ai_level,
@@ -890,8 +890,8 @@ bool CMissile::Check_Roller( double old_delta_x ) {
 		if ( x <= 1 ) {
 			x  = 1;
 			xv = 1;
-		} else if ( x >= ( env.screenWidth - 2 ) ) {
-			x  = env.screenWidth - 2;
+		} else if ( x >= ( env.screen_width - 2 ) ) {
+			x  = env.screen_width - 2;
 			xv = -1;
 		}
 
@@ -906,7 +906,7 @@ bool CMissile::Check_Roller( double old_delta_x ) {
 		// Set movement if not done already:
 		if ( ( xv > -0.9 ) && ( xv < 0.9 ) ) {
 			bool can_go_left  = ( round_x > 3 );
-			bool can_go_right = ( round_x < ( env.screenWidth - 4 ) );
+			bool can_go_right = ( round_x < ( env.screen_width - 4 ) );
 
 			if ( can_go_left || can_go_right ) {
 				if ( can_go_left ) {
@@ -931,11 +931,11 @@ bool CMissile::Check_Roller( double old_delta_x ) {
 		}
 
 		// If the roller is hammered into a wall, detonate it
-		if ( ( ( WALL_STEEL == env.current_wallType ) && ( ( x <= 2 ) || ( x >= ( env.screenWidth - 3 ) ) ) )
-		     || ( env.isBoxed && ( y <= MENUHEIGHT )
-		          && ( ( ( WALL_WRAP == env.current_wallType )
-		                 && ( !env.do_box_wrap || ( global.surface[ ROUND( x ) ].load( ATOMIC_READ ) < env.screenHeight ) ) )
-		               || ( WALL_STEEL == env.current_wallType ) ) ) ) {
+		if ( ( ( WALL_STEEL == env.current_wall_type ) && ( ( x <= 2 ) || ( x >= ( env.screen_width - 3 ) ) ) )
+		     || ( env.is_boxed && ( y <= MENUHEIGHT )
+		          && ( ( ( WALL_WRAP == env.current_wall_type )
+		                 && ( !env.do_box_wrap || ( global.surface[ ROUND( x ) ].load( ATOMIC_READ ) < env.screen_height ) ) )
+		               || ( WALL_STEEL == env.current_wall_type ) ) ) ) {
 			quell        = false;
 			hitSomething = true;
 		}
@@ -1044,7 +1044,7 @@ void CMissile::Check_Tanks() {
 	CTank* lt = nullptr;
 
 	// Has it hit a tank?
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 	while ( lt ) {
 		if ( !lt->destroy && lt->isInBox( x, y, x, y ) ) {
 			hitSomething = true;
@@ -1067,7 +1067,7 @@ void CMissile::Check_Tanks() {
 int32_t CMissile::Height_Above_Ground() {
 	auto rx = ROUND( x );
 
-	if ( ( rx < 1 ) || ( rx >= env.screenWidth ) ) {
+	if ( ( rx < 1 ) || ( rx >= env.screen_width ) ) {
 		return -1;
 	}
 
@@ -1076,19 +1076,19 @@ int32_t CMissile::Height_Above_Ground() {
 	double  py     = y + 1.;
 	int32_t height = 1;
 
-	while ( ( py < env.screenHeight ) && ( px > .9 ) && ( px < ( env.screenWidth - .9 ) )
+	while ( ( py < env.screen_height ) && ( px > .9 ) && ( px < ( env.screen_width - .9 ) )
 	        && ( ( py < BOXED_TOP ) || ( PINK == getpixel( global.terrain, px, py ) ) ) ) {
 		px += sx;
 		py += 1.;
 		++height;
 
 		// If this is a wrapping wall, px must be wrapped of course
-		if ( WALL_WRAP == env.current_wallType ) {
+		if ( WALL_WRAP == env.current_wall_type ) {
 			if ( px < 1. ) {
-				px = env.screenWidth - 1. - ( 1. - std::abs( px ) );
+				px = env.screen_width - 1. - ( 1. - std::abs( px ) );
 			}
-			if ( px > ( env.screenWidth - 1. ) ) {
-				px = 1 + ( env.screenWidth - 1. - px );
+			if ( px > ( env.screen_width - 1. ) ) {
+				px = 1 + ( env.screen_width - 1. - px );
 			}
 		}
 	}
@@ -1102,7 +1102,7 @@ void CMissile::Repulse_Missile() {
 	double xaccel = 0;
 	double yaccel = 0;
 
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 
 	while ( lt ) {
 		if ( !lt->destroy && ( lt->player != player ) ) {
@@ -1126,7 +1126,7 @@ void CMissile::trigger() {
 
 	// If the explosion is near a wrapping wall, a second "fake"
 	// explosion must be generated to display the wrapping effect
-	if ( ( WALL_WRAP == env.current_wallType ) && ( weapType < WEAPONS ) ) {
+	if ( ( WALL_WRAP == env.current_wall_type ) && ( weapType < WEAPONS ) ) {
 		int32_t left  = 0;
 		int32_t top   = 0;
 		int32_t x_rad = weapon[ weapType ].radius;
@@ -1144,17 +1144,17 @@ void CMissile::trigger() {
 
 		// Set wrapped x position
 		if ( x < x_rad ) {
-			left = ROUND( env.screenWidth + x );
-		} else if ( x > ( env.screenWidth - x_rad ) ) {
-			left = ROUND( x - env.screenWidth );
+			left = ROUND( env.screen_width + x );
+		} else if ( x > ( env.screen_width - x_rad ) ) {
+			left = ROUND( x - env.screen_width );
 		}
 
 		// (possibly) set wrapped y position
-		if ( env.isBoxed && env.do_box_wrap ) {
+		if ( env.is_boxed && env.do_box_wrap ) {
 			if ( y < ( y_rad + MENUHEIGHT ) ) {
-				top = ROUND( env.screenHeight + y );
-			} else if ( y > ( env.screenHeight - y_rad ) ) {
-				top = ROUND( y - env.screenHeight + MENUHEIGHT );
+				top = ROUND( env.screen_height + y );
+			} else if ( y > ( env.screen_height - y_rad ) ) {
+				top = ROUND( y - env.screen_height + MENUHEIGHT );
 			}
 		}
 
@@ -1201,7 +1201,7 @@ void CMissile::triggerTest() {
 	bool do_check = ( !quell && ( y > MENUHEIGHT ) );
 
 	// Do not check if the missile is on screen, does not hit anything and the pixel check is negative (no dirt)
-	if ( do_check && !hitSomething && ( y < env.screenHeight ) && ( x >= 0. ) && ( x < env.screenWidth ) ) {
+	if ( do_check && !hitSomething && ( y < env.screen_height ) && ( x >= 0. ) && ( x < env.screen_width ) ) {
 		do_check = ( PINK != getpixel( global.terrain, ROUND( x ), ROUND( y ) ) );
 	}
 

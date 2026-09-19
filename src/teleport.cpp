@@ -48,7 +48,7 @@ CTeleport::~CTeleport() {
 	remote = nullptr;
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 CTeleport::CTeleport(
@@ -76,7 +76,7 @@ CTeleport::CTeleport(
 		CTank* lt   = nullptr;
 		need_check = false;
 
-		global.getHeadOfClass( CLASS_TANK, &lt );
+		global.get_head_of_class( CLASS_TANK, &lt );
 		while ( lt ) {
 			if ( ( std::abs( lt->x - destinationX ) < objRadius ) && ( lt->y > destinationY )
 			     && ( ( lt->y - destinationY ) < objRadius ) ) {
@@ -84,21 +84,21 @@ CTeleport::CTeleport(
 
 				// Maybe move left
 				if ( ( ( destinationX > ( objRadius * 2 ) ) && ( destinationX <= lt->x ) )
-				     || ( destinationX >= ( env.screenWidth - ( objRadius * 2 ) ) ) ) {
+				     || ( destinationX >= ( env.screen_width - ( objRadius * 2 ) ) ) ) {
 					destinationX -= ROUND( std::abs( lt->x - destinationX ) );
 				}
 				// Or move right
-				else if ( destinationX < ( env.screenWidth - ( objRadius * 2 ) ) ) {
+				else if ( destinationX < ( env.screen_width - ( objRadius * 2 ) ) ) {
 					destinationX += ROUND( std::abs( lt->x - destinationX ) );
 				}
 
 				// Maybe move up
 				if ( ( ( destinationY > ( MENUHEIGHT + ( objRadius * 2 ) ) ) && ( destinationY <= lt->y ) )
-				     || ( destinationY >= ( env.screenHeight - ( objRadius * 2 ) ) ) ) {
+				     || ( destinationY >= ( env.screen_height - ( objRadius * 2 ) ) ) ) {
 					destinationY -= ROUND( std::abs( lt->y - destinationY ) );
 				}
 				// Or move down
-				else if ( destinationY < ( env.screenHeight - ( objRadius * 2 ) ) ) {
+				else if ( destinationY < ( env.screen_height - ( objRadius * 2 ) ) ) {
 					destinationY += ROUND( std::abs( lt->y - destinationY ) );
 				}
 			}
@@ -123,7 +123,7 @@ CTeleport::CTeleport(
 	CTank* the_tank    = dynamic_cast< CTank* >( targetObj );
 
 	// match the player with the tank
-	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
+	while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
 		if ( ( env.players[ playerindex ]->tank ) && ( env.players[ playerindex ]->tank == the_tank ) ) {
 			found = true;
 		} else {
@@ -134,12 +134,12 @@ CTeleport::CTeleport(
 	if ( found ) {
 		char buffer[ 64 ] = { 0x0 };
 		snprintf( buffer, 63, "CTeleport %d %d %d", playerindex, destinationX, destinationY );
-		env.sendToClients( buffer );
+		env.send_to_clients( buffer );
 	}
 #endif // NETWORK
 
 	// Add to the chain:
-	global.addObject( this );
+	global.add_object( this );
 }
 
 CTeleport::CTeleport( CTeleport* remoteEnd, int32_t destX, int32_t destY ) : CVirtualObject(), remote( remoteEnd ) {
@@ -152,7 +152,7 @@ CTeleport::CTeleport( CTeleport* remoteEnd, int32_t destX, int32_t destY ) : CVi
 	}
 
 	// Add to the chain:
-	global.addObject( this );
+	global.add_object( this );
 }
 
 void CTeleport::applyPhysics() {

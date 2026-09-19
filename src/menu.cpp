@@ -37,7 +37,7 @@ Menu::Menu( EMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( clas
 	title_x   = menu_x + text_length( font, "W" ) + 2;
 
 	// Set background style
-	bgType   = env.dynamicMenuBg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bgType   = env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
 	bgItems  = ( get_rand() % 100 ) + 20;
 }
@@ -812,7 +812,7 @@ int32_t Menu::operator() () {
 	menu_ms_reset();
 
 	// Set background style
-	bgType   = env.dynamicMenuBg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bgType   = env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
 	bgItems  = ( get_rand() % 100 ) + 20;
 
@@ -830,7 +830,7 @@ int32_t Menu::operator() () {
 		}
 		redrawAll( true );
 
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			key_code  = KEY_ESC;  // Exit loop
 			end_event = key_code; // Exit menu
 			continue;
@@ -932,7 +932,7 @@ int32_t Menu::operator() () {
 			curr = getSelected();
 			if ( curr ) {
 				EEntryType type      = curr->getType();
-				bool       old_mouse = env.osMouse; // To catch mouse changes
+				bool       old_mouse = env.os_mouse; // To catch mouse changes
 
 				// Note whether clicked on elements for the clock delay reduction
 				if ( event ) {
@@ -977,7 +977,7 @@ int32_t Menu::operator() () {
 				// If the mouse was changed, the change must be performed
 				// at once. If we didn't do this here, switching back to
 				// standard mouse makes it invisible until the menu exits.
-				if ( old_mouse != env.osMouse ) {
+				if ( old_mouse != env.os_mouse ) {
 					init_mouse_cursor();
 				}
 
@@ -1241,14 +1241,14 @@ bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y ) { // NOLINT(*-n
 	}
 
 	BITMAP*     tank_bmp   = env.tank[ *tanknum ? *tanknum + TO_TANK : *tanknum ];
-	BITMAP*     turr_bmp   = env.tankgun[ *tanknum ? *tanknum + TO_TURRET : *tanknum ];
+	BITMAP*     turr_bmp   = env.tank_gun[ *tanknum ? *tanknum + TO_TURRET : *tanknum ];
 	int32_t     tank_off_x = ROUNDu( tank_bmp->w / 2 );
 	int32_t     tank_off_y = tank_bmp->h;
 	int32_t     turr_off_x = ROUNDu( turr_bmp->w / 2 );
 	int32_t     turr_off_y = ROUNDu( turr_bmp->h / 2 ) - 2;
 	int32_t     tank_x     = x + tank_off_x + 1;
 	int32_t     tank_y     = y + turr_off_y + 1;
-	int32_t     text_y     = tank_y + ( tank_off_y / 2 ) - ( env.fontHeight / 2 );
+	int32_t     text_y     = tank_y + ( tank_off_y / 2 ) - ( env.font_height / 2 );
 	int32_t     text_x     = tank_x + tank_off_x + 5;
 	char const* tank_text  = OptionClassText[ TC_TANKTYPE ][ env.language ][ *tanknum ];
 

@@ -30,17 +30,17 @@ int32_t switch_language( ELanguages *lang, int32_t val );
 void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
         rectfill(
                 global.canvas,
-                env.halfWidth - 300,
-                env.menuBeginY, // 100,
-                env.halfWidth + 300,
-                env.menuEndY,   // env.screenHeight - 100,
+                env.half_width - 300,
+                env.menu_begin_y, // 100,
+                env.half_width + 300,
+                env.menu_end_y,   // env.screen_height - 100,
                 makecol( 0, 79, 0 )
         );
         rect( global.canvas,
-              env.halfWidth - 300,
-              env.menuBeginY, // 100,
-              env.halfWidth + 300,
-              env.menuEndY,   // env.screenHeight - 100,
+              env.half_width - 300,
+              env.menu_begin_y, // 100,
+              env.half_width + 300,
+              env.menu_end_y,   // env.screen_height - 100,
               makecol( 128, 255, 128 ) );
 
         if ( BACKGROUND_BLANK == backType ) return;
@@ -54,15 +54,15 @@ void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t 
                         ( perlin1DPoint( 1.0, 5, ( tOffset * 0.0333 ) + tCount + 423346, 0.5, 8 ) + 1.1 ) * 20
                 ); // [0.1;2.1]
                 int32_t xpos =
-                        env.halfWidth
+                        env.half_width
                         + static_cast< int32_t >(
                                 perlin1DPoint( 1.0, 3, ( tOffset * 0.0166 ) + tCount + 232662, 0.3, 3 ) * ( 299 - radius )
                         );
                 int32_t ypos =
-                        env.halfHeight
+                        env.half_height
                         + static_cast< int32_t >(
                                 perlin1DPoint( 1.0, 2, ( tOffset * 0.0175 ) + tCount + 42397, 0.3, 3 )
-                                * ( env.halfHeight - env.menuBeginY - radius - 1 )
+                                * ( env.half_height - env.menu_begin_y - radius - 1 )
                         );
                 switch ( backType ) {
                         case BACKGROUND_CIRCLE:
@@ -72,9 +72,9 @@ void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t 
                                 rectfill(
                                         global.canvas,
                                         xpos - radius / 2,
-                                        env.menuBeginY + 1,
+                                        env.menu_begin_y + 1,
                                         xpos + radius / 2,
-                                        env.menuEndY - 1,
+                                        env.menu_end_y - 1,
                                         LIME_GREEN
                                 );
                                 break;
@@ -99,16 +99,16 @@ void editPlayers() {
 
 	int32_t optionsRetVal = 0;
 	int32_t menuMid       = 300;
-	int32_t itemHeight    = env.fontHeight + 2;
+	int32_t itemHeight    = env.font_height + 2;
 	int32_t itemPadding   = 2;
 	int32_t itemY         = ( itemHeight + itemPadding ) * 2;
 	int32_t btnHeight     = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight    = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight    = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t plListHeight =
 		menuHeight - itemY                             // Top area reserved for the title
 		- btnHeight - itemPadding - 2;                 // Bottom area reserved for buttons
 	// "Select Players"
-	Menu    menu( MC_PLAYERS, env.halfWidth - menuMid, env.menuBeginY );
+	Menu    menu( MC_PLAYERS, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Create New"
 	CPlayer *player_new  = nullptr;
@@ -123,14 +123,14 @@ void editPlayers() {
 	plListHeight       -= itemY; // this is left.
 
 	// First loop to determine maximum name width
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ ) {
-		int32_t xLen = text_length( font, env.allPlayers[ num ]->getName() );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ ) {
+		int32_t xLen = text_length( font, env.all_players[ num ]->getName() );
 		if ( xLen > max_width ) max_width = xLen;
 	}
 
 	// Now really add them
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ )
-		last_idx = menu.addMenu( &env.allPlayers[ num ], edit_player, -1, 0, 0, max_width + 15, itemHeight, itemPadding );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ )
+		last_idx = menu.addMenu( &env.all_players[ num ], edit_player, -1, 0, 0, max_width + 15, itemHeight, itemPadding );
 	// last_idx is one too high now
 	last_idx--;
 
@@ -153,7 +153,7 @@ void editPlayers() {
 		2
 	);
 
-	while ( ( KEY_ESC != optionsRetVal ) && !global.isCloseBtnPressed() ) {
+	while ( ( KEY_ESC != optionsRetVal ) && !global.is_close_btn_pressed() ) {
 		optionsRetVal = menu();
 
 		// Was an edit confirmed?
@@ -166,8 +166,8 @@ void editPlayers() {
 			--last_idx;
 
 			// The player has to be deleted, too:
-			CPlayer *to_delete = env.allPlayers[ num ];
-			env.deletePermPlayer( to_delete );
+			CPlayer *to_delete = env.all_players[ num ];
+			env.delete_perm_player( to_delete );
 
 			// redistribute the remaining:
 			menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, true );
@@ -177,7 +177,7 @@ void editPlayers() {
 			if ( player_new ) {
 				// Add a menu entry for the new player:
 				menu.addMenu(
-					&env.allPlayers[ env.numPermanentPlayers - 1 ],
+					&env.all_players[ env.num_permanent_players - 1 ],
 					edit_player,
 					-1,
 					0,
@@ -206,14 +206,14 @@ void optionsMenu() {
 	int32_t optionsRetCode = 0;
 	int32_t menuMid        = 300;
 	int32_t itemWidth      = 210;
-	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemHeight     = env.font_height + 2;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 3;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
-	int32_t menuLeft       = env.halfWidth - menuMid;
-	int32_t menuTop        = env.menuBeginY;
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
+	int32_t menuLeft       = env.half_width - menuMid;
+	int32_t menuTop        = env.menu_begin_y;
 	int32_t idx            = 1;
 
 	Menu    mMain( MC_MAIN, menuLeft, menuTop );
@@ -295,16 +295,16 @@ void optionsMenu() {
 	itemY += itemFullHeight;
 
 	// "Weapon Tech Level"
-	mMain.addValue( &env.weapontechLevel, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.addValue( &env.weapontech_level, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Item Tech Level"
-	mMain.addValue( &env.itemtechLevel, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.addValue( &env.itemtech_level, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Landscape"
 	mMain.addValue(
-		&env.landType,
+		&env.land_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -320,7 +320,7 @@ void optionsMenu() {
 
 	// "Turn Order"
 	mMain.addValue(
-		&env.turntype,
+		&env.turn_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -336,7 +336,7 @@ void optionsMenu() {
 
 	// "Skip AI-only play"
 	mMain.addValue(
-		&env.skipComputerPlay,
+		&env.skip_computer_play,
 		idx++,
 		nullptr,
 		WHITE,
@@ -351,7 +351,7 @@ void optionsMenu() {
 	itemY += itemFullHeight;
 
 	// "Show FPS"
-	mMain.addValue( &env.showFPS, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.addValue( &env.show_fps, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Language"
@@ -396,7 +396,7 @@ void optionsMenu() {
 		optionsRetCode  = mMain();
 
 		if ( RO_RESET == optionsRetCode ) {
-			env.Reset_Options();
+			env.reset_options();
 			optionsRetCode = 0;
 		} else if ( RO_BACK == optionsRetCode )
 			optionsRetCode = 0;
@@ -428,12 +428,12 @@ int32_t selectPlayers() {
 	int32_t optionsRetVal  = 0;
 	int32_t menuMid        = 300;
 	int32_t itemWidth      = 120;
-	int32_t itemHeight     = env.fontHeight + 4;
+	int32_t itemHeight     = env.font_height + 4;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 2;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t plListHeight =
 		menuHeight - itemY                              // Top area reserved for the title
 		- btnHeight - itemPadding - 2;                  // Bottom area reserved for buttons
@@ -445,7 +445,7 @@ int32_t selectPlayers() {
 
 	// Use new menu system:
 	// "Select Players"
-	Menu     menu( MC_PLAY, env.halfWidth - menuMid, env.menuBeginY );
+	Menu     menu( MC_PLAY, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Rounds"
 	menu.addValue(
@@ -545,7 +545,7 @@ int32_t selectPlayers() {
 		itemY += itemFullHeight + 4; // Next two options need more height
 
 		// "Load Game"
-		menu.addToggle( &env.loadGame, idx++, WHITE, menuMid - 125, itemY, 100, itemHeight + 5, itemPadding );
+		menu.addToggle( &env.load_game, idx++, WHITE, menuMid - 125, itemY, 100, itemHeight + 5, itemPadding );
 		// itemY stays, "Campaign" is on the same row.
 	} // End of having saved games
 
@@ -567,14 +567,14 @@ int32_t selectPlayers() {
 	plListHeight      -= itemY; // this is left.
 
 	// First loop to determine maximum name width
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ ) {
-		int32_t xLen = text_length( font, env.allPlayers[ num ]->getName() ) + ( 2 * itemPadding );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ ) {
+		int32_t xLen = text_length( font, env.all_players[ num ]->getName() ) + ( 2 * itemPadding );
 		if ( xLen > max_width ) max_width = xLen;
 	}
 
 	// Now really add them
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ )
-		last_idx = menu.addToggle( &env.allPlayers[ num ], 0, 0, max_width + 21, itemHeight, itemPadding );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ )
+		last_idx = menu.addToggle( &env.all_players[ num ], 0, 0, max_width + 21, itemHeight, itemPadding );
 
 	// last_idx is one too high now.
 	last_idx--;
@@ -621,7 +621,7 @@ int32_t selectPlayers() {
 	do {
 		optionsRetVal = menu();
 
-		if ( env.loadGame ) {
+		if ( env.load_game ) {
 			if ( env.saved_game_list && ( env.saved_gameindex < env.saved_game_list_size )
 			     && env.saved_game_list[ env.saved_gameindex ][ 0 ] ) {
 
@@ -630,25 +630,25 @@ int32_t selectPlayers() {
 		}
 
 		if ( optionsRetVal == KEY_ENTER ) {
-			if ( env.loadGame ) {
+			if ( env.load_game ) {
 				// A set game shall be loaded
 				if ( Check_For_Saved_Game() )
 					optionsRetVal = MRC_Load_Game;
 				else {
 					optionsRetVal = 0;
 					errorMessage  = env.ingame->Get_Line( 39 );
-					errorX        = env.halfWidth - text_length( font, errorMessage ) / 2;
-					errorY        = env.menuBeginY + itemFullHeight;
+					errorX        = env.half_width - text_length( font, errorMessage ) / 2;
+					errorY        = env.menu_begin_y + itemFullHeight;
 				}
 			} else {
 				// Start a new game
 				int32_t playerCount = 0;
-				env.numGamePlayers  = 0;
+				env.num_game_players  = 0;
 
 				// Add selected players to the game:
-				for ( int z = 0; z < env.numPermanentPlayers; z++ ) {
-					if ( env.allPlayers[ z ]->selected ) {
-						env.addGamePlayer( env.allPlayers[ z ] );
+				for ( int z = 0; z < env.num_permanent_players; z++ ) {
+					if ( env.all_players[ z ]->selected ) {
+						env.add_game_player( env.all_players[ z ] );
 						playerCount++;
 					}
 				}
@@ -660,8 +660,8 @@ int32_t selectPlayers() {
 					else if ( playerCount > MAXPLAYERS )
 						errorMessage = env.ingame->Get_Line( 9 );
 
-					errorX        = env.halfWidth - text_length( font, errorMessage ) / 2;
-					errorY        = env.menuBeginY + itemFullHeight;
+					errorX        = env.half_width - text_length( font, errorMessage ) / 2;
+					errorY        = env.menu_begin_y + itemFullHeight;
 					optionsRetVal = 0;
 				} else
 					optionsRetVal = MRC_Play_Game;
@@ -671,9 +671,9 @@ int32_t selectPlayers() {
 			  // zero means an error occured.
 		// keep running the loop until ESC is pressed or a non-zero value appears
 	} while ( ( KEY_ESC != optionsRetVal ) && ( MRC_Play_Game != optionsRetVal ) && ( MRC_Load_Game != optionsRetVal )
-	          && !global.isCloseBtnPressed() );
+	          && !global.is_close_btn_pressed() );
 
-	if ( ( KEY_ESC == optionsRetVal ) || global.isCloseBtnPressed() ) optionsRetVal = MRC_Esc_Menu;
+	if ( ( KEY_ESC == optionsRetVal ) || global.is_close_btn_pressed() ) optionsRetVal = MRC_Esc_Menu;
 
 	if ( saved_game_names ) {
 		for ( uint32_t i = 0; i < number_saved_games; ++i ) {
@@ -692,7 +692,7 @@ int32_t selectPlayers() {
 
 	if ( env.game_name.empty() ) {
 		env.game_name.assign( new_game_name );
-		env.loadGame = false;
+		env.load_game = false;
 	}
 
 	return optionsRetVal;
@@ -703,7 +703,7 @@ static void
 	build_Physics( Menu &mPhysics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mPhysics.count() ) && "ERROR: mPhysics already built?" );
@@ -720,7 +720,7 @@ static void
 
 	// "Land Slide"
 	mPhysics.addValue(
-		&env.landSlideType,
+		&env.landslide_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -735,13 +735,13 @@ static void
 	itemY += itemFullHeight;
 
 	// "Land Slide Delay",
-	mPhysics.addValue( &env.landSlideDelay, idx++, WHITE, 1, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.addValue( &env.landslide_delay, idx++, WHITE, 1, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 
 	// "Wall Type"
 	mPhysics.addValue(
-		&env.wallType,
+		&env.wall_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -758,7 +758,7 @@ static void
 
 	// "Boxed Mode",
 	mPhysics.addValue(
-		&env.boxedMode,
+		&env.boxed_mode,
 		idx++,
 		nullptr,
 		WHITE,
@@ -808,7 +808,7 @@ static void
 
 
 	// "Timed Shots"
-	mPhysics.addValue( &env.maxFireTime, idx++, WHITE, 0, 180, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.addValue( &env.max_fire_time, idx++, WHITE, 0, 180, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Volley Delay"
@@ -851,7 +851,7 @@ static void
 	build_Weather( Menu &mWeather, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mWeather.count() ) && "ERROR: mWeather already built?" );
@@ -905,12 +905,12 @@ static void
 
 
 	// "Max Wind Strength"
-	mWeather.addValue( &env.windstrength, idx++, WHITE, 0, 100, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.addValue( &env.wind_strength, idx++, WHITE, 0, 100, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 
 	// "Wind Variation"
-	mWeather.addValue( &env.windvariation, idx++, WHITE, 0, 100, 3, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.addValue( &env.wind_variation, idx++, WHITE, 0, 100, 3, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 
 	// "Back"
 	mWeather.addButton(
@@ -933,7 +933,7 @@ static void
 	build_Graphics( Menu &mGraphics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mGraphics.count() ) && "ERROR: mGraphics already built?" );
@@ -946,7 +946,7 @@ static void
 
 	// "Dithering"
 	mGraphics.addValue(
-		&env.ditherGradients,
+		&env.dither_gradients,
 		idx++,
 		nullptr,
 		WHITE,
@@ -962,7 +962,7 @@ static void
 
 	// "Detailed Land"
 	mGraphics.addValue(
-		&env.detailedLandscape,
+		&env.detailed_landscape,
 		idx++,
 		nullptr,
 		WHITE,
@@ -977,24 +977,24 @@ static void
 	itemY += itemFullHeight;
 
 	// "Detailed Sky"
-	mGraphics.addValue( &env.detailedSky, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.addValue( &env.detailed_sky, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Fading Text"
-	mGraphics.addValue( &env.fadingText, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.addValue( &env.fading_text, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Shadowed Text"
-	mGraphics.addValue( &env.shadowedText, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.addValue( &env.shadowed_text, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Swaying Text"
-	mGraphics.addValue( &env.swayingText, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.addValue( &env.swaying_text, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Colour Theme"
 	mGraphics.addValue(
-		&env.colourTheme,
+		&env.colour_theme,
 		idx++,
 		nullptr,
 		WHITE,
@@ -1010,7 +1010,7 @@ static void
 
 	// "Screen Width"
 	mGraphics.addValue(
-		&env.temp_screenWidth,
+		&env.temp_screen_width,
 		idx++,
 		WHITE,
 		800,
@@ -1027,7 +1027,7 @@ static void
 
 	// "Screen Height"
 	mGraphics.addValue(
-		&env.temp_screenHeight,
+		&env.temp_screen_height,
 		idx++,
 		WHITE,
 		600,
@@ -1043,7 +1043,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Mouse Pointer"
-	mGraphics.addValue( &env.osMouse, idx++, nullptr, WHITE, TC_MOUSE, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.addValue( &env.os_mouse, idx++, nullptr, WHITE, TC_MOUSE, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Game Speed"
@@ -1068,7 +1068,7 @@ static void
 
 	// "Show AI Feedback"
 	mGraphics.addValue(
-		&env.showAIFeedback,
+		&env.show_ai_feedback,
 		idx++,
 		nullptr,
 		WHITE,
@@ -1083,7 +1083,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Dynamic Menu Background"
-	mGraphics.addValue( &env.dynamicMenuBg, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.addValue( &env.dynamic_menu_bg, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 
 
 	// "Back"
@@ -1107,7 +1107,7 @@ static void
 	build_Money( Menu &mMoney, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mMoney.count() ) && "ERROR: mMoney already built?" );
@@ -1115,7 +1115,7 @@ static void
 	if ( mMoney.count() ) return; // Don't build twice!
 
 	// "Starting Money"
-	mMoney.addValue( &env.startmoney, idx++, WHITE, 0, 200000, 5000, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.addValue( &env.start_money, idx++, WHITE, 0, 200000, 5000, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Interest Rate"
@@ -1186,7 +1186,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Item Sell Multiplier"
-	mMoney.addValue( &env.sellpercent, idx++, WHITE, 0., 1., .1, "%2.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.addValue( &env.sell_percent, idx++, WHITE, 0., 1., .1, "%2.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Teams Share"
@@ -1213,7 +1213,7 @@ static void
 	build_Network( Menu &mNetwork, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mNetwork.count() ) && "ERROR: mNetwork already built?" );
@@ -1298,7 +1298,7 @@ static void
 	build_Sound( Menu &mSound, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mSound.count() ) && "ERROR: mSound already built?" );

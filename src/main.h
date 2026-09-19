@@ -237,7 +237,7 @@ using std::string;
  **/
 #define SHOW_MOUSE( where )                                                                                 \
 	{                                                                                                   \
-		if ( !env.osMouse ) {                                                                       \
+		if ( !env.os_mouse ) {                                                                       \
 			if ( ( where ) != nullptr )                                                         \
 				unscare_mouse();                                                            \
 			else                                                                                \

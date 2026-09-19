@@ -58,7 +58,7 @@ void CPhysicalObject::applyPhysics() {
 	yv += env.fall_vector;
 
 	// Barrier test:
-	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) {
+	if ( ( yv <= -1.0 ) && ( y <= ( env.screen_height * -25.0 ) ) ) {
 		yv *= -1.0;
 	}
 
@@ -79,11 +79,11 @@ void CPhysicalObject::applyPhysics() {
 	 */
 
 	// Shortcuts:
-	bool    hasTop = env.isBoxed;
+	bool    hasTop = env.is_boxed;
 	int32_t left   = 1;
-	int32_t right  = env.screenWidth - 2;
+	int32_t right  = env.screen_width - 2;
 	int32_t top    = MENUHEIGHT + ( hasTop ? 1 : 0 );
-	int32_t bottom = env.screenHeight - 2;
+	int32_t bottom = env.screen_height - 2;
 	double  xv_cur = xv;
 	double  yv_cur = yv;
 
@@ -91,8 +91,8 @@ void CPhysicalObject::applyPhysics() {
 	// ceiling. They sort of 'glide off' of the ceiling instead of
 	// getting glued to it.
 	bool jelly = ( NAPALM_JELLY == weapType )
-	          && ( ( WALL_STEEL == env.current_wallType )
-	               || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) );
+	          && ( ( WALL_STEEL == env.current_wall_type )
+	               || ( ( WALL_WRAP == env.current_wall_type ) && ( !env.is_boxed || !env.do_box_wrap ) ) );
 
 	// Easiest way is a loop that traces the path step-wise
 	while ( isMoving && !hitSomething ) {
@@ -210,7 +210,7 @@ void CPhysicalObject::applyPhysics() {
 
 			// Note: Dirt bounce must be done first, it is handled
 			//       differently but for x-wrapping
-			if ( ( PT_DIRTBOUNCE == physType ) && ( ( WALL_WRAP != env.current_wallType ) || hitFloor ) ) {
+			if ( ( PT_DIRTBOUNCE == physType ) && ( ( WALL_WRAP != env.current_wall_type ) || hitFloor ) ) {
 				if ( hitWall ) {
 					xv_cur *= -0.5;
 					xv     *= -0.5;
@@ -229,7 +229,7 @@ void CPhysicalObject::applyPhysics() {
 				// count the bounce:
 				++bounces;
 
-				switch ( env.current_wallType ) {
+				switch ( env.current_wall_type ) {
 					case WALL_RUBBER:
 						if ( hitWall ) {
 							xv_cur  = -xv_cur * BOUNCE_CHANGE;
@@ -259,7 +259,7 @@ void CPhysicalObject::applyPhysics() {
 							} else {
 								nextX = left;
 							}
-						} else if ( env.isBoxed && env.do_box_wrap ) {
+						} else if ( env.is_boxed && env.do_box_wrap ) {
 							if ( hitTop ) {
 								// Some weapons do not warp through the
 								// ceiling if the bottom pixel is occupied
@@ -315,13 +315,13 @@ void CPhysicalObject::applyPhysics() {
 					nextY = bottom;
 				}
 				if ( nextX < left ) {
-					if ( WALL_WRAP == env.current_wallType ) {
+					if ( WALL_WRAP == env.current_wall_type ) {
 						nextX = right - ( static_cast< int32_t >( std::abs( nextX ) ) % right );
 					} else {
 						nextX = left;
 					}
 				} else if ( nextX > right ) {
-					if ( WALL_WRAP == env.current_wallType ) {
+					if ( WALL_WRAP == env.current_wall_type ) {
 						nextX = static_cast< int32_t >( nextX ) % right;
 					} else {
 						nextX = right;
@@ -358,7 +358,7 @@ void CPhysicalObject::applyPhysics() {
 /* --- global function --- */
 bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed ) {
 	// return at once if there can't be any dirt in the box.
-	if ( !global.isDirtInBox( *startX, *startY, endX, endY ) ) {
+	if ( !global.is_dirt_in_box( *startX, *startY, endX, endY ) ) {
 		*startX = endX;
 		*startY = endY;
 		return false;
@@ -371,11 +371,11 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 
 	// Shortcuts:
 	bool   hasDelay = has_delayed && ( can_delay > *has_delayed );
-	bool   hasTop   = env.isBoxed;
+	bool   hasTop   = env.is_boxed;
 	double left     = 1;
-	double right    = env.screenWidth - 2;
+	double right    = env.screen_width - 2;
 	double top      = MENUHEIGHT + ( hasTop ? 1 : 0 );
-	double bottom   = env.screenHeight - 2;
+	double bottom   = env.screen_height - 2;
 
 
 	// Drop out early if a neighbouring pixel is checked and it is a hit
@@ -410,8 +410,8 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 	double iDist = ABSDISTANCE2( 0.0, 0.0, xInc, yInc ); // [i]ncrease[Dist]ance
 
 	// sanity check
-	if ( length > ( env.screenWidth + env.screenHeight ) ) {
-		length = env.screenWidth + env.screenHeight;
+	if ( length > ( env.screen_width + env.screen_height ) ) {
+		length = env.screen_width + env.screen_height;
 	}
 
 	// check all pixels along the line for land
@@ -474,10 +474,10 @@ void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, 
 		double min_y   = y - 2;
 		double max_y   = y + 2;
 		double start_y = std::max( min_y, static_cast< double >( MENUHEIGHT ) );
-		double stop_y  = std::min( max_y + 1, static_cast< double >( env.screenHeight ) );
+		double stop_y  = std::min( max_y + 1, static_cast< double >( env.screen_height ) );
 		y_map[ i ]     = -1;
 
-		if ( ( xpos > 0 ) && ( xpos < env.screenWidth ) && ( min_y < env.screenHeight ) && ( max_y > MENUHEIGHT )
+		if ( ( xpos > 0 ) && ( xpos < env.screen_width ) && ( min_y < env.screen_height ) && ( max_y > MENUHEIGHT )
 		     && ( ( stop_y - start_y ) > 0 ) ) {
 			y_map[ i ] = 5;
 

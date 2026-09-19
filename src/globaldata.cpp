@@ -41,9 +41,9 @@ CGlobalData::~CGlobalData() {
 }
 
 /// @brief goes through the columns from @a left to @a right and sets slide type according to @a do_lock
-void CGlobalData::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
+void CGlobalData::add_land_slide( int32_t left, int32_t right, bool do_lock ) {
 	// Opt out soon if no landslide is to be done
-	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) {
+	if ( ( SLIDE_NONE == env.landslide_type ) || ( SLIDE_TANK_ONLY == env.landslide_type ) ) {
 		return;
 	}
 
@@ -53,14 +53,14 @@ void CGlobalData::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
 	if ( minX < 1 ) {
 		minX = 1;
 	}
-	if ( minX > ( env.screenWidth - 1 ) ) {
-		minX = env.screenWidth - 1;
+	if ( minX > ( env.screen_width - 1 ) ) {
+		minX = env.screen_width - 1;
 	}
 	if ( maxX < 1 ) {
 		maxX = 1;
 	}
-	if ( maxX > ( env.screenWidth - 1 ) ) {
-		maxX = env.screenWidth - 1;
+	if ( maxX > ( env.screen_width - 1 ) ) {
+		maxX = env.screen_width - 1;
 	}
 
 	if ( do_lock ) {
@@ -70,14 +70,14 @@ void CGlobalData::addLandSlide( int32_t left, int32_t right, bool do_lock ) {
 	}
 }
 
-void CGlobalData::addObject( vobj_t* object ) {
+void CGlobalData::add_object( vobj_t* object ) {
 	if ( nullptr == object ) {
 		return;
 	}
 
 	EClass class_ = object->getClass();
 
-	objLocks[ class_ ].lock();
+	obj_locks[ class_ ].lock();
 
 	/// --- case 1: first of its kind ---
 	if ( nullptr == tails[ class_ ] ) {
@@ -92,13 +92,13 @@ void CGlobalData::addObject( vobj_t* object ) {
 		tails[ class_ ]       = object;
 	}
 
-	objLocks[ class_ ].unlock();
+	obj_locks[ class_ ].unlock();
 }
 
 // Combine both make_update and make_bgupdate with safety checks for
 // the dimensions. This reduces code duplication.
-void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, sBox* target, int32_t& target_count ) const {
-	assert( target && "ERROR: addUpdate called with nullptr target!" );
+void CGlobalData::add_update( int32_t x, int32_t y, int32_t w, int32_t h, sBox* target, int32_t& target_count ) const {
+	assert( target && "ERROR: add_update called with nullptr target!" );
 
 	bool combined = false;
 
@@ -106,19 +106,19 @@ void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, sBox* t
 
 	int32_t left   = std::max( x - 1, 0 );
 	int32_t top    = std::max( y - 1, 0 );
-	int32_t right  = std::min( x + w + 1, env.screenWidth );
-	int32_t bottom = std::min( y + h + 1, env.screenHeight );
+	int32_t right  = std::min( x + w + 1, env.screen_width );
+	int32_t bottom = std::min( y + h + 1, env.screen_height );
 
 	// If the update is outside the screen, it is not needed:
 	if ( ( bottom <= 0 ) /* most common case */
-	     || ( left >= env.screenWidth ) || ( right <= 0 ) || ( top >= env.screenHeight ) ) {
+	     || ( left >= env.screen_width ) || ( right <= 0 ) || ( top >= env.screen_height ) ) {
 		return;
 	}
 
 	assert( ( left < right ) );
 	assert( ( top < bottom ) );
 
-	if ( combineUpdates && target_count && ( target_count < env.max_screen_updates ) ) {
+	if ( combine_updates && target_count && ( target_count < env.max_screen_updates ) ) {
 		// Re-purpose sBox::w as x2 and sBox::h as y2:
 		sBox prev(
 			target[ target_count - 1 ].x,
@@ -150,14 +150,14 @@ void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, sBox* t
 		target[ target_count++ ].set( left, top, right - left, bottom - top );
 	}
 
-	if ( !stopwindow && ( target_count <= env.max_screen_updates ) ) {
+	if ( !stop_window && ( target_count <= env.max_screen_updates ) ) {
 		env.window_update( left, top, right - left, bottom - top );
 	}
 }
 
 // return true if any living tank is in the given box.
 // left/right and top/bottom are determined automatically.
-bool CGlobalData::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
+bool CGlobalData::are_tanks_in_box( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	CTank* lt = dynamic_cast< CTank* >( heads[ CLASS_TANK ] );
 
 	while ( lt ) {
@@ -171,8 +171,8 @@ bool CGlobalData::areTanksInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 
 	return false;
 }
 
-bool CGlobalData::areTanksInBox( double x1, double y1, double x2, double y2 ) {
-	return areTanksInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
+bool CGlobalData::are_tanks_in_box( double x1, double y1, double x2, double y2 ) {
+	return are_tanks_in_box( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
 }
 
 /// @brief remove and delete *all* objects stored.
@@ -214,27 +214,27 @@ void CGlobalData::destroy() {
 	delete[] surface;
 	surface = nullptr;
 
-	delete[] dropTo;
-	dropTo = nullptr;
+	delete[] drop_to;
+	drop_to = nullptr;
 
 	delete[] velocity;
 	velocity = nullptr;
 
-	delete[] dropIncr;
-	dropIncr = nullptr;
+	delete[] drop_incr;
+	drop_incr = nullptr;
 
 	delete[] updates;
 	updates = nullptr;
 
-	delete[] lastUpdates;
-	lastUpdates = nullptr;
+	delete[] last_updates;
+	last_updates = nullptr;
 }
 
 void CGlobalData::do_updates() {
-	bool isBgUpdNeeded = lastUpdatesCount > 0;
+	bool isBgUpdNeeded = last_updates_count > 0;
 
 	acquire_bitmap( screen );
-	for ( int32_t i = 0; i < updateCount; ++i ) {
+	for ( int32_t i = 0; i < update_count; ++i ) {
 		blit( canvas,
 		      screen,
 		      updates[ i ].x,
@@ -250,10 +250,10 @@ void CGlobalData::do_updates() {
 	}
 	release_bitmap( screen );
 	if ( !isBgUpdNeeded ) {
-		lastUpdatesCount = updateCount;
-		memcpy( lastUpdates, updates, sizeof( sBox ) * env.max_screen_updates );
+		last_updates_count = update_count;
+		memcpy( last_updates, updates, sizeof( sBox ) * env.max_screen_updates );
 	}
-	updateCount = 0;
+	update_count = 0;
 }
 
 // Do what has to be done after the game starts
@@ -267,22 +267,22 @@ void CGlobalData::first_init() {
 		exit( 1 );
 	}
 
-	// get memory for lastUpdates
+	// get memory for last_updates
 	try {
-		lastUpdates = new sBox[ env.max_screen_updates ];
+		last_updates = new sBox[ env.max_screen_updates ];
 	} catch ( std::bad_alloc& e ) {
 		cerr << "globaldata.cpp:" << __LINE__ << ":first_init() : "
-		     << "Failed to allocate memory for lastUpdates [" << e.what() << "]" << endl;
+		     << "Failed to allocate memory for last_updates [" << e.what() << "]" << endl;
 		exit( 1 );
 	}
 
-	canvas = create_bitmap( env.screenWidth, env.screenHeight );
+	canvas = create_bitmap( env.screen_width, env.screen_height );
 	if ( !canvas ) {
 		cout << "Failed to create canvas bitmap: " << allegro_error << endl;
 		exit( 1 );
 	}
 
-	terrain = create_bitmap( env.screenWidth, env.screenHeight );
+	terrain = create_bitmap( env.screen_width, env.screen_height );
 	if ( !terrain ) {
 		cout << "Failed to create terrain bitmap: " << allegro_error << endl;
 		exit( 1 );
@@ -300,12 +300,12 @@ void CGlobalData::first_init() {
 
 
 	try {
-		done     = new int8_t[ env.screenWidth ]{ 0 };
-		fp       = new int32_t[ env.screenWidth ]{ 0 };
-		surface  = new ai32_t[ env.screenWidth ]{ { 0 } };
-		dropTo   = new int32_t[ env.screenWidth ]{ 0 };
-		velocity = new double[ env.screenWidth ]{ 0 };
-		dropIncr = new double[ env.screenWidth ]{ 0 };
+		done     = new int8_t[ env.screen_width ]{ 0 };
+		fp       = new int32_t[ env.screen_width ]{ 0 };
+		surface  = new ai32_t[ env.screen_width ]{ { 0 } };
+		drop_to   = new int32_t[ env.screen_width ]{ 0 };
+		velocity = new double[ env.screen_width ]{ 0 };
+		drop_incr = new double[ env.screen_width ]{ 0 };
 	} catch ( std::bad_alloc& e ) {
 		cerr << "globaldata.cpp:" << __LINE__ << ":first_init() : "
 		     << "Failed to allocate memory for base data arrays [" << e.what() << "]" << endl;
@@ -336,9 +336,9 @@ int32_t CGlobalData::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_
 
 	// Boundaries
 	int32_t min_x = 1;
-	int32_t max_x = env.screenWidth - 2;
-	int32_t min_y = env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT;
-	int32_t max_y = env.screenHeight - 2;
+	int32_t max_x = env.screen_width - 2;
+	int32_t min_y = env.is_boxed ? MENUHEIGHT + 1 : MENUHEIGHT;
+	int32_t max_y = env.screen_height - 2;
 
 	// Coordinates
 	int32_t left   = std::max( std::min( x1, x2 ), min_x );
@@ -483,14 +483,14 @@ int32_t CGlobalData::get_avg_bgcolor( int32_t x1, int32_t y1, int32_t x2, int32_
 // Locks global->command for reading, reads value, then unlocks the variable
 // and returns the value.
 int32_t CGlobalData::get_command() {
-	cmdLock.lock();
+	cmd_lock.lock();
 	int32_t c = command;
-	cmdLock.unlock();
+	cmd_lock.unlock();
 	return c;
 }
 
 CTank* CGlobalData::get_curr_tank() {
-	return currTank;
+	return curr_tank;
 }
 
 /** @brief delegate getting a debris item to the debris pool.
@@ -505,8 +505,8 @@ sDebrisItem* CGlobalData::get_debris_item( int32_t radius ) {
 
 CTank* CGlobalData::get_next_tank( bool* wrapped_around ) {
 	bool    found    = false;
-	int32_t index    = tankindex + 1;
-	int32_t oldindex = tankindex;
+	int32_t index    = tank_index + 1;
+	int32_t oldindex = tank_index;
 	int32_t wrapped  = 0;
 
 	while ( !found && ( wrapped < 2 ) ) {
@@ -525,7 +525,7 @@ CTank* CGlobalData::get_next_tank( bool* wrapped_around ) {
 		}
 	}
 
-	tankindex = index;
+	tank_index = index;
 
 	// If this tank is valid, the currently selected weapon must be checked
 	// first and changed if depleted
@@ -536,7 +536,7 @@ CTank* CGlobalData::get_next_tank( bool* wrapped_around ) {
 
 	// Whatever happened, the status bar needs an update:
 	if ( oldindex != index ) {
-		updateMenu = true;
+		update_menu = true;
 	}
 
 	return next_tank;
@@ -558,34 +558,34 @@ CTank* CGlobalData::get_random_tank() {
 
 void CGlobalData::initialise() {
 	clear_objects();
-	numTanks = 0;
+	num_tanks = 0;
 	clear_to_color( canvas, WHITE );
 	clear_to_color( terrain, PINK );
 
-	for ( int32_t i = 0; i < env.screenWidth; ++i ) {
+	for ( int32_t i = 0; i < env.screen_width; ++i ) {
 		done[ i ]   = 0;
-		dropTo[ i ] = env.screenHeight - 1;
+		drop_to[ i ] = env.screen_height - 1;
 		fp[ i ]     = 0;
 	}
 }
 
 // return true if the dirt reaches into the given box.
 // left/right and top/bottom are determined automatically.
-bool CGlobalData::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) const {
-	int32_t top = std::max( std::min( y1, y2 ), env.isBoxed ? MENUHEIGHT + 1 : MENUHEIGHT );
+bool CGlobalData::is_dirt_in_box( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) const {
+	int32_t top = std::max( std::min( y1, y2 ), env.is_boxed ? MENUHEIGHT + 1 : MENUHEIGHT );
 	// Exit early if the box is below the playing area
-	if ( top >= env.screenHeight ) {
+	if ( top >= env.screen_height ) {
 		return false;
 	}
 
-	int32_t bottom = std::min( std::max( y1, y2 ), env.screenHeight - 2 );
+	int32_t bottom = std::min( std::max( y1, y2 ), env.screen_height - 2 );
 	// Exit early if the box is over the playing area
 	if ( bottom <= MENUHEIGHT ) {
 		return false;
 	}
 
 	int32_t left  = std::max( std::min( x1, x2 ), 1 );
-	int32_t right = std::min( std::max( x1, x2 ), env.screenWidth - 2 );
+	int32_t right = std::min( std::max( x1, x2 ), env.screen_width - 2 );
 
 	// If the box is outside the playing area, this loop won't do anything
 	for ( int32_t x = left; x <= right; ++x ) {
@@ -598,10 +598,10 @@ bool CGlobalData::isDirtInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) 
 }
 
 /// @return true if the close button was pressed
-bool CGlobalData::isCloseBtnPressed() {
-	cbpLock.lock();
+bool CGlobalData::is_close_btn_pressed() {
+	cbp_lock.lock();
 	bool result = close_button_pressed;
-	cbpLock.unlock();
+	cbp_lock.unlock();
 
 	return result;
 }
@@ -670,36 +670,36 @@ void CGlobalData::load_from_file( FILE* file ) {
 			// save will put them into the correct section anyway.
 			// So these can eventually be removed.
 			if ( !strcasecmp( field, "acceleratedai" ) ) {
-				SAFE_STOI( env.skipComputerPlay, value );
-				if ( env.skipComputerPlay > SKIP_HUMANS_DEAD ) {
-					env.skipComputerPlay = SKIP_HUMANS_DEAD;
+				SAFE_STOI( env.skip_computer_play, value );
+				if ( env.skip_computer_play > SKIP_HUMANS_DEAD ) {
+					env.skip_computer_play = SKIP_HUMANS_DEAD;
 				}
 			} else if ( !strcasecmp( field, "checkupdates" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.check_for_updates = val > 0;
 			} else if ( !strcasecmp( field, "colourtheme" ) ) {
-				SAFE_STOI( env.colourTheme, value );
-				if ( env.colourTheme < CT_REGULAR ) {
-					env.colourTheme = CT_REGULAR;
+				SAFE_STOI( env.colour_theme, value );
+				if ( env.colour_theme < CT_REGULAR ) {
+					env.colour_theme = CT_REGULAR;
 				}
-				if ( env.colourTheme > CT_CRISPY ) {
-					env.colourTheme = CT_CRISPY;
+				if ( env.colour_theme > CT_CRISPY ) {
+					env.colour_theme = CT_CRISPY;
 				}
 			} else if ( !strcasecmp( field, "debrislevel" ) ) {
 				SAFE_STOI( env.debris_level, value );
 			} else if ( !strcasecmp( field, "detailedland" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.detailedLandscape = val > 0;
+				env.detailed_landscape = val > 0;
 			} else if ( !strcasecmp( field, "detailedsky" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.detailedSky = val > 0;
+				env.detailed_sky = val > 0;
 			} else if ( !strcasecmp( field, "dither" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.ditherGradients = val > 0;
+				env.dither_gradients = val > 0;
 			} else if ( !strcasecmp( field, "dividemoney" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
@@ -723,31 +723,31 @@ void CGlobalData::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field, "listenport" ) ) {
 				SAFE_STOI( env.network_port, value );
 			} else if ( !strcasecmp( field, "maxfiretime" ) ) {
-				SAFE_STOI( env.maxFireTime, value );
+				SAFE_STOI( env.max_fire_time, value );
 			} else if ( !strcasecmp( field, "networking" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.network_enabled = val > 0;
 			} else if ( !strcasecmp( field, "numpermanentplayers" ) ) {
-				SAFE_STOI( env.numPermanentPlayers, value );
+				SAFE_STOI( env.num_permanent_players, value );
 			} else if ( !strcasecmp( field, "OSMOUSE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				env.osMouse = val > 0;
+				env.os_mouse = val > 0;
 			} else if ( !strcasecmp( field, "playmusic" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.play_music = val > 0;
 			} else if ( !strcasecmp( field, "rounds" ) ) {
 				SAFE_STOUL( env.rounds, value );
-			} else if ( !strcasecmp( field, "screenwidth" ) && !env.temp_screenWidth ) {
-				SAFE_STOI( env.screenWidth, value );
-				env.halfWidth        = env.screenWidth / 2;
-				env.temp_screenWidth = env.screenWidth;
-			} else if ( !strcasecmp( field, "screenheight" ) && !env.temp_screenHeight ) {
-				SAFE_STOI( env.screenHeight, value );
-				env.halfHeight        = env.screenHeight / 2;
-				env.temp_screenHeight = env.screenHeight;
+			} else if ( !strcasecmp( field, "screenwidth" ) && !env.temp_screen_width ) {
+				SAFE_STOI( env.screen_width, value );
+				env.half_width        = env.screen_width / 2;
+				env.temp_screen_width = env.screen_width;
+			} else if ( !strcasecmp( field, "screenheight" ) && !env.temp_screen_height ) {
+				SAFE_STOI( env.screen_height, value );
+				env.half_height        = env.screen_height / 2;
+				env.temp_screen_height = env.screen_height;
 			} else if ( !strcasecmp( field, "scorehitunit" ) ) {
 				SAFE_STOI( env.scoreHitUnit, value );
 			} else if ( !strcasecmp( field, "scoreselfhit" ) ) {
@@ -760,14 +760,14 @@ void CGlobalData::load_from_file( FILE* file ) {
 				SAFE_STOI( env.scoreUnitDestroyBonus, value );
 			} else if ( !strcasecmp( field, "scoreunitselfdestroy" ) ) {
 				SAFE_STOI( env.scoreUnitSelfDestroy, value );
-			} else if ( !strcasecmp( field, "sellpercent" ) ) {
-				SAFE_STOD( env.sellpercent, value );
+			} else if ( !strcasecmp( field, "sell_percent" ) ) {
+				SAFE_STOD( env.sell_percent, value );
 			} else if ( !strcasecmp( field, "sounddriver" ) ) {
 				SAFE_STOI( env.sound_driver, value );
-			} else if ( !strcasecmp( field, "startmoney" ) ) {
-				SAFE_STOI( env.startmoney, value );
-			} else if ( !strcasecmp( field, "turntype" ) ) {
-				SAFE_STOI( env.turntype, value );
+			} else if ( !strcasecmp( field, "start_money" ) ) {
+				SAFE_STOI( env.start_money, value );
+			} else if ( !strcasecmp( field, "turn_type" ) ) {
+				SAFE_STOI( env.turn_type, value );
 			} else if ( !strcasecmp( field, "violentdeath" ) ) {
 				SAFE_STOI( env.violent_death, value );
 			}
@@ -775,67 +775,67 @@ void CGlobalData::load_from_file( FILE* file ) {
 	}         // end of while not is_done
 }
 
-void CGlobalData::lockClass( EClass class_ ) {
-	objLocks[ class_ ].lock();
+void CGlobalData::lock_class( EClass class_ ) {
+	obj_locks[ class_ ].lock();
 }
 
-void CGlobalData::lockLand() {
-	landLock.lock();
+void CGlobalData::lock_land() {
+	land_lock.lock();
 }
 
 void CGlobalData::make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h ) {
-	if ( lastUpdatesCount >= env.max_screen_updates ) {
-		make_fullUpdate();
+	if ( last_updates_count >= env.max_screen_updates ) {
+		make_full_update();
 		return;
 	}
 
 	assert( ( w > 0 ) && ( h > 0 ) );
 
 	if ( ( w > 0 ) && ( h > 0 ) ) {
-		addUpdate( x, y, w, h, lastUpdates, lastUpdatesCount );
+		add_update( x, y, w, h, last_updates, last_updates_count );
 	}
 }
 
-void CGlobalData::make_fullUpdate() {
+void CGlobalData::make_full_update() {
 	// Replace Updates with a full-screen update:
-	combineUpdates   = false;
-	updateCount      = 0;
-	lastUpdatesCount = 0;
+	combine_updates   = false;
+	update_count      = 0;
+	last_updates_count = 0;
 
 	// They are split into 2 x 2 updates:
 	for ( int32_t x = 0; x < 2; ++x ) {
-		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, updates, updateCount );
-		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, updates, updateCount );
-		addUpdate( env.halfWidth * x, 0, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
-		addUpdate( env.halfWidth * x, env.halfHeight, env.halfWidth, env.halfHeight, lastUpdates, lastUpdatesCount );
+		add_update( env.half_width * x, 0, env.half_width, env.half_height, updates, update_count );
+		add_update( env.half_width * x, env.half_height, env.half_width, env.half_height, updates, update_count );
+		add_update( env.half_width * x, 0, env.half_width, env.half_height, last_updates, last_updates_count );
+		add_update( env.half_width * x, env.half_height, env.half_width, env.half_height, last_updates, last_updates_count );
 	}
 
-	combineUpdates = true;
+	combine_updates = true;
 }
 
 void CGlobalData::make_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
-	if ( updateCount >= env.max_screen_updates ) {
-		make_fullUpdate();
+	if ( update_count >= env.max_screen_updates ) {
+		make_full_update();
 		return;
 	}
 
 	// These assertions should catch screwed updates that make no sense
-	assert( ( h <= env.screenHeight ) && ( w <= env.screenWidth ) );
+	assert( ( h <= env.screen_height ) && ( w <= env.screen_width ) );
 	assert( ( w > 0 ) && ( h > 0 ) );
 
 	if ( ( h > 0 ) && ( w > 0 ) ) {
-		addUpdate( x, y, w, h, updates, updateCount );
+		add_update( x, y, w, h, updates, update_count );
 	}
 }
 
-void CGlobalData::newRound() {
-	if ( ( currentround > 0 ) && ( currentround-- < env.nextCampaignRound ) ) {
-		env.nextCampaignRound -= env.campaign_rounds;
+void CGlobalData::new_round() {
+	if ( ( current_round > 0 ) && ( current_round-- < env.next_campaign_round ) ) {
+		env.next_campaign_round -= env.campaign_rounds;
 	}
 
-	tankindex          = 0;
+	tank_index          = 0;
 	naturals_activated = 0;
-	combineUpdates     = true;
+	combine_updates     = true;
 
 	// clean all but texts and tanks
 	int32_t class_ = 0;
@@ -850,9 +850,9 @@ void CGlobalData::newRound() {
 
 
 	// Re-init land slide
-	for ( int32_t i = 0; i < env.screenWidth; ++i ) {
+	for ( int32_t i = 0; i < env.screen_width; ++i ) {
 		done[ i ]   = 2; // Check at once
-		dropTo[ i ] = env.screenHeight - 1;
+		drop_to[ i ] = env.screen_height - 1;
 		fp[ i ]     = 0;
 	}
 
@@ -863,14 +863,14 @@ void CGlobalData::newRound() {
 }
 
 /// @brief Tell global that the close button was pressed
-void CGlobalData::pressCloseButton() {
-	cbpLock.lock();
+void CGlobalData::press_close_button() {
+	cbp_lock.lock();
 	close_button_pressed = true;
-	cbpLock.unlock();
+	cbp_lock.unlock();
 	set_command( GLOBAL_COMMAND_QUIT );
 }
 
-void CGlobalData::removeObject( vobj_t* object ) {
+void CGlobalData::remove_object( vobj_t* object ) {
 	if ( nullptr == object ) {
 		return;
 	}
@@ -882,7 +882,7 @@ void CGlobalData::removeObject( vobj_t* object ) {
 		return;
 	}
 
-	objLocks[ class_ ].lock();
+	obj_locks[ class_ ].lock();
 
 	/// --- 2: If the object is head, set it anew:
 	if ( object == heads[ class_ ] ) {
@@ -904,10 +904,10 @@ void CGlobalData::removeObject( vobj_t* object ) {
 	object->prev = nullptr;
 	object->next = nullptr;
 
-	objLocks[ class_ ].unlock();
+	obj_locks[ class_ ].unlock();
 }
 
-void CGlobalData::removeTank( CTank* tank ) {
+void CGlobalData::remove_tank( CTank* tank ) {
 	if ( nullptr == tank ) {
 		return;
 	}
@@ -921,61 +921,61 @@ void CGlobalData::removeTank( CTank* tank ) {
 
 void CGlobalData::replace_canvas() {
 
-	for ( int32_t i = 0; i < lastUpdatesCount; ++i ) {
-		if ( ( lastUpdates[ i ].y + lastUpdates[ i ].h ) > MENUHEIGHT ) {
+	for ( int32_t i = 0; i < last_updates_count; ++i ) {
+		if ( ( last_updates[ i ].y + last_updates[ i ].h ) > MENUHEIGHT ) {
 			blit( env.sky,
 			      canvas,
-			      lastUpdates[ i ].x,
-			      lastUpdates[ i ].y - MENUHEIGHT,
-			      lastUpdates[ i ].x,
-			      lastUpdates[ i ].y,
-			      lastUpdates[ i ].w,
-			      lastUpdates[ i ].h );
+			      last_updates[ i ].x,
+			      last_updates[ i ].y - MENUHEIGHT,
+			      last_updates[ i ].x,
+			      last_updates[ i ].y,
+			      last_updates[ i ].w,
+			      last_updates[ i ].h );
 			masked_blit(
 				terrain,
 				canvas,
-				lastUpdates[ i ].x,
-				lastUpdates[ i ].y,
-				lastUpdates[ i ].x,
-				lastUpdates[ i ].y,
-				lastUpdates[ i ].w,
-				lastUpdates[ i ].h
+				last_updates[ i ].x,
+				last_updates[ i ].y,
+				last_updates[ i ].x,
+				last_updates[ i ].y,
+				last_updates[ i ].w,
+				last_updates[ i ].h
 			);
 		} // End of having an update below the top bar
 	}
 
 	int32_t l = 0;
-	int32_t r = env.screenWidth - 1;
+	int32_t r = env.screen_width - 1;
 	int32_t t = MENUHEIGHT;
-	int32_t b = env.screenHeight - 1;
+	int32_t b = env.screen_height - 1;
 
-	vline( canvas, l, t, b, env.wallColour );     // Left edge
-	vline( canvas, l + 1, t, b, env.wallColour ); // Left edge
-	vline( canvas, r, t, b, env.wallColour );     // right edge
-	vline( canvas, r - 1, t, b, env.wallColour ); // right edge
-	hline( canvas, l, b, r, env.wallColour );     // bottom edge
-	if ( env.isBoxed ) {
-		hline( canvas, l, t, r, env.wallColour ); // top edge
+	vline( canvas, l, t, b, env.wall_colour );     // Left edge
+	vline( canvas, l + 1, t, b, env.wall_colour ); // Left edge
+	vline( canvas, r, t, b, env.wall_colour );     // right edge
+	vline( canvas, r - 1, t, b, env.wall_colour ); // right edge
+	hline( canvas, l, b, r, env.wall_colour );     // bottom edge
+	if ( env.is_boxed ) {
+		hline( canvas, l, t, r, env.wall_colour ); // top edge
 	}
 
-	lastUpdatesCount = 0;
+	last_updates_count = 0;
 }
 
 // Set a new command, lock guarded
 void CGlobalData::set_command( int32_t cmd ) {
-	cmdLock.lock();
+	cmd_lock.lock();
 	command = cmd;
-	cmdLock.unlock();
+	cmd_lock.unlock();
 }
 
 void CGlobalData::set_curr_tank( CTank* tank_ ) {
-	if ( tank_ != currTank ) {
-		if ( currTank ) {
-			currTank->deactivate();
+	if ( tank_ != curr_tank ) {
+		if ( curr_tank ) {
+			curr_tank->deactivate();
 		}
-		currTank = tank_;
-		if ( currTank ) {
-			currTank->activate();
+		curr_tank = tank_;
+		if ( curr_tank ) {
+			curr_tank->activate();
 		}
 	}
 }
@@ -987,14 +987,14 @@ void CGlobalData::set_curr_tank( CTank* tank_ ) {
  * done[x] == 2 : This column is about to be slid, but the base values aren't set.
  * done[x] == 3 : This column is about to be slid but locked. (Explosion not done)
  **/
-void CGlobalData::slideLand() {
+void CGlobalData::slide_land() {
 	// Opt out soon if no landslide is to be done
-	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType )
-	     || ( ( SLIDE_CARTOON == env.landSlideType ) && ( env.time_to_fall > 0 ) ) ) {
+	if ( ( SLIDE_NONE == env.landslide_type ) || ( SLIDE_TANK_ONLY == env.landslide_type )
+	     || ( ( SLIDE_CARTOON == env.landslide_type ) && ( env.time_to_fall > 0 ) ) ) {
 		return;
 	}
 
-	for ( int32_t col = 1; col < ( env.screenWidth - 1 ); ++col ) {
+	for ( int32_t col = 1; col < ( env.screen_width - 1 ); ++col ) {
 
 		// Skip this column if it is done or locked
 		if ( !done[ col ] || ( 3 == done[ col ] ) ) {
@@ -1004,30 +1004,30 @@ void CGlobalData::slideLand() {
 		// Set base settings if this hasn't happen, yet
 		if ( 2 == done[ col ] ) {
 			surface[ col ].store( 0, ATOMIC_WRITE );
-			dropTo[ col ] = env.screenHeight - 1;
+			drop_to[ col ] = env.screen_height - 1;
 			done[ col ]   = 1;
 
 			// Calc the top and bottom of the column to slide
 
 			// Find top-most non-PINK pixel
-			int32_t row = MENUHEIGHT + ( env.isBoxed ? 1 : 0 );
+			int32_t row = MENUHEIGHT + ( env.is_boxed ? 1 : 0 );
 
-			for ( ; ( row < dropTo[ col ] ) && ( PINK == getpixel( terrain, col, row ) ); ++row )
+			for ( ; ( row < drop_to[ col ] ) && ( PINK == getpixel( terrain, col, row ) ); ++row )
 				;
 			surface[ col ].store( row, ATOMIC_WRITE ); // This is the top pixel with all gaps
 
 			// Find bottom-most PINK pixel
 			int32_t top_row = row;
-			for ( row = dropTo[ col ]; ( row > top_row ) && ( PINK != getpixel( terrain, col, row ) ); --row )
+			for ( row = drop_to[ col ]; ( row > top_row ) && ( PINK != getpixel( terrain, col, row ) ); --row )
 				;
-			dropTo[ col ] = row;
+			drop_to[ col ] = row;
 
 			// Find bottom-most unsupported pixel
 			for ( ; ( row >= top_row ) && ( PINK == getpixel( terrain, col, row ) ); --row )
 				;
 
 			// Check whether there is anything to do or not
-			if ( ( row >= top_row ) && ( top_row < dropTo[ col ] ) ) {
+			if ( ( row >= top_row ) && ( top_row < drop_to[ col ] ) ) {
 				fp[ col ]       = row - top_row + 1;
 				velocity[ col ] = 0; // Not yet
 				done[ col ]     = 1; // Can be processed
@@ -1035,8 +1035,8 @@ void CGlobalData::slideLand() {
 
 			// Otherwise this column is done
 			else {
-				if ( !skippingComputerPlay && ( velocity[ col ] > .5 ) && ( fp[ col ] > 1 ) ) {
-					play_natural_sound( DIRT_FRAGMENT, col, 64, 1000 - ( fp[ col ] * 800 / env.screenHeight ) );
+				if ( !skipping_computer_play && ( velocity[ col ] > .5 ) && ( fp[ col ] > 1 ) ) {
+					play_natural_sound( DIRT_FRAGMENT, col, 64, 1000 - ( fp[ col ] * 800 / env.screen_height ) );
 				}
 				done[ col ] = 0; // Nothing to do
 				fp[ col ]   = 0;
@@ -1055,31 +1055,31 @@ void CGlobalData::slideLand() {
 					j = 0; // no further look needed.
 				}
 			}
-			for ( int32_t j = col + 1; can_slide && ( j < ( env.screenWidth - 1 ) ); ++j ) {
+			for ( int32_t j = col + 1; can_slide && ( j < ( env.screen_width - 1 ) ); ++j ) {
 				if ( 3 == done[ j ] ) {
 					can_slide = false;
 				} else if ( !done[ j ] ) {
-					j = env.screenWidth; // no further look needed.
+					j = env.screen_width; // no further look needed.
 				}
 			}
 
 			if ( can_slide ) {
 				// Do instant first, because only GRAVITY remains
 				// which is the case if cartoon wait time is over.
-				if ( ( SLIDE_INSTANT == env.landSlideType ) || skippingComputerPlay ) {
+				if ( ( SLIDE_INSTANT == env.landslide_type ) || skipping_computer_play ) {
 					int32_t surf = surface[ col ].load( ATOMIC_READ );
-					make_bgupdate( col, surf, 1, dropTo[ col ] - surf + 1 );
-					make_update( col, surf, 1, dropTo[ col ] - surf + 1 );
-					blit( terrain, terrain, col, surf, col, dropTo[ col ] - fp[ col ] + 1, 1, fp[ col ] );
-					vline( terrain, col, surf, dropTo[ col ] - fp[ col ], PINK );
+					make_bgupdate( col, surf, 1, drop_to[ col ] - surf + 1 );
+					make_update( col, surf, 1, drop_to[ col ] - surf + 1 );
+					blit( terrain, terrain, col, surf, col, drop_to[ col ] - fp[ col ] + 1, 1, fp[ col ] );
+					vline( terrain, col, surf, drop_to[ col ] - fp[ col ], PINK );
 					velocity[ col ] = fp[ col ]; // Or no sound would be played if done
 					done[ col ]     = 2;         // Recheck
 				} else {
 					velocity[ col ] += env.gravity;
-					dropIncr[ col ] += velocity[ col ];
+					drop_incr[ col ] += velocity[ col ];
 
-					auto    dropAdd  = ROUND( dropIncr[ col ] );
-					int32_t max_top  = MENUHEIGHT + ( env.isBoxed ? 1 : 0 );
+					auto    dropAdd  = ROUND( drop_incr[ col ] );
+					int32_t max_top  = MENUHEIGHT + ( env.is_boxed ? 1 : 0 );
 
 					if ( dropAdd > 0 ) {
 
@@ -1097,11 +1097,11 @@ void CGlobalData::slideLand() {
 							--over_top;
 						}
 
-						if ( dropAdd > ( dropTo[ col ] - ( top_row + fp[ col ] ) ) ) {
+						if ( dropAdd > ( drop_to[ col ] - ( top_row + fp[ col ] ) ) ) {
 							dropAdd = static_cast< int32_t >(
-								dropTo[ col ] - ( top_row + fp[ col ] ) + 1
+								drop_to[ col ] - ( top_row + fp[ col ] ) + 1
 							);
-							dropIncr[ col ] = dropAdd;
+							drop_incr[ col ] = dropAdd;
 							done[ col ]     = 2; // Recheck
 							over_top        = top_row - dropAdd;
 						}
@@ -1131,7 +1131,7 @@ void CGlobalData::slideLand() {
 						}
 
 						surface[ col ].fetch_add( dropAdd );
-						dropIncr[ col ] -= dropAdd;
+						drop_incr[ col ] -= dropAdd;
 					}
 				}
 			}
@@ -1139,18 +1139,18 @@ void CGlobalData::slideLand() {
 	}         // End of looping columns
 }
 
-void CGlobalData::unlockClass( EClass class_ ) {
-	objLocks[ class_ ].unlock();
+void CGlobalData::unlock_class( EClass class_ ) {
+	obj_locks[ class_ ].unlock();
 }
 
-void CGlobalData::unlockLand() {
-	landLock.unlock();
+void CGlobalData::unlock_land() {
+	land_lock.unlock();
 }
 
 /// @brief goes through the columns from @a left to @a right and unlocks what is locked.
-void CGlobalData::unlockLandSlide( int32_t left, int32_t right ) {
+void CGlobalData::unlock_land_slide( int32_t left, int32_t right ) {
 	// Opt out soon if no landslide is to be done
-	if ( ( SLIDE_NONE == env.landSlideType ) || ( SLIDE_TANK_ONLY == env.landSlideType ) ) {
+	if ( ( SLIDE_NONE == env.landslide_type ) || ( SLIDE_TANK_ONLY == env.landslide_type ) ) {
 		return;
 	}
 
@@ -1160,8 +1160,8 @@ void CGlobalData::unlockLandSlide( int32_t left, int32_t right ) {
 	if ( minX < 1 ) {
 		minX = 1;
 	}
-	if ( maxX > ( env.screenWidth - 1 ) ) {
-		maxX = env.screenWidth - 1;
+	if ( maxX > ( env.screen_width - 1 ) ) {
+		maxX = env.screen_width - 1;
 	}
 
 	for ( int32_t col = minX; col <= maxX; ++col ) {

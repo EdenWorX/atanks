@@ -134,7 +134,7 @@ template< typename t_t > void sort_entries( t_t** head ) {
 	while ( !sorted ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -228,7 +228,7 @@ CAICore::CAICore() {
 	}
 
 	/// 2) Opponents
-	for ( int32_t i = 0; canWork && ( i < env.numGamePlayers ); ++i ) {
+	for ( int32_t i = 0; canWork && ( i < env.num_game_players ); ++i ) {
 		// Look for highest AI type
 		if ( ( env.players[ i ]->type <= DEADLY_PLAYER ) && ( env.players[ i ]->type > bestType ) ) {
 			bestType = env.players[ i ]->type;
@@ -348,7 +348,7 @@ bool CAICore::aim( int32_t combo_attempt, int32_t combo_tries, bool can_move ) {
 	while ( !isStopped && ( ++rng_attempt <= findRngAttempts ) ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -830,11 +830,11 @@ bool CAICore::calcAttack( int32_t attempt, int32_t tries ) {
 	/* Now that all is set up, we have to add some error to the bots' calculation.
 	 * But we do not want to have to manipulate each and every calculation, so we simply move the target a bit.
 	 */
-	int32_t x_drift = env.screenWidth / 40; // Limit drift to 5% screenwidth (Although the USELESS_PLAYER can get over it.)
+	int32_t x_drift = env.screen_width / 40; // Limit drift to 5% screenwidth (Although the USELESS_PLAYER can get over it.)
 	int32_t x_dir   = get_rand() % 2 ? -1 : 1;
 	double  x_off   = errorMultiplier * x_dir * ( ( get_rand() % x_drift ) + x_drift ); // [2.5;5.0]% screenwidth
 
-	if ( ( ROUND( mem_curr->opX + x_off ) <= 0 ) || ( ROUND( mem_curr->opX + x_off ) >= env.screenWidth ) ) {
+	if ( ( ROUND( mem_curr->opX + x_off ) <= 0 ) || ( ROUND( mem_curr->opX + x_off ) >= env.screen_width ) ) {
 		x_off *= -1.;
 	}
 
@@ -922,7 +922,7 @@ bool CAICore::calcAttack( int32_t attempt, int32_t tries ) {
 	 *    -> if the target can't be reached while staying below the ceiling,
 	 *       check for an obstacle that can be removed and do so if found.
 	 */
-	if ( result && env.isBoxed && !isBlocked && needAim && ( weap_idx < WEAPONS ) ) {
+	if ( result && env.is_boxed && !isBlocked && needAim && ( weap_idx < WEAPONS ) ) {
 		result = calcBoxed( is_last );
 	}
 
@@ -961,7 +961,7 @@ bool CAICore::calcBoxed( bool is_last ) {
 	        && traceShot( curr_angle, 0, finished, top_wrap, local_x, local_y, end_xv, end_yv ) && finished ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -972,7 +972,7 @@ bool CAICore::calcBoxed( bool is_last ) {
 		     || ( top_wrap && !can_dig // (Unless a penetrator trick shot is tried)
 		          && ( local_y > global.surface[ local_x ].load() ) )
 		     // Steel wall have additional wall crashes
-		     || ( ( WALL_STEEL == env.current_wallType ) && ( ( local_x <= 2 ) || ( local_x >= ( env.screenWidth - 3 ) ) )
+		     || ( ( WALL_STEEL == env.current_wall_type ) && ( ( local_x <= 2 ) || ( local_x >= ( env.screen_width - 3 ) ) )
 		     ) ) {
 
 			crashed = true;
@@ -1017,7 +1017,7 @@ bool CAICore::calcBoxed( bool is_last ) {
 	     && ( best_setup_score <= 0 )
 	     // But do not bail out on first try!
 	     && ( best_setup_score > NEUTRAL_ROUND_SCORE ) && ( weap_idx < WEAPONS ) && ( curr_overshoot < 0 ) // too short
-	     && is_last && ( ( WALL_STEEL == env.current_wallType ) || ( WALL_WRAP == env.current_wallType ) )
+	     && is_last && ( ( WALL_STEEL == env.current_wall_type ) || ( WALL_WRAP == env.current_wall_type ) )
 	     && ( -curr_overshoot > weap_curr->radius ) // Can't hit
 	     && ( -curr_overshoot > ( mem_curr->distance / 3 * 2 ) ) ) {
 		// Note: With big weapons and near opponents, the radius might
@@ -1085,7 +1085,7 @@ int32_t CAICore::calcHitScore( bool is_last ) {
 	while ( opp ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -1237,7 +1237,7 @@ void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, doub
 	while ( opp ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -1337,10 +1337,10 @@ bool CAICore::calcKamikaze( bool is_last ) {
 					// If any x is in/ beyond a non-wrap wall, screw it:
 					// a - check left side
 					if ( xl < 1 ) {
-						if ( WALL_WRAP == env.current_wallType ) {
-							xl = env.screenWidth - 1 - ( 1 - std::abs( xl ) );
+						if ( WALL_WRAP == env.current_wall_type ) {
+							xl = env.screen_width - 1 - ( 1 - std::abs( xl ) );
 						} else {
-							diff_l += env.screenHeight;
+							diff_l += env.screen_height;
 						}
 					} else {
 						diff_l += std::abs( static_cast< int32_t >( global.surface[ xl ].load() - bottom )
@@ -1348,11 +1348,11 @@ bool CAICore::calcKamikaze( bool is_last ) {
 					}
 
 					// b - check right side
-					if ( xr > ( env.screenWidth - 2 ) ) {
-						if ( WALL_WRAP == env.current_wallType ) {
-							xr = 1 + ( env.screenWidth - 1 - xr );
+					if ( xr > ( env.screen_width - 2 ) ) {
+						if ( WALL_WRAP == env.current_wall_type ) {
+							xr = 1 + ( env.screen_width - 1 - xr );
 						} else {
-							diff_r += env.screenHeight;
+							diff_r += env.screen_height;
 						}
 					} else {
 						diff_r += std::abs( static_cast< int32_t >( global.surface[ xr ].load() - bottom )
@@ -1605,7 +1605,7 @@ bool CAICore::calcOffset( bool is_last ) {
 		// The farther away the opponent is, the more power is needed to
 		// bring the package to the target. More impact power means a higher
 		// initial velocity of the blobs, so the offset must be tweaked a bit.
-		offset_x      *= ROUND( 1. + ( mem_curr->distance / static_cast< double >( env.screenWidth ) * focusRate ) );
+		offset_x      *= ROUND( 1. + ( mem_curr->distance / static_cast< double >( env.screen_width ) * focusRate ) );
 
 
 		int32_t pos_x  = ROUND( mem_curr->opX ) + offset_x;
@@ -1621,10 +1621,10 @@ bool CAICore::calcOffset( bool is_last ) {
 			} else {
 				result = false;
 			}
-		} else if ( pos_x > ( env.screenWidth - 2 ) ) {
+		} else if ( pos_x > ( env.screen_width - 2 ) ) {
 			if ( is_last ) {
 				// The same...
-				pos_x    = env.screenWidth - 2;
+				pos_x    = env.screen_width - 2;
 				offset_x = ROUND( mem_curr->opX ) - pos_x;
 			} else {
 				result = false;
@@ -1648,8 +1648,8 @@ bool CAICore::calcOffset( bool is_last ) {
 				if ( max_x < 2 ) {
 					max_x = 2;
 				}
-				if ( max_x > ( env.screenWidth - 2 ) ) {
-					max_x = ( env.screenWidth - 2 );
+				if ( max_x > ( env.screen_width - 2 ) ) {
+					max_x = ( env.screen_width - 2 );
 				}
 
 				for ( ; !found && ( pos_x != max_x ); pos_x += mov_x ) {
@@ -1700,7 +1700,7 @@ bool CAICore::calcOffset( bool is_last ) {
 		auto    left_x  = ROUND( mem_curr->opX - dist_x );
 		auto    right_x = ROUND( mem_curr->opX + dist_x );
 		int32_t left_y  = left_x > 2 ? std::abs( global.surface[ left_x ].load() ) : 0;
-		int32_t right_y = right_x < ( env.screenWidth - 2 ) ? std::abs( global.surface[ right_x ].load() ) : 0;
+		int32_t right_y = right_x < ( env.screen_width - 2 ) ? std::abs( global.surface[ right_x ].load() ) : 0;
 		bool    go_left = ( mem_curr->opX > x ); // Which side to prefer
 		bool    found_l = false;
 		bool    found_r = false;
@@ -1709,7 +1709,7 @@ bool CAICore::calcOffset( bool is_last ) {
 			left_x  = ROUND( mem_curr->opX - dist_x );
 			right_x = ROUND( mem_curr->opX + dist_x );
 			left_y  = left_x > 2 ? std::abs( global.surface[ left_x ].load() ) : 0;
-			right_y = right_x < ( env.screenWidth - 2 ) ? std::abs( global.surface[ right_x ].load() ) : 0;
+			right_y = right_x < ( env.screen_width - 2 ) ? std::abs( global.surface[ right_x ].load() ) : 0;
 
 			if ( std::abs( left_y - seek_y ) <= rad_y ) {
 				found_l = true;
@@ -1733,7 +1733,7 @@ bool CAICore::calcOffset( bool is_last ) {
 		if ( !found_l && !found_r ) {
 			if ( is_last ) {
 				if ( ( go_left && ( ( mem_curr->opX - rad_y - 1 ) > 1 ) )
-				     || ( ( mem_curr->opX + rad_y + 1 ) > ( env.screenWidth - 2 ) ) ) {
+				     || ( ( mem_curr->opX + rad_y + 1 ) > ( env.screen_width - 2 ) ) ) {
 					found_l = true;
 					left_x  = ROUND( mem_curr->opX - rad_y - 1 );
 					left_y  = global.surface[ left_x ].load();
@@ -1782,7 +1782,7 @@ bool CAICore::calcOffset( bool is_last ) {
 				int32_t right_x = pos_x + off_x;
 				auto    left_y  = ROUND( left_x > 1 ? global.surface[ left_x ].load() : mem_curr->opY );
 				auto    right_y = ROUND(
-                                        right_x < ( env.screenWidth - 1 ) ? global.surface[ right_x ].load() : mem_curr->opY
+                                        right_x < ( env.screen_width - 1 ) ? global.surface[ right_x ].load() : mem_curr->opY
 				);
 				if ( ( left_y < min_y ) || ( left_y > max_y ) ) {
 					found_l = true;
@@ -1841,7 +1841,7 @@ bool CAICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 	// just some shortcuts
 	double  dist_x   = opX - x;
 	double  dist_y   = opY - y;
-	int32_t scrWidth = env.screenWidth;
+	int32_t scrWidth = env.screen_width;
 
 	// Do not start horizontally, this might happen quite often.
 	// If the opponent is above, limit the angle to somewhere between
@@ -1890,7 +1890,7 @@ bool CAICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 	// --- The flipping is then a possibility to shoot non-  ---
 	// --- wrapped again.                                    ---
 	// ---------------------------------------------------------
-	if ( ( WALL_WRAP == env.current_wallType ) && RAND_AI_0P ) {
+	if ( ( WALL_WRAP == env.current_wall_type ) && RAND_AI_0P ) {
 		auto wrapDist = ROUND( opX > x ? x + scrWidth - 3 - opX : ( scrWidth - x - 3 + opX ) * -1 );
 
 		if ( std::abs( wrapDist ) < std::abs( dist_x ) ) {
@@ -1906,17 +1906,17 @@ bool CAICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 
 	// --- 4) Switch sides if possible and allowed ---
 	// -----------------------------------------------
-	if ( ( WALL_STEEL != env.current_wallType ) && allow_flip_shot && ( get_rand() % ( ( ai_level + 3 ) / 2 ) ) ) {
+	if ( ( WALL_STEEL != env.current_wall_type ) && allow_flip_shot && ( get_rand() % ( ( ai_level + 3 ) / 2 ) ) ) {
 		new_angle = FLIP_ANGLE( new_angle );
 
 		// The result of this flip is different for each wall type
-		if ( WALL_RUBBER == env.current_wallType ) {
+		if ( WALL_RUBBER == env.current_wall_type ) {
 			dist_x += opX > x ? ( x - 1. ) + ( ( x - 1. ) / BOUNCE_CHANGE )
 			                  : ( scrWidth - opX - 2. ) + ( ( scrWidth - opX - 2. ) / BOUNCE_CHANGE );
-		} else if ( WALL_SPRING == env.current_wallType ) {
+		} else if ( WALL_SPRING == env.current_wall_type ) {
 			dist_x += opX > x ? ( x - 1. ) + ( ( x - 1. ) / SPRING_CHANGE )
 			                  : ( scrWidth - opX - 2. ) + ( ( scrWidth - opX - 2. ) / SPRING_CHANGE );
-		} else if ( WALL_WRAP == env.current_wallType ) {
+		} else if ( WALL_WRAP == env.current_wall_type ) {
 			if ( wrapped ) {
 				// Shoot directly again
 				dist_x = opX - x;
@@ -1950,7 +1950,7 @@ bool CAICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 
 	if ( wrapped ) {
 		// wrapped shots need clearance to the wall away from the opponent:
-		clearance = opX > x ? x - 2 : env.screenWidth - x - 2;
+		clearance = opX > x ? x - 2 : env.screen_width - x - 2;
 	}
 
 	while ( ( new_angle < ( 180 - max_drift ) ) && !tank->shootClearance( new_angle, clearance, crashed ) && !crashed ) {
@@ -2245,7 +2245,7 @@ void CAICore::checkItemMem() {
 	while ( item_curr ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -2276,7 +2276,7 @@ void CAICore::checkOppMem() {
 	while ( mem_curr ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -2315,7 +2315,7 @@ void CAICore::checkWeapMem() {
 	while ( weap_curr ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -2397,7 +2397,7 @@ bool CAICore::getMemory() {
 	do {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -2442,7 +2442,7 @@ bool CAICore::getMemory() {
 	do {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -2482,7 +2482,7 @@ bool CAICore::getMemory() {
 				// Reset some values if there is no tank
 				mem_curr->opLife   = 0.;
 				mem_curr->diffLife = currLife;
-				mem_curr->distance = env.screenWidth * env.screenHeight;
+				mem_curr->distance = env.screen_width * env.screen_height;
 			}
 
 			// Some calculations can be cut short if this is ourselves:
@@ -2586,7 +2586,7 @@ bool CAICore::getMemory() {
 	do {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -2709,7 +2709,7 @@ void CAICore::fixCrashed( int32_t& ang_mod, int32_t& pow_mod ) {
 	//    If it isn't, it is raised anyway.
 	// 3) If none of the above apply, assume the angle to be in order if it
 	//    is between 130 and 140, which is 45° +/- 5°.
-	if ( env.isBoxed && ( fix_ang > 150 ) ) { // 1)
+	if ( env.is_boxed && ( fix_ang > 150 ) ) { // 1)
 		ang_mod *= -1 * RAND_AI_1P;
 		// Do not overdo it:
 		while ( std::abs( ang_mod ) > ( ai_level + 2 ) ) {
@@ -2767,8 +2767,8 @@ void CAICore::fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_scor
 
 
 	bool angle_was_optimized = false;
-	if ( ( ( curr_angle > ( env.isBoxed ? 205 : 180 ) ) && ( curr_angle <= 225 ) && ( last_ang_mod > 0 ) )
-	     || ( ( curr_angle < ( env.isBoxed ? 155 : 180 ) ) && ( curr_angle >= 135 ) && ( last_ang_mod < 0 ) ) ) {
+	if ( ( ( curr_angle > ( env.is_boxed ? 205 : 180 ) ) && ( curr_angle <= 225 ) && ( last_ang_mod > 0 ) )
+	     || ( ( curr_angle < ( env.is_boxed ? 155 : 180 ) ) && ( curr_angle >= 135 ) && ( last_ang_mod < 0 ) ) ) {
 		angle_was_optimized = true; // Optimized towards 45° on its side
 	}
 
@@ -3101,7 +3101,7 @@ void CAICore::sanitizeCurr() {
 /// @brief show ai feedback if allowed and not skipping computer play.
 /// Whenever a feedback message is shown, the AI sleeps for dur/10 + 1 ms.
 void CAICore::showFeedback( char const* const feedback, int32_t col, double yv, ETextSway text_sway, int32_t dur ) {
-	if ( env.showAIFeedback && !global.skippingComputerPlay ) {
+	if ( env.show_ai_feedback && !global.skipping_computer_play ) {
 		// Wait for the AI to be allowed to create texts
 		while ( !textAllowed.load( ATOMIC_READ ) ) {
 			std::this_thread::yield();
@@ -3448,7 +3448,7 @@ bool CAICore::setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_att
 	while ( isWorking && !isStopped && !selectDone && !breakUp ) {
 
 		// Yield on each iteration to not hog the CPUs
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -3491,7 +3491,7 @@ bool CAICore::setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_att
 				DEBUG_LOG_AIM( player->getName(), "Selecting item, try %d / %d", weap_attempt + 1, findWeapAttempts )
 
 				// Yield on each iteration to not hog the CPUs
-				if ( !global.skippingComputerPlay ) {
+				if ( !global.skipping_computer_play ) {
 					std::this_thread::yield();
 				}
 
@@ -3710,9 +3710,9 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 	double    sub_dmg       = sub_weap->damage * player->damageMultiplier;
 
 	// If the weapon is fired into a ceiling, adapt starting y
-	if ( env.isBoxed && ( startY <= BOXED_TOP )
-	     && ( ( WALL_STEEL == env.current_wallType )
-	          || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) ) ) {
+	if ( env.is_boxed && ( startY <= BOXED_TOP )
+	     && ( ( WALL_STEEL == env.current_wall_type )
+	          || ( ( WALL_WRAP == env.current_wall_type ) && ( !env.is_boxed || !env.do_box_wrap ) ) ) ) {
 		startY = MENUHEIGHT + 20;
 	}
 
@@ -3723,11 +3723,11 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 
 	// If this is a steel wall hit, the start point angle needs
 	// to be adapted. And erased if this is a ceiling hit
-	if ( WALL_STEEL == env.current_wallType ) {
+	if ( WALL_STEEL == env.current_wall_type ) {
 		if ( ( CLUSTER <= weap_curr->type ) && ( SUP_CLUSTER >= weap_curr->type ) ) {
 			if ( x < 2 ) {
 				startPoint -= divergence + 1 + ( get_rand() % 10 );
-			} else if ( x > ( env.screenWidth - 3 ) ) {
+			} else if ( x > ( env.screen_width - 3 ) ) {
 				startPoint += divergence + 1 + ( get_rand() % 10 );
 			} else if ( y <= BOXED_TOP ) {
 				startPoint = 0;
@@ -3735,7 +3735,7 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 		} else if ( ( SML_NAPALM <= weap_curr->type ) && ( LRG_NAPALM >= weap_curr->type ) ) {
 			if ( x < 2 ) {
 				startPoint -= 10 + get_rand() % 21;
-			} else if ( x > ( env.screenWidth - 3 ) ) {
+			} else if ( x > ( env.screen_width - 3 ) ) {
 				startPoint += 10 + get_rand() % 21;
 			} else if ( y <= BOXED_TOP ) {
 				startPoint = 0;
@@ -3753,7 +3753,7 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 		auto    newMissAngle = ROUND( ( divStep * sc ) + startPoint - ( divergence / 2. ) );
 
 		// trace hard, but yield per sub mun
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 
@@ -3790,8 +3790,8 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 			player,
 			sub_x,
 			startY,
-			env.slope[ newMissAngle ][ 0 ] * speed * env.FPS_mod + inh_xv,
-			env.slope[ newMissAngle ][ 1 ] * speed * env.FPS_mod + inh_yv,
+			env.slope[ newMissAngle ][ 0 ] * speed * env.fps_mod + inh_xv,
+			env.slope[ newMissAngle ][ 1 ] * speed * env.fps_mod + inh_yv,
 			subType,
 			MT_MIND_SHOT,
 			ai_level,
@@ -3805,7 +3805,7 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 			mind_shot.applyPhysics();
 
 			// Yield on each iteration to not hog the CPUs
-			if ( !global.skippingComputerPlay ) {
+			if ( !global.skipping_computer_play ) {
 				std::this_thread::yield();
 			}
 		}
@@ -3890,11 +3890,11 @@ bool CAICore::traceShot(
 ) {
 	double  top_x        = x;
 	double  top_y        = y;
-	double  vel_mod      = static_cast< double >( curr_power ) * env.FPS_mod;
+	double  vel_mod      = static_cast< double >( curr_power ) * env.fps_mod;
 	double  vel_x        = env.slope[ trace_angle ][ 0 ] * vel_mod / 100.;
 	int32_t aim_dir      = SIGN( vel_x );
 	double  vel_y        = env.slope[ trace_angle ][ 1 ] * vel_mod / 100.;
-	bool    can_top_wrap = ( env.isBoxed && ( WALL_WRAP == env.current_wallType ) && env.do_box_wrap );
+	bool    can_top_wrap = ( env.is_boxed && ( WALL_WRAP == env.current_wall_type ) && env.do_box_wrap );
 	double  old_yv       = 0;
 	double  old_y        = 0;
 
@@ -3927,7 +3927,7 @@ bool CAICore::traceShot(
 			}
 		}
 
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			std::this_thread::yield();
 		}
 	}
@@ -3951,12 +3951,12 @@ bool CAICore::traceShot(
 		// shooting at must be added if the shot went away from the target.
 		// However, this only matters if no bounces have been recorded, yet.
 		int32_t flip_offset = 0;
-		if ( hasFlipped && ( aim_dir == shot_dir ) && ( WALL_STEEL != env.current_wallType )
+		if ( hasFlipped && ( aim_dir == shot_dir ) && ( WALL_STEEL != env.current_wall_type )
 		     && ( 0 == mind_shot.bounced() ) ) {
 			if ( reached_x_ < x ) {
 				flip_offset = 2 * reached_x_;
 			} else {
-				flip_offset = 2 * ( env.screenWidth - reached_x_ );
+				flip_offset = 2 * ( env.screen_width - reached_x_ );
 			}
 		}
 
@@ -4018,17 +4018,17 @@ void CAICore::traceWeapon( int32_t& has_crashed, int32_t& has_finished ) {
 				++has_finished;
 
 				// Check whether the shot crashed
-				if ( ( env.isBoxed
+				if ( ( env.is_boxed
 				       && ( ( curr_reached_y <= BOXED_TOP ) // crashed on top
 				                                            // wrapped to bottom with dirt above is a ceiling
 				                                            // crash, too.
 				            || ( top_wrap && ( ( weap_curr->type < BURROWER ) || ( weap_curr->type > PENETRATOR ) )
 				                 && ( curr_reached_y > global.surface[ curr_reached_x ].load() ) ) ) )
 				     // Steel wall have additional wall crashes
-				     || ( ( WALL_STEEL == env.current_wallType ) && ( weap_curr->subMunCount < 1 ) // Clusters
+				     || ( ( WALL_STEEL == env.current_wall_type ) && ( weap_curr->subMunCount < 1 ) // Clusters
 				                                                                                   // never
 				                                                                                   // crash
-				          && ( ( curr_reached_x <= 2 ) || ( curr_reached_x >= ( env.screenWidth - 3 ) ) ) ) ) {
+				          && ( ( curr_reached_x <= 2 ) || ( curr_reached_x >= ( env.screen_width - 3 ) ) ) ) ) {
 
 					++has_crashed;
 				} // end of omni-crash-check
@@ -4103,7 +4103,7 @@ void CAICore::updateItemScore( itentry_t* pItem ) {
 
 	// === Only evaluate items that are available ===
 	// ==============================================
-	if ( !env.isItemAvailable( pItem->type + WEAPONS ) ) {
+	if ( !env.is_item_available( pItem->type + WEAPONS ) ) {
 		pItem->score = -100000;
 		return;
 	}
@@ -4183,9 +4183,9 @@ void CAICore::updateItemScore( itentry_t* pItem ) {
 		int32_t checked   = 0;
 		int32_t direction = SIGN( global.wind ) * -1;
 		int32_t range_x   = 10 * ( ai_level + RAND_AI_0P );
-		int32_t top_ledge = env.screenHeight;
+		int32_t top_ledge = env.screen_height;
 
-		while ( ( checked < range_x ) && ( check_x > 1 ) && ( check_x < ( env.screenWidth - 2 ) ) ) {
+		while ( ( checked < range_x ) && ( check_x > 1 ) && ( check_x < ( env.screen_width - 2 ) ) ) {
 			int32_t check_y = global.surface[ check_x ].load( ATOMIC_READ );
 			if ( check_y < top_ledge ) {
 				top_ledge = check_y;
@@ -4423,7 +4423,7 @@ void CAICore::updateOppScore( opentry_t* pOpp ) {
 	 * --- The theory is, that weaker bots concentrate on nearer ---
 	 * --- enemies first, while stronger bots do not mind.       ---
 	 * ------------------------------------------------------------- */
-	double dist_score = ( static_cast< double >( env.halfWidth ) - pOpp->distance ) / ai_level_d;
+	double dist_score = ( static_cast< double >( env.half_width ) - pOpp->distance ) / ai_level_d;
 
 
 	/* -------------------------------------------------------------
@@ -4557,7 +4557,7 @@ void CAICore::updateWeapScore( weentry_t* pWeap ) {
 
 	// === Only evaluate items that are available ===
 	// ==============================================
-	if ( !env.isItemAvailable( wType ) ) {
+	if ( !env.is_item_available( wType ) ) {
 		pWeap->score = -100000;
 		return;
 	}
@@ -4826,7 +4826,7 @@ void CAICore::updateWeapScore( weentry_t* pWeap ) {
 			}
 
 			// Yield on each iteration to not hog the CPUs
-			if ( !global.skippingComputerPlay ) {
+			if ( !global.skipping_computer_play ) {
 				std::this_thread::yield();
 			}
 
@@ -4944,7 +4944,7 @@ void CAICore::updateWeapScore( weentry_t* pWeap ) {
 				if ( buried >= ( BURIED_LEVEL / ai_level ) ) {
 					kRad = 0.;
 				} else {
-					kRad = std::abs( global.wind / ( env.windstrength / 4. ) ) + 1.;
+					kRad = std::abs( global.wind / ( env.wind_strength / 4. ) ) + 1.;
 					/* This produces the following multiplier: (with max wind = 8)
 					 * wind = 0 : (0 / (8 / 4)) + 1 = (0 / 2) + 1 = = 1
 					 * wind = 1 : (1 / (8 / 4)) + 1 = (1 / 2) + 1 = = 1.5
@@ -4974,7 +4974,7 @@ void CAICore::updateWeapScore( weentry_t* pWeap ) {
 				while ( check ) {
 
 					// Yield on each iteration to not hog the CPUs
-					if ( !global.skippingComputerPlay ) {
+					if ( !global.skipping_computer_play ) {
 						std::this_thread::yield();
 					}
 
@@ -5107,7 +5107,7 @@ bool CAICore::useFreeingTool( bool free_tank, bool is_last ) {
 
 /// @brief explicitly select @a item_type, returns true if available and chosen.
 bool CAICore::useItem( EItemType item_type ) {
-	if ( env.isItemAvailable( item_type ) && ( player->ni[ item_type ] > 0 ) ) {
+	if ( env.is_item_available( item_type ) && ( player->ni[ item_type ] > 0 ) ) {
 		item_curr = item_head;
 		while ( item_curr && ( item_curr->type != item_type ) ) {
 			item_curr = item_curr->next;
@@ -5136,7 +5136,7 @@ bool CAICore::useItem( int32_t item_index ) {
 
 /// @brief explicitly select @a weapon_type, returns true if available and chosen.
 bool CAICore::useWeapon( EWeaponType weap_type ) {
-	if ( env.isItemAvailable( weap_type ) && ( player->nm[ weap_type ] > 0 ) ) {
+	if ( env.is_item_available( weap_type ) && ( player->nm[ weap_type ] > 0 ) ) {
 		weap_curr = weap_head;
 		while ( weap_curr && ( weap_curr->type != weap_type ) ) {
 			weap_curr = weap_curr->next;
@@ -5319,7 +5319,7 @@ void CAICore::operator() () {
 				isShocked = true;
 
 				// Generate a nice message telling the world that we are in awe:
-				if ( !isStopped && !global.skippingComputerPlay ) {
+				if ( !isStopped && !global.skipping_computer_play ) {
 					char const* text = CPlayer::selectPanicPhrase( shocker->opponent );
 					try {
 						if ( text ) {
@@ -5409,7 +5409,7 @@ void CAICore::operator() () {
 		        && ( tgt_attempts < findTgtAttempts ) ) {
 
 			// Yield on each iteration to not hog the CPUs
-			if ( !global.skippingComputerPlay ) {
+			if ( !global.skipping_computer_play ) {
 				std::this_thread::yield();
 			}
 
@@ -5671,7 +5671,7 @@ void CAICore::operator() () {
 		// ---------------------------------------------------------
 		int32_t min_rev_dmg = best_setup_mem ? ROUND( best_setup_mem->opLife * ( ai_level - RAND_AI_0P ) / 10. ) : 0;
 		int32_t min_oth_dmg = best_setup_mem ? ROUND( best_setup_mem->opLife * ( ai_level - RAND_AI_0P ) / 5. ) : 0;
-		if ( !isStopped && !global.skippingComputerPlay                       // allowed to issue texts
+		if ( !isStopped && !global.skipping_computer_play                       // allowed to issue texts
 		     && weap_curr && needAim && !needSuccess                          // (1) targeting was successful
 		     && best_setup_prime                                              // (2) primary target gets damage
 		     && ( ( revengee && ( revengee == best_setup_mem->entry )         // (3 a) revengee targeted
@@ -5702,7 +5702,7 @@ void CAICore::operator() () {
 		// --- Tell the world this tank is going bye bye ---
 		// -------------------------------------------------
 		if ( !isStopped && mem_curr && mem_curr->entry && ( mem_curr->entry->opponent == player )
-		     && !global.skippingComputerPlay ) {
+		     && !global.skipping_computer_play ) {
 			try {
 				// Wait for the AI to be allowed to create texts
 				while ( !textAllowed.load( ATOMIC_READ ) ) {
@@ -5772,7 +5772,7 @@ void CAICore::operator() () {
 		assert( ( power == ( curr_power - ( curr_power % 5 ) ) ) && "ERROR: Finished but power not set!" );
 		assert( ( ( weap_idx >= WEAPONS ) || ( 0 == weapon[ weap_idx ].warhead ) ) && "ERROR: Not usable warhead chosen!"
 		);
-		assert( ( weap_idx >= 0 ) && ( weap_idx < THINGS ) && env.isItemAvailable( weap_idx )
+		assert( ( weap_idx >= 0 ) && ( weap_idx < THINGS ) && env.is_item_available( weap_idx )
 		        && "ERROR: Unavailable or invalid weap_idx!" );
 		assert( ( ( weap_idx >= WEAPONS ) || ( player->nm[ weap_idx ] > 0 ) )
 		        && "ERROR: Weapon chosen that is out of stock!" );

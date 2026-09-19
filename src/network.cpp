@@ -396,7 +396,7 @@ void Send_And_Receive( void *all_the_data ) {
 			// give connection to AI player
 			found   = false;
 			counter = 0;
-			while ( ( !found ) && ( counter < env.numGamePlayers ) ) {
+			while ( ( !found ) && ( counter < env.num_game_players ) ) {
 				if ( ( env.players[ counter ]->type >= USELESS_PLAYER )
 				     && ( env.players[ counter ]->type <= DEADLY_PLAYER ) ) {
 					found                                 = true;
@@ -424,7 +424,7 @@ void Send_And_Receive( void *all_the_data ) {
 	printf( "Cleaning up networking\n" );
 	Clean_Up_Server_Socket( server_socket );
 	counter = 0;
-	while ( counter < env.numGamePlayers ) {
+	while ( counter < env.num_game_players ) {
 		if ( env.players[ counter ]->type == NETWORK_CLIENT ) {
 			SAFE_WRITE( env.players[ counter ]->server_socket, "%s", "CLOSE" );
 			close( env.players[ counter ]->server_socket );

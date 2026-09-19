@@ -114,8 +114,8 @@ void CVirtualObject::update() {
 		int32_t top    = LEFT == align  ? dim_cur.y
 		               : RIGHT == align ? dim_cur.y - dim_cur.h
 		                                : dim_cur.y - ( dim_cur.h / 2 );
-		int32_t right  = std::min( env.screenWidth, left + dim_cur.w + 2 );
-		int32_t bottom = std::min( env.screenHeight, top + dim_cur.h + 2 );
+		int32_t right  = std::min( env.screen_width, left + dim_cur.w + 2 );
+		int32_t bottom = std::min( env.screen_height, top + dim_cur.h + 2 );
 
 		if ( ( right > left ) && ( bottom > top ) ) {
 			global.make_update( left, top, right - left, bottom - top );
@@ -131,8 +131,8 @@ void CVirtualObject::update() {
 		int32_t top    = LEFT == align  ? dim_old.y
 		               : RIGHT == align ? dim_old.y - dim_old.h
 		                                : dim_old.y - ( dim_old.h / 2 );
-		int32_t right  = std::min( env.screenWidth, left + dim_old.w + 2 );
-		int32_t bottom = std::min( env.screenHeight, top + dim_old.h + 2 );
+		int32_t right  = std::min( env.screen_width, left + dim_old.w + 2 );
+		int32_t bottom = std::min( env.screen_height, top + dim_old.h + 2 );
 
 		if ( ( right > left ) && ( bottom > top ) ) {
 			global.make_update( left, top, right - left, bottom - top );

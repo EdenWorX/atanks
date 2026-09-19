@@ -138,7 +138,7 @@ public:
 	bool           changed_weapon   = false;          ///< Weapon changed this turn.
 	double         focusRate        = 0.;             ///< Aim focus rate.
 	bool           gloating         = false;          ///< Gloating now.
-	int32_t        index            = -1;             ///< Index in allPlayers.
+	int32_t        index            = -1;             ///< Index in all_players.
 	int32_t        killed           = 0;              ///< Deaths.
 	int32_t        kills            = 0;              ///< Kills.
 	int32_t        last_shield_used = 0;              ///< Last used shield type.

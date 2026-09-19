@@ -54,15 +54,15 @@ void generate_sky( LevelCreator* lcr, sGradient const* grad, int32_t flags ) {
 	}
 
 	double    messiness = ( static_cast< double >( get_rand() % 100 ) / 1000.0 + 0.05 );
-	int const xoffset   = get_rand() % env.screenWidth;  // For perlin, random starting x
-	int const yoffset   = get_rand() % env.screenHeight; // For perlin, random starting y
+	int const xoffset   = get_rand() % env.screen_width;  // For perlin, random starting x
+	int const yoffset   = get_rand() % env.screen_height; // For perlin, random starting y
 
 	temp_sky            = create_bitmap( env.sky->w, env.sky->h );
 	clear_to_color( temp_sky, BLACK );
 	clear_to_color( env.sky, BLACK );
 
-	for ( int32_t x = 0; lcr->can_work() && ( x < env.screenWidth ); ++x ) {
-		for ( int32_t y = 0; lcr->can_work() && ( y < ( env.screenHeight - MENUHEIGHT ) ); ++y ) {
+	for ( int32_t x = 0; lcr->can_work() && ( x < env.screen_width ); ++x ) {
+		for ( int32_t y = 0; lcr->can_work() && ( y < ( env.screen_height - MENUHEIGHT ) ); ++y ) {
 
 			lcr->yield();
 
@@ -70,32 +70,32 @@ void generate_sky( LevelCreator* lcr, sGradient const* grad, int32_t flags ) {
 
 			if ( flags & GENSKY_DETAILED ) {
 				offset += perlin2DPoint( 1., 200, xoffset + x, yoffset + y, .3, 6 )
-				        * ( static_cast< double >( env.screenHeight - MENUHEIGHT ) * messiness );
+				        * ( static_cast< double >( env.screen_height - MENUHEIGHT ) * messiness );
 			}
 
 			if ( flags & GENSKY_DITHERGRAD ) {
 				offset += ( get_rand() % 10 ) - 5;
 			}
 
-			while ( ( ( y + offset ) < 0 ) || ( ( y + offset + 1 ) > ( env.screenHeight - MENUHEIGHT ) ) ) {
+			while ( ( ( y + offset ) < 0 ) || ( ( y + offset + 1 ) > ( env.screen_height - MENUHEIGHT ) ) ) {
 				offset /= 2;
 			}
 
-			global.lockLand();
+			global.lock_land();
 			solid_mode();
-			putpixel( temp_sky, x, y, gradientColorPoint( grad, env.screenHeight - MENUHEIGHT, y + offset ) );
+			putpixel( temp_sky, x, y, gradientColorPoint( grad, env.screen_height - MENUHEIGHT, y + offset ) );
 			drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
-			global.unlockLand();
+			global.unlock_land();
 		}
 	}
-	draw_moons( lcr, temp_sky, env.screenWidth, env.screenHeight - MENUHEIGHT );
+	draw_moons( lcr, temp_sky, env.screen_width, env.screen_height - MENUHEIGHT );
 
 	// Put temp sky onto the real bitmap:
 	if ( lcr->can_work() ) {
-		global.lockLand();
+		global.lock_land();
 		solid_mode();
 		blit( temp_sky, env.sky, 0, 0, 0, 0, env.sky->w, env.sky->h );
-		global.unlockLand();
+		global.unlock_land();
 	}
 
 	// clean up
