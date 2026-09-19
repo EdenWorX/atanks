@@ -330,7 +330,7 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
 - [x] **PF-1.12.3.5**: Document menus, options, and UI widgets
   (`menu.h`, `optionscreens.h`, `optiontypes.h`, `optioncontent.h`, `optionitem.h`, `optionitembase.h`,
   `optionitemcolour.h`, `optionitemmenu.h`, `optionitemplayer.h`, `box.h`, `button.h`).
-- [ ] **PF-1.12.3.6**: Document world generation
+- [x] **PF-1.12.3.6**: Document world generation
   (`land.h`, `sky.h`, `levelcreator.h`, `moon.h`, `satellite.h`, `random.h`; `perlin.cpp` has no header, cover it from the
   `levelcreator.h`/`sky.h` docs).
 - [ ] **PF-1.12.3.7**: Document services

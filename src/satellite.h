@@ -11,6 +11,9 @@
 class BEAM;
 #endif // BEAM_DEFINE
 
+/** @class SATELLITE
+ * @brief Orbiting laser satellite.
+ **/
 class SATELLITE {
 public:
 	/* -----------------------------------
@@ -18,6 +21,7 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct a satellite.
 	explicit SATELLITE();
 
 
@@ -26,8 +30,11 @@ public:
 	 * ----------------------
 	 */
 
+	/// Render the satellite.
 	void draw() const;
+	/// Advance the satellite.
 	void move();
+	/// Fire the laser.
 	void shoot();
 
 
