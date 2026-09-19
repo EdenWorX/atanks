@@ -18,9 +18,12 @@ public:
 	ZBuffer()                             = delete;
 	ZBuffer& operator= ( ZBuffer const& ) = delete;
 
+	/// Construct a z-buffer.
 	explicit ZBuffer( int32_t w, int32_t h );
 
+	/// Mark a pixel as popped up.
 	void set( int32_t x, int32_t y );
+	/// Test whether a pixel popped up.
 	bool test( int32_t x, int32_t y ) const;
 
 private:

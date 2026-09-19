@@ -21,6 +21,9 @@
 /// @brief alignment of texts
 enum alignType { CENTRE = 0, LEFT, RIGHT };
 
+/** @class TEXTBLOCK
+ * @brief Localized text file kept in memory.
+ **/
 class TEXTBLOCK {
 public:
 	/* -----------------------------------
@@ -28,8 +31,11 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct an empty text block.
 	TEXTBLOCK() = default;
+	/// Load a text block from a file.
 	explicit TEXTBLOCK( char const* filename );
+	/// Destroy a text block.
 	~TEXTBLOCK();
 
 
@@ -38,14 +44,19 @@ public:
 	 * ----------------------
 	 */
 
-	bool Load_File( char const* filename ); // load lines from a file
+	/// Load lines from a file.
+	bool Load_File( char const* filename );
+	/// Render to global.canvas.
 	void Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top,
-	                   int32_t bottom ); // Render to global.canvas
+	                   int32_t bottom );
 
 	/* Text Getters */
-	[[nodiscard]] char const* Get_Line( int32_t index ) const; // return a specific line
-	[[nodiscard]] char const* Get_Random_Line() const;         // give us a random line
-	[[nodiscard]] int32_t     Lines() const;                   // Return number of total lines
+	/// Return a specific line.
+	[[nodiscard]] char const* Get_Line( int32_t index ) const;
+	/// Give us a random line.
+	[[nodiscard]] char const* Get_Random_Line() const;
+	/// Return number of total lines.
+	[[nodiscard]] int32_t     Lines() const;
 
 
 private:

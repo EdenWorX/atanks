@@ -37,22 +37,26 @@
 
 /// @brief Consolidate global gfx data in a struct to have RAII in effect.
 struct sGfxData {
+	/// Construct graphics data.
 	explicit sGfxData();
+	/// Destroy graphics data.
 	~sGfxData();
 
+	/// Release generated graphics.
 	void    destroy();
+	/// Generate graphics.
 	void    first_init();
 
-	BITMAP* sky_gradient_strips[ ALL_SKIES ]{ nullptr };
-	BITMAP* land_gradient_strips[ ALL_LANDS ]{ nullptr };
-	BITMAP* stuff_bar_gradient_strip{ nullptr };
-	BITMAP* topbar_gradient_strip{ nullptr };
-	BITMAP* explosion_gradient_strip{ nullptr };
-	BITMAP* stuff_bar[ 2 ]{};
-	BITMAP* stuff_icon_base{ nullptr };
-	BITMAP* topbar{ nullptr };
-	BITMAP* explosions[ EXPLOSIONFRAMES ]{ nullptr };
-	BITMAP* flameFront[ EXPLOSIONFRAMES ]{ nullptr };
+	BITMAP* sky_gradient_strips[ ALL_SKIES ]{ nullptr };  ///< Sky gradients.
+	BITMAP* land_gradient_strips[ ALL_LANDS ]{ nullptr }; ///< Land gradients.
+	BITMAP* stuff_bar_gradient_strip{ nullptr };          ///< Shop bar gradient.
+	BITMAP* topbar_gradient_strip{ nullptr };             ///< Top bar gradient.
+	BITMAP* explosion_gradient_strip{ nullptr };          ///< Explosion gradient.
+	BITMAP* stuff_bar[ 2 ]{};                             ///< Shop bars.
+	BITMAP* stuff_icon_base{ nullptr };                   ///< Shop icon base.
+	BITMAP* topbar{ nullptr };                            ///< Top bar.
+	BITMAP* explosions[ EXPLOSIONFRAMES ]{ nullptr };     ///< Explosion frames.
+	BITMAP* flameFront[ EXPLOSIONFRAMES ]{ nullptr };     ///< Flame front frames.
 
 private:
 	bool initDone = false;

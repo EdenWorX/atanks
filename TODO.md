@@ -333,7 +333,7 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
 - [x] **PF-1.12.3.6**: Document world generation
   (`land.h`, `sky.h`, `levelcreator.h`, `moon.h`, `satellite.h`, `random.h`; `perlin.cpp` has no header, cover it from the
   `levelcreator.h`/`sky.h` docs).
-- [ ] **PF-1.12.3.7**: Document services
+- [x] **PF-1.12.3.7**: Document services
   (`files.h`, `text.h`, `sound.h`, `clock.h`, `winclock.h`, `spinlock.h`, `zbuffer.h`, `debug.h`, `update.h`, `gfxData.h`,
   `bitmap.h`, `wrap_dirent.h`).
 - [ ] **PF-1.12.3.8**: Document round driver, meta, arsenal, and network
