@@ -20,8 +20,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Options mirroring the legacy Makefile knobs. UBUNTU is intentionally not
-# ported: the workaround is ancient and is deleted in WP PF-1.13 instead.
+# Options mirroring the legacy Makefile knobs.
 option(DEBUG "Enable debug build (-Og, -DATANKS_DEBUG, debug flavors)" OFF)
 option(DEBUG_AICORE "Enable AI aiming and emotion debug output" OFF)
 option(DEBUG_AIMING "Enable AI aiming debug output" OFF)
@@ -81,7 +80,7 @@ if(ATANKS_WITH_NETWORK)
   set(NETWORK ON)
 endif()
 configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/config.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/config.h"
   @ONLY)
 

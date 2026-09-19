@@ -608,11 +608,6 @@ static void init_game_settings() {
 				sound_type = DIGI_AUTODETECT;
 				break;
 		}
-#  ifdef UBUNTU
-		if ( DIGI_AUTODETECT == sound_type ) {
-			sound_type = DIGI_OSS;
-		}
-#  endif // UBUNTU
 #endif   // ATANKS_IS_LINUX
 
 		int32_t channels = detect_digi_driver( sound_type );

@@ -47,13 +47,6 @@ The data files go to: /usr/share/games/atanks
 make
 make install
 
-If you are on Ubuntu, or one of Ubuntu's children distributions, and encounter
-sound problems, you can try to to fix this by building and installing Atanks
-with:
-
-make ubuntu
-make install ubuntu
-
 2) Linux User installation, where everything stays in the atanks folder :
 
 make user
@@ -220,14 +213,7 @@ There are some known issues which players should be aware of. We are trying to
 fix these, but in the mean time, it's best to know they exist and how to work
 around them. The issues are, in no particular order.
 
-1. The default sound driver doesn't work on Ubuntu Linux and its related
-distributions. If sound isn't working for you, go into the Options menu, select
-Sound. Make sure Sound is turned on and that the Sound Driver is switched from
-AutoDetect to OSS. Then return to the main menu, Quit and then re-start the
-game. If this doesn't resolve the issue, then Quit the game and delete all of
-the files and folders in your computer's /tmp folder with the name "pulse".
-
-2. The client side of the network games is buggy. We're working on that.
+1. The client side of the network games is buggy. We're working on that.
 
 
 Where do I report bugs or send requests?

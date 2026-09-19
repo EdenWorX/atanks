@@ -346,18 +346,18 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
 Run `make install` and `make install PREFIX=/tmp/ewx-test` and verify the installed tree (binary, metainfo, desktop file, icons,
 data) matches expectations.
 
-### [ ] PF-1.13: Remove the `UBUNTU` workarounds
+### [x] PF-1.13: Remove the `UBUNTU` workarounds
 
 The `-DUBUNTU` flag (`Makefile:155-157`) and every `#ifdef UBUNTU` branch are ancient and long-forgotten; remove the flag, the
 branches, and the `ubuntu` build target, and delete the workaround from the user documentation.
 
-#### [ ] PF-1.13.1: Remove the flag, branches, and build target
+#### [x] PF-1.13.1: Remove the flag, branches, and build target
 
 Delete the `-DUBUNTU` wiring and the `ubuntu` target from `Makefile`, and remove every `#ifdef UBUNTU` branch (keeping the
 non-`UBUNTU` code path in each case). Verify `git grep -i UBUNTU` returns no source hits and that a `make DEBUG=YES` build still
 compiles. No behavior change outside the removed workaround.
 
-#### [ ] PF-1.13.2: Remove the workaround from the documentation
+#### [x] PF-1.13.2: Remove the workaround from the documentation
 
 Delete the Ubuntu sound-workaround instructions from `README` user docs and the `ubuntu` rows from the `README.md`/`AGENTS.md`
 build docs.

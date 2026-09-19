@@ -239,7 +239,6 @@ The following were classified as external by metadata inspection; their internal
 | Goal / command | Platform / result | Notes |
 |---|---|---|
 | `make` then `make install` | Linux system install | Thin cmake+ninja wrapper: configures `./cmake-build-release`, installs the binary to `$(PREFIX)/bin` (`/usr/bin` default) and data to `/usr/share/atanks`; honors `PREFIX=` and `DESTDIR=` |
-| `make ubuntu` then `make install ubuntu` | Ubuntu sound workaround (ancient, pending removal, `TODO.md` `WP PF-1.13`) | Builds the default configuration; `-DUBUNTU` is not carried over to the CMake build (`README:50-55` describe the legacy flag) |
 | `make user` | Linux local run | Binary at `./cmake-build-release/atanks`, `DATA_DIR="."` (run from the project root) |
 | `make osxuser` (`gmake osxuser`) | macOS local run | Via the wrapper into `./cmake-build-release` (CMake detects macOS automatically) |
 | `make bsduser` | BSD local run | Via the wrapper into `./cmake-build-release` (CMake detects BSD automatically) |
@@ -258,7 +257,7 @@ There is no Autotools setup (`configure`, `configure.in`, `aclocal.m4` do not ex
 wrapper (`TODO.md`, `WP PF-1.9`); the real build lives in `CMakeLists.txt` (CMake 3.25+, Ninja mandatory):
 
 - Sources: `file(GLOB ... src/*.cpp)` with `CONFIGURE_DEPENDS`, so new files are picked up automatically.
-- Version single source of truth: `project(atanks VERSION 6.7 ...)`; `config.h.in` generates `config.h` with the version macros
+- Version single source of truth: `project(atanks VERSION 6.7 ...)`; `src/config.h.in` generates `config.h` with the version macros
   (`VERSION`, `DATA_DIR`, `NETWORK`, platform flags) consumed via `src/main.h`.
 - Options mirror the old make knobs: `DEBUG` plus `DEBUG_AICORE/AIMING/EMOTION/FINANCE/OBJECTS/PHYSICS/LOG_TO_FILE`,
   `SANITIZE_ADDRESS/THREAD/UNDEF` (address beats thread; undefined combines; any sanitizer implies debug), `USE_LTO`,
@@ -302,8 +301,7 @@ None exist in the repository.
 
 - Compile-time: `DATA_DIR` (`ATANKS_DATA_DIR` setting, default `<prefix>/share/atanks`, `"."` for `*user` goals), `VERSION`
   (`project(VERSION 6.7)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
-  BSD only), `ATANKS_DEBUG*` flavors. The ancient `UBUNTU` workaround is pending removal and is not carried over to the CMake
-  build (`TODO.md`, `WP PF-1.13`).
+  BSD only), `ATANKS_DEBUG*` flavors.
 - Runtime data directory, resolved by `ENVIRONMENT::find_data_dir()` (`src/environment.cpp:387-416`): `--datadir` if readable,
   else the compiled `DATA_DIR` (verified by probing `unicode.dat` inside it), else `./` fallback.
 - Runtime config directory, resolved by `ENVIRONMENT::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
@@ -419,7 +417,7 @@ Standalone helpers (not built by `Makefile`):
 - Known-issue sources: `TODO.md` itself (canonical planning file, first item `TODO-PF-1` Cleanup and Modernization). The legacy
   `TODO` file (1 bug
   + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; proper `TODO-PF-*`
-    entries will be created after `TODO-PF-1` (`WP PF-1.8`). Also `README:216-231` (Ubuntu sound driver, buggy network client),
+    entries will be created after `TODO-PF-1` (`WP PF-1.8`). Also `README:209-216` (buggy network client),
     and the `TODO`/`FIXME`/`BUG`/`HACK` grep surface, which only matches `DEBUG_LOG*` call sites rather than real markers.
 - Bug reports go to `https://github.com/EdenWorX/atanks/issues` (this fork moved from SourceForge to GitHub; updating the
   remaining SourceForge references in `README`, `credits.txt`, the metainfo file, and help texts is part of `TODO.md`, `WP
@@ -429,8 +427,7 @@ Standalone helpers (not built by `Makefile`):
 
 - Configure: install Allegro 4 development files so `allegro-config` works; for a local build nothing else is required.
 - Build (Linux): `make user` (binary at `./cmake-build-release/atanks`, data in place). For a system install: `make` then
-  `make install` (optionally `PREFIX=/usr/local`, `DESTDIR=<staging>`). The `UBUNTU` workaround is ancient and pending removal
-  — do not use `make ubuntu` for new work (`TODO.md`, `WP PF-1.13`).
+  `make install` (optionally `PREFIX=/usr/local`, `DESTDIR=<staging>`).
 - Build (Windows): open the project folder in Visual Studio 2026 (built-in CMake support) after following
   `README_allegro.txt` to repoint Allegro include/lib paths.
 - Build (macOS): `make osxuser` (or `gmake osxuser`).
@@ -494,8 +491,7 @@ Standalone helpers (not built by `Makefile`):
 - `TODO:29-49`: under consideration — underground mines, firework rockets, shootable UFO, scalable main window (blocked on
   Allegro 5 / a port the file calls a no-opt), an entry literally questioning its own meaning (`Harder ground -> What is that
   supposed to mean?`), high-voltage missiles, tornadoes, another armor level.
-- `README:216-231`: Ubuntu default sound driver workaround (switch to OSS, restart, clear `/tmp/pulse*`); buggy network client
-  side.
+- `README:209-216`: buggy network client side.
 - `CHANGELOG.md` entry (6.7) lists recently fixed crashes and AI bugs; older entries in `docs/Changelog.history` document
   recurring AI-strength and SDI-tuning adjustments.
 

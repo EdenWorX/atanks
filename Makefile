@@ -1,5 +1,5 @@
 .PHONY: aidebug all bsduser clean debug dist doc fulldebug i686-dist install osxuser \
-    source-dist tarball test test-all test-asan test-tsan test-ubsan ubuntu user veryclean zipfile
+    source-dist tarball test test-all test-asan test-tsan test-ubsan user veryclean zipfile
 
 # Note: Submit as "YES" to enable debugging
 DEBUG   := $(if $(DEBUG),$(DEBUG),NO)
@@ -134,7 +134,7 @@ all: configure
 # Always reconfigure: this keeps flag changes from going stale when the
 # same build directory is reused with different options.
 .PHONY: configure
-configure: CMakeLists.txt config.h.in
+configure: CMakeLists.txt src/config.h.in
 	$(CMAKE) -S . -B $(BUILDDIR) $(CMAKE_FLAGS)
 
 
@@ -143,13 +143,6 @@ configure: CMakeLists.txt config.h.in
 # -----------------------------------------------------------------------------------------------------------------------------
 
 user osxuser bsduser: all
-
-# The legacy -DUBUNTU workaround is not carried over to the CMake build
-# (it is deleted everywhere in WP PF-1.13); ubuntu builds the default
-# configuration meanwhile.
-ubuntu:
-	@echo "NOTE: the -DUBUNTU workaround is not part of the CMake build and will be removed in WP PF-1.13."
-	@$(MAKE) -f Makefile all
 
 
 # -----------------------------------------------------------------------------------------------------------------------------

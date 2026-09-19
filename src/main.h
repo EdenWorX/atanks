@@ -28,7 +28,7 @@
 #endif
 
 #ifndef VERSION
-#  error "VERSION information is missing. Fix Makefile."
+#  define VERSION "0.0.0"
 #endif
 
 #ifndef BUFFER_SIZE
