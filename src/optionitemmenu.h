@@ -43,6 +43,7 @@ public:
 	 * -------------------------------------------
 	 */
 
+	/// Create a sub menu entry.
 	explicit OptionItemMenu(
 		Menu*       menu_,
 		char const* title_,
@@ -54,6 +55,7 @@ public:
 		int32_t     height_,
 		int32_t     padding_
 	);
+	/// Destroy a sub menu entry.
 	~OptionItemMenu() final;
 
 
@@ -62,11 +64,17 @@ public:
 	 * ----------------------
 	 */
 
+	/// Open the sub menu.
 	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	/// Menus have no minimum.
 	bool    canGoDown() final;
+	/// Menus have no maximum.
 	bool    canGoUp() final;
+	/// Render the sub menu entry.
 	void    display( bool show_full ) final;
+	/// Menus are never exit buttons.
 	bool    isExitButton() final;
+	/// Retranslate the entry.
 	void    setLanguage();
 
 private:

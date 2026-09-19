@@ -197,6 +197,9 @@ public:
 	 * @param[in] text_ Array of texts to display. Only needed with ET_VALUE.
 	 * @param[in] color_ Color of the text to display.
 	 * @param[in] class_ The text class of @a text.
+	 * @param[in] min_ Minimum value target can become.
+	 * @param[in] max_ Maximum value target can become.
+	 * @param[in] decinc_ Value target is changed on each action.
 	 * @param[in] format_ Format string to use when displaying the target.
 	 * @param[in] top_ Top position of the display area.
 	 * @param[in] left_ Left position of the display area.
@@ -334,8 +337,8 @@ public:
 	 * value are used.
 	 *
 	 * @param[in] val Used for ET_VALUE: <0 = decrement, >0 = increment.
-	 * @param[in] ignored (see OptionItemColour)
-	 * @param[in] ignored (see OptionItemColour)
+	 * The two middle parameters are unnamed and unused here; OptionItemColour
+	 * uses them for the click position.
 	 * @param[in] last_key The latest last_key press to use on an ET_TEXT.
 	 * @return normally 0, but ET_BUTTON and ET_MENU can return key_codes
 	 * assigned with exit buttons.

@@ -26,9 +26,13 @@
 
 #include "menu.h"
 
+/// Draw a menu background.
 void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems );
+/// Run the player editor.
 void    editPlayers();
+/// Run the options menu.
 void    optionsMenu();
+/// Run the player selection.
 int32_t selectPlayers();
 
 

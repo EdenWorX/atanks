@@ -36,7 +36,7 @@
  * This enum is sorted in alphabetical order to make maintenance easier.
  **/
 enum eMenuClass {
-	MC_AREYOUSURE = 0, //!< The "Are you sure?" <yes> <no> screen
+	MC_AREYOUSURE = 0, //!< The "Are you sure?" &lt;yes&gt; &lt;no&gt; screen
 	MC_FINANCE,        //!< The finance ("Money") options sub menu
 	MC_GRAPHICS,       //!< The graphics options sub menu
 	MC_MAIN,           //!< Menu shown when using "Options" button
@@ -45,7 +45,7 @@ enum eMenuClass {
 	MC_PLAY,           //!< Menu shown when using "Play" button
 	MC_PLAYER,         //!< The player edit menu
 	MC_PLAYERS,        //!< Menu shown when hitting "Players" button
-	MC_RESET,          //!< The "Reset options?" <Reset> <Back> screen
+	MC_RESET,          //!< The "Reset options?" &lt;Reset&gt; &lt;Back&gt; screen
 	MC_SOUND,          //!< The sound options sub menu
 	MC_WEATHER,        //!< The weather options sub menu
 	MC_MENUCLASS_COUNT

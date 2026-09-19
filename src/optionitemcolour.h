@@ -43,6 +43,7 @@ public:
 	 * -------------------------------------------
 	 */
 
+	/// Create a color entry.
 	explicit OptionItemColour(
 		int32_t*    color_,
 		char const* title_,
@@ -54,6 +55,7 @@ public:
 		int32_t     padding_,
 		int32_t     show_size_
 	);
+	/// Destroy a color entry.
 	~OptionItemColour() final;
 
 	/* ----------------------
@@ -61,10 +63,15 @@ public:
 	 * ----------------------
 	 */
 
+	/// Handle activation with click position.
 	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	/// Colors have no minimum.
 	bool    canGoDown() final;
+	/// Colors have no maximum.
 	bool    canGoUp() final;
+	/// Render the color box.
 	void    display( bool show_full ) final;
+	/// Colors are never exit buttons.
 	bool    isExitButton() final;
 
 

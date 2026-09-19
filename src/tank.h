@@ -58,7 +58,7 @@ public:
 
 	void    activate();                                                                                      ///< Show turn labels.
 	void    activateCurrentSelection();                                                                      ///< Fire selected weapon.
-	void    addDamage( PLAYER* damageFrom, double damage_ );                                                 ///< Record incoming damage.
+	void    addDamage( PLAYER* damageFrom, double damage_ );                                                 ///< Record inbound damage.
 	void    applyDamage();                                                                                   ///< Apply recorded damage.
 	void    applyPhysics() final;                                                                            ///< Advance physics.
 	void    check_weapon();                                                                                  ///< Validate weapon index.

@@ -327,7 +327,7 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
   `floattext.h`).
 - [x] **PF-1.12.3.4**: Document player state and AI
   (`player.h`, `player_types.h`, `aicore.h`).
-- [ ] **PF-1.12.3.5**: Document menus, options, and UI widgets
+- [x] **PF-1.12.3.5**: Document menus, options, and UI widgets
   (`menu.h`, `optionscreens.h`, `optiontypes.h`, `optioncontent.h`, `optionitem.h`, `optionitembase.h`,
   `optionitemcolour.h`, `optionitemmenu.h`, `optionitemplayer.h`, `box.h`, `button.h`).
 - [ ] **PF-1.12.3.6**: Document world generation

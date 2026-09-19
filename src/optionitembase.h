@@ -32,7 +32,7 @@
  * @brief declaration of the option item base class
  **/
 
-extern int32_t select_text_len; // needed for the item distribution
+extern int32_t select_text_len; ///< Needed for the item distribution.
 
 // Forward BUTTON if it isn't known, yet:
 #ifndef ATANKS_SRC_BUTTON_H_INCLUDED
@@ -63,6 +63,7 @@ public:
 	 * ------------------------------
 	 */
 
+	/// Create an option item.
 	explicit OptionItemBase(
 		eEntryType   type_,
 		char const*  title_,
@@ -79,6 +80,7 @@ public:
 		int32_t      show_size_
 	);
 
+	/// Destroy an option item.
 	virtual ~OptionItemBase();
 
 
@@ -87,37 +89,42 @@ public:
 	 * ----------------------
 	 */
 
-	void            clear_display( bool update_full );
-	void            cursor_flip();
-	void            getDimension( int32_t& tgt_width, int32_t& tgt_height );
-	OptionItemBase* getNext();
-	OptionItemBase* getPrev();
-	uint32_t        getTextClass();
-	eEntryType      getType();
-	void            insert_after( OptionItemBase* new_prev );
-	void            insert_before( OptionItemBase* new_next );
-	bool            is_click_in( int32_t x, int32_t y, int32_t& ret );
-	void            move( int32_t new_left, int32_t new_top, bool do_update );
-	bool            needs_text();
-	void            remove();
-	void            resize( int32_t new_width, int32_t new_height );
-	void            select();
-	void            setPadding( int32_t new_padding );
-	void            setTitle( char const* new_title );
-	void            setTextClass( eTextClass new_class );
-	void            setTexts( char const** new_texts );
-	void            unselect();
+	void            clear_display( bool update_full );                         ///< Clear the display area.
+	void            cursor_flip();                                             ///< Blink the text cursor.
+	void            getDimension( int32_t& tgt_width, int32_t& tgt_height );   ///< Read the display size.
+	OptionItemBase* getNext();                                                 ///< Next list entry.
+	OptionItemBase* getPrev();                                                 ///< Previous list entry.
+	uint32_t        getTextClass();                                            ///< Read the text class.
+	eEntryType      getType();                                                 ///< Read the entry type.
+	void            insert_after( OptionItemBase* new_prev );                  ///< Insert an entry after this.
+	void            insert_before( OptionItemBase* new_next );                 ///< Insert an entry before this.
+	bool            is_click_in( int32_t x, int32_t y, int32_t& ret );         ///< Hit-test a click.
+	void            move( int32_t new_left, int32_t new_top, bool do_update ); ///< Move the display area.
+	bool            needs_text();                                              ///< Require text content.
+	void            remove();                                                  ///< Unlink from the list.
+	void            resize( int32_t new_width, int32_t new_height );           ///< Resize the display area.
+	void            select();                                                  ///< Select the entry.
+	void            setPadding( int32_t new_padding );                         ///< Set the title padding.
+	void            setTitle( char const* new_title );                         ///< Set the title.
+	void            setTextClass( eTextClass new_class );                      ///< Set the text class.
+	void            setTexts( char const** new_texts );                        ///< Set the text array.
+	void            unselect();                                                ///< Deselect the entry.
 
 	// Status Getters
-	[[nodiscard]] int32_t  getKeyCode() const;
-	[[nodiscard]] uint32_t getTitleIdx() const;
-	[[nodiscard]] bool     is_selected() const;
+	[[nodiscard]] int32_t  getKeyCode() const;  ///< Read the button key code.
+	[[nodiscard]] uint32_t getTitleIdx() const; ///< Read the title index.
+	[[nodiscard]] bool     is_selected() const; ///< Test the selection state.
 
 	// virtuals to be implemented by the deriving template
+	/// Handle activation.
 	virtual int32_t activate( int32_t val, int32_t x, int32_t y, int32_t k ) = 0;
+	/// Test downward navigation.
 	virtual bool    canGoDown()                                              = 0;
+	/// Test upward navigation.
 	virtual bool    canGoUp()                                                = 0;
+	/// Render the entry.
 	virtual void    display( bool show_full )                                = 0;
+	/// Test for exit buttons.
 	virtual bool    isExitButton()                                           = 0;
 
 
@@ -126,19 +133,30 @@ protected:
 	 * --- Protected methods ---
 	 * -------------------------
 	 */
+	/// Feed a keypress to a text target.
 	void activateText( char* target, int32_t raw_key );
+	/// Flip a toggle target.
 	void activateToggle( bool* target );
+	/// Draw the button.
 	void displayButton();
+	/// Draw decorations.
 	void displayDeco( int32_t show_color = BLACK );
+	/// Draw a sub menu entry.
 	void displayMenu( Menu* target );
+	/// Draw a text target.
 	void displayText( char* target );
+	/// Draw a constant text target.
 	void displayText( char const* target );
+	/// Draw an unsigned text target.
 	void displayText( uint32_t* target );
+	/// Draw a toggle target.
 	void displayToggle( bool const* target );
 
+	/// Forward to the const overload.
 	void displayToggle( bool* target ) { return displayToggle( static_cast< bool const* >( target ) ); }
 
 	// This one can be static
+	/// Open a sub menu.
 	static int32_t activateMenu( Menu* target );
 
 	/// @brief As OT_VALUE might be anything, it is templated on method scale.
@@ -163,18 +181,24 @@ protected:
 	// and more secure.
 #define EMERGENCY_OUT                                                                                                \
 	fprintf( stderr, "%s:%d [%s] : Illegal target type, template called!\n", __FILE__, __LINE__, __FUNCTION__ ); \
-	std::terminate();
+	std::terminate(); ///< Abort on invalid dispatch configuration.
 
+	/// Abort on invalid dispatch configuration.
 	template< typename T > int32_t activateMenu( T* ) { EMERGENCY_OUT }
 
+	/// Abort on invalid dispatch configuration.
 	template< typename T > void    activateText( T*, int ) { EMERGENCY_OUT }
 
+	/// Abort on invalid dispatch configuration.
 	template< typename T > void    activateToggle( T* ) { EMERGENCY_OUT }
 
+	/// Abort on invalid dispatch configuration.
 	template< typename T > void    displayMenu( T* ) { EMERGENCY_OUT }
 
+	/// Abort on invalid dispatch configuration.
 	template< typename T > void    displayText( T* ) { EMERGENCY_OUT }
 
+	/// Abort on invalid dispatch configuration.
 	template< typename T > void    displayToggle( T* ) { EMERGENCY_OUT }
 
 #undef EMERGENCY_OUT

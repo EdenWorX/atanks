@@ -68,10 +68,10 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;                               ///< Advance physics.
-	void   draw() final;                                       ///< Render the beam.
-	void   getEndPoint( int32_t& x, int32_t& y );              ///< Fetch the beam end point for mind shots.
-	void   moveStart( double x_, double y_ );                  ///< Move the beam start for the satellite.
+	void   applyPhysics() final;                  ///< Advance physics.
+	void   draw() final;                          ///< Render the beam.
+	void   getEndPoint( int32_t& x, int32_t& y ); ///< Fetch the beam end point for mind shots.
+	void   moveStart( double x_, double y_ );     ///< Move the beam start for the satellite.
 
 	/// Return the object class.
 	eClass getClass() final { return CLASS_BEAM; }

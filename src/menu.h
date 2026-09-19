@@ -50,7 +50,9 @@ public:
 	 * -------------------------------------------
 	 */
 
+	/// Create a menu.
 	explicit Menu( eMenuClass class_, int32_t menuX, int32_t menuY );
+	/// Destroy a menu.
 	~Menu();
 
 
@@ -59,7 +61,7 @@ public:
 	 * ----------------------
 	 */
 
-	// Add a button without action function.
+	/// Add a button without action function.
 	int32_t addButton(
 		int32_t     title_idx,
 		char const* title_,
@@ -76,7 +78,7 @@ public:
 	);
 
 
-	// Add a color option
+	/// Add a color option.
 	int32_t addColor(
 		int32_t* target,
 		int32_t  title_idx,
@@ -89,7 +91,7 @@ public:
 	);
 
 
-	// Add a sub menu option with Menu target
+	/// Add a sub menu option with Menu target.
 	int32_t addMenu(
 		Menu*   menu,
 		int32_t title_idx,
@@ -102,7 +104,7 @@ public:
 	);
 
 
-	// Add a sub menu option with PLAYER target (set title_idx to -1 to use player name)
+	/// Add a sub menu option with PLAYER target (set title_idx to -1 to use player name).
 	int32_t addMenu(
 		PLAYER** player,
 		int32_t ( *action_ )( PLAYER** player_, int32_t ),
@@ -115,7 +117,7 @@ public:
 	);
 
 
-	// Special minimum variant for editable text options
+	/// Special minimum variant for editable text options.
 	int32_t addText(
 		char*       target,
 		int32_t     title_idx,
@@ -189,7 +191,7 @@ public:
 		return this->insert_option( curr, title_idx, nullptr );
 	}
 
-	// Special minimum variant for toggle types feeding a bool with variable title
+	/// Special minimum variant for toggle types feeding a bool with variable title.
 	int32_t addToggle(
 		bool*   target,
 		int32_t title_idx,
@@ -202,7 +204,7 @@ public:
 	);
 
 
-	// Special minimum variant for toggle types feeding a bool with fixed title
+	/// Special minimum variant for toggle types feeding a bool with fixed title.
 	int32_t addToggle(
 		bool*       target,
 		char const* title_,
@@ -215,7 +217,7 @@ public:
 	);
 
 
-	// Special minimum variant for toggle types handling PLAYER::selected
+	/// Special minimum variant for toggle types handling PLAYER::selected.
 	int32_t addToggle( PLAYER** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
 
 	/** @brief Simple ET_VALUE option with direct value representation
@@ -489,20 +491,26 @@ public:
 		return this->insert_option( curr, title_idx, nullptr );
 	}
 
+	/// Remove all entries.
 	void    clearAll( bool full_clear );
+	/// Delete an entry.
 	int32_t delete_entry( int32_t index );
+	/// Render all entries.
 	void    displayAll( bool full_display );
+	/// Spread entries over the list area.
 	void distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update );
+	/// Fetch the selected entry.
 	OptionItemBase* getSelected();
-	void            move_entry( int32_t from_idx, int32_t to_idx );
-	void            redraw( int32_t index, bool update_full );
-	void            redrawAll( bool full_redraw );
-	void            setLanguage( bool autorefresh );
-	void            setTitle( char const* new_title, bool autorefresh );
+	/// Move an entry.
+	void            move_entry( int32_t from_idx, int32_t to_idx );      ///< Move an entry.
+	void            redraw( int32_t index, bool update_full );           ///< Redraw an entry.
+	void            redrawAll( bool full_redraw );                       ///< Redraw all entries.
+	void            setLanguage( bool autorefresh );                     ///< Retranslate the menu.
+	void            setTitle( char const* new_title, bool autorefresh ); ///< Set the menu title.
 
 	/* Information Getters */
-	[[nodiscard]] int32_t     count() const;
-	[[nodiscard]] char const* getTitle() const;
+	[[nodiscard]] int32_t     count() const;    ///< Entry count.
+	[[nodiscard]] char const* getTitle() const; ///< Menu title.
 
 	/* ------------------------
 	 * --- Public operators ---
@@ -510,9 +518,11 @@ public:
 	 */
 
 	// operator() to use a menu instance like a function
+	/// Run the menu loop.
 	int32_t operator() ();
 
 	// Get a stored option by index
+	/// Fetch an entry by index.
 	OptionItemBase* operator[] ( int32_t index );
 
 private:
@@ -552,7 +562,7 @@ private:
 	int32_t          title_x    = 0;
 };
 
-#define MENU_CLASS_DECLARES 1
+#define MENU_CLASS_DECLARES 1 ///< Declares the Menu class.
 
 
 // --- Helper functions for action/display usage that need optioncontent.h ---

@@ -43,6 +43,7 @@ public:
 	 * -------------------------------------------
 	 */
 
+	/// Create a player entry.
 	explicit OptionItemPlayer(
 		PLAYER** player_,
 		int32_t ( *action_ )( PLAYER** player_, int32_t ),
@@ -54,6 +55,7 @@ public:
 		int32_t     height_,
 		int32_t     padding_
 	);
+	/// Destroy a player entry.
 	~OptionItemPlayer() final;
 
 	/* ----------------------
@@ -61,10 +63,15 @@ public:
 	 * ----------------------
 	 */
 
+	/// Run the player action.
 	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	/// Players have no minimum.
 	bool    canGoDown() final;
+	/// Players have no maximum.
 	bool    canGoUp() final;
+	/// Render the player entry.
 	void    display( bool show_full ) final;
+	/// Players are never exit buttons.
 	bool    isExitButton() final;
 
 private:

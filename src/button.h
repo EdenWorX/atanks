@@ -4,6 +4,9 @@
 #include "box.h"
 #include "main.h"
 
+/** @class BUTTON
+ * @brief Clickable menu button.
+ **/
 class BUTTON {
 public:
 	/* --------------------
@@ -11,14 +14,14 @@ public:
 	 * --------------------
 	 */
 
-	// Minimum ctor without text
+	/// Minimum ctor without text.
 	explicit BUTTON( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
-	// ctor for using a bitmap.
+	/// Ctor for using a bitmap.
 	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
 	);
 
-	// ctor for drawing a manual box.
+	/// Ctor for drawing a manual box.
 	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 
 
@@ -27,10 +30,15 @@ public:
 	 * ----------------------
 	 */
 
+	/// Render the button.
 	void draw();
+	/// Read the button geometry.
 	void getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
+	/// Test mouse hover.
 	bool isMouseOver() const;
+	/// Test button press.
 	bool isPressed() const;
+	/// Replace the button text.
 	void setText( char const* text_ );
 
 private:

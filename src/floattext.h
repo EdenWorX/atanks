@@ -65,13 +65,13 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;                       ///< Advance physics.
-	void   draw() final;                               ///< Render the text.
-	void   newRound();                                 ///< Expire round-scoped texts.
-	void   set_color( int32_t color_ );                ///< Set the text color.
-	void   set_pos( int32_t xpos, int32_t ypos );      ///< Set the text position.
-	void   set_sway_type( eTextSway sway_type );       ///< Set the sway type.
-	void   set_text( char const* text_ );              ///< Set the text content.
+	void   applyPhysics() final;                  ///< Advance physics.
+	void   draw() final;                          ///< Render the text.
+	void   newRound();                            ///< Expire round-scoped texts.
+	void   set_color( int32_t color_ );           ///< Set the text color.
+	void   set_pos( int32_t xpos, int32_t ypos ); ///< Set the text position.
+	void   set_sway_type( eTextSway sway_type );  ///< Set the sway type.
+	void   set_text( char const* text_ );         ///< Set the text content.
 
 	/// Return the object class.
 	eClass getClass() final { return CLASS_FLOATTEXT; }

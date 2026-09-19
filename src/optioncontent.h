@@ -34,10 +34,12 @@
 
 
 // Maximum number of entries including Title and 0x0 termination per menu
+/// Entries per menu including title and terminator.
 uint32_t const maxEntriesPerMenu = 18;
 
 
 // Maximum text entries per text class including 0x0 termination
+/// Text entries per class including terminator.
 uint32_t const maxEntriesPerClass = 11;
 
 

@@ -7,14 +7,19 @@
 
 #include <cstdint>
 
+/** @struct BOX
+ * @brief Integer rectangle helper.
+ **/
 struct BOX {
-	int32_t x = 0;
-	int32_t y = 0;
-	int32_t w = 0;
-	int32_t h = 0;
+	int32_t x = 0; ///< Left position.
+	int32_t y = 0; ///< Top position.
+	int32_t w = 0; ///< Width.
+	int32_t h = 0; ///< Height.
 
 	BOX()     = default;
+	/// Assign the rectangle.
 	BOX( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
+	/// Set the rectangle.
 	void set( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
 };
 

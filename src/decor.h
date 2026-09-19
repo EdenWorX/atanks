@@ -60,9 +60,9 @@ public:
 	 * -----------------------------------
 	 */
 
-	void   applyPhysics() final;                    ///< Advance physics.
-	void   draw() final;                            ///< Render the debris.
-	void   force_aging( int32_t frames );           ///< Catch up after FPS drops.
+	void   applyPhysics() final;          ///< Advance physics.
+	void   draw() final;                  ///< Render the debris.
+	void   force_aging( int32_t frames ); ///< Catch up after FPS drops.
 
 	/// Return the object class.
 	eClass getClass() final { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
