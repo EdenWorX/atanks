@@ -234,7 +234,7 @@ void sGfxData::first_init() {
 
 // === Helper Functions ===
 // ========================
-BITMAP *create_gradient_strip( gradient const *grad, int32_t len ) {
+BITMAP *create_gradient_strip( sGradient const *grad, int32_t len ) {
 	BITMAP *strip = create_bitmap( 1, len );
 	if ( !strip ) {
 		return nullptr;
@@ -250,7 +250,7 @@ BITMAP *create_gradient_strip( gradient const *grad, int32_t len ) {
 	return strip;
 }
 
-int32_t gradientColorPoint( gradient const *grad, double len, double line ) {
+int32_t gradientColorPoint( sGradient const *grad, double len, double line ) {
 	int32_t pointCount = 0;
 	double  point      = line / len;
 	int32_t color      = BLACK;

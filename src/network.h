@@ -20,10 +20,10 @@ updated to run on other operating systems.
 
 #define MAX_MESSAGE_LENGTH 256
 
-/** @struct MESSAGE
+/** @struct sMessage
  * @brief Queued network message.
  **/
-struct MESSAGE {
+struct sMessage {
 	char *text; ///< Message text.
 	int   to;   ///< Receiving client.
 	void *next; ///< Next queued message.
@@ -34,8 +34,8 @@ struct MESSAGE {
  **/
 class MESSAGE_QUEUE {
 public:
-	MESSAGE *first_message; ///< Queue head.
-	MESSAGE *last_message;  ///< Queue tail.
+	sMessage *first_message; ///< Queue head.
+	sMessage *last_message;  ///< Queue tail.
 
 	/// Construct an empty queue.
 	MESSAGE_QUEUE();
@@ -46,13 +46,13 @@ public:
 	bool Add( char *some_text, int to );
 
 	/// Pull the first message from the queue and erase it from the queue.
-	MESSAGE *Read();
+	sMessage *Read();
 
 	/// Read the next message in the queue without erasing it.
-	[[nodiscard]] MESSAGE *Peek() const;
+	[[nodiscard]] sMessage *Peek() const;
 
 	/// Read the next message for a client.
-	[[nodiscard]] MESSAGE *Read_To( int to );
+	[[nodiscard]] sMessage *Read_To( int to );
 
 	/// Erase the next message in the queue without reading it.
 	void Erase();
@@ -61,10 +61,10 @@ public:
 	void Erase_All();
 };
 
-/** @struct SEND_RECEIVE_TYPE
+/** @struct sSendReceive
  * @brief Network thread control block.
  **/
-struct SEND_RECEIVE_TYPE {
+struct sSendReceive {
 	int  listening_port; ///< Server listen port.
 	bool shut_down;      ///< Stop the network thread.
 };
@@ -111,8 +111,8 @@ static inline void safe_write_func( int sock_, char const *file_, int32_t line_,
 int      Setup_Server_Socket( int port );
 int      Setup_Client_Socket( char *server, char const *port );
 int      Accept_Incoming_Connection( int my_socket );
-int      Send_Message( MESSAGE *mess, int to_socket );
-MESSAGE *Receive_Message( int from_socket );
+int      Send_Message( sMessage *mess, int to_socket );
+sMessage *Receive_Message( int from_socket );
 void     Clean_Up_Server_Socket( int my_socket );
 void     Clean_Up_Client_Socket( int my_socket );
 int      Check_For_Incoming_Data( int socket_number );

@@ -75,7 +75,7 @@ void CGlobalData::addObject( vobj_t* object ) {
 		return;
 	}
 
-	eClass class_ = object->getClass();
+	EClass class_ = object->getClass();
 
 	objLocks[ class_ ].lock();
 
@@ -97,7 +97,7 @@ void CGlobalData::addObject( vobj_t* object ) {
 
 // Combine both make_update and make_bgupdate with safety checks for
 // the dimensions. This reduces code duplication.
-void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count ) const {
+void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, sBox* target, int32_t& target_count ) const {
 	assert( target && "ERROR: addUpdate called with nullptr target!" );
 
 	bool combined = false;
@@ -119,14 +119,14 @@ void CGlobalData::addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* ta
 	assert( ( top < bottom ) );
 
 	if ( combineUpdates && target_count && ( target_count < env.max_screen_updates ) ) {
-		// Re-purpose BOX::w as x2 and BOX::h as y2:
-		BOX prev(
+		// Re-purpose sBox::w as x2 and sBox::h as y2:
+		sBox prev(
 			target[ target_count - 1 ].x,
 			target[ target_count - 1 ].y,
 			target[ target_count - 1 ].x + target[ target_count - 1 ].w,
 			target[ target_count - 1 ].y + target[ target_count - 1 ].h
 		);
-		BOX next( left, top, right, bottom );
+		sBox next( left, top, right, bottom );
 
 		if ( ( next.w > ( prev.x - 3 ) ) && ( prev.w > ( next.x - 3 ) ) && ( next.h > ( prev.y - 3 ) )
 		     && ( prev.h > ( next.y - 3 ) ) ) {
@@ -251,7 +251,7 @@ void CGlobalData::do_updates() {
 	release_bitmap( screen );
 	if ( !isBgUpdNeeded ) {
 		lastUpdatesCount = updateCount;
-		memcpy( lastUpdates, updates, sizeof( BOX ) * env.max_screen_updates );
+		memcpy( lastUpdates, updates, sizeof( sBox ) * env.max_screen_updates );
 	}
 	updateCount = 0;
 }
@@ -260,7 +260,7 @@ void CGlobalData::do_updates() {
 void CGlobalData::first_init() {
 	// get memory for updates
 	try {
-		updates = new BOX[ env.max_screen_updates ];
+		updates = new sBox[ env.max_screen_updates ];
 	} catch ( std::bad_alloc& e ) {
 		cerr << "globaldata.cpp:" << __LINE__ << ":first_init() : "
 		     << "Failed to allocate memory for updates [" << e.what() << "]" << endl;
@@ -269,7 +269,7 @@ void CGlobalData::first_init() {
 
 	// get memory for lastUpdates
 	try {
-		lastUpdates = new BOX[ env.max_screen_updates ];
+		lastUpdates = new sBox[ env.max_screen_updates ];
 	} catch ( std::bad_alloc& e ) {
 		cerr << "globaldata.cpp:" << __LINE__ << ":first_init() : "
 		     << "Failed to allocate memory for lastUpdates [" << e.what() << "]" << endl;
@@ -719,7 +719,7 @@ void CGlobalData::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field, "language" ) ) {
 				uint32_t stored_lang = 0;
 				SAFE_STOUL( stored_lang, value );
-				env.language = static_cast< eLanguages >( stored_lang );
+				env.language = static_cast< ELanguages >( stored_lang );
 			} else if ( !strcasecmp( field, "listenport" ) ) {
 				SAFE_STOI( env.network_port, value );
 			} else if ( !strcasecmp( field, "maxfiretime" ) ) {
@@ -775,7 +775,7 @@ void CGlobalData::load_from_file( FILE* file ) {
 	}         // end of while not is_done
 }
 
-void CGlobalData::lockClass( eClass class_ ) {
+void CGlobalData::lockClass( EClass class_ ) {
 	objLocks[ class_ ].lock();
 }
 
@@ -875,7 +875,7 @@ void CGlobalData::removeObject( vobj_t* object ) {
 		return;
 	}
 
-	eClass class_ = object->getClass();
+	EClass class_ = object->getClass();
 
 	/// --- 1: Is the list empty? ---
 	if ( nullptr == heads[ class_ ] ) {
@@ -1139,7 +1139,7 @@ void CGlobalData::slideLand() {
 	}         // End of looping columns
 }
 
-void CGlobalData::unlockClass( eClass class_ ) {
+void CGlobalData::unlockClass( EClass class_ ) {
 	objLocks[ class_ ].unlock();
 }
 

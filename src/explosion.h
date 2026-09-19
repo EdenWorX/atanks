@@ -53,7 +53,7 @@ public:
 	void   explode();            ///< Detonate the explosion.
 
 	/// Return the object class.
-	eClass getClass() final { return CLASS_EXPLOSION; }
+	EClass getClass() final { return CLASS_EXPLOSION; }
 
 
 private:
@@ -91,6 +91,6 @@ private:
 
 // Global helpers:
 void   draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius, int32_t frame );
-double get_hit_damage( CTank* tank, weaponType type, double hit_x, double hit_y );
+double get_hit_damage( CTank* tank, EWeaponType type, double hit_x, double hit_y );
 
 #endif

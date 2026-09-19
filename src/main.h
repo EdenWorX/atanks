@@ -294,8 +294,8 @@ using std::string;
 #define ATOMIC_READ  std::memory_order_acquire
 #define ATOMIC_WRITE std::memory_order_release
 
-/// Color stop of a gradient strip.
-struct gradient {
+/// Color stop of a sGradient strip.
+struct sGradient {
 	RGB   color; ///< Stop color.
 	float point; ///< Stop position (0.0-1.0); -1 terminates the strip.
 };
@@ -313,12 +313,12 @@ struct gradient {
 #define GLOBAL_COMMAND_DEMO    6
 #define GLOBAL_COMMAND_NETWORK 7
 
-/** @enum eClass
+/** @enum EClass
  * @brief class definitions of everything from virtual objects up
  *
  * The ordering here determines the order of the drawing.
  **/
-enum eClass {
+enum EClass {
 	CLASS_MISSILE = 0,
 	CLASS_BEAM,
 	CLASS_TANK,

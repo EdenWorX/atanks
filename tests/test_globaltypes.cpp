@@ -18,7 +18,7 @@
 TEST_GROUP(GlobalTypes){};
 
 TEST(GlobalTypes, DataStageFullRotation) {
-    eDataStage stage = DS_NAME;
+    EDataStage stage = DS_NAME;
     ++stage;
     // cppcheck-suppress knownConditionTrueFalse // rotation steps below are regression checks, not tautologies by intent
     CHECK(stage == DS_DESC);
@@ -37,26 +37,26 @@ TEST(GlobalTypes, LanguageLayout) {
 }
 
 TEST(GlobalTypes, IncrementWrapsAround) {
-    eLanguages lang = EL_ITALIAN;
+    ELanguages lang = EL_ITALIAN;
     ++lang;
     LONGS_EQUAL(EL_ENGLISH, lang);
 }
 
 TEST(GlobalTypes, DecrementWrapsAround) {
-    eLanguages lang = EL_ENGLISH;
+    ELanguages lang = EL_ENGLISH;
     --lang;
     LONGS_EQUAL(EL_ITALIAN, lang);
 }
 
 TEST(GlobalTypes, PostIncrementReturnsOldValue) {
-    eLanguages lang = EL_ENGLISH;
-    eLanguages old  = lang++;
+    ELanguages lang = EL_ENGLISH;
+    ELanguages old  = lang++;
     LONGS_EQUAL(EL_ENGLISH, old);
     LONGS_EQUAL(EL_PORTUGUESE, lang);
 }
 
 TEST(GlobalTypes, AddAssignComputesModulo) {
-    eLanguages lang = EL_ENGLISH;
+    ELanguages lang = EL_ENGLISH;
     lang += 8;
     LONGS_EQUAL(EL_ENGLISH, lang);
     lang += 10;

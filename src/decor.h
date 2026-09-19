@@ -24,7 +24,7 @@
 #include "debris_pool.h"
 #include "physobj.h"
 
-enum decorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
+enum EDecorTypes { DECOR_SMOKE = 0, DECOR_DIRT };
 
 /** @class CDecor
  * @brief Dirt and smoke debris.
@@ -65,7 +65,7 @@ public:
 	void   force_aging( int32_t frames ); ///< Catch up after FPS drops.
 
 	/// Return the object class.
-	eClass getClass() final { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
+	EClass getClass() final { return ( DECOR_SMOKE == type ? CLASS_DECOR_SMOKE : CLASS_DECOR_DIRT ); }
 
 
 private:

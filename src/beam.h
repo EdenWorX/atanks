@@ -25,24 +25,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "physobj.h"
 #include "weapon.h"
 
-/** @enum eBeamType
+/** @enum EBeamType
  * @brief Determines what kind of beam is generated
  **/
-enum eBeamType {
+enum EBeamType {
 	BT_WEAPON = 0, //!< Normal weapon, nothing special
 	BT_SDI,        //!< Not a weapon but an SDI laser
 	BT_NATURAL,    //!< Fired by natural disaster, like lightning.
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
-/** @struct POINT_t
+/** @struct Point
  * @brief 2D beam path point.
  **/
-struct POINT_t {
+struct Point {
 	int32_t x          = 0; ///< Horizontal coordinate.
 	int32_t y          = 0; ///< Vertical coordinate.
 
-	explicit POINT_t() = default;
+	explicit Point() = default;
 };
 
 /** @class CBeam
@@ -56,9 +56,9 @@ public:
 	 */
 
 	/// Fire an angled beam.
-	explicit CBeam( CPlayer* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
+	explicit CBeam( CPlayer* player_, double x_, double y_, int32_t fireAngle, int32_t EWeaponType, EBeamType beam_type );
 	/// Fire a point-to-point beam.
-	CBeam( CPlayer* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
+	CBeam( CPlayer* player_, double x_, double y_, double tx, double ty, int32_t EWeaponType, bool is_burnt_out );
 	/// Destroy a beam.
 	~CBeam() final;
 
@@ -74,7 +74,7 @@ public:
 	void   moveStart( double x_, double y_ );     ///< Move the beam start for the satellite.
 
 	/// Return the object class.
-	eClass getClass() final { return CLASS_BEAM; }
+	EClass getClass() final { return CLASS_BEAM; }
 
 
 private:
@@ -93,11 +93,11 @@ private:
 	 * -----------------------
 	 */
 
-	eBeamType beamType  = BT_WEAPON;
+	EBeamType beamType  = BT_WEAPON;
 	int32_t   color     = WHITE;
 	double    damage    = 0.;
 	int32_t   numPoints = 2; // Default for lasers
-	POINT_t   points[ 12 ];  // Maximum for lightnings
+	Point   points[ 12 ];  // Maximum for lightnings
 	int32_t   radius    = 0;
 	int32_t   seed      = 0;
 	int32_t   tgtLeftX  = 0;

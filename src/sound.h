@@ -35,6 +35,6 @@ void play_music();
 /// Play a natural disaster sound.
 void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
 /// Play an interface sound.
-void play_interface_sound( eSounds sound );
+void play_interface_sound( ESounds sound );
 
 #endif // ATANKS_SOUNDS_H_INCLUDED

@@ -110,7 +110,7 @@ narrow responsibilities:
 | Locking | `src/spinlock.h`, `src/spinlock.cpp` | `CSpinLock` (atomic-flag, non-recursive) |
 | Z-buffer | `src/zbuffer.h`, `src/zbuffer.cpp` | 1-bit-per-pixel `ZBuffer::set/test` over `vector<bool>` |
 | Update protocol | `src/update.h`, `src/update.cpp` | `Update_Data` / update-checker structures |
-| Network transport | `src/network.h`, `src/network.cpp` | `MESSAGE`/`MESSAGE_QUEUE`, sockets (only when `NETWORK` is defined) |
+| Network transport | `src/network.h`, `src/network.cpp` | `sMessage`/`MESSAGE_QUEUE`, sockets (only when `NETWORK` is defined) |
 | Network client | `src/client.h`, `src/client.cpp` | Client-side protocol constants and handling |
 
 ### Shared/Internal Utility Code
@@ -124,8 +124,8 @@ narrow responsibilities:
   `ATANKS_ATANKS_CPP`, `:45-80`). It also declares shared scalars and the three content catalogs (`:53-69`).
 - Content catalogs, defined in `src/files.cpp:26-28`: `CWeapon weapon[WEAPONS]`, `CWeapon naturals[NATURALS]`, `CItem item[ITEMS]`,
   with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (`src/main.h:264-267`).
-- `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct gradient;`.
-- `src/gfxData.h` (`sGfxData`) owns generated gradient strips and explosion graphics.
+- `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct sGradient;`.
+- `src/gfxData.h` (`sGfxData`) owns generated sGradient strips and explosion graphics.
 - `src/random.h` / `src/perlin.cpp` provide random numbers (`CHANGELOG.md` 6.7 entry notes thread-local modernized RNG) and
   noise for terrain/sky.
 - `src/box.h`, `src/button.h`, `src/menu.h`, `src/optiontypes.h`, `src/optioncontent.h`, `src/optionitem*.h`,
@@ -138,12 +138,12 @@ narrow responsibilities:
 | Object hierarchy root | `src/virtobj.h/.cpp` (`CVirtualObject`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `getClass()` |
 | Physics mixin | `src/physobj.h/.cpp` (`CPhysicalObject : CVirtualObject`) | Gravity/drag/mass, bounces, `weapType`, angle macros |
 | Tank avatar | `src/tank.h/.cpp` (`CTank final : CPhysicalObject`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
-| Projectile | `src/missile.h/.cpp` (`CMissile final : CPhysicalObject`) | `eMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
+| Projectile | `src/missile.h/.cpp` (`CMissile final : CPhysicalObject`) | `EMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
 | Detonation | `src/explosion.h/.cpp` (`CExplosion final : CPhysicalObject`) | Terrain deformation, throwing, damage, napalm/debris |
 | Beams (lasers) | `src/beam.h/.cpp` | Laser-class weapons parallel to ballistic missiles |
 | Arsenal data | `src/weapon.h/.cpp`, `src/item.h/.cpp` | Plain records: 56 weapons + 6 naturals + 24 items; unified index `THINGS = WEAPONS+ITEMS` |
 | Player state | `src/player.h/.cpp` | Economy, inventories `nm[WEAPONS]/ni[ITEMS]`, personality, opponent memory, shop prefs, save/load, speech-line selection |
-| Player/AI types | `src/player_types.h/.cpp` | `playerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `ePlayerStages`, `eTeamTypes{SITH,NEUTRAL,JEDI}`, modular enum arithmetic |
+| Player/AI types | `src/player_types.h/.cpp` | `EPlayerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `EPlayerStages`, `ETeamTypes{SITH,NEUTRAL,JEDI}`, modular enum arithmetic |
 | AI | `src/aicore.h/.cpp` (`CAICore`) | Background-thread bot with documented pipeline: initialize, target/weapon selection, attack calculation, aiming traces, writeback |
 | Shop | `src/shop.h/.cpp` (`bool shop(LevelCreator*)`) | Inter-round buy/sell UI |
 | Scoring | `src/score.h/.cpp` (`sScore`, `sort_scores()`) | Caller deletes the returned array |
@@ -211,7 +211,7 @@ The following were classified as external by metadata inspection; their internal
    +-- main-menu loop .............+-- round driver game() (gameloop.cpp)
    |    (menu/options/players/       |    |
    |     shop/selectPlayers)         |    +-- CAICore thread (aicore.h) per AI tank
-   |                                 |    +-- ObjectUpdater threads per eClass
+   |                                 |    +-- ObjectUpdater threads per EClass
    |                                 |    +-- object lists: CTank / CMissile / CBeam /
    |                                 |         CExplosion / CTeleport / CDecor / CFloatText
    v                                 v
@@ -221,9 +221,9 @@ The following were classified as external by metadata inspection; their internal
  network.cpp / client.cpp .. host/client transport (NETWORK builds)
 ```
 
-- Draw/update ordering follows `eClass` in `src/globaltypes.h` (`CLASS_MISSILE, CBeam, CTank, CTeleport, DECOR_DIRT, SMOKE,
+- Draw/update ordering follows `EClass` in `src/globaltypes.h` (`CLASS_MISSILE, CBeam, CTank, CTeleport, DECOR_DIRT, SMOKE,
   CExplosion, CFloatText, COUNT`).
-- Round stages follow `eRoundStages` (`STAGE_AIM, STAGE_FIRE, STAGE_SCOREBOARD, STAGE_ENDGAME`).
+- Round stages follow `ERoundStages` (`STAGE_AIM, STAGE_FIRE, STAGE_SCOREBOARD, STAGE_ENDGAME`).
 - Threading: `CAICore` runs bot planning off the main thread (`mutex`/`condition_variable`, `start/stop/status` in
   `src/aicore.h`); `gameloop.cpp:89-243` spawns one `ObjectUpdater` thread per class behind `updMutex/updCondition` (`:85-86`)
   and joins them at `:497-541`. `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
@@ -313,7 +313,7 @@ None exist in the repository.
 - Weapon/item stats: `Load_Weapons_Text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<dataDir>/text/weapons*.txt`,
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
   always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
-  `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`eDataStage`, `src/globaltypes.h:81-86`).
+  `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`EDataStage`, `src/globaltypes.h:81-86`).
 - Speech/help text: `CEnvironment::load_text_files()` (`src/environment.cpp:966ff`) loads `text/<base><suffix>` for `gloat`,
   `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
   `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (`src/environment.h:248-257`).
@@ -447,7 +447,7 @@ Standalone helpers (not built by `Makefile`):
 ## Adding or Modifying Code
 
 - New gameplay entity: subclass `CVirtualObject` (or `CPhysicalObject` for ballistic behavior) in a new `src/<name>.h/.cpp`
-  pair, return the matching `eClass` from `getClass()`, add the files to the VS projects' file lists (CMake picks up
+  pair, return the matching `EClass` from `getClass()`, add the files to the VS projects' file lists (CMake picks up
   `src/*.cpp` via `file(GLOB ...)` automatically), and wire creation/update/draw into `gameloop.cpp` and teardown into
   `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
@@ -455,10 +455,10 @@ Standalone helpers (not built by `Makefile`):
   `src/main.h:264-267` if the count changes; check AI selection (`CAICore`), shop availability (`CEnvironment::genItemsList`), and
   sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
   (INI or YAML) with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
-- New option/menu entry: add the `eMenuClass`/`eEntryType` value in `src/optiontypes.h`, construct the item in
+- New option/menu entry: add the `EMenuClass`/`EEntryType` value in `src/optiontypes.h`, construct the item in
   `menu.cpp`/`optionscreens.cpp`, and persist it in `CEnvironment::save_to_file/load_from_file`.
 - New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `CEnvironment::load_text_files()`
-  and `Load_Weapons_Text()`, and add the language to the `eLanguages` enum.
+  and `Load_Weapons_Text()`, and add the language to the `ELanguages` enum.
 - New asset: drop the numbered `N.bmp` / `N.wav` into the right folder (renumber existing files upward by hand to make room
   for inserted frames) and update the loader ranges in `environment.cpp` (`loadBitmaps`/`loadSounds`) and the `Makefile` install
   lists if a new folder is introduced.
@@ -517,7 +517,7 @@ Standalone helpers (not built by `Makefile`):
 | `src/menu.h/.cpp`, `src/optionscreens.h/.cpp`, `src/option*.h/.cpp` | UI | Menu framework, option screens/items |
 | `src/network.h/.cpp`, `src/client.h/.cpp` | net | Transport + client protocol (`NETWORK` builds) |
 | `src/sound.h/.cpp`, `src/clock.h/.cpp`, `src/spinlock.h/.cpp`, `src/zbuffer.h/.cpp`, `src/debug.h/.cpp`, `src/update.h/.cpp` | services | Audio, timers, locking, z-buffer, logging, updater |
-| `src/bitmap.h`, `src/gfxData.h/.cpp`, `src/box.h/.cpp`, `src/button.h/.cpp` | gfx/UI bits | Forward decls, gradient strips, boxes, buttons |
+| `src/bitmap.h`, `src/gfxData.h/.cpp`, `src/box.h/.cpp`, `src/button.h/.cpp` | gfx/UI bits | Forward decls, sGradient strips, boxes, buttons |
 | `src/moon.h/.cpp`, `src/satellite.h/.cpp`, `src/teleport.h/.cpp`, `src/decor.h/.cpp`, `src/debris_pool.h/.cpp`, `src/floattext.h/.cpp`, `src/perlin.cpp`, `src/random.h/.cpp` | world extras | Moon, UFO, teleports, decor, debris, float text, noise, RNG |
 | `src/atanks.rc`, `src/resource.h` | windows-only | Icon/version resources, MSVC defines |
 | `src/winclock.h`, `src/wrap_dirent.h`, `src/optioncontent.h`, `src/optionitem.h` | shims/decls | Clock fix, dirent selector, option declarations |

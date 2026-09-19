@@ -25,7 +25,7 @@ static int32_t MOUSE_DELAY_REDUCT  = 5;  // Every so many rounds the delay is re
  * -------------------------------------------
  */
 
-Menu::Menu( eMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( class_ ), menu_x( menuX ), menu_y( menuY ) {
+Menu::Menu( EMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( class_ ), menu_x( menuX ), menu_y( menuY ) {
 	// Save here to detect language changes.
 	menu_lang = env.language;
 
@@ -37,7 +37,7 @@ Menu::Menu( eMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( clas
 	title_x   = menu_x + text_length( font, "W" ) + 2;
 
 	// Set background style
-	bgType   = env.dynamicMenuBg ? static_cast< eBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bgType   = env.dynamicMenuBg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
 	bgItems  = ( get_rand() % 100 ) + 20;
 }
@@ -805,14 +805,14 @@ int32_t Menu::operator() () {
 	int32_t    mouse_round     = 0;
 	int32_t    mouse_reduct    = 0;
 	bool       has_ctrl_down   = false;
-	eEntryType last_clicked    = ET_NONE;
+	EEntryType last_clicked    = ET_NONE;
 
 	flush_inputs();
 	WIN_CLOCK_INIT
 	menu_ms_reset();
 
 	// Set background style
-	bgType   = env.dynamicMenuBg ? static_cast< eBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bgType   = env.dynamicMenuBg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
 	bgItems  = ( get_rand() % 100 ) + 20;
 
@@ -931,7 +931,7 @@ int32_t Menu::operator() () {
 		if ( event || ( key_code > 0 ) ) {
 			curr = getSelected();
 			if ( curr ) {
-				eEntryType type      = curr->getType();
+				EEntryType type      = curr->getType();
 				bool       old_mouse = env.osMouse; // To catch mouse changes
 
 				// Note whether clicked on elements for the clock delay reduction
@@ -1200,7 +1200,7 @@ void Menu::selectPrev() {
 }
 
 /// @brief little helper to be able to add options from inside the header
-void Menu::setTexts( OptionItemBase* itm, char const** texts, eTextClass text_class ) {
+void Menu::setTexts( OptionItemBase* itm, char const** texts, ETextClass text_class ) {
 	assert( itm && ( texts || ( TC_FREETEXT != text_class ) ) && ( TC_NONE != text_class )
 	        && "ERROR: This does not fit at all!" );
 	if ( itm ) {

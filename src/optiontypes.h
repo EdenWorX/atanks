@@ -28,14 +28,14 @@
 
 #include <string>
 
-/** @enum eMenuClass
+/** @enum EMenuClass
  * @brief List of menu classes. Every menu class is a menu in itself.
  *
  * MC_MENUCLASS_COUNT can be used to retrieve the number of menu classes.
  *
  * This enum is sorted in alphabetical order to make maintenance easier.
  **/
-enum eMenuClass {
+enum EMenuClass {
 	MC_AREYOUSURE = 0, //!< The "Are you sure?" &lt;yes&gt; &lt;no&gt; screen
 	MC_FINANCE,        //!< The finance ("Money") options sub menu
 	MC_GRAPHICS,       //!< The graphics options sub menu
@@ -51,7 +51,7 @@ enum eMenuClass {
 	MC_MENUCLASS_COUNT
 };
 
-/** @enum eTextClass
+/** @enum ETextClass
  * @brief Declare the menu option text classes.
  *
  * These are used so repeating texts do not need to be translated over and
@@ -61,7 +61,7 @@ enum eMenuClass {
  *
  * This enum is sorted alphabetically to make maintenance easier.
  **/
-enum eTextClass {
+enum ETextClass {
 	TC_COLOUR = 0,
 	TC_LANDSLIDE,
 	TC_LANDTYPE,
@@ -85,21 +85,21 @@ enum eTextClass {
 	TC_NONE             //!< Special value for no text class at all
 };
 
-/** @enum eEntryType
+/** @enum EEntryType
  * @brief Declare the different entry types option items can have
  **/
-enum eEntryType { ET_NONE = 0, ET_ACTION, ET_BUTTON, ET_COLOR, ET_MENU, ET_OPTION, ET_TEXT, ET_TOGGLE, ET_VALUE };
+enum EEntryType { ET_NONE = 0, ET_ACTION, ET_BUTTON, ET_COLOR, ET_MENU, ET_OPTION, ET_TEXT, ET_TOGGLE, ET_VALUE };
 
-/** @enum eResetOptions
+/** @enum EResetOptions
  * @brief return codes for the "Are you sure" reset button question
  **/
-enum eResetOptions { RO_BACK = 667, RO_RESET = 1337 };
+enum EResetOptions { RO_BACK = 667, RO_RESET = 1337 };
 
 #if defined( ATANKS_DEBUG )
 // Some helper functions to get names for enum entries
-char const* getEntryTypeName( eEntryType etype );
-char const* getMenuClassName( eMenuClass mclass );
-char const* getTextClassName( eTextClass tclass );
+char const* getEntryTypeName( EEntryType etype );
+char const* getMenuClassName( EMenuClass mclass );
+char const* getTextClassName( ETextClass tclass );
 #endif // ATANKS_DEBUG
 
 #endif // ATANKS_OPTIONTYPES_H_INCLUDED

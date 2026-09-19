@@ -35,10 +35,10 @@
 
 struct sSDI;
 
-/** @enum eMissileType
+/** @enum EMissileType
  * @brief Determines what kind of weapon is shot
  **/
-enum eMissileType {
+enum EMissileType {
 	MT_WEAPON = 0, //!< Normal weapon, nothing special
 	MT_ITEM,       //!< Not a weapon but an item
 	MT_NATURAL,    //!< Fired by natural disaster, like meteors and dirt balls.
@@ -63,7 +63,7 @@ public:
 		double       xvel,
 		double       yvel,
 		int32_t      weapon_type,
-		eMissileType missile_type,
+		EMissileType missile_type,
 		int32_t      ai_level_,
 		int32_t      delay_idx_
 	);
@@ -78,10 +78,10 @@ public:
 
 	void   applyPhysics() final;                                ///< Advance physics.
 	void   draw() final;                                        ///< Render the missile.
-	void   update_submun( ePhysType p_type, int32_t cnt_down ); ///< Release submunitions.
+	void   update_submun( EPhysType p_type, int32_t cnt_down ); ///< Release submunitions.
 
 	/// Return the object class.
-	eClass getClass() final { return CLASS_MISSILE; }
+	EClass getClass() final { return CLASS_MISSILE; }
 
 	/* Status Getters */
 	[[nodiscard]] int32_t bounced() const;   ///< Bounce count.
@@ -120,7 +120,7 @@ private:
 	int32_t      funky_colour = BLACK;
 	int32_t      growRadius   = 0;
 	bool         isGrowing    = false;
-	eMissileType missileType  = MT_WEAPON;
+	EMissileType missileType  = MT_WEAPON;
 	CWeapon*      weap         = nullptr;
 };
 

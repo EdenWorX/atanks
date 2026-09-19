@@ -19,7 +19,7 @@
 #define MAX_LINES_IN_FILE 1024
 
 /// @brief alignment of texts
-enum alignType { CENTRE = 0, LEFT, RIGHT };
+enum EAlignType { CENTRE = 0, LEFT, RIGHT };
 
 /** @class TEXTBLOCK
  * @brief Localized text file kept in memory.
@@ -84,7 +84,7 @@ private:
 // You *MUST* *NOT* free the returned string.
 char const* Add_Comma( int32_t number );
 
-void        draw_text_in_box( BOX* region, char const* text, bool with_box );
+void        draw_text_in_box( sBox* region, char const* text, bool with_box );
 
 // hack the newline off a string
 void Trim_Newline( char* line );

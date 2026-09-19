@@ -791,7 +791,7 @@ public:
 	/// Start planning for a player.
 	bool start( CPlayer* player_ );
 	/// Fetch the attack setup.
-	bool status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage );
+	bool status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, EPlayerStages& pl_stage );
 	/// Stop planning.
 	void stop();
 	/// Note the shot was taken.
@@ -808,10 +808,10 @@ public:
 	 */
 
 private:
-	typedef ePlayerStages               plStage_t;
-	typedef sItemListEntry              itEntry_t;
-	typedef sOppMemEntry                opEntry_t;
-	typedef sWeapListEntry              weEntry_t;
+	typedef EPlayerStages               plstage_t;
+	typedef sItemListEntry              itentry_t;
+	typedef sOppMemEntry                opentry_t;
+	typedef sWeapListEntry              weentry_t;
 	typedef std::mutex                  mutex_t;
 	typedef std::condition_variable     condv_t;
 	typedef std::lock_guard< mutex_t >  lguard_t;
@@ -826,7 +826,7 @@ private:
 	bool    aim( int32_t combo_attempt, int32_t combo_tries, bool can_move );
 	bool    calcAttack( int32_t attempt, int32_t tries );
 	bool    calcBoxed( bool is_last );
-	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType );
+	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weapType );
 	int32_t calcHitScore( bool is_last );
 	bool    calcKamikaze( bool is_last );
 	bool    calcLaser( bool is_last );
@@ -848,7 +848,7 @@ private:
 	bool    selectItem( bool is_last );
 	bool    selectTarget( bool is_last );
 	bool    setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
-	void    showFeedback( char const* feedback, int32_t col, double yv, eTextSway text_sway, int32_t dur );
+	void    showFeedback( char const* feedback, int32_t col, double yv, ETextSway text_sway, int32_t dur );
 	void    traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
 	bool    traceShot(
 		   int32_t  trace_angle,
@@ -861,13 +861,13 @@ private:
 		   double&  end_yv
 	   );
 	void traceWeapon( int32_t& has_crashed, int32_t& has_finished );
-	void updateItemScore( itEntry_t* pItem );
-	void updateOppScore( opEntry_t* pOpp );
-	void updateWeapScore( weEntry_t* pWeap );
+	void updateItemScore( itentry_t* pItem );
+	void updateOppScore( opentry_t* pOpp );
+	void updateWeapScore( weentry_t* pWeap );
 	bool useFreeingTool( bool free_tank, bool is_last );
-	bool useItem( itemType item_type );
+	bool useItem( EItemType item_type );
 	bool useItem( int32_t item_index );
-	bool useWeapon( weaponType weap_type );
+	bool useWeapon( EWeaponType weap_type );
 	bool useWeapon( int32_t weap_index );
 
 
@@ -879,7 +879,7 @@ private:
 	// Internal values
 	mutex_t    actionMutex;
 	condv_t    actionCondition;
-	playerType bestType      = USELESS_PLAYER; // What the AI considers humans to be.
+	EPlayerType bestType      = USELESS_PLAYER; // What the AI considers humans to be.
 	abool_t    canMove       = ATOMIC_VAR_INIT( true );
 	bool volatile canWork    = true;
 	int32_t curr_angle       = 90;    //!< The angle that is currently tested
@@ -903,7 +903,7 @@ private:
 	bool       needSuccess   = true;  //!< true unless a best score is achieved
 	int32_t    offset_x      = 0;
 	int32_t    offset_y      = 0;
-	plStage_t  plStage       = PS_AI_IS_IDLE;
+	plstage_t  plStage       = PS_AI_IS_IDLE;
 	sOpponent* revengee      = nullptr;                 //!< If set, it is tried first as a target
 	sOpponent* shocker       = nullptr;                 //!< The current fear shock winner
 	abool_t    textAllowed   = ATOMIC_VAR_INIT( true ); //!< Is new CFloatText allowed?
@@ -924,24 +924,24 @@ private:
 	int32_t    buried_r    = 0;  //!< right side buried level
 	double     currLife    = 0.;
 	bool       hasFlipped  = false;   //!< Used by calcStandard() and aim() to check for flipping errors.
-	itEntry_t* item_curr   = nullptr; //!< Currently selected entry
-	itEntry_t* item_head   = nullptr; //!< Last selected entry
-	itEntry_t* item_last   = nullptr; //!< Entry with highest score
+	itentry_t* item_curr   = nullptr; //!< Currently selected entry
+	itentry_t* item_head   = nullptr; //!< Last selected entry
+	itentry_t* item_last   = nullptr; //!< Entry with highest score
 	int32_t    last_ang    = 0;       //!< Angle used in last round
 	sOpponent* last_opp    = nullptr; //!< The opponent attacked in the last round
 	int32_t    last_pow    = 0;       //!< Power used in last round
 	int32_t    last_weap   = 0;       //!< weapon used in the last round
 	int32_t    maxLife     = 100;
-	opEntry_t* mem_curr    = nullptr; //!< Currently selected entry
-	opEntry_t* mem_head    = nullptr; //!< Last selected entry
-	opEntry_t* mem_last    = nullptr; //!< Entry with highest score
+	opentry_t* mem_curr    = nullptr; //!< Currently selected entry
+	opentry_t* mem_head    = nullptr; //!< Last selected entry
+	opentry_t* mem_last    = nullptr; //!< Entry with highest score
 	bool       needMoney   = false;   //!< Might alter some decisions
 	CPlayer*    player      = nullptr;
 	int32_t    power       = 0; //!< The currently determined best power
 	CTank*      tank        = nullptr;
-	weEntry_t* weap_curr   = nullptr; //!< Currently selected entry
-	weEntry_t* weap_head   = nullptr; //!< Last selected entry
-	weEntry_t* weap_last   = nullptr; //!< Entry with highest score
+	weentry_t* weap_curr   = nullptr; //!< Currently selected entry
+	weentry_t* weap_head   = nullptr; //!< Last selected entry
+	weentry_t* weap_last   = nullptr; //!< Entry with highest score
 	double     x           = 0.;
 	double     y           = 0.;
 
@@ -965,13 +965,13 @@ private:
 	int32_t    best_round_score     = NEUTRAL_ROUND_SCORE;
 	int32_t    best_setup_angle     = 0;
 	int32_t    best_setup_damage    = 0;
-	itEntry_t* best_setup_item      = nullptr;
-	opEntry_t* best_setup_mem       = nullptr;
+	itentry_t* best_setup_item      = nullptr;
+	opentry_t* best_setup_mem       = nullptr;
 	int32_t    best_setup_overshoot = MAX_OVERSHOOT;
 	int32_t    best_setup_power     = 0;
 	bool       best_setup_prime     = false;
 	int32_t    best_setup_score     = 0;
-	weEntry_t* best_setup_weap      = nullptr;
+	weentry_t* best_setup_weap      = nullptr;
 };
 
 #endif // ATANKS_AICORE_H_INCLUDED

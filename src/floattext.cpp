@@ -9,8 +9,8 @@ CFloatText::CFloatText(
 	double      xv_,
 	double      yv_,
 	int32_t     color_,
-	alignType   alignment,
-	eTextSway   sway_type,
+	EAlignType   alignment,
+	ETextSway   sway_type,
 	int32_t     max_age,
 	bool        is_fixed_
 )
@@ -386,7 +386,7 @@ void CFloatText::set_speed( double xv_, double yv_ ) {
 	}
 }
 
-void CFloatText::set_sway_type( eTextSway sway_type ) {
+void CFloatText::set_sway_type( ETextSway sway_type ) {
 	if ( sway_type != sway ) {
 		sway = sway_type;
 		reset_sway();

@@ -1639,7 +1639,7 @@ void CTank::repair() {
 	}
 }
 
-bool CTank::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType phys_type ) {
+bool CTank::repulse( double xpos, double ypos, double *xa, double *ya, EPhysType phys_type ) {
 	// If there is no repulsion or the physics type is
 	// not sensitive to repulsion, return at once.
 	if ( !repulsion || ( PT_FUNKY_FLOAT == phys_type ) || ( PT_NONE == phys_type ) || ( PT_ROLLING == phys_type ) ) {

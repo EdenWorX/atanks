@@ -19,7 +19,7 @@ static void
 
 // Helper action function to do direct language changes
 #define LANG_SWITCH_TRIGGER 0x0BadCafe
-int32_t switch_language( eLanguages *lang, int32_t val );
+int32_t switch_language( ELanguages *lang, int32_t val );
 
 /** @brief draw the Menu Background
  *
@@ -27,7 +27,7 @@ int32_t switch_language( eLanguages *lang, int32_t val );
  * Someday, we should make this more generic; have it take the box dimensions
  * as an input parameter.
  **/
-void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
+void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
         rectfill(
                 global.canvas,
                 env.halfWidth - 300,
@@ -388,7 +388,7 @@ void optionsMenu() {
 
 	// Safe the current language, if a new one is selected,
 	// the text files must be reloaded.
-	eLanguages cur_lang = env.language;
+	ELanguages cur_lang = env.language;
 
 	while ( 0 == optionsRetCode ) {
 		int32_t old_fps = env.frames_per_second;
@@ -1365,8 +1365,8 @@ static void
 /// @brief Switch language helper function
 /// Note: The real use of this function is, that it generates a return
 ///       code, so optionsMenu() can react on the language change. ;-)
-int32_t switch_language( eLanguages *lang, int32_t val ) {
-	eLanguages old_lang = *lang;
+int32_t switch_language( ELanguages *lang, int32_t val ) {
+	ELanguages old_lang = *lang;
 
 	if ( val > 0 )
 		++( *lang );

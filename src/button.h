@@ -50,7 +50,7 @@ private:
 	BITMAP*     bmp       = nullptr;
 	BITMAP*     depressed = nullptr;
 	BITMAP*     hover     = nullptr;
-	BOX         location;               //!< is {0, 0, 0, 0} by default
+	sBox         location;               //!< is {0, 0, 0, 0} by default
 	char const* text      = nullptr;
 	bool        text_only = false;      //!< If set to true, only the title is displayed.
 	int32_t     x1, y1, x2, y2, x3, y3; //!< Shortcuts, as those stay fixed.

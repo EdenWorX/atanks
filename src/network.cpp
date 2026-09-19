@@ -34,13 +34,13 @@ MESSAGE_QUEUE::~MESSAGE_QUEUE() {
 // add a new message to the queue
 // Returns true on success and false is an error occures
 bool MESSAGE_QUEUE::Add( char *some_text, int to ) {
-	MESSAGE *new_message;
+	sMessage *new_message;
 
 	if ( !some_text ) {
 		return false;
 	}
 
-	new_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
+	new_message = (sMessage *)calloc( 1, sizeof( sMessage ) );
 	if ( !new_message ) {
 		return false;
 	}
@@ -66,8 +66,8 @@ bool MESSAGE_QUEUE::Add( char *some_text, int to ) {
 
 // retreive a message and erase it from the queue
 // returns a message on success and nullptr on failure
-MESSAGE *MESSAGE_QUEUE::Read() {
-	MESSAGE *my_message;
+sMessage *MESSAGE_QUEUE::Read() {
+	sMessage *my_message;
 
 	my_message = Peek(); // grab next message
 	if ( my_message ) {
@@ -79,8 +79,8 @@ MESSAGE *MESSAGE_QUEUE::Read() {
 
 // returns a message from the queue without removing it from the line
 // Returns a message on success or a nullptr on failure
-MESSAGE *MESSAGE_QUEUE::Peek() const {
-	MESSAGE *my_message;
+sMessage *MESSAGE_QUEUE::Peek() const {
+	sMessage *my_message;
 
 	// see if there is a message to get
 	if ( ( !first_message ) || ( !first_message->text ) ) {
@@ -88,7 +88,7 @@ MESSAGE *MESSAGE_QUEUE::Peek() const {
 	}
 
 	// we want to make a copy of the message, not just pass back a pointer
-	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
+	my_message = (sMessage *)calloc( 1, sizeof( sMessage ) );
 	if ( !my_message ) {
 		return nullptr;
 	}
@@ -110,8 +110,8 @@ MESSAGE *MESSAGE_QUEUE::Peek() const {
 // This function returns the first message it finds and
 // erases it. The message is returned on success or a
 // nullptr is returned if no message is found.
-MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
-	MESSAGE *current, *previous = nullptr;
+sMessage *MESSAGE_QUEUE::Read_To( int my_to ) {
+	sMessage *current, *previous = nullptr;
 	bool     found = false;
 
 	// search for matching to field
@@ -121,7 +121,7 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 			found = true;
 		} else {
 			previous = current;
-			current  = (MESSAGE *)current->next;
+			current  = (sMessage *)current->next;
 		}
 	}
 
@@ -130,7 +130,7 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 	}
 
 	// found match, create a copy and erase the original
-	auto *my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
+	auto *my_message = (sMessage *)calloc( 1, sizeof( sMessage ) );
 	if ( !my_message ) {
 		return nullptr;
 	}
@@ -146,7 +146,7 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 	if ( previous ) {
 		previous->next = current->next;
 	} else {
-		first_message = (MESSAGE *)current->next;
+		first_message = (sMessage *)current->next;
 	}
 
 	if ( last_message == current ) {
@@ -160,10 +160,10 @@ MESSAGE *MESSAGE_QUEUE::Read_To( int my_to ) {
 
 // Erases the next message in the line without returning anything
 void MESSAGE_QUEUE::Erase() {
-	MESSAGE *next_in_line;
+	sMessage *next_in_line;
 
 	if ( first_message ) {
-		next_in_line = (MESSAGE *)first_message->next;
+		next_in_line = (sMessage *)first_message->next;
 		// clean up
 		if ( first_message->text ) {
 			free( first_message->text );
@@ -182,11 +182,11 @@ void MESSAGE_QUEUE::Erase() {
 
 // This function erases all messages in the queue.
 void MESSAGE_QUEUE::Erase_All() {
-	MESSAGE *current, *coming_up;
+	sMessage *current, *coming_up;
 
 	current = first_message;
 	while ( current ) {
-		coming_up = (MESSAGE *)current->next;
+		coming_up = (sMessage *)current->next;
 		if ( current->text ) {
 			free( current->text );
 		}
@@ -273,7 +273,7 @@ int Accept_Incoming_Connection( int my_socket ) {
 // to a socket.
 // Returns a negative number on failure. Zero and
 // positive numbers indicate success.
-int Send_Message( MESSAGE *mess, int to_socket ) {
+int Send_Message( sMessage *mess, int to_socket ) {
 	char buffer[ MAX_MESSAGE_LENGTH ];
 
 	strncpy( buffer, mess->text, MAX_MESSAGE_LENGTH );
@@ -284,11 +284,11 @@ int Send_Message( MESSAGE *mess, int to_socket ) {
 // Read data from a socket and put it in a message
 // Returns the message on success and nullptr on failure.
 // Note: the "to" field of the message is not set.
-MESSAGE *Receive_Message( int from_socket ) {
-	MESSAGE *my_message;
+sMessage *Receive_Message( int from_socket ) {
+	sMessage *my_message;
 	char     buffer[ MAX_MESSAGE_LENGTH ];
 
-	my_message = (MESSAGE *)calloc( 1, sizeof( MESSAGE ) );
+	my_message = (sMessage *)calloc( 1, sizeof( sMessage ) );
 	if ( !my_message ) {
 		return nullptr;
 	}
@@ -374,7 +374,7 @@ bool Check_For_Errors( int socket_number ) {
 // incoming connections and manage them. That is, they will be
 // passed on to AI players.
 void Send_And_Receive( void *all_the_data ) {
-	auto *send_receive_data = (SEND_RECEIVE_TYPE *)all_the_data;
+	auto *send_receive_data = (sSendReceive *)all_the_data;
 	int   server_socket, new_socket;
 	int   status, counter;
 

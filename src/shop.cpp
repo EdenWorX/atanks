@@ -44,7 +44,7 @@ private:
 
 
 	/* ======== Members ======== */
-	BOX           info_area{ 20, 60, 300, 400 };
+	sBox           info_area{ 20, 60, 300, 400 };
 	int32_t       btps{ 0 };
 	string        info_text{ " " };
 	bool          done{ false };

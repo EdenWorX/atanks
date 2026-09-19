@@ -29,12 +29,12 @@ static int32_t CURSOR_FLIP_TIME = 25; // Delays cursor flipping
  * @param[in] show_size_ Sets the size of the show color box. (ET_COLOR only)
  **/
 OptionItemBase::OptionItemBase(
-	eEntryType   type_,
+	EEntryType   type_,
 	char const*  title_,
 	int32_t      titleIdx_,
 	char const** text_,
 	int32_t      color_,
-	eTextClass   class_,
+	ETextClass   class_,
 	char const*  format_,
 	int32_t      top_,
 	int32_t      left_,
@@ -195,8 +195,8 @@ uint32_t OptionItemBase::getTitleIdx() const {
 	return titleIdx;
 }
 
-/// @brief return the eEntryType of the entry
-eEntryType OptionItemBase::getType() {
+/// @brief return the EEntryType of the entry
+EEntryType OptionItemBase::getType() {
 	return type;
 }
 
@@ -423,7 +423,7 @@ void OptionItemBase::setTitle( char const* new_title ) {
  *
  * Call this then from the compilation unit.
  **/
-void OptionItemBase::setTextClass( eTextClass new_class ) {
+void OptionItemBase::setTextClass( ETextClass new_class ) {
 	textClass = new_class;
 }
 

@@ -15,7 +15,7 @@
 TEST_GROUP(Box){};
 
 TEST(Box, DefaultIsZero) {
-    BOX box;
+    sBox box;
     LONGS_EQUAL(0, box.x);
     LONGS_EQUAL(0, box.y);
     LONGS_EQUAL(0, box.w);
@@ -23,7 +23,7 @@ TEST(Box, DefaultIsZero) {
 }
 
 TEST(Box, ConstructorAndSet) {
-    BOX box(1, 2, 3, 4);
+    sBox box(1, 2, 3, 4);
     LONGS_EQUAL(1, box.x);
     LONGS_EQUAL(2, box.y);
     LONGS_EQUAL(3, box.w);
@@ -36,8 +36,8 @@ TEST(Box, ConstructorAndSet) {
 }
 
 TEST(Box, Equality) {
-    BOX first(1, 2, 3, 4);
-    BOX second(1, 2, 3, 4);
+    sBox first(1, 2, 3, 4);
+    sBox second(1, 2, 3, 4);
     CHECK(first == second);
     CHECK_FALSE(first != second);
     second.w = 9;
@@ -46,6 +46,6 @@ TEST(Box, Equality) {
 }
 
 TEST(Box, SelfEquality) {
-    BOX box(1, 2, 3, 4);
+    sBox box(1, 2, 3, 4);
     CHECK(box == box);
 }

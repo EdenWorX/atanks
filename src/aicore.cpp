@@ -21,7 +21,7 @@ struct sItemListEntry {
 	sItemListEntry* prev       = nullptr;
 	int32_t         score      = 0;     //!< How likely the AI uses this item.
 	bool            selectable = false; //!< Some are not selectable, like parachutes.
-	int32_t         type       = 0;     //!< The (enum) itemType of the item
+	int32_t         type       = 0;     //!< The (enum) EItemType of the item
 
 	explicit sItemListEntry( sItemListEntry* prev_ );
 	~sItemListEntry();
@@ -78,7 +78,7 @@ struct sWeapListEntry {
 	int32_t         spread      = 1;  //!< Checked weapon spread value. (See CAICore::getMemory())
 	int32_t         subMunCount = 0;  //!< Number of sub munition "bomblets"
 	int32_t         subMunType  = -1; //!< Clusters and such have sub munition.
-	int32_t         type        = 0;  //!< The (enum) weaponType of the weapon.
+	int32_t         type        = 0;  //!< The (enum) EWeaponType of the weapon.
 
 	explicit sWeapListEntry( sWeapListEntry* prev_ );
 	~sWeapListEntry();
@@ -87,13 +87,13 @@ struct sWeapListEntry {
 };
 
 /// @brief Template swapper, the types just need prev/next pointers
-template< typename T > void swap_entries( T* lhs, T* rhs ) {
+template< typename t_t > void swap_entries( t_t* lhs, t_t* rhs ) {
 	if ( lhs && rhs && ( lhs != rhs ) ) {
 		// backup neighbourhood (and use as short cuts ;-) )
-		T* l_next = lhs->next;
-		T* l_prev = lhs->prev;
-		T* r_next = rhs->next;
-		T* r_prev = rhs->prev;
+		t_t* l_next = lhs->next;
+		t_t* l_prev = lhs->prev;
+		t_t* r_next = rhs->next;
+		t_t* r_prev = rhs->prev;
 
 		// Insert rhs into lhs location
 		if ( l_next && ( l_next != rhs ) ) {
@@ -124,7 +124,7 @@ template< typename T > void swap_entries( T* lhs, T* rhs ) {
 /// @brief Template sorter, the types need prev, next and score.
 /// Sorting is done by score in descending order. If *head is sorted
 /// down the list, it is set to the new first element.
-template< typename T > void sort_entries( T** head ) {
+template< typename t_t > void sort_entries( t_t** head ) {
 	if ( !head || !( *head ) ) {
 		return;
 	}
@@ -140,8 +140,8 @@ template< typename T > void sort_entries( T** head ) {
 
 		sorted  = true;
 
-		T* curr = *head;
-		T* next = curr->next;
+		t_t* curr = *head;
+		t_t* next = curr->next;
 
 		while ( next ) {
 			if ( next->score > curr->score ) {
@@ -159,7 +159,7 @@ template< typename T > void sort_entries( T** head ) {
 
 #if defined( ATANKS_DEBUG_AIMING ) || defined( ATANKS_DEBUG_EMOTIONS )
 	DEBUG_LOG_AI( "Memory Sorting", "Sorting results:", 0 )
-	T*      curr = *head;
+	t_t*      curr = *head;
 	int32_t nr   = 1;
 	while ( curr ) {
 		if ( curr->score > -10000 ) {
@@ -213,13 +213,13 @@ CAICore::CAICore() {
 	/// 1) Items
 	for ( int32_t i = 0; canWork && ( i < ITEMS ); ++i ) {
 		try {
-			item_curr = new itEntry_t( item_last );
+			item_curr = new itentry_t( item_last );
 			if ( !item_head ) {
 				item_head = item_curr;
 			}
 			item_last = item_curr;
 		} catch ( std::bad_alloc& e ) {
-			cerr << "Unable to reserve " << sizeof( itEntry_t );
+			cerr << "Unable to reserve " << sizeof( itentry_t );
 			cerr << " bytes for AI item chain: " << e.what() << endl;
 
 			destroy();
@@ -236,13 +236,13 @@ CAICore::CAICore() {
 
 		// Create memory chain
 		try {
-			mem_curr = new opEntry_t( mem_last );
+			mem_curr = new opentry_t( mem_last );
 			if ( !mem_head ) {
 				mem_head = mem_curr;
 			}
 			mem_last = mem_curr;
 		} catch ( std::bad_alloc& e ) {
-			cerr << "Unable to reserve " << sizeof( opEntry_t );
+			cerr << "Unable to reserve " << sizeof( opentry_t );
 			cerr << " bytes for AI memory chain: " << e.what() << endl;
 
 			destroy();
@@ -253,13 +253,13 @@ CAICore::CAICore() {
 	/// 3) Weapons
 	for ( int32_t i = 0; canWork && ( i < WEAPONS ); ++i ) {
 		try {
-			weap_curr = new weEntry_t( weap_last );
+			weap_curr = new weentry_t( weap_last );
 			if ( !weap_head ) {
 				weap_head = weap_curr;
 			}
 			weap_last = weap_curr;
 		} catch ( std::bad_alloc& e ) {
-			cerr << "Unable to reserve " << sizeof( weEntry_t );
+			cerr << "Unable to reserve " << sizeof( weentry_t );
 			cerr << " bytes for AI weapon chain: " << e.what() << endl;
 
 			destroy();
@@ -1069,11 +1069,11 @@ bool CAICore::calcBoxed( bool is_last ) {
  **/
 int32_t CAICore::calcHitScore( bool is_last ) {
 	int32_t    hit_score    = 0;
-	opEntry_t* opp          = mem_head;
+	opentry_t* opp          = mem_head;
 	bool       can_overkill = true;
-	eTeamTypes target_team  = mem_curr ? mem_curr->entry->opponent->team : TEAM_NEUTRAL;
+	ETeamTypes target_team  = mem_curr ? mem_curr->entry->opponent->team : TEAM_NEUTRAL;
 	bool       tgt_team_hit = false;
-	auto       weapType     = static_cast< weaponType >( weap_curr->type );
+	auto       weapType     = static_cast< EWeaponType >( weap_curr->type );
 
 
 	// Dirt weapons and the reducer can not overkill
@@ -1206,7 +1206,7 @@ int32_t CAICore::calcHitScore( bool is_last ) {
  * @param[in] weapType Type of the weapon.
  * @return The resulting score
  **/
-void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, weaponType weapType ) {
+void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weapType ) {
 	if ( ( nullptr == weap_curr ) // no weapon no score
 	     || ( 0 == weap_rad ) ) { // no radius, no hit
 		return;
@@ -1231,7 +1231,7 @@ void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, doub
 	}
 
 	// Now the score can be calculated
-	opEntry_t* opp = mem_head;
+	opentry_t* opp = mem_head;
 	DEBUG_LOG_AIM( player->getName(), "Checking impact at %d x %d", hit_x, hit_y )
 
 	while ( opp ) {
@@ -1504,7 +1504,7 @@ bool CAICore::calcLaser( bool is_last ) {
 	// Note: calcHitDamage() sets curr_prime_hit to true if we hit our target.
 
 	// reset virtual damage on opponents.
-	opEntry_t* opp = mem_head;
+	opentry_t* opp = mem_head;
 	while ( opp ) {
 		opp->dmgDone = 0;
 		opp          = opp->next;
@@ -1515,7 +1515,7 @@ bool CAICore::calcLaser( bool is_last ) {
 		end_y,
 		weapon[ weap_curr->type ].radius,
 		weap_curr->dmgSingle,
-		static_cast< weaponType >( weap_curr->type )
+		static_cast< EWeaponType >( weap_curr->type )
 	);
 	int32_t hit_score = calcHitScore( is_last && needSuccess );
 
@@ -2086,7 +2086,7 @@ bool CAICore::calcUnbury( bool is_last ) {
 		// To not blast away an obstacle towards a wall with no
 		// enemies behind it, count how many enemies are on each
 		// side, first:
-		opEntry_t* op       = mem_head;
+		opentry_t* op       = mem_head;
 		int32_t    op_left  = 0;
 		int32_t    op_right = 0;
 		while ( op ) {
@@ -3100,7 +3100,7 @@ void CAICore::sanitizeCurr() {
 
 /// @brief show ai feedback if allowed and not skipping computer play.
 /// Whenever a feedback message is shown, the AI sleeps for dur/10 + 1 ms.
-void CAICore::showFeedback( char const* const feedback, int32_t col, double yv, eTextSway text_sway, int32_t dur ) {
+void CAICore::showFeedback( char const* const feedback, int32_t col, double yv, ETextSway text_sway, int32_t dur ) {
 	if ( env.showAIFeedback && !global.skippingComputerPlay ) {
 		// Wait for the AI to be allowed to create texts
 		while ( !textAllowed.load( ATOMIC_READ ) ) {
@@ -3663,7 +3663,7 @@ bool CAICore::start( CPlayer* player_ ) {
  * @param[out] pl_stage Receives the current stage of the AI. This is always sent.
  * @return true if the AI is still working, false if it has finished.
  */
-bool CAICore::status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, ePlayerStages& pl_stage ) {
+bool CAICore::status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, EPlayerStages& pl_stage ) {
 	pl_stage = plStage;
 
 	if ( isWorking ) {
@@ -3702,7 +3702,7 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 	double    divStep       = static_cast< double >( divergence ) / static_cast< double >( subCount - 1 );
 	double    startPoint    = divStep < 0. ? 0. : 180.;
 	int32_t   randStart     = get_rand() % 1000000;
-	ePhysType subPhys       = PT_NORMAL;
+	EPhysType subPhys       = PT_NORMAL;
 	int32_t   startY        = sub_y - 20;
 	int32_t   cl_overshoot  = MAX_OVERSHOOT;
 	int32_t   old_overshoot = curr_overshoot; // overshoot is only used for mirvs and funkies
@@ -3839,7 +3839,7 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 				ROUND( mind_shot.y ),
 				radius,
 				sub_dmg,
-				static_cast< weaponType >( subType )
+				static_cast< EWeaponType >( subType )
 			);
 		}
 	} // End of looping submunitions
@@ -3996,7 +3996,7 @@ void CAICore::traceWeapon( int32_t& has_crashed, int32_t& has_finished ) {
 	curr_prime_hit          = false;
 
 	// reset virtual damage on opponents.
-	opEntry_t* opp = mem_head;
+	opentry_t* opp = mem_head;
 	while ( opp ) {
 		opp->dmgDone = 0;
 		opp          = opp->next;
@@ -4052,7 +4052,7 @@ void CAICore::traceWeapon( int32_t& has_crashed, int32_t& has_finished ) {
 						curr_reached_y,
 						static_cast< double >( weap_curr->radius ),
 						weap_curr->dmgSingle,
-						static_cast< weaponType >( weap_curr->type )
+						static_cast< EWeaponType >( weap_curr->type )
 					);
 				}
 
@@ -4071,7 +4071,7 @@ void CAICore::traceWeapon( int32_t& has_crashed, int32_t& has_finished ) {
 }
 
 /// @brief Set a new score to an items entry
-void CAICore::updateItemScore( itEntry_t* pItem ) {
+void CAICore::updateItemScore( itentry_t* pItem ) {
 	/* There aren't many items that are actually usable.
 	 * 1. Teleporters
 	 *    These can be used to get out of a buried scenario.
@@ -4169,7 +4169,7 @@ void CAICore::updateItemScore( itEntry_t* pItem ) {
 
 		// First count how many other bots can have their turn until
 		// this one will get its next chance:
-		opEntry_t* check   = mem_head;
+		opentry_t* check   = mem_head;
 		int32_t    between = 0;
 		while ( check ) {
 			if ( ( check->entry->opponent != player ) && check->alive ) {
@@ -4265,7 +4265,7 @@ void CAICore::updateItemScore( itEntry_t* pItem ) {
 }
 
 /// @brief Set a new score to an opponents entry
-void CAICore::updateOppScore( opEntry_t* pOpp ) {
+void CAICore::updateOppScore( opentry_t* pOpp ) {
 	sOpponent* entry    = pOpp->entry;
 	CPlayer*    opponent = entry->opponent;
 	CTank*      oppTank  = opponent->tank;
@@ -4542,9 +4542,9 @@ void CAICore::updateOppScore( opEntry_t* pOpp ) {
 }
 
 /// @brief Set a new score to a weapons entry
-void CAICore::updateWeapScore( weEntry_t* pWeap ) {
+void CAICore::updateWeapScore( weentry_t* pWeap ) {
 	// As this is used a few dozen times, a shortcut to pWeap->type is nice:
-	weaponType wType = pWeap ? static_cast< weaponType >( pWeap->type ) : SML_MIS;
+	EWeaponType wType = pWeap ? static_cast< EWeaponType >( pWeap->type ) : SML_MIS;
 
 
 	// === Get out quickly if the chosen item is out of stock ===
@@ -4802,7 +4802,7 @@ void CAICore::updateWeapScore( weEntry_t* pWeap ) {
 	double money_made   = 0.; // build here, used below
 	double money_cost   = 0.; // build here, used below
 	if ( buried <= BURIED_LEVEL ) {
-		opEntry_t* op = mem_head;
+		opentry_t* op = mem_head;
 
 		// Always assume a full direct hit:
 		double xhit = mem_curr->opX;
@@ -5106,7 +5106,7 @@ bool CAICore::useFreeingTool( bool free_tank, bool is_last ) {
 }
 
 /// @brief explicitly select @a item_type, returns true if available and chosen.
-bool CAICore::useItem( itemType item_type ) {
+bool CAICore::useItem( EItemType item_type ) {
 	if ( env.isItemAvailable( item_type ) && ( player->ni[ item_type ] > 0 ) ) {
 		item_curr = item_head;
 		while ( item_curr && ( item_curr->type != item_type ) ) {
@@ -5129,13 +5129,13 @@ bool CAICore::useItem( itemType item_type ) {
 /// an item. Full index means the value is beyond the WEAPONS constant.
 bool CAICore::useItem( int32_t item_index ) {
 	if ( ( item_index >= WEAPONS ) && ( item_index < THINGS ) ) {
-		return useItem( static_cast< itemType >( item_index - WEAPONS ) );
+		return useItem( static_cast< EItemType >( item_index - WEAPONS ) );
 	}
 	return false;
 }
 
 /// @brief explicitly select @a weapon_type, returns true if available and chosen.
-bool CAICore::useWeapon( weaponType weap_type ) {
+bool CAICore::useWeapon( EWeaponType weap_type ) {
 	if ( env.isItemAvailable( weap_type ) && ( player->nm[ weap_type ] > 0 ) ) {
 		weap_curr = weap_head;
 		while ( weap_curr && ( weap_curr->type != weap_type ) ) {
@@ -5158,7 +5158,7 @@ bool CAICore::useWeapon( weaponType weap_type ) {
 /// a weapon.
 bool CAICore::useWeapon( int32_t weap_index ) {
 	if ( weap_index < WEAPONS ) {
-		return useWeapon( static_cast< weaponType >( weap_index ) );
+		return useWeapon( static_cast< EWeaponType >( weap_index ) );
 	}
 	return false;
 }
@@ -5257,7 +5257,7 @@ bool CAICore::moveTank() {
 		y = tank->y;
 
 		// Update all distances
-		opEntry_t* op = mem_head;
+		opentry_t* op = mem_head;
 		while ( op ) {
 			if ( op->entry->opponent->tank && !op->entry->opponent->tank->destroy ) {
 				op->distance = FABSDISTANCE2( x, y, op->opX, op->opY );

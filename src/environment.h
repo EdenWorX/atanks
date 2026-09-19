@@ -137,7 +137,7 @@ public:
 	double       campaign_rounds          = 0.;                         ///< Campaign round count.
 	bool         check_for_updates        = true;                       ///< Update checker enabled.
 	int32_t      colourDepth              = 0;                          ///< Video color depth.
-	int32_t      colourTheme              = CT_CRISPY;                  ///< Land and sky gradient theme.
+	int32_t      colourTheme              = CT_CRISPY;                  ///< Land and sky sGradient theme.
 	string       configDir;                                             ///< Config directory path.
 	int32_t      current_wallType  = 0;                                 ///< Wall type of the current round.
 	int32_t      custom_background = 0;                                 ///< Custom menu background enabled.
@@ -159,7 +159,7 @@ public:
 	int32_t      frames_per_second  = 0;                                ///< Measured frame rate.
 	int32_t      full_screen        = FULL_SCREEN_FALSE;                ///< Fullscreen mode.
 	string       game_name;                                             ///< Game name.
-	sGfxData     gfxData;                                               ///< Generated gradient data.
+	sGfxData     gfxData;                                               ///< Generated sGradient data.
 	double       gravity                   = 0.15;                      ///< Gravity constant.
 	int32_t      halfHeight                = DEFAULT_SCREEN_HEIGHT / 2; ///< Half screen height.
 	int32_t      halfWidth                 = DEFAULT_SCREEN_WIDTH / 2;  ///< Half screen width.
@@ -170,7 +170,7 @@ public:
 	int32_t      landSlideDelay            = MAX_GRAVITY_DELAY;         ///< Landslide delay.
 	int32_t      landSlideType             = SLIDE_GRAVITY;             ///< Landslide mode.
 	int32_t      landType                  = LAND_RANDOM;               ///< Landscape type.
-	eLanguages   language                  = EL_ENGLISH;                ///< Interface language.
+	ELanguages   language                  = EL_ENGLISH;                ///< Interface language.
 	int32_t      lightning                 = 0;                         ///< Lightning intensity.
 	bool         loadGame                  = false;                     ///< Load a savegame.
 	FONT*        main_font                 = nullptr;                   ///< Menu font.
@@ -240,7 +240,7 @@ public:
 	int32_t      wallColour                = GREEN;                     ///< Wall color.
 	int32_t      wallType                  = WALL_RUBBER;               ///< Wall type.
 	int32_t      weapontechLevel           = 5;                         ///< Weapon tech level.
-	BOX          window;                                                ///< Main window box.
+	sBox          window;                                                ///< Main window box.
 	int32_t      windstrength  = 8;                                     ///< Wind strength.
 	int32_t      windvariation = 1;                                     ///< Wind variation.
 

@@ -45,7 +45,7 @@ CMissile::CMissile(
 	double       xvel,
 	double       yvel,
 	int32_t      weapon_type,
-	eMissileType missile_type,
+	EMissileType missile_type,
 	int32_t      ai_level_,
 	int32_t      delay_idx_
 )
@@ -684,7 +684,7 @@ void CMissile::Check_Cluster() {
 	double  divergenceStep = static_cast< double >( weap->divergence ) / static_cast< double >( weap->numSubmunitions - 1 );
 	int32_t startPoint     = divergenceStep < 0. ? 0 : 180;
 	int32_t randStart      = get_rand() % 1000000;
-	ePhysType submunitionPhys = PT_NORMAL;
+	EPhysType submunitionPhys = PT_NORMAL;
 	double    inheritedXV     = weap->impartVelocity * xv;
 	double    inheritedYV     = weap->impartVelocity * yv;
 	int32_t   startY          = ROUND( y ) - 20;
@@ -864,7 +864,7 @@ bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 		           && lt->hasRepulsorActivated() && ( ( BURIED_LEVEL / 4 ) > lt->howBuried( nullptr, nullptr ) ) ) ) {
 
 			// The point looks promising, but is it worth it?
-			double dmg = get_hit_damage( lt, static_cast< weaponType >( weapType ), x, y );
+			double dmg = get_hit_damage( lt, static_cast< EWeaponType >( weapType ), x, y );
 			if ( dmg < ( lt->sh + lt->l ) ) {
 				will_hit = true;
 			}
@@ -1267,7 +1267,7 @@ void CMissile::triggerTest() {
 
 /// @brief special method to update private members iof sub munition missiles.
 /// This method is only interesting for CAICore tracing clusters.
-void CMissile::update_submun( ePhysType p_type, int32_t cnt_down ) {
+void CMissile::update_submun( EPhysType p_type, int32_t cnt_down ) {
 	physType  = p_type;
 	countdown = cnt_down;
 }

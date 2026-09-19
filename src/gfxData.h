@@ -49,9 +49,9 @@ struct sGfxData {
 
 	BITMAP* sky_gradient_strips[ ALL_SKIES ]{ nullptr };  ///< Sky gradients.
 	BITMAP* land_gradient_strips[ ALL_LANDS ]{ nullptr }; ///< Land gradients.
-	BITMAP* stuff_bar_gradient_strip{ nullptr };          ///< Shop bar gradient.
-	BITMAP* topbar_gradient_strip{ nullptr };             ///< Top bar gradient.
-	BITMAP* explosion_gradient_strip{ nullptr };          ///< Explosion gradient.
+	BITMAP* stuff_bar_gradient_strip{ nullptr };          ///< Shop bar sGradient.
+	BITMAP* topbar_gradient_strip{ nullptr };             ///< Top bar sGradient.
+	BITMAP* explosion_gradient_strip{ nullptr };          ///< Explosion sGradient.
 	BITMAP* stuff_bar[ 2 ]{};                             ///< Shop bars.
 	BITMAP* stuff_icon_base{ nullptr };                   ///< Shop icon base.
 	BITMAP* topbar{ nullptr };                            ///< Top bar.
@@ -64,8 +64,8 @@ private:
 
 // === Helper Functions ===
 // ========================
-BITMAP* create_gradient_strip( gradient const* grad, int32_t len );
-int32_t gradientColorPoint( gradient const* grad, double len, double line );
+BITMAP* create_gradient_strip( sGradient const* grad, int32_t len );
+int32_t gradientColorPoint( sGradient const* grad, double len, double line );
 
 
 #endif // ATANKS_GFXDATA_H_INCLUDED

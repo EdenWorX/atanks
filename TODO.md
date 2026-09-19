@@ -447,7 +447,7 @@ per module.
   `DECOR` → `CDecor`, `TELEPORT` → `CTeleport`, `FLOATTEXT` → `CFloatText`, `AICore` → `CAICore`, `WEAPON` → `CWeapon`,
   and `ITEM` → `CItem`, updating every reference tree-wide. Pure renames; verify with a build.
 
-- [ ] **PF-1.15.2.3**: Mechanical global renames (enums, typedefs, small structs)
+- [x] **PF-1.15.2.3**: Mechanical global renames (enums, typedefs, small structs)
 
   Apply the `E`-prefix enum renames, the lowercase `_t` typedef/parameter fixes, and the small-struct renames (`sGradient`,
   `sMessage`, `sSendReceive`, `Point`, `PlayerMini`, `UpdateData`, `sBox`) tree-wide. Pure renames; verify with a build.

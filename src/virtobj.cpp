@@ -70,7 +70,7 @@ void CVirtualObject::initialise() {
 	xv      = 0;
 	yv      = 0;
 	destroy = false;
-	dim_cur = dim_old = BOX();
+	dim_cur = dim_old = sBox();
 }
 
 /// @brief Set a new bitmap and store width and height for easy drawing.

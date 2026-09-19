@@ -187,7 +187,7 @@ void OptionItemPlayer::display( bool show_full ) {
 		}
 
 		// Then display the player name
-		eTeamTypes pTeam = player && *player ? ( *player )->team : TEAM_COUNT;
+		ETeamTypes pTeam = player && *player ? ( *player )->team : TEAM_COUNT;
 		if ( title && title[ 0 ] ) {
 
 			// Is the text shadowed, then create one:

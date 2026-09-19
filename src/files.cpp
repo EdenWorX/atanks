@@ -131,7 +131,7 @@ bool Load_Game() {
 	}
 
 	// Now read until the file is finished loading
-	eSaveGameStage stage = SGS_NONE;
+	ESaveGameStage stage = SGS_NONE;
 	do {
 		// read a line
 		memset( line, 0, MAX_CONFIG_LINE );
@@ -421,8 +421,8 @@ void scrollTextList( TEXTBLOCK* lines ) {
 	bool             done     = false;
 	bool             moving   = true;
 
-	eBackgroundTypes bgType =
-		env.dynamicMenuBg ? static_cast< eBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	EBackgroundTypes bgType =
+		env.dynamicMenuBg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 
 	drawMenuBackground( bgType, tOffset, numItems );
 	quickChange( true );
@@ -539,8 +539,8 @@ bool Load_Weapons_Text() {
 	// read line
 	char       line[ 512 ]   = { 0 };
 	char*      status        = fgets( line, 512, wfile );
-	eFileStage file_stage    = FS_WEAPONS; // weapons, naturals, items
-	eDataStage data_stage    = DS_NAME;    // name, description, data
+	EFileStage file_stage    = FS_WEAPONS; // weapons, naturals, items
+	EDataStage data_stage    = DS_NAME;    // name, description, data
 	int32_t    item_count    = 0;
 	int32_t    weapon_count  = 0;
 	int32_t    natural_count = 0;

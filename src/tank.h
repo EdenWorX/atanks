@@ -76,13 +76,13 @@ public:
 	void    newRound( int32_t pos_x, int32_t pos_y );                                                        ///< Spawn for a new round.
 	void    reactivate_shield();                                                                             ///< Reload the shield.
 	void    repair();                                                                                        ///< Field-repair the tank.
-	bool    repulse( double xpos, double ypos, double* xa, double* ya, ePhysType phys_type );                ///< Repulsor pushback.
+	bool    repulse( double xpos, double ypos, double* xa, double* ya, EPhysType phys_type );                ///< Repulsor pushback.
 	void    resetFlashDamage();                                                                              ///< Flush flash damage.
 	bool    shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );                   ///< Check shot clearance.
 	void    simActivateCurrentSelection();                                                                   ///< Fire simultaneously.
 
 	/// Return the object class.
-	eClass  getClass() final { return CLASS_TANK; }
+	EClass  getClass() final { return CLASS_TANK; }
 
 	/* Status Getters */
 	[[nodiscard]] double  getDiameter() const;          ///< Tank diameter.

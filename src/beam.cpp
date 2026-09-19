@@ -40,12 +40,12 @@ static void lazerPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t color );
 static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
 
 /// @brief CBeam constructor
-CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type )
+CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t EWeaponType, EBeamType beam_type )
 	: CPhysicalObject( BT_WEAPON == beam_type )
 	, beamType( beam_type )
 	, tgtRightX( env.screenWidth ) {
 	this->player   = player_;
-	this->weapType = weaponType;
+	this->weapType = EWeaponType;
 
 	assert( ( ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) )
 	          || ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) )
@@ -53,7 +53,7 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t
 
 #ifdef NETWORK
 	char buffer[ 256 ];
-	sprintf( buffer, "CBeam %d %d %d %d", (int)x_, (int)y_, fireAngle, weaponType );
+	sprintf( buffer, "CBeam %d %d %d %d", (int)x_, (int)y_, fireAngle, EWeaponType );
 	env.sendToClients( buffer );
 #endif // NETWORK
 
@@ -124,8 +124,8 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t
 }
 
 /// @brief special constructor for SDI lasers
-CBeam::CBeam( CPlayer *player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out )
-	: CBeam( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, weaponType, BT_SDI ) {
+CBeam::CBeam( CPlayer *player_, double x_, double y_, double tx, double ty, int32_t EWeaponType, bool is_burnt_out )
+	: CBeam( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, EWeaponType, BT_SDI ) {
 	if ( player ) {
 		++player->sdiShots;
 	}

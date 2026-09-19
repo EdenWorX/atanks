@@ -19,14 +19,14 @@
 #  include <sys/socket.h>
 #endif // MSVC++ versus gcc/clang
 
-/// @brief update_data default ctor
-update_data::update_data( char const* server_, char const* remote_, char const* host_ )
+/// @brief UpdateData default ctor
+UpdateData::UpdateData( char const* server_, char const* remote_, char const* host_ )
 	: server_name( server_ ? strdup( server_ ) : strdup( "" ) )
 	, host_name( host_ ? strdup( host_ ) : strdup( "" ) )
 	, remote_file( remote_ ? strdup( remote_ ) : strdup( "" ) ) {}
 
-/// @brief update_data default dtor
-update_data::~update_data() {
+/// @brief UpdateData default dtor
+UpdateData::~UpdateData() {
 	if ( server_name ) {
 		free( server_name );
 	}
@@ -38,7 +38,7 @@ update_data::~update_data() {
 	}
 }
 
-void update_data::operator() () {
+void UpdateData::operator() () {
 #ifdef NETWORK
 	if ( env.check_for_updates ) {
 		// set up socket

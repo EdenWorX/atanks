@@ -111,7 +111,7 @@ public:
 	CTank*                            get_random_tank();                     ///< Pick a random live tank.
 	void                             initialise();                          ///< Clear objects and reset per-round state.
 	bool                             isCloseBtnPressed();                   ///< Read the close-button flag.
-	void                             lockClass( eClass class_ );            ///< Lock an object-class list.
+	void                             lockClass( EClass class_ );            ///< Lock an object-class list.
 	void                             lockLand();                            ///< Lock the terrain.
 	/// Queue a background dirty rectangle.
 	void                             make_bgupdate( int32_t x, int32_t y, int32_t w, int32_t h );
@@ -126,15 +126,15 @@ public:
 	void                             set_curr_tank( CTank* tank_ );                              ///< Set the tank whose turn it is.
 	void                             set_command( int32_t cmd );                                ///< Store the pending menu command.
 	void                             slideLand();                                               ///< Apply queued landslides.
-	void                             unlockClass( eClass class_ );                              ///< Unlock an object-class list.
+	void                             unlockClass( EClass class_ );                              ///< Unlock an object-class list.
 	void                             unlockLand();                                              ///< Unlock the terrain.
 	void                             unlockLandSlide( int32_t left, int32_t right );            ///< Release a landslide region lock.
 
 	/// Fetch the locked head of an object-class list.
-	template< typename Head_T > void getHeadOfClass( eClass class_, Head_T** head_ ) {
+	template< typename head_t > void getHeadOfClass( EClass class_, head_t** head_ ) {
 		if ( class_ < CLASS_COUNT ) {
 			objLocks[ class_ ].lock();
-			*head_ = static_cast< Head_T* >( heads[ class_ ] );
+			*head_ = static_cast< head_t* >( heads[ class_ ] );
 			objLocks[ class_ ].unlock();
 		} else {
 			*head_ = nullptr;
@@ -165,13 +165,13 @@ public:
 	BITMAP*     canvas{ nullptr };                       ///< Main drawing canvas.
 	char const* client_message{ nullptr };               ///< Message sent from client to main menu.
 	CPlayer*     client_player{ nullptr };                ///< Player on the client side.
-	int32_t     curland{ 0 };                            ///< Current land gradient index.
+	int32_t     curland{ 0 };                            ///< Current land sGradient index.
 	int32_t     current_drawing_mode{ DRAW_MODE_SOLID }; ///< Active Allegro drawing mode.
 	uint32_t    currentround{ 0 };                       ///< Current round number.
-	int32_t     cursky{ 0 };                             ///< Current sky gradient index.
+	int32_t     cursky{ 0 };                             ///< Current sky sGradient index.
 	bool        demo_mode{ false };                      ///< Demo (AI-only) mode active.
 	bool        hasTooMuchDeco{ false };                 ///< Set to true if the set FPS are too hard to reach.
-	BOX*        lastUpdates{ nullptr };                  ///< Dirty rectangles of the previous frame.
+	sBox*        lastUpdates{ nullptr };                  ///< Dirty rectangles of the previous frame.
 	int32_t     lastUpdatesCount{ 0 };                   ///< Dirty rectangle count of the previous frame.
 	double      lastwind{ 0. };                          ///< Wind of the previous turn.
 	int32_t     naturals_activated{ 0 };                 ///< Naturals triggered this round.
@@ -186,7 +186,7 @@ public:
 	int32_t     tank_status_colour{ BLACK };             ///< Status line color.
 	BITMAP*     terrain{ nullptr };                      ///< Destructible terrain bitmap.
 	bool        updateMenu{ true };                      ///< Menu needs redrawing.
-	BOX*        updates{ nullptr };                      ///< Dirty rectangles queued for redraw.
+	sBox*        updates{ nullptr };                      ///< Dirty rectangles queued for redraw.
 	char*       update_string{ nullptr };                ///< Legacy update-checker message.
 	int32_t     used_voices{ 0 };                        ///< Audio voices currently playing.
 	double      wind{ 0. };                              ///< Current wind strength.
@@ -202,7 +202,7 @@ private:
 	 */
 
 	// Combine make_update and make_bgupdate with safety checks
-	void addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, BOX* target, int32_t& target_count ) const;
+	void addUpdate( int32_t x, int32_t y, int32_t w, int32_t h, sBox* target, int32_t& target_count ) const;
 
 
 	/* -----------------------

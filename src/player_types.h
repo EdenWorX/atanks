@@ -7,10 +7,10 @@
 
 #include "main.h"
 
-/** @enum ePlayerStages
+/** @enum EPlayerStages
  * @brief AI planning stages.
  **/
-enum ePlayerStages {
+enum EPlayerStages {
 	PS_AI_IS_IDLE = 0, //!< AI has nothing to do and is free to get work
 	PS_AI_INITIALIZE,  //!< AI is initializing its data
 	PS_SELECT_TARGET,  //!< AI is selecting a target
@@ -25,18 +25,18 @@ enum ePlayerStages {
 };
 
 /// Shift the stage by a signed offset.
-ePlayerStages &operator+= ( ePlayerStages &src, int32_t val );
+EPlayerStages &operator+= ( EPlayerStages &src, int32_t val );
 /// Shift the stage by a negated signed offset.
-ePlayerStages &operator-= ( ePlayerStages &src, int32_t val );
+EPlayerStages &operator-= ( EPlayerStages &src, int32_t val );
 /// Advance to the next stage.
-ePlayerStages &operator++ ( ePlayerStages &src );
+EPlayerStages &operator++ ( EPlayerStages &src );
 /// Advance to the next stage (postfix form).
-ePlayerStages operator++ ( ePlayerStages &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+EPlayerStages operator++ ( EPlayerStages &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
-/** @enum playerType
+/** @enum EPlayerType
  * @brief Player skill levels and special types.
  **/
-enum playerType {
+enum EPlayerType {
 	HUMAN_PLAYER = 0,
 	USELESS_PLAYER,
 	GUESSER_PLAYER,
@@ -58,32 +58,32 @@ int32_t const maxAiLevel = DEADLY_PLAYER + 1;
 
 
 /// Shift the type by a signed offset.
-playerType &operator+= ( playerType &src, int32_t val );
+EPlayerType &operator+= ( EPlayerType &src, int32_t val );
 /// Shift the type by a negated signed offset.
-playerType &operator-= ( playerType &src, int32_t val );
+EPlayerType &operator-= ( EPlayerType &src, int32_t val );
 /// Advance to the next type.
-playerType &operator++ ( playerType &src );
+EPlayerType &operator++ ( EPlayerType &src );
 /// Advance to the next type (postfix form).
-playerType operator++ ( playerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+EPlayerType operator++ ( EPlayerType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
-/** @enum playerPrefType
+/** @enum EPlayerPrefType
  * @brief Weapon preference lifetime.
  **/
-enum playerPrefType { PERPLAY_PREF = 0, ALWAYS_PREF, PREF_COUNT };
+enum EPlayerPrefType { PERPLAY_PREF = 0, ALWAYS_PREF, PREF_COUNT };
 
 /// Shift the preference scope by a signed offset.
-playerPrefType &operator+= ( playerPrefType &src, int32_t val );
+EPlayerPrefType &operator+= ( EPlayerPrefType &src, int32_t val );
 /// Shift the preference scope by a negated signed offset.
-playerPrefType &operator-= ( playerPrefType &src, int32_t val );
+EPlayerPrefType &operator-= ( EPlayerPrefType &src, int32_t val );
 /// Advance to the next preference scope.
-playerPrefType &operator++ ( playerPrefType &src );
+EPlayerPrefType &operator++ ( EPlayerPrefType &src );
 /// Advance to the next preference scope (postfix form).
-playerPrefType operator++ ( playerPrefType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+EPlayerPrefType operator++ ( EPlayerPrefType &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
-/** @enum ePlayerEdit
+/** @enum EPlayerEdit
  * @brief return codes used by the sub menus when editing players
  **/
-enum ePlayerEdit {
+enum EPlayerEdit {
 	PE_BACK         = 1,        //!< User opted out. No new player, no edit and no deletion.
 	PE_CONFIRM_NEW  = 0x010000, //!< Adding a new player was confirmed
 	PE_CONFIRM_EDIT = 0x020000, //!< Changes to a player have been confirmed
@@ -91,29 +91,29 @@ enum ePlayerEdit {
 	                            // Note: The values allow to use the last 16 bit for key code bit masks.
 };
 
-/** @enum eTeamTypes
+/** @enum ETeamTypes
  * @brief determines the team a player belongs to
  **/
-enum eTeamTypes { TEAM_SITH = 0, TEAM_NEUTRAL, TEAM_JEDI, TEAM_COUNT };
+enum ETeamTypes { TEAM_SITH = 0, TEAM_NEUTRAL, TEAM_JEDI, TEAM_COUNT };
 
 /// Shift the team by a signed offset.
-eTeamTypes &operator+= ( eTeamTypes &src, int32_t val );
+ETeamTypes &operator+= ( ETeamTypes &src, int32_t val );
 /// Shift the team by a negated signed offset.
-eTeamTypes &operator-= ( eTeamTypes &src, int32_t val );
+ETeamTypes &operator-= ( ETeamTypes &src, int32_t val );
 /// Advance to the next team.
-eTeamTypes &operator++ ( eTeamTypes &src );
+ETeamTypes &operator++ ( ETeamTypes &src );
 /// Advance to the next team (postfix form).
-eTeamTypes operator++ ( eTeamTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+ETeamTypes operator++ ( ETeamTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
-/** @enum eTankOffsets
+/** @enum ETankOffsets
  * @brief Centrally store the bitmap offsets of the tank images
  **/
-enum eTankOffsets { TO_TURRET = 0, TO_TANK = 7 };
+enum ETankOffsets { TO_TURRET = 0, TO_TANK = 7 };
 
-/** @enum eTankTypes
+/** @enum ETankTypes
  * @brief the tanks currently known, TT_TANK_COUNT is the number of tanks
  **/
-enum eTankTypes {
+enum ETankTypes {
 	TT_NORMAL = 0,
 	TT_CLASSIC,
 	TT_BIGGREY,
@@ -128,13 +128,13 @@ enum eTankTypes {
 };
 
 /// Shift the tank type by a signed offset.
-eTankTypes &operator+= ( eTankTypes &src, int32_t val );
+ETankTypes &operator+= ( ETankTypes &src, int32_t val );
 /// Shift the tank type by a negated signed offset.
-eTankTypes &operator-= ( eTankTypes &src, int32_t val );
+ETankTypes &operator-= ( ETankTypes &src, int32_t val );
 /// Advance to the next tank type.
-eTankTypes &operator++ ( eTankTypes &src );
+ETankTypes &operator++ ( ETankTypes &src );
 /// Advance to the next tank type (postfix form).
-eTankTypes operator++ ( eTankTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+ETankTypes operator++ ( ETankTypes &src, int32_t ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 
 
 #endif // ATANKS_PLAYER_TYPES_H_INCLUDED

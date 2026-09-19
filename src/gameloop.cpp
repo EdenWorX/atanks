@@ -87,7 +87,7 @@ std::condition_variable updCondition;
 
 /// Helper Class to multi-thread object updating
 class ObjectUpdater {
-	eClass  class_ = CLASS_COUNT;
+	EClass  class_ = CLASS_COUNT;
 	abool_t doExit;
 	abool_t doStart;
 	abool_t isDone;
@@ -132,7 +132,7 @@ public:
 
 
 			// Okay, do the updating for this class:
-			global.getHeadOfClass( static_cast< eClass >( class_ ), &obj );
+			global.getHeadOfClass( static_cast< EClass >( class_ ), &obj );
 
 			// If this is the floating text class, lock it, or AI
 			// feedback might lead to data races.
@@ -227,7 +227,7 @@ public:
 
 	void finish() { doExit.store( true ); }
 
-	void setClass( eClass aClass_ ) { class_ = aClass_; }
+	void setClass( EClass aClass_ ) { class_ = aClass_; }
 
 	void setForceAge( int32_t ageing_ ) { force_age = ageing_; }
 
@@ -284,7 +284,7 @@ void game() {
 			smkIdx = class_;
 		}
 
-		updater[ class_ ].setClass( static_cast< eClass >( class_ ) );
+		updater[ class_ ].setClass( static_cast< EClass >( class_ ) );
 		threads[ class_ ] = new std::thread( std::ref( updater[ class_ ] ) );
 	}
 
@@ -810,7 +810,7 @@ static inline void check_winner() {
 	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
 		CTank* tank = env.players[ i ]->tank;
 		if ( tank && tank->l && !tank->destroy && tank->player ) {
-			eTeamTypes team = tank->player->team;
+			ETeamTypes team = tank->player->team;
 			if ( TEAM_SITH != team ) {
 				all_sith = false;
 			}
@@ -860,7 +860,7 @@ static inline void delete_destroyed( CAICore& aicore ) {
 			continue;
 		}
 
-		auto e_class = static_cast< eClass >( class_ );
+		auto e_class = static_cast< EClass >( class_ );
 
 		global.getHeadOfClass( e_class, &obj );
 		global.lockClass( e_class );
@@ -1009,7 +1009,7 @@ static inline void draw_objects( CAICore& aicore ) {
 
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
 
-		global.getHeadOfClass( static_cast< eClass >( class_ ), &obj );
+		global.getHeadOfClass( static_cast< EClass >( class_ ), &obj );
 		while ( obj ) {
 
 			if ( show_frame ) {
@@ -1451,7 +1451,7 @@ static inline void init_new_round() {
 	fi                = 1;
 	global.stage      = STAGE_AIM;
 	global.updateMenu = true;
-	env.window        = BOX( 0, 0, env.screenWidth - 1, env.screenHeight - 1 );
+	env.window        = sBox( 0, 0, env.screenWidth - 1, env.screenHeight - 1 );
 }
 
 /// @brief Wrapper to combine both human input and AI actions.

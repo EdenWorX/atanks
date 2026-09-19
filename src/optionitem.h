@@ -62,13 +62,13 @@
  * types to proper types without the need to adapt the option menu.
  *
  * Template parameters:\n
- * While tgt_T defines the target type, opt_T is used for the manipulating
+ * While tgt_t defines the target type, opt_t is used for the manipulating
  * values like minimum, maximum, increment/decrement value and action function
  * typing. This is done to allow a more intuitive usage.\n
  * As an example, if the target is a double, minimum, maximum and increment
  * values can be set to -1.0, 1.0 and 0.1 without the need for a postfix 'L'.
  **/
-template< typename tgt_T, typename opt_T = int32_t > class OptionItem final : public OptionItemBase {
+template< typename tgt_t, typename opt_t = int32_t > class OptionItem final : public OptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -93,10 +93,10 @@ public:
 	 * @param[in] padding_ Padding of the title and buttons to the display area.
 	 **/
 	OptionItem(
-		tgt_T*      target_,
-		opt_T       max_,
+		tgt_t*      target_,
+		opt_t       max_,
 		int32_t     color_,
-		eEntryType  type_,
+		EEntryType  type_,
 		char const* title_,
 		int32_t     titleIdx_,
 		char const* format_,
@@ -139,22 +139,22 @@ public:
 	 * @param[in] display_ optional display function to use.
 	 **/
 	explicit OptionItem(
-		tgt_T*       target_,
+		tgt_t*       target_,
 		char const*  title_,
 		int32_t      titleIdx_,
 		char const** text_,
 		int32_t      color_,
-		eTextClass   class_,
-		opt_T        min_,
-		opt_T        max_,
-		opt_T        decinc_,
+		ETextClass   class_,
+		opt_t        min_,
+		opt_t        max_,
+		opt_t        decinc_,
 		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
 		int32_t      width_,
 		int32_t      height_,
 		int32_t      padding_,
-		bool ( *display_ )( tgt_T* target, int32_t x, int32_t y )
+		bool ( *display_ )( tgt_t* target, int32_t x, int32_t y )
 	)
 		: OptionItemBase( ET_VALUE, title_, titleIdx_, text_, color_, class_, format_, top_, left_, width_, height_, padding_, 0 )
 		, displayFunc( display_ )
@@ -168,7 +168,7 @@ public:
 
 		// maxVal must be larger than minVal, otherwise they are swapped
 		if ( maxVal < minVal ) {
-			opt_T tmp = minVal;
+			opt_t tmp = minVal;
 			minVal    = maxVal;
 			maxVal    = tmp;
 		}
@@ -209,24 +209,24 @@ public:
 	 * @param[in] display_ optional display function to use.
 	 **/
 	OptionItem(
-		tgt_T* target_,
-		int32_t ( *action_ )( tgt_T* target, int32_t val ),
-		eEntryType   type_,
+		tgt_t* target_,
+		int32_t ( *action_ )( tgt_t* target, int32_t val ),
+		EEntryType   type_,
 		char const*  title_,
 		int32_t      titleIdx_,
 		char const** text_,
 		int32_t      color_,
-		eTextClass   class_,
-		opt_T        min_,
-		opt_T        max_,
-		opt_T        decinc_,
+		ETextClass   class_,
+		opt_t        min_,
+		opt_t        max_,
+		opt_t        decinc_,
 		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
 		int32_t      width_,
 		int32_t      height_,
 		int32_t      padding_,
-		bool ( *display_ )( tgt_T* target, int32_t x, int32_t y )
+		bool ( *display_ )( tgt_t* target, int32_t x, int32_t y )
 	)
 		: OptionItemBase( type_, title_, titleIdx_, text_, color_, class_, format_, top_, left_, width_, height_, padding_, 0 )
 		, actionFunc( action_ )
@@ -253,7 +253,7 @@ public:
 		// limitations as with the ET_VALUE ctor are present.
 		if ( ET_VALUE == type ) {
 			if ( maxVal < minVal ) {
-				opt_T tmp = minVal;
+				opt_t tmp = minVal;
 				minVal    = maxVal;
 				maxVal    = tmp;
 			}
@@ -288,8 +288,8 @@ public:
 	 **/
 	OptionItem(
 		int32_t keyCode_,
-		tgt_T*  target_,
-		int32_t ( *action_ )( tgt_T* target, int32_t val ),
+		tgt_t*  target_,
+		int32_t ( *action_ )( tgt_t* target, int32_t val ),
 		char const* title_,
 		int32_t     titleIdx_,
 		BUTTON*     button_,
@@ -415,7 +415,7 @@ public:
 	bool canGoDown() final {
 		if ( ( ET_VALUE == this->type ) && this->format ) {
 			// Check format, because texts[] based options are rotated.
-			return *target > static_cast< tgt_T >( minVal );
+			return *target > static_cast< tgt_t >( minVal );
 		}
 		return true;
 	}
@@ -423,7 +423,7 @@ public:
 	/// @brief return true if the target has not reached its maximum, yet
 	bool canGoUp() final {
 		if ( ( ET_VALUE == this->type ) && this->format ) {
-			return *target < static_cast< tgt_T >( maxVal );
+			return *target < static_cast< tgt_t >( maxVal );
 		}
 		return true;
 	}
@@ -486,7 +486,7 @@ public:
 	bool isExitButton() final { return ( ( ET_BUTTON == type ) && ( nullptr == actionFunc ) && ( -1 < keyCode ) ); }
 
 	/// @brief Quickly change (or set) the action function
-	void setAction( int32_t ( *action_ )( tgt_T* target, int32_t val ) ) { actionFunc = action_; }
+	void setAction( int32_t ( *action_ )( tgt_t* target, int32_t val ) ) { actionFunc = action_; }
 
 
 private:
@@ -495,21 +495,21 @@ private:
 	 * ----------------------------------------------
 	 */
 
-	int32_t ( *actionFunc )( tgt_T* target, int32_t val )        = nullptr;
-	bool ( *displayFunc )( tgt_T* target, int32_t x, int32_t y ) = nullptr;
+	int32_t ( *actionFunc )( tgt_t* target, int32_t val )        = nullptr;
+	bool ( *displayFunc )( tgt_t* target, int32_t x, int32_t y ) = nullptr;
 
 	/// @brief templated ET_VALUE activation handling
 	void activateValue( int32_t val ) {
 		// A few short-cuts that make reading the following a lot easier:
-		auto t_val = static_cast< tgt_T >( ( decinc * val ) );
-		auto t_max = static_cast< tgt_T >( maxVal );
-		auto t_min = static_cast< tgt_T >( minVal );
+		auto t_val = static_cast< tgt_t >( ( decinc * val ) );
+		auto t_max = static_cast< tgt_t >( maxVal );
+		auto t_min = static_cast< tgt_t >( minVal );
 
 		if ( format ) {
 			// If a format is set, this is just a simple adding/substracting
 			// of decinc with a check against min/max value afterwards
 			// val == 0 is simply ignored.
-			tgt_T oldTgt = *target;
+			tgt_t oldTgt = *target;
 			if ( val > 0 ) {
 				if ( *target <= ( t_max - t_val ) ) {
 					*target += t_val;
@@ -537,13 +537,13 @@ private:
 					entryNum = 0;
 				}
 			} else if ( val < 0 ) {
-				if ( entryNum > 0 && ( *target > static_cast< tgt_T >( 0 ) ) ) {
+				if ( entryNum > 0 && ( *target > static_cast< tgt_t >( 0 ) ) ) {
 					--entryNum;
 				} else {
 					entryNum = t_max;
 				}
 			}
-			*target = static_cast< tgt_T >( entryNum );
+			*target = static_cast< tgt_t >( entryNum );
 		}
 	}
 
@@ -552,10 +552,10 @@ private:
 	 * -----------------------
 	 */
 
-	opt_T  decinc = (opt_T)1; //!< Increment / decrement for ET_VALUE
-	opt_T  maxVal = (opt_T)0; //!< Maximum value for ET_VALUE
-	opt_T  minVal = (opt_T)0; //!< Minimum value for ET_VALUE
-	tgt_T* target = nullptr;  //!< Target to handle
+	opt_t  decinc = (opt_t)1; //!< Increment / decrement for ET_VALUE
+	opt_t  maxVal = (opt_t)0; //!< Maximum value for ET_VALUE
+	opt_t  minVal = (opt_t)0; //!< Minimum value for ET_VALUE
+	tgt_t* target = nullptr;  //!< Target to handle
 };
 
 

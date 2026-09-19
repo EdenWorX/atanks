@@ -618,7 +618,7 @@ void CExplosion::explode() {
 	if ( apply_damage ) {
 		// In this case, the affected tanks must be checked first
 		CTank* lt    = nullptr;
-		auto  wType = static_cast< weaponType >( weapType );
+		auto  wType = static_cast< EWeaponType >( weapType );
 
 		// But do not check dirt balls, they deal no damage
 		if ( ( DIRT_BALL > weapType ) || ( SUP_DIRT_BALL < weapType ) ) {
@@ -989,7 +989,7 @@ void draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius,
  * @param[in] hit_y Y coordinate of the impact
  * @return The part damage of the weapon without player modification
  **/
-double get_hit_damage( CTank* tank, weaponType type, double hit_x, double hit_y ) {
+double get_hit_damage( CTank* tank, EWeaponType type, double hit_x, double hit_y ) {
 	if ( ( nullptr == tank ) || ( tank->destroy ) ) {
 		return 0.;
 	}

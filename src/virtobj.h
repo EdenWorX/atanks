@@ -24,9 +24,9 @@
 #include "main.h"
 #include "text.h"
 
-/// @enum ePhysType
+/// @enum EPhysType
 /// @brief Determine which kind of physics should be used
-enum ePhysType {
+enum EPhysType {
 	PT_NORMAL = 0,  //!< No special processing, just a normal curve shot and impact.
 	PT_FUNKY_FLOAT, //!< Funky bomb-lets ignore gravitation.
 	PT_DIGGING,     //!< Burrowers and the like dig through dirt in a reverse curve.
@@ -91,7 +91,7 @@ public:
 
 	/* --- pure virtual (abstract) methods --- */
 	/// Return the object class.
-	virtual eClass getClass() = 0;
+	virtual EClass getClass() = 0;
 
 	/* ------------------------------
 	 * --- templated list getters ---
@@ -99,16 +99,16 @@ public:
 	 */
 
 	/// @brief If not nullptr, set @a prev_ to the predecessor of this.
-	template< typename obj_T > void getPrev( obj_T** prev_ ) {
-		auto* prev_obj = static_cast< obj_T* >( prev );
+	template< typename obj_t > void getPrev( obj_t** prev_ ) {
+		auto* prev_obj = static_cast< obj_t* >( prev );
 		if ( prev_ ) {
 			*prev_ = prev_obj;
 		}
 	}
 
 	/// @brief If not nullptr, set @a next_ to the successor of this.
-	template< typename obj_T > void getNext( obj_T** next_ ) {
-		auto* next_obj = static_cast< obj_T* >( next );
+	template< typename obj_t > void getNext( obj_t** next_ ) {
+		auto* next_obj = static_cast< obj_t* >( next );
 		if ( next_ ) {
 			*next_ = next_obj;
 		}
@@ -148,13 +148,13 @@ protected:
 	 */
 
 	int32_t   age       = 0;        ///< Age in frames.
-	alignType align     = LEFT;     ///< Label alignment.
+	EAlignType align     = LEFT;     ///< Label alignment.
 	int32_t   angle     = 0;        ///< Facing angle.
-	BOX       dim_cur{};            ///< Current dirty rectangle.
-	BOX       dim_old{};            ///< Previous dirty rectangle.
+	sBox       dim_cur{};            ///< Current dirty rectangle.
+	sBox       dim_old{};            ///< Previous dirty rectangle.
 	int32_t   height    = 0;        ///< Bitmap height.
 	int32_t   maxAge    = -1;       ///< Lifespan in frames (-1 is forever).
-	ePhysType physType = PT_NORMAL; ///< Special physics processing.
+	EPhysType physType = PT_NORMAL; ///< Special physics processing.
 	int32_t   width     = 0;        ///< Bitmap width.
 	double    xv        = 0.;       ///< Horizontal velocity.
 	double    yv        = 0.;       ///< Vertical velocity.

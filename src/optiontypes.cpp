@@ -7,7 +7,7 @@
  * @param[in] etype The enum entry to get the name of.
  * @return A sattic C-string with the name or "UNIMPLEMENTED" if a new entry hasn't been added here, yet.
  */
-char const* getEntryTypeName( eEntryType etype ) {
+char const* getEntryTypeName( EEntryType etype ) {
 	switch ( etype ) {
 		case ET_NONE:
 			return "ET_NONE";
@@ -38,7 +38,7 @@ char const* getEntryTypeName( eEntryType etype ) {
  * @param[in] mclass The enum entry to get the name of.
  * @return A sattic C-string with the name or "UNIMPLEMENTED" if a new entry hasn't been added here, yet.
  */
-char const* getMenuClassName( eMenuClass mclass ) {
+char const* getMenuClassName( EMenuClass mclass ) {
 	switch ( mclass ) {
 		case MC_FINANCE:
 			return "MC_FINANCE";
@@ -71,7 +71,7 @@ char const* getMenuClassName( eMenuClass mclass ) {
  * @param[in] tclass The enum entry to get the name of.
  * @return A static C-string with the name or "UNIMPLEMENTED" if a new entry hasn't been  added here, yet.
  */
-char const* getTextClassName( eTextClass tclass ) {
+char const* getTextClassName( ETextClass tclass ) {
 	switch ( tclass ) {
 		case TC_COLOUR:
 			return "TC_COLOUR";

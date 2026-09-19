@@ -253,7 +253,7 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( player_number, args[ 1 ] );
 		SAFE_STOI( the_team, args[ 2 ] );
 		if ( ( the_team < env.numGamePlayers ) && ( the_team >= 0 ) ) {
-			env.players[ player_number ]->team = static_cast< eTeamTypes >( the_team );
+			env.players[ player_number ]->team = static_cast< ETeamTypes >( the_team );
 			if ( the_team == TEAM_JEDI ) {
 				colour = makecol( 0, 255, 0 );
 			} else if ( the_team == TEAM_SITH ) {
@@ -666,7 +666,7 @@ int Game_Client( int socket_number ) {
 				continue;
 			}
 
-			global.getHeadOfClass( static_cast< eClass >( class_ ), &my_object );
+			global.getHeadOfClass( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->getNext( &next_obj );
 
@@ -712,7 +712,7 @@ int Game_Client( int socket_number ) {
 
 		class_        = 0;
 		while ( class_ < CLASS_COUNT ) {
-			global.getHeadOfClass( static_cast< eClass >( class_ ), &my_object );
+			global.getHeadOfClass( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->draw();
 				if ( CLASS_FLOATTEXT == class_ ) {

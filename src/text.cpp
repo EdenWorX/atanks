@@ -37,7 +37,7 @@ void TEXTBLOCK::destroy() {
 /// @brief Draw @a text in the box @a region with border and blue background
 /// if @a with_box is true.
 /// This method releases the display and can therefore be used in parallel.
-void draw_text_in_box( BOX* region, char const* text, bool with_box ) {
+void draw_text_in_box( sBox* region, char const* text, bool with_box ) {
 	if ( with_box ) {
 		global.lockLand();
 		rectfill( global.canvas, region->x, region->y, region->w, region->h, makecol( 0, 0, 128 ) );

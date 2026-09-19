@@ -65,12 +65,12 @@ public:
 
 	/// Create an option item.
 	explicit OptionItemBase(
-		eEntryType   type_,
+		EEntryType   type_,
 		char const*  title_,
 		int32_t      titleIdx_,
 		char const** text_,
 		int32_t      color_,
-		eTextClass   class_,
+		ETextClass   class_,
 		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
@@ -95,7 +95,7 @@ public:
 	OptionItemBase* getNext();                                                 ///< Next list entry.
 	OptionItemBase* getPrev();                                                 ///< Previous list entry.
 	uint32_t        getTextClass();                                            ///< Read the text class.
-	eEntryType      getType();                                                 ///< Read the entry type.
+	EEntryType      getType();                                                 ///< Read the entry type.
 	void            insert_after( OptionItemBase* new_prev );                  ///< Insert an entry after this.
 	void            insert_before( OptionItemBase* new_next );                 ///< Insert an entry before this.
 	bool            is_click_in( int32_t x, int32_t y, int32_t& ret );         ///< Hit-test a click.
@@ -106,7 +106,7 @@ public:
 	void            select();                                                  ///< Select the entry.
 	void            setPadding( int32_t new_padding );                         ///< Set the title padding.
 	void            setTitle( char const* new_title );                         ///< Set the title.
-	void            setTextClass( eTextClass new_class );                      ///< Set the text class.
+	void            setTextClass( ETextClass new_class );                      ///< Set the text class.
 	void            setTexts( char const** new_texts );                        ///< Set the text array.
 	void            unselect();                                                ///< Deselect the entry.
 
@@ -160,7 +160,7 @@ protected:
 	static int32_t activateMenu( Menu* target );
 
 	/// @brief As OT_VALUE might be anything, it is templated on method scale.
-	template< typename tgt_T > void displayValue( tgt_T* target ) {
+	template< typename tgt_t > void displayValue( tgt_t* target ) {
 		if ( format ) {
 			char txt_buf[ 256 ] = { 0x0 };
 			snprintf( txt_buf, 255, format, *target );
@@ -184,22 +184,22 @@ protected:
 	std::terminate(); ///< Abort on invalid dispatch configuration.
 
 	/// Abort on invalid dispatch configuration.
-	template< typename T > int32_t activateMenu( T* ) { EMERGENCY_OUT }
+	template< typename t_t > int32_t activateMenu( t_t* ) { EMERGENCY_OUT }
 
 	/// Abort on invalid dispatch configuration.
-	template< typename T > void    activateText( T*, int ) { EMERGENCY_OUT }
+	template< typename t_t > void    activateText( t_t*, int ) { EMERGENCY_OUT }
 
 	/// Abort on invalid dispatch configuration.
-	template< typename T > void    activateToggle( T* ) { EMERGENCY_OUT }
+	template< typename t_t > void    activateToggle( t_t* ) { EMERGENCY_OUT }
 
 	/// Abort on invalid dispatch configuration.
-	template< typename T > void    displayMenu( T* ) { EMERGENCY_OUT }
+	template< typename t_t > void    displayMenu( t_t* ) { EMERGENCY_OUT }
 
 	/// Abort on invalid dispatch configuration.
-	template< typename T > void    displayText( T* ) { EMERGENCY_OUT }
+	template< typename t_t > void    displayText( t_t* ) { EMERGENCY_OUT }
 
 	/// Abort on invalid dispatch configuration.
-	template< typename T > void    displayToggle( T* ) { EMERGENCY_OUT }
+	template< typename t_t > void    displayToggle( t_t* ) { EMERGENCY_OUT }
 
 #undef EMERGENCY_OUT
 
@@ -228,14 +228,14 @@ protected:
 	bool            show_menu = true;    //!< If set to true, the sub menu indicator is shown.
 	int32_t         show_size = 0;       //!< Size of the color box ET_COLOR displays the current color in
 	int32_t         textLen   = 0;       //!< Store the current size of OT_TEXT content.
-	eTextClass      textClass = TC_NONE; //!< Noted for language switch.
+	ETextClass      textClass = TC_NONE; //!< Noted for language switch.
 	bool            textOnly  = false;   //!< If set to true, displayText() draws no box.
 	char const**    texts     = nullptr; //!< Text array to use for OT_VALUE
 	char const*     title     = nullptr; //!< Title to display, mandatory
 	int32_t         titleIdx  = 0;       //!< Noted for language switch. -1 means the title is fixed.
 	int32_t         titleLen  = 0;       //!< Length of the title in pixels
 	int32_t         top       = 0;       //!< Top y position of the display area.
-	eEntryType      type      = ET_NONE; //!< Type of the option, mandatory
+	EEntryType      type      = ET_NONE; //!< Type of the option, mandatory
 	int32_t         width     = 0;       //!< Width of the display area.
 };
 

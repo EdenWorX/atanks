@@ -406,7 +406,7 @@ int32_t CPlayer::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 	return -1;
 }
 
-eControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
+EControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 	// Don't act at all when in scoreboard or endgame stage
 	if ( STAGE_SCOREBOARD <= global.stage ) {
 		return CONTROL_NONE;
@@ -415,7 +415,7 @@ eControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 	int32_t       ai_weap    = tank ? tank->cw : SML_MIS;
 	int32_t       ai_angle   = 0;
 	int32_t       ai_power   = 0;
-	ePlayerStages ai_stage   = PS_STAGE_COUNT;
+	EPlayerStages ai_stage   = PS_STAGE_COUNT;
 	bool          is_working = aicore->status( ai_weap, ai_angle, ai_power, ai_stage );
 
 	// If the AI is working with a different player or the AI is dead, return
@@ -853,7 +853,7 @@ int32_t CPlayer::computerSelectPreBuyItem( int32_t max_boost ) {
 	return -1;
 }
 
-eControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
+EControl CPlayer::controlTank( CAICore* aicore, bool allow_fire ) {
 	// Handle User input, this is read for providing the ingame menu
 	// even when no human player is active. Otherwise, the player would
 	// not be able to enter the ingame menu whenever an AI player is
@@ -1019,7 +1019,7 @@ void CPlayer::drawIndicator( int32_t x, int32_t y, int32_t h ) const {
 //
 // We should have some time keeping in here before this goes live
 // to avoid hanging the game.
-eControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
+EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 	static int playerindex = -1;
 	static int fire_delay = 0, net_delay = 0;
 
@@ -1872,9 +1872,9 @@ int32_t CPlayer::getWeapPref( int32_t idx ) {
 	return -1;
 }
 
-eControl CPlayer::humanControls( CAICore* aicore ) {
+EControl CPlayer::humanControls( CAICore* aicore ) {
 	bool     moved  = false;
-	eControl status = CONTROL_NONE;
+	EControl status = CONTROL_NONE;
 
 	// Keyboard control in aim stage
 	if ( ( global.stage == STAGE_AIM ) && tank ) {
@@ -2134,7 +2134,7 @@ bool CPlayer::load_from_file( FILE* file ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= 0 ) && ( val <= ALWAYS_PREF ) ) {
-					preftype = static_cast< playerPrefType >( val );
+					preftype = static_cast< EPlayerPrefType >( val );
 				}
 			} else if ( !strcasecmp( field, "SELFPRESERVATION" ) ) {
 				SAFE_STOD( selfPreservation, value );
@@ -2144,14 +2144,14 @@ bool CPlayer::load_from_file( FILE* file ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= 0 ) && ( val <= TEAM_JEDI ) ) {
-					team = static_cast< eTeamTypes >( val );
+					team = static_cast< ETeamTypes >( val );
 				}
 			} else if ( !strcasecmp( field, "TYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 
 				if ( ( val >= HUMAN_PLAYER ) && ( val <= LAST_PLAYER_TYPE ) ) {
-					type = static_cast< playerType >( val );
+					type = static_cast< EPlayerType >( val );
 				}
 
 				// make sure previous human players are restored as humans
@@ -2163,7 +2163,7 @@ bool CPlayer::load_from_file( FILE* file ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val <= LAST_PLAYER_TYPE ) ) {
-					type_saved = static_cast< playerType >( val );
+					type_saved = static_cast< EPlayerType >( val );
 					if ( type_saved > HUMAN_PLAYER ) {
 						type = type_saved;
 					}
@@ -2286,13 +2286,13 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val < LAST_PLAYER_TYPE ) ) {
-					type = static_cast< playerType >( val );
+					type = static_cast< EPlayerType >( val );
 				}
 			} else if ( !strcasecmp( field, "TYPESAVED" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val < LAST_PLAYER_TYPE ) ) {
-					type_saved = static_cast< playerType >( val );
+					type_saved = static_cast< EPlayerType >( val );
 				}
 			} else if ( !strcasecmp( field, "VENGEANCETHRESHOLD" ) ) {
 				SAFE_STOD( vengeanceThreshold, value );
@@ -2913,10 +2913,10 @@ void CPlayer::updatePreferences( int32_t max_boost, int32_t max_score ) {
 }
 
 /// @brief mini ctor to pacify Visual C++
-PLAYER_mini::PLAYER_mini() = default;
+PlayerMini::PlayerMini() = default;
 
 /// @brief backup a players editable data
-void PLAYER_mini::copy_from( CPlayer* source ) {
+void PlayerMini::copy_from( CPlayer* source ) {
 	if ( source ) {
 		assert( ( source->index > -1 ) && "INDEX ERROR on CPlayer!" );
 		color = source->color;
@@ -2933,7 +2933,7 @@ void PLAYER_mini::copy_from( CPlayer* source ) {
 }
 
 /// @brief copy backed up values back to the source player
-void PLAYER_mini::write_back( CPlayer* target ) {
+void PlayerMini::write_back( CPlayer* target ) {
 	if ( target ) {
 		player = target;
 	}
@@ -2971,7 +2971,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 
 
 	// Use "Mini-Player" struct to be able to cancel player editing
-	PLAYER_mini player_bak;
+	PlayerMini player_bak;
 	player_bak.copy_from( *target );
 
 	// The "Are you sure" screen when deleting a player
@@ -3138,7 +3138,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	return result;
 }
 
-static PLAYER_mini player_new; //!< Used by new_player to keep previous settings
+static PlayerMini player_new; //!< Used by new_player to keep previous settings
 
 /// @brief action function to display the edit player screen
 int32_t new_player( CPlayer** target, int32_t ) {

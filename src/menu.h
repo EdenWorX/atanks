@@ -33,10 +33,10 @@
  **/
 
 
-/** @enum eMenuReturnCodes
+/** @enum EMenuReturnCodes
  * @brief Standard return codes for the main loop
  **/
-enum eMenuReturnCodes { MRC_None = 0, MRC_Play_Game, MRC_Load_Game, MRC_Esc_Menu };
+enum EMenuReturnCodes { MRC_None = 0, MRC_Play_Game, MRC_Load_Game, MRC_Esc_Menu };
 
 /** @class Menu
  * @brief A class to build menus out of option items.
@@ -51,7 +51,7 @@ public:
 	 */
 
 	/// Create a menu.
-	explicit Menu( eMenuClass class_, int32_t menuX, int32_t menuY );
+	explicit Menu( EMenuClass class_, int32_t menuX, int32_t menuY );
 	/// Destroy a menu.
 	~Menu();
 
@@ -149,9 +149,9 @@ public:
 	 * @param[in] height Height of the display area.
 	 * @param[in] padding Distance between title and display.
 	 **/
-	template< typename tgt_T >
+	template< typename tgt_t >
 	int32_t addText(
-		tgt_T*      target,
+		tgt_t*      target,
 		int32_t     title_idx,
 		int32_t     color,
 		char const* format,
@@ -168,7 +168,7 @@ public:
 
 		if ( target && title_valid ) {
 			try {
-				curr = new OptionItem< tgt_T, int32_t >(
+				curr = new OptionItem< tgt_t, int32_t >(
 					target,
 					0,
 					color,
@@ -241,14 +241,14 @@ public:
 	 * @param[in] height Height of the display area.
 	 * @param[in] padding Distance between title, display and wheel buttons.
 	 **/
-	template< typename tgt_T, typename opt_T = int32_t >
+	template< typename tgt_t, typename opt_t = int32_t >
 	int32_t addValue(
-		tgt_T*      target,
+		tgt_t*      target,
 		int32_t     title_idx,
 		int32_t     color,
-		opt_T       minimum,
-		opt_T       maximum,
-		opt_T       increment,
+		opt_t       minimum,
+		opt_t       maximum,
+		opt_t       increment,
 		char const* format,
 		int32_t     left,
 		int32_t     top,
@@ -260,7 +260,7 @@ public:
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T >(
+				curr = new OptionItem< tgt_t, opt_t >(
 					target,
 					"",
 					title_idx,
@@ -307,14 +307,14 @@ public:
 	 * @param[in] height Height of the display area.
 	 * @param[in] padding Distance between title and display.
 	 **/
-	template< typename tgt_T, typename opt_T = int32_t >
+	template< typename tgt_t, typename opt_t = int32_t >
 	int32_t addValue(
-		tgt_T*       target,
+		tgt_t*       target,
 		int32_t      title_idx,
 		char const** texts,
 		int32_t      color,
-		eTextClass   text_class,
-		opt_T        maximum,
+		ETextClass   text_class,
+		opt_t        maximum,
 		int32_t      left,
 		int32_t      top,
 		int32_t      width,
@@ -325,7 +325,7 @@ public:
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T >(
+				curr = new OptionItem< tgt_t, opt_t >(
 					target,
 					"",
 					title_idx,
@@ -374,26 +374,26 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 * @param[in] display_ optional display function to use.
 	 **/
-	template< typename tgt_T, typename opt_T = int32_t >
+	template< typename tgt_t, typename opt_t = int32_t >
 	int32_t addValue(
-		tgt_T*       target,
+		tgt_t*       target,
 		int32_t      title_idx,
 		char const** texts,
 		int32_t      color,
-		eTextClass   text_class,
-		opt_T        maximum,
+		ETextClass   text_class,
+		opt_t        maximum,
 		int32_t      left,
 		int32_t      top,
 		int32_t      width,
 		int32_t      height,
 		int32_t      padding,
-		bool ( *display_ )( tgt_T* target, int32_t x, int32_t y )
+		bool ( *display_ )( tgt_t* target, int32_t x, int32_t y )
 	) {
 		OptionItemBase* curr = nullptr;
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T >(
+				curr = new OptionItem< tgt_t, opt_t >(
 					target,
 					"",
 					title_idx,
@@ -442,15 +442,15 @@ public:
 	 * @param[in] height Height of the display area.
 	 * @param[in] padding Distance between title and display.
 	 **/
-	template< typename tgt_T, typename opt_T = int32_t >
+	template< typename tgt_t, typename opt_t = int32_t >
 	int32_t addValue(
-		tgt_T* target,
-		int32_t ( *action_ )( tgt_T* target, int32_t val ),
+		tgt_t* target,
+		int32_t ( *action_ )( tgt_t* target, int32_t val ),
 		int32_t      title_idx,
 		char const** texts,
 		int32_t      color,
-		eTextClass   text_class,
-		opt_T        maximum,
+		ETextClass   text_class,
+		opt_t        maximum,
 		int32_t      left,
 		int32_t      top,
 		int32_t      width,
@@ -461,7 +461,7 @@ public:
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_T, opt_T >(
+				curr = new OptionItem< tgt_t, opt_t >(
 					target,
 					action_,
 					ET_VALUE,
@@ -537,7 +537,7 @@ private:
 	int32_t selectClicked( int32_t x, int32_t y );
 	void    selectNext();
 	void    selectPrev();
-	void    setTexts( OptionItemBase* itm, char const** texts, eTextClass text_class );
+	void    setTexts( OptionItemBase* itm, char const** texts, ETextClass text_class );
 	void    unselect();
 
 	/* -----------------------
@@ -547,11 +547,11 @@ private:
 
 	int32_t          bgItems    = 0;
 	int32_t          bgOffset   = 0;
-	eBackgroundTypes bgType     = BACKGROUND_BLANK;
+	EBackgroundTypes bgType     = BACKGROUND_BLANK;
 	int32_t          entry_cnt  = 0;          //!< Number of entries currently in the list.
 	int32_t          entry_sel  = -1;         //!< Currently selected entry or -1 if none is selected.
-	eMenuClass       menu_class = MC_MAIN;    //!< The class of the menu, decides upon what to display.
-	eLanguages       menu_lang  = EL_ENGLISH; //!< The language to display
+	EMenuClass       menu_class = MC_MAIN;    //!< The class of the menu, decides upon what to display.
+	ELanguages       menu_lang  = EL_ENGLISH; //!< The language to display
 	int32_t          menu_x     = 0;          //!< X-Pos where the menu background starts
 	int32_t          menu_y     = 0;          //!< Y-Pos where the menu background starts
 	OptionItemBase*  root       = nullptr;    //!< The first menu item

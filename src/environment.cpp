@@ -754,7 +754,7 @@ void CEnvironment::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field, "language" ) ) {
 				uint32_t lang_val = 0;
 				SAFE_STOUL( lang_val, value );
-				language = static_cast< eLanguages >( lang_val );
+				language = static_cast< ELanguages >( lang_val );
 			} else if ( !strcasecmp( field, "maxfiretime" ) ) {
 				SAFE_STOI( maxFireTime, value );
 			} else if ( !strcasecmp( field, "networking" ) ) {
@@ -1314,7 +1314,7 @@ bool CEnvironment::loadGameFiles() {
 	// all other files only hold the texts.
 	bool status = true;
 	if ( EL_ENGLISH != language ) {
-		eLanguages cur_lang = language;
+		ELanguages cur_lang = language;
 		language            = EL_ENGLISH;
 		status              = Load_Weapons_Text();
 		language            = cur_lang;

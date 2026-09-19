@@ -56,7 +56,7 @@
 *****************************/
 static bool        allow_network = true;
 static string      fullPath;
-static eFullScreen full_screen      = FULL_SCREEN_EITHER;
+static EFullScreen full_screen      = FULL_SCREEN_EITHER;
 static bool        load_config_file = true;
 static int32_t     screen_mode      = GFX_AUTODETECT_WINDOWED;
 #ifdef NETWORK
@@ -179,7 +179,7 @@ static void createConfig() {
 
 	// At least one human player must be created
 	CPlayer* tempPlayer        = nullptr;
-	int32_t tempRes           = PE_BACK; // ePlayerEdit, player_types.h
+	int32_t tempRes           = PE_BACK; // EPlayerEdit, player_types.h
 	char    noHumanMsg[ 200 ] = { 0 };
 
 	while ( !( tempRes & PE_CONFIRM_NEW ) ) {
@@ -212,7 +212,7 @@ static void createConfig() {
 
 	for ( auto defaultName : defaultNames ) {
 		tempPlayer       = env.createNewPlayer( defaultName );
-		tempPlayer->type = static_cast< playerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
+		tempPlayer->type = static_cast< EPlayerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
 		tempPlayer->generatePreferences();
 	}
 }
@@ -331,7 +331,7 @@ static char const* do_winner() {
 	int32_t x  = env.halfWidth - ( w / 2 );
 	int32_t y  = env.halfHeight - ( h / 2 );
 	int32_t qy = y + h + pd;
-	BOX     qarea( x + pd, qy, w - ( 2 * pd ), env.screenHeight - pd - qy );
+	sBox     qarea( x + pd, qy, w - ( 2 * pd ), env.screenHeight - pd - qy );
 
 	// stop mouse during drawing
 	SHOW_MOUSE( nullptr )
@@ -1528,12 +1528,12 @@ int32_t main( int32_t argc, char** argv ) {
 
 
 #ifdef NETWORK /// new networking area
-	SEND_RECEIVE_TYPE* send_receive   = nullptr;
+	sSendReceive* send_receive   = nullptr;
 	std::thread*       network_thread = nullptr;
 
 #if 0 // legacy SourceForge update checker disabled; a modern replacement is planned (see TODO_Xtra.md)
 	// Create the update checker thread:
-	update_data updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
+	UpdateData updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
 
 	std::thread updateThread( std::ref( updateData ) );
 	if ( env.check_for_updates ) {
@@ -1543,13 +1543,13 @@ int32_t main( int32_t argc, char** argv ) {
 
 	// Initialize network if allowed and wanted
 	if ( env.network_enabled && allow_network ) {
-		send_receive = (SEND_RECEIVE_TYPE*)calloc( 1, sizeof( SEND_RECEIVE_TYPE ) );
+		send_receive = (sSendReceive*)calloc( 1, sizeof( sSendReceive ) );
 		if ( !send_receive ) {
 			cerr << "ERROR: Could not create networking data." << endl;
 		}
 	}
 
-	// If a SEND_RECEIVE_TYPE instance was created, start the networking thread
+	// If a sSendReceive instance was created, start the networking thread
 	if ( send_receive ) {
 		send_receive->listening_port = env.network_port;
 

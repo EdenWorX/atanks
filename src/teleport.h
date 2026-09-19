@@ -70,7 +70,7 @@ public:
 	void   draw() final;         ///< Render the teleport.
 
 	/// Return the object class.
-	eClass getClass() final { return CLASS_TELEPORT; }
+	EClass getClass() final { return CLASS_TELEPORT; }
 
 
 private:

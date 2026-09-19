@@ -43,10 +43,10 @@ static BITMAP* temp_sky = nullptr; //!< Static temp sky bitmap for faster sky cr
  * Given some input parameters, renders a sky (with moons) onto a bitmap.
  *
  * @param[in] lcr The LevelCreator instance to ask whether to continue or to break off
- * @param[in] grad The gradient to use to draw the sky
+ * @param[in] grad The sGradient to use to draw the sky
  * @param[in] flags Bitmask with GENSKY_DETAILED set to draw a detailed sky and/or GENSKY_DITHERGRAD to dither colors.
  **/
-void generate_sky( LevelCreator* lcr, gradient const* grad, int32_t flags ) {
+void generate_sky( LevelCreator* lcr, sGradient const* grad, int32_t flags ) {
 	assert( lcr && "lcr must not be nullptr here!" );
 	if ( nullptr == lcr ) {
 		// No LevelCreator, no sky.

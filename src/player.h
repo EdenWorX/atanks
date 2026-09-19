@@ -82,10 +82,10 @@ public:
 
 	void     checkOppMem();                                           ///< Prune opponent memory.
 	int32_t  chooseItemToBuy( int32_t max_boost, int32_t& last_idx ); ///< Choose the shop item to buy.
-	eControl controlTank( CAICore* aicore, bool allow_fire );          ///< Run the turn control.
+	EControl controlTank( CAICore* aicore, bool allow_fire );          ///< Run the turn control.
 	void     drawIndicator( int32_t x, int32_t y, int32_t h ) const;  ///< Draw the turn indicator.
 #ifdef NETWORK
-	eControl executeNetCmd( bool my_turn, CAICore* aicore );
+	EControl executeNetCmd( bool my_turn, CAICore* aicore );
 #endif // NETWORK
 	void       exitShop();                                                         ///< Leave the shop screen.
 	void       generatePreferences();                                              ///< Build AI personality.
@@ -144,8 +144,8 @@ public:
 	int32_t        last_shield_used = 0;              ///< Last used shield type.
 	double         painSensitivity  = .5;             ///< Damage sensitivity.
 	uint32_t       played           = 0;              ///< Rounds played.
-	playerPrefType preftype         = PERPLAY_PREF;   ///< Preference scope.
-	playerType     previous_type    = HUMAN_PLAYER;   ///< Type kept while overridden.
+	EPlayerPrefType preftype         = PERPLAY_PREF;   ///< Preference scope.
+	EPlayerType     previous_type    = HUMAN_PLAYER;   ///< Type kept while overridden.
 	int32_t        money            = 15000;          ///< Cash.
 	int32_t        ni[ ITEMS ]{};                     ///< Item inventory.
 	int32_t        nm[ WEAPONS ]{};                   ///< Weapon inventory.
@@ -158,10 +158,10 @@ public:
 	bool           skip_me            = false;        ///< Skip this turn.
 	CTank*          tank               = nullptr;      ///< Controlled tank.
 	int32_t        tankbitmap         = TT_NORMAL;    ///< Tank skin.
-	eTeamTypes     team               = TEAM_NEUTRAL; ///< Team.
+	ETeamTypes     team               = TEAM_NEUTRAL; ///< Team.
 	int32_t        time_left_to_fire  = 0;            ///< Aim time left.
-	playerType     type               = HUMAN_PLAYER; ///< Player type.
-	playerType     type_saved         = HUMAN_PLAYER; ///< Type kept across savegames.
+	EPlayerType     type               = HUMAN_PLAYER; ///< Player type.
+	EPlayerType     type_saved         = HUMAN_PLAYER; ///< Type kept across savegames.
 	double         vengeanceThreshold = .5;           ///< Damage warranting revenge.
 	int32_t        vengeful           = 50;           ///< Retaliation chance.
 	uint32_t       won                = 0;            ///< Rounds won.
@@ -172,7 +172,7 @@ public:
 
 
 private:
-	typedef ePlayerStages plStage_t;
+	typedef EPlayerStages plstage_t;
 	typedef sOpponent     opp_t;
 
 
@@ -189,12 +189,12 @@ private:
 	void     boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons );
 
 	bool     buy_item( int32_t itemindex, int32_t max_boost );
-	eControl computerControls( CAICore* aicore, bool allow_fire );
+	EControl computerControls( CAICore* aicore, bool allow_fire );
 	int32_t  computerSelectPreBuyItem( int32_t max_boost );
 	int32_t  generateDesiredList();
 	int32_t  getAmpValue();
 	int32_t  getArmourValue();
-	eControl humanControls( CAICore* aicore );
+	EControl humanControls( CAICore* aicore );
 
 
 	/* -----------------------
@@ -214,7 +214,7 @@ private:
 	bool      needDamage   = false;
 	int32_t   oppCount     = 0;
 	opp_t*    opponents    = nullptr;
-	plStage_t plStage      = PS_SELECT_WEAPON;
+	plstage_t plStage      = PS_SELECT_WEAPON;
 	int32_t   shieldBought = -1;
 	int32_t   weapPref[ THINGS ]{}; // Static preferences, generated once
 };
@@ -226,7 +226,7 @@ private:
 //       the player class.
 
 
-/** @struct PLAYER_mini
+/** @struct PlayerMini
  * @brief Minimum dataset of editable values.
  *
  * This minimal struct is used for the player editing menu.
@@ -235,21 +235,21 @@ private:
  * settings so adding many new players with the same settings but different
  * names becomes very easy.
  **/
-struct PLAYER_mini {
+struct PlayerMini {
 	int32_t        color = GREEN;                        ///< Edited color.
 	int32_t        index = -1;                           ///< Edited index.
 	char           name[ NAME_LEN + 1 ]{ "New Player" }; ///< Edited name.
 	uint32_t       played     = 0;                       ///< Edited rounds played.
 	CPlayer*        player     = nullptr;                 ///< Edited player.
-	playerPrefType preftype   = ALWAYS_PREF;             ///< Edited preference scope.
+	EPlayerPrefType preftype   = ALWAYS_PREF;             ///< Edited preference scope.
 	int32_t        tankbitmap = TT_NORMAL;               ///< Edited tank skin.
-	eTeamTypes     team       = TEAM_NEUTRAL;            ///< Edited team.
-	playerType     type       = HUMAN_PLAYER;            ///< Edited type.
+	ETeamTypes     team       = TEAM_NEUTRAL;            ///< Edited team.
+	EPlayerType     type       = HUMAN_PLAYER;            ///< Edited type.
 	uint32_t       won        = 0;                       ///< Edited rounds won.
 
 	// a ctor, needed by VisualC++ for the name.
 	/// Construct edit defaults.
-	explicit PLAYER_mini();
+	explicit PlayerMini();
 
 	// "Backup a player"
 	/// Copy a player for editing.

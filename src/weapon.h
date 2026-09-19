@@ -6,7 +6,7 @@
 
 #include "main.h"
 
-enum weaponType {
+enum EWeaponType {
 	SML_MIS           = 0,
 	MED_MIS           = 1,
 	LRG_MIS           = 2,

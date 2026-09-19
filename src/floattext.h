@@ -25,9 +25,9 @@
 #include "main.h"
 #include "virtobj.h"
 
-/// @enum eTextSway
+/// @enum ETextSway
 /// @brief Type of text swaying
-enum eTextSway {
+enum ETextSway {
 	TS_NO_SWAY    = 0,  //!< Static text that is moving normally
 	TS_VERTICAL   = 15, //!< Vertical "bouncing" text like tank health.
 	TS_HORIZONTAL = 22  //!< Horizontal swaying text, if turned on, used for damage and money.
@@ -51,8 +51,8 @@ public:
 		double      xv_,
 		double      yv_,
 		int32_t     color_,
-		alignType   alignment,
-		eTextSway   sway_type,
+		EAlignType   alignment,
+		ETextSway   sway_type,
 		int32_t     max_age,
 		bool        is_fixed_
 	);
@@ -70,11 +70,11 @@ public:
 	void   newRound();                            ///< Expire round-scoped texts.
 	void   set_color( int32_t color_ );           ///< Set the text color.
 	void   set_pos( int32_t xpos, int32_t ypos ); ///< Set the text position.
-	void   set_sway_type( eTextSway sway_type );  ///< Set the sway type.
+	void   set_sway_type( ETextSway sway_type );  ///< Set the sway type.
 	void   set_text( char const* text_ );         ///< Set the text content.
 
 	/// Return the object class.
-	eClass getClass() final { return CLASS_FLOATTEXT; }
+	EClass getClass() final { return CLASS_FLOATTEXT; }
 
 	/* Little inline helper */
 	/// Set the text position; coordinates are rounded.
@@ -104,7 +104,7 @@ private:
 	bool      is_pushed = false;
 	double    pos_x     = 0.;
 	double    pos_y     = 0.;
-	eTextSway sway      = TS_NO_SWAY;
+	ETextSway sway      = TS_NO_SWAY;
 	char*     text      = nullptr;
 };
 

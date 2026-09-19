@@ -10,7 +10,7 @@
 
 #define ITEM_NO_SHIELD  ( -1 )
 
-enum itemType {
+enum EItemType {
 	ITEM_TELEPORT            = 0, // 56 (weap_idx - WEAPONS)
 	ITEM_SWAPPER             = 1, // 57
 	ITEM_MASS_TELEPORT       = 2, // 58
@@ -37,7 +37,7 @@ enum itemType {
 	ITEM_SDI                 = 23  // 79 (Last item)
 };
 
-enum selfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
+enum ESelfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
 
 /** @class CItem
  * @brief Shop item stats record.

@@ -46,10 +46,10 @@ typedef std::atomic_int32_t ai32_t;  ///< Atomic 32-bit integer for lock-free th
  **/
 
 
-/** @enum eBackgroundTypes
+/** @enum EBackgroundTypes
  * @brief types for drawing menu background
  **/
-enum eBackgroundTypes {
+enum EBackgroundTypes {
 	BACKGROUND_BLANK = 0,
 	BACKGROUND_CIRCLE,
 	BACKGROUND_LINE,
@@ -57,20 +57,20 @@ enum eBackgroundTypes {
 	BACKGROUND_COUNT,
 };
 
-/** @enum eBoxModes
+/** @enum EBoxModes
  * @brief Whether boxed mode is on, off or random.
  **/
-enum eBoxModes { BM_OFF = 0, BM_ON, BM_RANDOM };
+enum EBoxModes { BM_OFF = 0, BM_ON, BM_RANDOM };
 
-/** @enum eColourTheme
+/** @enum EColourTheme
  * @brief determine which colour theme to use
  **/
-enum eColourTheme { CT_REGULAR = 0, CT_CRISPY };
+enum EColourTheme { CT_REGULAR = 0, CT_CRISPY };
 
-/** @enum eControl
+/** @enum EControl
  * @brief control results for human and computer control
  **/
-enum eControl {
+enum EControl {
 	CONTROL_NONE  = 0,
 	CONTROL_FIRE  = 101, // Explicitly fire a weapon/item
 	CONTROL_OTHER = 102, // Something else but firing something
@@ -78,28 +78,28 @@ enum eControl {
 	CONTROL_QUIT  = 202  // Any means to quit the game
 };
 
-/** @enum eDataStage
+/** @enum EDataStage
  * @brief The data stage of the weapons text file loading
  **/
-enum eDataStage { DS_NAME = 0, DS_DESC, DS_DATA };
+enum EDataStage { DS_NAME = 0, DS_DESC, DS_DATA };
 
 /// Advance to the next weapons-text loading stage.
-eDataStage &operator++ ( eDataStage &ds );
+EDataStage &operator++ ( EDataStage &ds );
 
-/** @enum eFileStage
+/** @enum EFileStage
  * @brief The file stage of the weapons text file loading
  **/
-enum eFileStage { FS_WEAPONS = 0, FS_NATURALS, FS_ITEMS };
+enum EFileStage { FS_WEAPONS = 0, FS_NATURALS, FS_ITEMS };
 
-/** @enum eFullScreen
+/** @enum EFullScreen
  * @brief Whether to use full screen or not.
  **/
-enum eFullScreen { FULL_SCREEN_EITHER = 0, FULL_SCREEN_TRUE, FULL_SCREEN_FALSE };
+enum EFullScreen { FULL_SCREEN_EITHER = 0, FULL_SCREEN_TRUE, FULL_SCREEN_FALSE };
 
-/** @enum eLandscapeTypes
+/** @enum ELandscapeTypes
  * @brief determine the types the landscape can have
  **/
-enum eLandscapeTypes {
+enum ELandscapeTypes {
 	LAND_RANDOM = 0,
 	LAND_CANYONS,
 	LAND_MOUNTAINS,
@@ -110,10 +110,10 @@ enum eLandscapeTypes {
 	LAND_NONE
 };
 
-/** @enum eLandSlideTypes
+/** @enum ELandSlideTypes
  * @brief determine the kind of land sliding.
  **/
-enum eLandSlideTypes {
+enum ELandSlideTypes {
 	SLIDE_NONE = 0,  // gravity does not exist
 	SLIDE_TANK_ONLY, // dirt falls, tank does not
 	SLIDE_INSTANT,   // dirt falls without you seeing it
@@ -121,7 +121,7 @@ enum eLandSlideTypes {
 	SLIDE_CARTOON    // gravity is delayed
 };
 
-/** @enum eLanguages
+/** @enum ELanguages
  * @brief Declare the list of supported languages.
  *
  * The last item EL_LANGUAGE_COUNT can be used to retrieve the
@@ -129,7 +129,7 @@ enum eLandSlideTypes {
  *
  * This enum is sorted in the order the languages should be listed.
  **/
-enum eLanguages {
+enum ELanguages {
 	EL_ENGLISH = 0,
 	EL_PORTUGUESE,
 	EL_FRENCH,
@@ -143,47 +143,47 @@ enum eLanguages {
 
 // Helper operators to rotate languages:
 /// Rotate to the next language.
-eLanguages &operator++ ( eLanguages &lang );
+ELanguages &operator++ ( ELanguages &lang );
 /// Rotate to the next language (postfix form).
-eLanguages operator++ ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
+ELanguages operator++ ( ELanguages &lang, int ); // NOLINT(cert-dcl21-cpp) [clang-tidy is wrong here.]
 /// Rotate to the previous language.
-eLanguages &operator-- ( eLanguages &lang );
+ELanguages &operator-- ( ELanguages &lang );
 /// Rotate to the previous language (postfix form).
-eLanguages operator-- ( eLanguages &lang, int ); // NOLINT(cert-dcl21-cpp)
+ELanguages operator-- ( ELanguages &lang, int ); // NOLINT(cert-dcl21-cpp)
 /// Shift the language by a signed offset.
-eLanguages &operator+= ( eLanguages &lang, int32_t val );
+ELanguages &operator+= ( ELanguages &lang, int32_t val );
 /// Shift the language by a negated signed offset.
-eLanguages &operator-= ( eLanguages &lang, int32_t val );
+ELanguages &operator-= ( ELanguages &lang, int32_t val );
 
-/** @enum eRoundStages
+/** @enum ERoundStages
  * @brief General stages for the game flow.
  **/
-enum eRoundStages {
+enum ERoundStages {
 	STAGE_AIM = 0,
 	STAGE_FIRE,
 	STAGE_SCOREBOARD, // The scoreboard is displayed
 	STAGE_ENDGAME     // All actions have ceased, the round has ended.
 };
 
-/** @enum eSatelliteLaser
+/** @enum ESatelliteLaser
  * @brief Size of satellite laser
  **/
-enum eSatelliteLaser { SL_NONE = 0, SL_WEAK, SL_STRONG, SL_SUPER };
+enum ESatelliteLaser { SL_NONE = 0, SL_WEAK, SL_STRONG, SL_SUPER };
 
-/** @enum eSaveGameStage
+/** @enum ESaveGameStage
  * @brief Stages written in a saved game file
  **/
-enum eSaveGameStage { SGS_NONE = 0, SGS_GLOBAL, SGS_ENVIRONMENT, SGS_PLAYERS, SGS_VERSION };
+enum ESaveGameStage { SGS_NONE = 0, SGS_GLOBAL, SGS_ENVIRONMENT, SGS_PLAYERS, SGS_VERSION };
 
-/** @enum eSkipPlayType
+/** @enum ESkipPlayType
  * @brief How skipping computer play is managed
  **/
-enum eSkipPlayType { SKIP_NONE = 0, SKIP_HUMANS_DEAD };
+enum ESkipPlayType { SKIP_NONE = 0, SKIP_HUMANS_DEAD };
 
-/** @enum eSoundDriver
+/** @enum ESoundDriver
  * @brief determine which sound driver to use
  **/
-enum eSoundDriver {
+enum ESoundDriver {
 	SD_AUTODETECT = 0,
 	SD_OSS,
 	SD_ESD,  // Does anybody still use that?
@@ -193,10 +193,10 @@ enum eSoundDriver {
 	// What about PulseAudio?
 };
 
-/** @enum eSounds
+/** @enum ESounds
  * @brief enum that describes the sound array
  **/
-enum eSounds {
+enum ESounds {
 	// === FIRE a weapon / an item ===
 	SND_FIRE_MISS_SML = 0,
 	SND_FIRE_MISS_MED = 1,
@@ -237,25 +237,25 @@ enum eSounds {
 };
 
 // turns
-/** @enum eTurnTypes
+/** @enum ETurnTypes
  * @brief Turn order modes.
  **/
-enum eTurnTypes { TURN_HIGH = 0, TURN_LOW, TURN_RANDOM, TURN_SIMUL };
+enum ETurnTypes { TURN_HIGH = 0, TURN_LOW, TURN_RANDOM, TURN_SIMUL };
 
-/** @enum eViolentDeath
+/** @enum EViolentDeath
  * @brief Level of automatic violent death option.
  **/
-enum eViolentDeath { VD_OFF = 0, VD_LIGHT, VD_MEDIUM, VD_HEAVY };
+enum EViolentDeath { VD_OFF = 0, VD_LIGHT, VD_MEDIUM, VD_HEAVY };
 
-/** @enum eWallTypes
+/** @enum EWallTypes
  * @brief All the types the walls can have.
  **/
-enum eWallTypes { WALL_RUBBER = 0, WALL_STEEL, WALL_SPRING, WALL_WRAP, WALL_RANDOM };
+enum EWallTypes { WALL_RUBBER = 0, WALL_STEEL, WALL_SPRING, WALL_WRAP, WALL_RANDOM };
 
-/** @enum eWinner
+/** @enum EWinner
  * @brief All possible winning sets
  **/
-enum eWinner { WINNER_NO_WIN = 101, WINNER_DRAW = 102, WINNER_JEDI = 104, WINNER_SITH = 105 };
+enum EWinner { WINNER_NO_WIN = 101, WINNER_DRAW = 102, WINNER_JEDI = 104, WINNER_SITH = 105 };
 
 
 #endif // ATANKS_GLOBALTYPES_H_INCLUDED

@@ -70,12 +70,12 @@ extern CItem        item[ ITEMS ];        // from files.cpp
 
 
 // === Gradients ===
-extern gradient  topbar_gradient[ 4 ];
-extern gradient  stuff_bar_gradient[ 11 ];
-extern gradient  circles_gradient[ 4 ];
-extern gradient  explosion_gradient1[ 3 ];
-extern gradient  explosion_gradient2[ 3 ];
-extern gradient* explosion_gradients[ 2 ];
+extern sGradient  topbar_gradient[ 4 ];
+extern sGradient  stuff_bar_gradient[ 11 ];
+extern sGradient  circles_gradient[ 4 ];
+extern sGradient  explosion_gradient1[ 3 ];
+extern sGradient  explosion_gradient2[ 3 ];
+extern sGradient* explosion_gradients[ 2 ];
 
 #endif // ATANKS_ATANKS_CPP
 #endif // ATANKS_EXTERNS_H_INCLUDED
