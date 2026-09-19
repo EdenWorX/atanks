@@ -73,6 +73,9 @@ enum weaponType {
 
 #define LAST_EXPLOSIVE DRILLER
 
+/** @class WEAPON
+ * @brief Weapon stats record.
+ **/
 class WEAPON {
 public:
 	/* -----------------------------------
@@ -80,6 +83,7 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct default weapon stats.
 	explicit WEAPON();
 
 
@@ -89,12 +93,17 @@ public:
 	 */
 
 	/* Getters */
+	/// Volley delay divisor.
 	[[nodiscard]] int32_t     getDelayDiv() const;
+	/// Localized description.
 	[[nodiscard]] char const* getDesc() const;
+	/// Localized name.
 	[[nodiscard]] char const* getName() const;
 
 	/* Setters */
+	/// Set the description.
 	void setDesc( char const* desc_ );
+	/// Set the name.
 	void setName( char const* name_ );
 
 
@@ -102,19 +111,19 @@ public:
 	 * --- Public members              ---
 	 * -----------------------------------
 	 */
-	int32_t cost            = 0; //!< $ :))
-	int32_t amt             = 0; //!< number of weapons in one buying package
-	double  mass            = 0.;
-	double  drag            = 0.;
-	int32_t radius          = 0; //!< of the explosion
-	int32_t sound           = 0;
-	int32_t etime           = 0;
-	int32_t damage          = 0; //!< damage power
-	int32_t picpoint        = 0; //!< which picture do we show in flight?
-	int32_t spread          = 0; //!< number of weapons in the shot
-	int32_t delay           = 0; //!< volleys etc.
-	int32_t noimpact        = 0;
-	int32_t techLevel       = 0;
+	int32_t cost            = 0;  //!< $ :))
+	int32_t amt             = 0;  //!< number of weapons in one buying package
+	double  mass            = 0.; ///< Mass.
+	double  drag            = 0.; ///< Air drag.
+	int32_t radius          = 0;  //!< of the explosion
+	int32_t sound           = 0;  ///< Sound index.
+	int32_t etime           = 0;  ///< Explosion frame time.
+	int32_t damage          = 0;  //!< damage power
+	int32_t picpoint        = 0;  //!< which picture do we show in flight?
+	int32_t spread          = 0;  //!< number of weapons in the shot
+	int32_t delay           = 0;  //!< volleys etc.
+	int32_t noimpact        = 0;  ///< No impact detonation.
+	int32_t techLevel       = 0;  ///< Shop tech level.
 	int32_t warhead         = 0;  //!< Is it a warhead?
 	int32_t numSubmunitions = 0;  //!< Number of submunitions
 	int32_t submunition     = 0;  //!< The next stage

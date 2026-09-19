@@ -20,40 +20,53 @@ updated to run on other operating systems.
 
 #define MAX_MESSAGE_LENGTH 256
 
+/** @struct MESSAGE
+ * @brief Queued network message.
+ **/
 struct MESSAGE {
-	char *text;
-	int   to; // which client does the message go to? May not be used as most will go to everyone
-	void *next;
+	char *text; ///< Message text.
+	int   to;   ///< Receiving client.
+	void *next; ///< Next queued message.
 };
 
+/** @class MESSAGE_QUEUE
+ * @brief FIFO queue of network messages.
+ **/
 class MESSAGE_QUEUE {
 public:
-	MESSAGE *first_message, *last_message;
+	MESSAGE *first_message; ///< Queue head.
+	MESSAGE *last_message;  ///< Queue tail.
 
+	/// Construct an empty queue.
 	MESSAGE_QUEUE();
+	/// Destroy the queue.
 	~MESSAGE_QUEUE();
 
-	// add a message to the queue
+	/// Add a message to the queue.
 	bool Add( char *some_text, int to );
 
-	// pull the first message from the queue and erase it from the queue
+	/// Pull the first message from the queue and erase it from the queue.
 	MESSAGE *Read();
 
-	// read the next message in the queue without erasing it
+	/// Read the next message in the queue without erasing it.
 	[[nodiscard]] MESSAGE *Peek() const;
 
+	/// Read the next message for a client.
 	[[nodiscard]] MESSAGE *Read_To( int to );
 
-	// erases the next message in the queue without reading it
+	/// Erase the next message in the queue without reading it.
 	void Erase();
 
-	// erase all messages in the queue
+	/// Erase all messages in the queue.
 	void Erase_All();
 };
 
+/** @struct SEND_RECEIVE_TYPE
+ * @brief Network thread control block.
+ **/
 struct SEND_RECEIVE_TYPE {
-	int  listening_port;
-	bool shut_down;
+	int  listening_port; ///< Server listen port.
+	bool shut_down;      ///< Stop the network thread.
 };
 
 #define DEFAULT_NETWORK_PORT 25645

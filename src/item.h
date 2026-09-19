@@ -39,6 +39,9 @@ enum itemType {
 
 enum selfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
 
+/** @class ITEM
+ * @brief Shop item stats record.
+ **/
 class ITEM {
 public:
 	/* -----------------------------------
@@ -46,6 +49,7 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct default item stats.
 	explicit ITEM();
 
 
@@ -55,11 +59,15 @@ public:
 	 */
 
 	/* Getters */
+	/// Localized description.
 	[[nodiscard]] char const* getDesc() const;
+	/// Localized name.
 	[[nodiscard]] char const* getName() const;
 
 	/* Setters */
+	/// Set the description.
 	void setDesc( char const* desc_ );
+	/// Set the name.
 	void setName( char const* name_ );
 
 
@@ -68,11 +76,12 @@ public:
 	 * -----------------------------------
 	 */
 
-	int32_t cost       = 0;
-	int32_t amt        = 0;
-	int32_t selectable = 0;
-	int32_t techLevel  = 0;
-	int32_t sound      = 0;
+	int32_t cost       = 0; ///< Price.
+	int32_t amt        = 0; ///< Package amount.
+	int32_t selectable = 0; ///< Selectable in battle.
+	int32_t techLevel  = 0; ///< Shop tech level.
+	int32_t sound      = 0; ///< Sound index.
+	/// Effect values.
 	double  vals[ MAX_ITEM_VALUES ]{ 0x0 };
 
 

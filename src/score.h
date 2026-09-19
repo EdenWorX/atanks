@@ -6,18 +6,21 @@
 
 #include "player.h"
 
-/// @brief small struct to order the score board, used by the end-of-game-sorting, too
+/** @struct sScore
+ * @brief Small struct to order the score board, used by the end-of-game-sorting, too.
+ **/
 struct sScore {
-	int32_t     color  = BLACK;
-	int32_t     diff   = 0;
-	int32_t     idx    = -1;
-	int32_t     killed = 0;
-	int32_t     kills  = 0;
-	char const* name   = nullptr;
-	sScore*     next   = nullptr;
-	sScore*     prev   = nullptr;
-	int32_t     score  = 0;
+	int32_t     color  = BLACK;   ///< Player color.
+	int32_t     diff   = 0;       ///< Kills minus deaths.
+	int32_t     idx    = -1;      ///< Player index.
+	int32_t     killed = 0;       ///< Deaths.
+	int32_t     kills  = 0;       ///< Kills.
+	char const* name   = nullptr; ///< Player name.
+	sScore*     next   = nullptr; ///< Next score entry.
+	sScore*     prev   = nullptr; ///< Previous score entry.
+	int32_t     score  = 0;       ///< Score.
 
+	/// Copy player stats into a score entry.
 	sScore&     operator= ( PLAYER& rhs ) {
                 color  = rhs.color;
                 idx    = rhs.index;

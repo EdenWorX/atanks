@@ -336,9 +336,9 @@ Action Items per module below. Expected result: `make doc` builds with no undocu
 - [x] **PF-1.12.3.7**: Document services
   (`files.h`, `text.h`, `sound.h`, `clock.h`, `winclock.h`, `spinlock.h`, `zbuffer.h`, `debug.h`, `update.h`, `gfxData.h`,
   `bitmap.h`, `wrap_dirent.h`).
-- [ ] **PF-1.12.3.8**: Document round driver, meta, arsenal, and network
+- [x] **PF-1.12.3.8**: Document round driver, meta, arsenal, and network
   (`gameloop.h`, `shop.h`, `score.h`, `weapon.h`, `item.h`, `network.h`, `client.h`).
-- [ ] **PF-1.12.3.9**: Verify `make doc` builds warning-free
+- [x] **PF-1.12.3.9**: Verify `make doc` builds warning-free
   (full run with zero undocumented-public-API warnings; record the invocation in `README.md`/`AGENTS.md`).
 
 #### [ ] PF-1.12.4: Verify install targets per the checklist
