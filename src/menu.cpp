@@ -1242,6 +1242,11 @@ bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y ) { // NOLINT(*-n
 
 	BITMAP*     tank_bmp   = env.tank[ *tanknum ? *tanknum + TO_TANK : *tanknum ];
 	BITMAP*     turr_bmp   = env.tank_gun[ *tanknum ? *tanknum + TO_TURRET : *tanknum ];
+
+	if ( !tank_bmp || !turr_bmp ) {
+		return false;
+	}
+
 	int32_t     tank_off_x = ROUNDu( tank_bmp->w / 2 );
 	int32_t     tank_off_y = tank_bmp->h;
 	int32_t     turr_off_x = ROUNDu( turr_bmp->w / 2 );

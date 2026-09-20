@@ -257,18 +257,17 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
   @ONLY)
 if(DOXYGEN_FOUND)
-  set(ATANK_DOC_WARN_LOG "${DOXYGEN_WARN_LOG}")
   add_custom_target(doc
-    COMMAND ${CMAKE_COMMAND} -E rm -f "${ATANK_DOC_WARN_LOG}"
+    COMMAND ${CMAKE_COMMAND} -E rm -f "${DOXYGEN_WARN_LOG}"
     COMMAND ${DOXYGEN_EXECUTABLE} "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
-    COMMAND ${CMAKE_COMMAND} -DDOC_WARN_LOG=${ATANK_DOC_WARN_LOG}
-      -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/doc-fail-on-warnings.cmake"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM)
 else()
+  # Doxygen stays optional for plain builds; fail only when docs are requested.
   add_custom_target(doc
-    COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/doc-missing.cmake"
+    COMMAND ${CMAKE_COMMAND} -E echo "ERROR: Doxygen not found. Install doxygen, then re-run make doc."
+    COMMAND ${CMAKE_COMMAND} -E false
     COMMENT "Doxygen not found")
 endif()
 

@@ -2,6 +2,7 @@
 
 #include "files.h"
 #include "player.h"
+#include "random.h"
 
 // Helper functions to build the sub menus for the options screen
 static void
@@ -91,6 +92,76 @@ void    draw_menu_background( EBackgroundTypes backType, int32_t tOffset, int32_
         global.current_drawing_mode = DRAW_MODE_SOLID;
 }
 
+/// @brief Force the creation of one human player through the player editor.
+///
+/// Loops until the user confirms a newly created human player. AI-only
+/// selections are rejected, cancelling without a player repeats the editor.
+void create_human_player() {
+	CPlayer* tempPlayer        = nullptr;
+	int32_t tempRes           = PE_BACK; // EPlayerEdit, player_types.h
+	char    noHumanMsg[ 200 ] = { 0 };
+
+	while ( !( tempRes & PE_CONFIRM_NEW ) ) {
+		tempRes = new_player( &tempPlayer, 0 );
+
+		if ( tempPlayer ) {
+			// Error case 1: The created player is an AI player
+			if ( HUMAN_PLAYER != tempPlayer->type ) {
+				snprintf( noHumanMsg, 199, "The player \"%s\" is no human player!", tempPlayer->get_name() );
+				errorMessage = noHumanMsg;
+				errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+				errorY       = env.menu_begin_y + 15;
+				tempPlayer   = nullptr; // It is saved already
+				tempRes      = PE_BACK;
+			}
+		} else {
+			// error case 2: No player was created at all
+			strncpy( noHumanMsg, "Please create at least one human player!", 199 );
+			errorMessage = noHumanMsg;
+			errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+			errorY       = env.menu_begin_y + 15;
+			tempRes      = PE_BACK;
+		}
+	} // End of force-creating a human player
+}
+
+/// @brief Create the default AI player set.
+void create_ai_players() {
+	// Default AI player names
+	char const* const defaultNames[] = {
+		"Caesar", "Alex", "Hatshepsut", "Patton", "Napoleon", "Attila", "Catherine", "Hannibal", "Stalin", "Mao"
+	};
+
+	for ( auto defaultName : defaultNames ) {
+		CPlayer* tempPlayer = env.create_new_player( defaultName );
+		tempPlayer->type = static_cast< EPlayerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
+		tempPlayer->generate_preferences();
+	}
+}
+
+/// @brief Ensure a usable roster: force one human player if none exists,
+///
+/// plus the default AI set when the roster is completely empty. Called when
+/// entering the PLAY and PLAYERS screens.
+static void ensure_roster_players() {
+	bool roster_was_empty = !env.num_permanent_players;
+	bool has_human       = false;
+
+	for ( int32_t num = 0; num < env.num_permanent_players; ++num ) {
+		if ( HUMAN_PLAYER == env.all_players[ num ]->type ) {
+			has_human = true;
+		}
+	}
+
+	if ( !has_human ) {
+		create_human_player();
+	}
+
+	if ( roster_was_empty ) {
+		create_ai_players();
+	}
+}
+
 /// @brief Show a screen listing all players allowing to create new and edit existing ones.
 void edit_players() {
 	/// @todo : Currently the width is fixed on 600. This should be made
@@ -107,6 +178,10 @@ void edit_players() {
 	int32_t plListHeight =
 		menuHeight - itemY                             // Top area reserved for the title
 		- btnHeight - itemPadding - 2;                 // Bottom area reserved for buttons
+
+	// PLAYERS needs a human player (plus the AI set on an empty roster)
+	ensure_roster_players();
+
 	// "Select Players"
 	CMenu    menu( MC_PLAYERS, env.half_width - menuMid, env.menu_begin_y );
 
@@ -444,6 +519,9 @@ int32_t select_players() {
 	uint32_t number_saved_games = 0;
 	dirent **saved_game_names;
 	char   **game_list = nullptr;
+
+	// PLAY needs a human player (plus the AI set on an empty roster)
+	ensure_roster_players();
 
 	// Without permanent players there is nothing to select; new players
 	// must be created via the PLAYERS screen first.

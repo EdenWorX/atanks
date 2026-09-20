@@ -177,44 +177,9 @@ static void create_config() {
 	env.load_text_files();
 	init_mouse_cursor();
 
-	// At least one human player must be created
-	CPlayer* tempPlayer        = nullptr;
-	int32_t tempRes           = PE_BACK; // EPlayerEdit, player_types.h
-	char    noHumanMsg[ 200 ] = { 0 };
-
-	while ( !( tempRes & PE_CONFIRM_NEW ) ) {
-		tempRes = new_player( &tempPlayer, 0 );
-
-		if ( tempPlayer ) {
-			// Error case 1: The created player is an AI player
-			if ( HUMAN_PLAYER != tempPlayer->type ) {
-				snprintf( noHumanMsg, 199, "The player \"%s\" is no human player!", tempPlayer->get_name() );
-				errorMessage = noHumanMsg;
-				errorX       = env.half_width - text_length( font, errorMessage ) / 2;
-				errorY       = env.menu_begin_y + 15;
-				tempPlayer   = nullptr; // It is saved already
-				tempRes      = PE_BACK;
-			}
-		} else {
-			// error case 2: No player was created at all
-			strncpy( noHumanMsg, "Please create at least one human player!", 199 );
-			errorMessage = noHumanMsg;
-			errorX       = env.half_width - text_length( font, errorMessage ) / 2;
-			errorY       = env.menu_begin_y + 15;
-			tempRes      = PE_BACK;
-		}
-	} // End of force-creating a human player
-
-	// Default AI player names
-	char const* const defaultNames[] = {
-		"Caesar", "Alex", "Hatshepsut", "Patton", "Napoleon", "Attila", "Catherine", "Hannibal", "Stalin", "Mao"
-	};
-
-	for ( auto defaultName : defaultNames ) {
-		tempPlayer       = env.create_new_player( defaultName );
-		tempPlayer->type = static_cast< EPlayerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
-		tempPlayer->generate_preferences();
-	}
+	// At least one human player must be created, plus the default AI set
+	create_human_player();
+	create_ai_players();
 }
 
 /// @brief Draw the endgame screen and return the winner name

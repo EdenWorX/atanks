@@ -34,6 +34,10 @@ void    edit_players();
 void    options_menu();
 /// Run the player selection.
 int32_t select_players();
+/// Force-create one human player through the player editor.
+void    create_human_player();
+/// Create the default AI player set.
+void    create_ai_players();
 
 
 #endif // ATANKS_OPTIONSCREENS_H_INCLUDED
