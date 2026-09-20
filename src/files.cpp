@@ -576,9 +576,9 @@ bool Load_Weapons_Text() {
 				// =============
 				if ( ( FS_WEAPONS == file_stage ) && ( weapon_count < WEAPONS ) ) {
 					if ( DS_NAME == data_stage ) {
-						weapon[ weapon_count ].setName( line );
+						weapon[ weapon_count ].set_name( line );
 					} else if ( DS_DESC == data_stage ) {
-						weapon[ weapon_count ].setDesc( line );
+						weapon[ weapon_count ].set_desc( line );
 					} else if ( DS_DATA == data_stage ) {
 						std::istringstream    iss( line );
 						std::vector< string > values(
@@ -600,7 +600,7 @@ bool Load_Weapons_Text() {
 							SAFE_STOI( weapon[ weapon_count ].spread, *value++ );
 							SAFE_STOI( weapon[ weapon_count ].delay, *value++ );
 							SAFE_STOI( weapon[ weapon_count ].noimpact, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].techLevel, *value++ );
+							SAFE_STOI( weapon[ weapon_count ].tech_level, *value++ );
 							SAFE_STOI( weapon[ weapon_count ].warhead, *value++ );
 							SAFE_STOI( weapon[ weapon_count ].numSubmunitions, *value++ );
 							SAFE_STOI( weapon[ weapon_count ].submunition, *value++ );
@@ -613,7 +613,7 @@ bool Load_Weapons_Text() {
 							SAFE_STOD( weapon[ weapon_count ].countVariation, *value++ );
 						} else {
 							cerr << "Weapon " << weapon_count << " \""
-							     << weapon[ weapon_count ].getName() << " has only "
+							     << weapon[ weapon_count ].get_name() << " has only "
 							     << values.size() << "entries but needs 22!" << endl;
 						}
 					}
@@ -632,9 +632,9 @@ bool Load_Weapons_Text() {
 				// ==============
 				else if ( ( FS_NATURALS == file_stage ) && ( natural_count < NATURALS ) ) {
 					if ( DS_NAME == data_stage ) {
-						naturals[ natural_count ].setName( line );
+						naturals[ natural_count ].set_name( line );
 					} else if ( DS_DESC == data_stage ) {
-						naturals[ natural_count ].setDesc( line );
+						naturals[ natural_count ].set_desc( line );
 					} else if ( DS_DATA == data_stage ) {
 						std::istringstream    iss( line );
 						std::vector< string > values(
@@ -656,7 +656,7 @@ bool Load_Weapons_Text() {
 							SAFE_STOI( naturals[ natural_count ].spread, *value++ );
 							SAFE_STOI( naturals[ natural_count ].delay, *value++ );
 							SAFE_STOI( naturals[ natural_count ].noimpact, *value++ );
-							SAFE_STOI( naturals[ natural_count ].techLevel, *value++ );
+							SAFE_STOI( naturals[ natural_count ].tech_level, *value++ );
 							SAFE_STOI( naturals[ natural_count ].warhead, *value++ );
 							SAFE_STOI( naturals[ natural_count ].numSubmunitions, *value++ );
 							SAFE_STOI( naturals[ natural_count ].submunition, *value++ );
@@ -669,7 +669,7 @@ bool Load_Weapons_Text() {
 							SAFE_STOD( naturals[ natural_count ].countVariation, *value++ );
 						} else {
 							cerr << "Natural " << natural_count << " \""
-							     << naturals[ natural_count ].getName() << " has only "
+							     << naturals[ natural_count ].get_name() << " has only "
 							     << values.size() << "entries but needs 23!" << endl;
 						}
 					}
@@ -689,9 +689,9 @@ bool Load_Weapons_Text() {
 				// ==============
 				else if ( ( FS_ITEMS == file_stage ) && ( item_count < ITEMS ) ) {
 					if ( DS_NAME == data_stage ) {
-						item[ item_count ].setName( line );
+						item[ item_count ].set_name( line );
 					} else if ( DS_DESC == data_stage ) {
-						item[ item_count ].setDesc( line );
+						item[ item_count ].set_desc( line );
 					} else if ( DS_DATA == data_stage ) {
 						std::istringstream    iss( line );
 						std::vector< string > values(
@@ -704,7 +704,7 @@ bool Load_Weapons_Text() {
 							SAFE_STOI( item[ item_count ].cost, *value++ );
 							SAFE_STOI( item[ item_count ].amt, *value++ );
 							SAFE_STOI( item[ item_count ].selectable, *value++ );
-							SAFE_STOI( item[ item_count ].techLevel, *value++ );
+							SAFE_STOI( item[ item_count ].tech_level, *value++ );
 							SAFE_STOI( item[ item_count ].sound, *value++ );
 							if ( values.size() >= 6 ) { // amps/armors have 6
 								SAFE_STOD( item[ item_count ].vals[ 0 ], *value++ );
@@ -719,12 +719,12 @@ bool Load_Weapons_Text() {
 								SAFE_STOD( item[ item_count ].vals[ 5 ], *value++ );
 							} else if ( values.size() > 7 ) {
 								cerr << "Item " << item_count << " \""
-								     << item[ item_count ].getName() << " has only "
+								     << item[ item_count ].get_name() << " has only "
 								     << values.size() << " entries but needs 11 if more than 7!"
 								     << endl;
 							}
 						} else {
-							cerr << "Item " << item_count << " \"" << item[ item_count ].getName()
+							cerr << "Item " << item_count << " \"" << item[ item_count ].get_name()
 							     << " has only " << values.size() << "entries but needs at least 5!"
 							     << endl;
 						}

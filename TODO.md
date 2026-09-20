@@ -481,7 +481,7 @@ goes per module.
   tree-wide, then snake_case their members and methods (e.g. `entryNum` → `entry_num`, `titleIdx_` → `title_idx_`) with
   per-member review. Pure renames; verify with a build.
 
-- [ ] **PF-1.15.3.2**: Arsenal data members
+- [x] **PF-1.15.3.2**: Arsenal data members
 
   Snake_case the `CWeapon`/`CItem` members and accessors (e.g. `techLevel` → `tech_level`, `getDesc` → `get_desc`), keeping
   the two classes consistent with each other. Pure renames; verify with a build.

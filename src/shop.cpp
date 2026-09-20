@@ -183,16 +183,16 @@ void Shop::check_mouse_position() {
 				info_text.assign( "Radius: " ).append( std::to_string( weap->radius ) );
 				info_text.append( "\nYield : " )
 					.append( std::to_string( calcPotentialDmg( hoverOver_new ) * weap->spread ) );
-				info_text.append( "\n\n" ).append( weap->getDesc() );
+				info_text.append( "\n\n" ).append( weap->get_desc() );
 			} else {
 				int32_t itemNum = hoverOver_new - WEAPONS;
 				CItem*   it      = &item[ itemNum ];
 				if ( ( itemNum >= ITEM_VENGEANCE ) && ( itemNum <= ITEM_FATAL_FURY ) ) {
 					double potDmg = calcPotentialDmg( ROUND( it->vals[ 0 ] ) ) * it->vals[ 1 ];
 					info_text.assign( "Potential Damage: " ).append( std::to_string( ROUND( potDmg ) ) );
-					info_text.append( "\n\n" ).append( it->getDesc() );
+					info_text.append( "\n\n" ).append( it->get_desc() );
 				} else {
-					info_text.assign( it->getDesc() );
+					info_text.assign( it->get_desc() );
 				}
 			}
 		} else {
@@ -451,13 +451,13 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 
 		// Get text values:
 		if ( itemNum < WEAPONS ) {
-			d_div = weapon[ itemNum ].getDelayDiv();
-			name  = weapon[ itemNum ].getName();
+			d_div = weapon[ itemNum ].get_delay_div();
+			name  = weapon[ itemNum ].get_name();
 			amt   = pl->nm[ itemNum ] / d_div;
 			snprintf( buf_cost, 49, "$%s", Add_Comma( weapon[ itemNum ].cost ) );
 			snprintf( buf_amt, 49, "for %d", weapon[ itemNum ].amt / d_div );
 		} else {
-			name = item[ itemNum - WEAPONS ].getName();
+			name = item[ itemNum - WEAPONS ].get_name();
 			amt  = pl->ni[ itemNum - WEAPONS ];
 			snprintf( buf_cost, 49, "$%s", Add_Comma( item[ itemNum - WEAPONS ].cost ) );
 			snprintf( buf_amt, 49, "for %d", item[ itemNum - WEAPONS ].amt );
@@ -1001,15 +1001,15 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 			DEBUG_LOG_FIN(
 				player->get_name(),
 				"% 4d x %s",
-				player->nm[ i ] / weapon[ i ].getDelayDiv(),
-				weapon[ i ].getName()
+				player->nm[ i ] / weapon[ i ].get_delay_div(),
+				weapon[ i ].get_name()
 			)
 		}
 	}
 	DEBUG_LOG_FIN( player->get_name(), " - - - - - - - - - ", 0 )
 	for ( int32_t i = 1; i < ITEMS; ++i ) {
 		if ( player->ni[ i ] ) {
-			DEBUG_LOG_FIN( player->get_name(), "% 4d x %s", player->ni[ i ], item[ i ].getName() )
+			DEBUG_LOG_FIN( player->get_name(), "% 4d x %s", player->ni[ i ], item[ i ].get_name() )
 		}
 	}
 	DEBUG_LOG_FIN( player->get_name(), "-------------------", 0 )
@@ -1058,7 +1058,7 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 		for ( int32_t i = 1; i < WEAPONS; ++i ) {
 			// start from 1, as 0 is the small missile
 			if ( weapon[ i ].damage > 0 ) {
-				numDmgWeaps += player->nm[ i ] / weapon[ i ].getDelayDiv();
+				numDmgWeaps += player->nm[ i ] / weapon[ i ].get_delay_div();
 			}
 		}
 
@@ -1075,7 +1075,7 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 			player->get_name(),
 			"I have %s%s%s%d credits left%s",
 			pressed > -1 ? "bought: " : "finished, with ",
-			pressed > -1 ? pressed < WEAPONS ? weapon[ pressed ].getName() : item[ pressed - WEAPONS ].getName() : "",
+			pressed > -1 ? pressed < WEAPONS ? weapon[ pressed ].get_name() : item[ pressed - WEAPONS ].get_name() : "",
 			pressed < 0 ? " " : " (",
 			player->money,
 			pressed < 0 ? "" : ")"

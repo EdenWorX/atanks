@@ -626,10 +626,10 @@ void CEnvironment::initialise() {
 /// @return true if the items tech level is not too high and if it is not a warhead.
 bool CEnvironment::is_item_available( int32_t itemNum ) const {
 	if ( itemNum < WEAPONS ) {
-		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].techLevel > weapontech_level ) ) {
+		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].tech_level > weapontech_level ) ) {
 			return false;
 		}
-	} else if ( item[ itemNum - WEAPONS ].techLevel > itemtech_level ) {
+	} else if ( item[ itemNum - WEAPONS ].tech_level > itemtech_level ) {
 		return false;
 	}
 	return true;

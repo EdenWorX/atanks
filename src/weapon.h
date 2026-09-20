@@ -94,17 +94,17 @@ public:
 
 	/* Getters */
 	/// Volley delay divisor.
-	[[nodiscard]] int32_t     getDelayDiv() const;
+	[[nodiscard]] int32_t     get_delay_div() const;
 	/// Localized description.
-	[[nodiscard]] char const* getDesc() const;
+	[[nodiscard]] char const* get_desc() const;
 	/// Localized name.
-	[[nodiscard]] char const* getName() const;
+	[[nodiscard]] char const* get_name() const;
 
 	/* Setters */
 	/// Set the description.
-	void setDesc( char const* desc_ );
+	void set_desc( char const* desc_ );
 	/// Set the name.
-	void setName( char const* name_ );
+	void set_name( char const* name_ );
 
 
 	/* -----------------------------------
@@ -123,7 +123,7 @@ public:
 	int32_t spread          = 0;  //!< number of weapons in the shot
 	int32_t delay           = 0;  //!< volleys etc.
 	int32_t noimpact        = 0;  ///< No impact detonation.
-	int32_t techLevel       = 0;  ///< Shop tech level.
+	int32_t tech_level       = 0;  ///< Shop tech level.
 	int32_t warhead         = 0;  //!< Is it a warhead?
 	int32_t numSubmunitions = 0;  //!< Number of submunitions
 	int32_t submunition     = 0;  //!< The next stage

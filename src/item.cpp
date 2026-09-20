@@ -11,17 +11,17 @@
 CItem::CItem() = default;
 
 /// @brief Get the current item description
-char const* CItem::getDesc() const {
+char const* CItem::get_desc() const {
 	return desc;
 }
 
 /// @brief Get the current item name
-char const* CItem::getName() const {
+char const* CItem::get_name() const {
 	return name;
 }
 
 /// @brief Safely set a new item description
-void CItem::setDesc( char const* desc_ ) {
+void CItem::set_desc( char const* desc_ ) {
 	if ( strlen( desc_ ) > MAX_ITEM_DESC_LEN ) {
 		fprintf( stderr,
 		         "Item description for \"%s\" truncated! (%d/%lu characters)\n",
@@ -33,7 +33,7 @@ void CItem::setDesc( char const* desc_ ) {
 }
 
 /// @brief Safely set a new item name
-void CItem::setName( char const* name_ ) {
+void CItem::set_name( char const* name_ ) {
 	if ( strlen( name_ ) > MAX_ITEM_NAME_LEN ) {
 		fprintf( stderr, "Item name for \"%s\" truncated! (%d/%lu characters)\n", name_, MAX_ITEM_NAME_LEN, strlen( name_ )
 		);

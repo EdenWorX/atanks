@@ -1126,7 +1126,7 @@ void draw_top_bar() {
 
 		// Display weapon if chosen
 		if ( tank->cw < WEAPONS ) {
-			int32_t amt = tank->player->nm[ tank->cw ] / weapon[ tank->cw ].getDelayDiv();
+			int32_t amt = tank->player->nm[ tank->cw ] / weapon[ tank->cw ].get_delay_div();
 			int32_t col = BLACK;
 
 			// Forcibly changed weapons (previous out of ammo) flash red/white
@@ -1140,7 +1140,7 @@ void draw_top_bar() {
 					change_colour = RED;
 				}
 			}
-			textprintf_ex( global.canvas, font, 180, y1, col, -1, "%s: %d", weapon[ tank->cw ].getName(), amt );
+			textprintf_ex( global.canvas, font, 180, y1, col, -1, "%s: %d", weapon[ tank->cw ].get_name(), amt );
 		} else {
 			textprintf_ex(
 				global.canvas,
@@ -1150,7 +1150,7 @@ void draw_top_bar() {
 				BLACK,
 				-1,
 				"%s: %d",
-				item[ tank->cw - WEAPONS ].getName(),
+				item[ tank->cw - WEAPONS ].get_name(),
 				tank->player->ni[ tank->cw - WEAPONS ]
 			);
 		}

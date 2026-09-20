@@ -88,7 +88,7 @@ double CPlayer::boost_amp_pref( double old_pref, int32_t idx [[maybe_unused]], i
 	if ( pref < 1. ) {
 		pref = 1.;
 	}
-	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].get_name(), pref, boost, pref * boost )
 	pref *= boost;
 	return pref;
 }
@@ -100,7 +100,7 @@ double CPlayer::boost_armour_pref( double old_pref, int32_t idx [[maybe_unused]]
 	if ( pref < 1. ) {
 		pref = 1.;
 	}
-	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].get_name(), pref, boost, pref * boost )
 	pref *= boost;
 	return pref;
 }
@@ -114,13 +114,13 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 
 		// Lower weapon preferences if there is enough in stock already
 		if ( i && ( i < WEAPONS ) ) {
-			auto   delay_div  = static_cast< double >( weapon[ i ].getDelayDiv() );
+			auto   delay_div  = static_cast< double >( weapon[ i ].get_delay_div() );
 			auto   cur_amount = ROUND( nm[ i ] / delay_div );
 			double one_amount = weapon[ i ].amt / delay_div;
 			double max_amount = one_amount * ai_level;
 			double div_amount = cur_amount - max_amount;
 
-			// - cur_amount is the total amount of single shots. getDelayDiv()
+			// - cur_amount is the total amount of single shots. get_delay_div()
 			// is used, because it simply returns the number of shots fired by
 			// delayed weapons, while it returns always 1 for the other weapons.
 			// - one_amount - The number of nm[i] that is gotten by buying one
@@ -138,7 +138,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					"Boost %s : %3.2f * %3.2f = %3.2f",
-					weapon[ i ].getName(),
+					weapon[ i ].get_name(),
 					pref,
 					boost,
 					pref * boost
@@ -151,7 +151,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					"Lower %s pref (%d in stock) %d -> %d",
-					weapon[ i ].getName(),
+					weapon[ i ].get_name(),
 					ROUND( cur_amount ),
 					curr_pref[ i ],
 					ROUND( pref )
@@ -169,7 +169,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 							name.c_str(),
 							"Sold %d %s for $%s",
 							saleable,
-							weapon[ i ].getName(),
+							weapon[ i ].get_name(),
 							Add_Comma( ROUNDu( weapon[ i ].cost * env.sell_percent ) * saleable )
 						)
 					}
@@ -210,7 +210,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 					DEBUG_LOG_FIN(
 						name.c_str(),
 						"Lower %s pref (%d in stock) %d -> %d",
-						item[ j ].getName(),
+						item[ j ].get_name(),
 						ROUND( cur_amount ),
 						curr_pref[ i ],
 						ROUND( pref )
@@ -228,7 +228,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 								name.c_str(),
 								"Sold %d %s for $%s",
 								saleable,
-								item[ j ].getName(),
+								item[ j ].get_name(),
 								Add_Comma( ROUND( item[ j ].cost * env.sell_percent * saleable ) )
 							)
 						}
@@ -257,7 +257,7 @@ bool CPlayer::buy_item( int32_t item_index, int32_t max_boost ) {
 		// 2: Space free in stock?
 		// 3: Tech level not too high?
 		if ( ( money >= weapon[ item_index ].cost ) && ( nm[ item_index ] < MAX_ITEMS_IN_STOCK )
-		     && ( weapon[ item_index ].techLevel <= env.weapontech_level ) ) {
+		     && ( weapon[ item_index ].tech_level <= env.weapontech_level ) ) {
 			money           -= weapon[ item_index ].cost;
 			nm[ item_index ] += weapon[ item_index ].amt;
 
@@ -628,7 +628,7 @@ int32_t CPlayer::computer_select_pre_buy_item( int32_t max_boost ) {
 		DEBUG_LOG_FIN(
 			name.c_str(),
 			"Finally got enough money for %s!",
-			saved_item < WEAPONS ? weapon[ saved_item ].getName() : item[ saved_item - WEAPONS ].getName()
+			saved_item < WEAPONS ? weapon[ saved_item ].get_name() : item[ saved_item - WEAPONS ].get_name()
 		)
 		// Take it out from the wish list:
 		save_money_for[ saved_item ] = 0;
@@ -1384,7 +1384,7 @@ void CPlayer::generate_preferences() {
 				} else {
 					// Otherwise use spread value with damage. For non-spread
 					// weapons this value is always 1.
-					worth = weapon[ currItem ].damage * ( warheads * 2 ) * weapon[ currItem ].getDelayDiv();
+					worth = weapon[ currItem ].damage * ( warheads * 2 ) * weapon[ currItem ].get_delay_div();
 				}
 				// Note: warheads are counted twice, because otherwise spread
 				//       weapons get a by far too low score!
@@ -1581,7 +1581,7 @@ void CPlayer::generate_preferences() {
 			DEBUG_LOG_EMO(
 				name.c_str(),
 				"%23s (%6s): %5d",
-				i < WEAPONS ? weapon[ i ].getName() : item[ i - WEAPONS ].getName(),
+				i < WEAPONS ? weapon[ i ].get_name() : item[ i - WEAPONS ].get_name(),
 				i < WEAPONS ? "weapon" : "item",
 				weap_pref[ i ]
 			)
@@ -1599,7 +1599,7 @@ void CPlayer::generate_preferences() {
 					DEBUG_LOG_EMO(
 						name.c_str(),
 						"%23s (%6s) amplified to: %5d",
-						weapon[ i ].getName(),
+						weapon[ i ].get_name(),
 						"weapon",
 						weap_pref[ i ]
 					)
@@ -1618,7 +1618,7 @@ void CPlayer::generate_preferences() {
 					DEBUG_LOG_EMO(
 						name.c_str(),
 						"%23s (%6s) amplified to: %5d",
-						item[ i - WEAPONS ].getName(),
+						item[ i - WEAPONS ].get_name(),
 						"item",
 						weap_pref[ i ]
 					)
@@ -1709,7 +1709,7 @@ int32_t CPlayer::get_money_to_save( bool first_look ) {
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					" => Save money for %s!",
-					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
+					i < WEAPONS ? weapon[ i ].get_name() : item[ j ].get_name()
 				)
 			} // end of having a big enough preference
 		}         // end of looping THINGS
@@ -1741,7 +1741,7 @@ int32_t CPlayer::get_money_to_save( bool first_look ) {
 					" ==> I%s need %d.: %s! (+ %d => %d)",
 					first_look ? "" : " still",
 					ROUND( wanted ),
-					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName(),
+					i < WEAPONS ? weapon[ i ].get_name() : item[ j ].get_name(),
 					save_money_for[ i ],
 					ROUND( moneyToSave )
 				)
@@ -1751,7 +1751,7 @@ int32_t CPlayer::get_money_to_save( bool first_look ) {
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					" <== I no longer need %s ...",
-					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
+					i < WEAPONS ? weapon[ i ].get_name() : item[ j ].get_name()
 				)
 			}
 		}
@@ -2336,7 +2336,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 							DEBUG_LOG_EMO(
 								name.c_str(),
 								"New preference for %s : %5d",
-								weapon[ THEFT_BOMB ].getName(),
+								weapon[ THEFT_BOMB ].get_name(),
 								weap_pref[ THEFT_BOMB ]
 							)
 						}
@@ -2353,7 +2353,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 							DEBUG_LOG_EMO(
 								name.c_str(),
 								"Changed preference for %s : %5d",
-								item[ ITEM_FUEL ].getName(),
+								item[ ITEM_FUEL ].get_name(),
 								prf_val
 							)
 						}
@@ -2906,7 +2906,7 @@ void CPlayer::update_preferences( int32_t max_boost, int32_t max_score ) {
 			"%2d. preference: %6d - %s",
 			i + 1,
 			curr_pref[ desired[ i ] ],
-			desired[ i ] < WEAPONS ? weapon[ desired[ i ] ].getName() : item[ desired[ i ] - WEAPONS ].getName()
+			desired[ i ] < WEAPONS ? weapon[ desired[ i ] ].get_name() : item[ desired[ i ] - WEAPONS ].get_name()
 		)
 	}
 #endif // ATANKS_DEBUG_FINANCE

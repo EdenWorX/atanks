@@ -26,7 +26,7 @@ struct sItemListEntry {
 	explicit sItemListEntry( sItemListEntry* prev_ );
 	~sItemListEntry();
 
-	[[nodiscard]] char const* get_name() const { return item[ type ].getName(); }
+	[[nodiscard]] char const* get_name() const { return item[ type ].get_name(); }
 };
 
 /** @struct sOppMemEntry
@@ -83,7 +83,7 @@ struct sWeapListEntry {
 	explicit sWeapListEntry( sWeapListEntry* prev_ );
 	~sWeapListEntry();
 
-	[[nodiscard]] char const* get_name() const { return weapon[ type ].getName(); }
+	[[nodiscard]] char const* get_name() const { return weapon[ type ].get_name(); }
 };
 
 /// @brief Template swapper, the types just need prev/next pointers
@@ -311,7 +311,7 @@ bool CAICore::aim( int32_t combo_attempt, int32_t combo_tries, bool can_move ) {
 	DEBUG_LOG_AIM(
 		player->get_name(),
 		"Starting to aim %s at %s",
-		weapon[ weap_idx ].getName(),
+		weapon[ weap_idx ].get_name(),
 		mem_curr->entry->opponent->get_name()
 	)
 
@@ -761,7 +761,7 @@ bool CAICore::aim( int32_t combo_attempt, int32_t combo_tries, bool can_move ) {
 				DEBUG_LOG_AIM(
 					player->get_name(),
 					"Obstacle detected, trying to clear path using %s",
-					weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName()
+					weap_idx < WEAPONS ? weapon[ weap_idx ].get_name() : item[ weap_idx - WEAPONS ].get_name()
 				)
 			}
 			return true;
@@ -1038,7 +1038,7 @@ bool CAICore::calc_boxed( bool is_last ) {
 				DEBUG_LOG_AIM(
 					player->get_name(),
 					"Obstacle detected, trying to clear path using %s",
-					weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName()
+					weap_idx < WEAPONS ? weapon[ weap_idx ].get_name() : item[ weap_idx - WEAPONS ].get_name()
 				)
 			}
 			return true;
@@ -1384,7 +1384,7 @@ bool CAICore::calc_kamikaze( bool is_last ) {
 				DEBUG_LOG_AIM(
 					player->get_name(),
 					"Firing %s at %d° with power %d%s",
-					weapon[ weap_idx ].getName(),
+					weapon[ weap_idx ].get_name(),
 					GET_DISP_ANGLE( curr_angle ),
 					curr_power,
 					is_good ? "!" : " will not work! Need a plan!"
@@ -1409,7 +1409,7 @@ bool CAICore::calc_kamikaze( bool is_last ) {
 				DEBUG_LOG_AIM(
 					player->get_name(),
 					"Firing %s at %d° with power %d (wind %d, wind_mod %d)",
-					weapon[ weap_idx ].getName(),
+					weapon[ weap_idx ].get_name(),
 					GET_DISP_ANGLE( curr_angle ),
 					curr_power,
 					wind,
@@ -1425,7 +1425,7 @@ bool CAICore::calc_kamikaze( bool is_last ) {
 				DEBUG_LOG_AIM(
 					player->get_name(),
 					"Firing %s at %d° with power %d",
-					weapon[ weap_idx ].getName(),
+					weapon[ weap_idx ].get_name(),
 					GET_DISP_ANGLE( curr_angle ),
 					curr_power
 				)
@@ -1457,7 +1457,7 @@ bool CAICore::calc_kamikaze( bool is_last ) {
 		DEBUG_LOG_AIM(
 			player->get_name(),
 			"Emergency plan: Firing %s at %d° with power %d",
-			weapon[ weap_idx ].getName(),
+			weapon[ weap_idx ].get_name(),
 			GET_DISP_ANGLE( curr_angle ),
 			curr_power
 		)
@@ -1553,7 +1553,7 @@ bool CAICore::calc_laser( bool is_last ) {
 		DEBUG_LOG_AIM(
 			player->get_name(),
 			"Firing %s at %d° with power %d",
-			weapon[ weap_curr->type ].getName(),
+			weapon[ weap_curr->type ].get_name(),
 			GET_DISP_ANGLE( curr_angle ),
 			curr_power
 		)
@@ -1993,7 +1993,7 @@ bool CAICore::calc_standard( bool is_last, bool allow_flip_shot ) {
 			DEBUG_LOG_AIM(
 				player->get_name(),
 				"Obstacle detected, trying to clear path using %s",
-				weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName()
+				weap_idx < WEAPONS ? weapon[ weap_idx ].get_name() : item[ weap_idx - WEAPONS ].get_name()
 			)
 		} else {
 			// This did not work out
@@ -2046,7 +2046,7 @@ bool CAICore::calc_standard( bool is_last, bool allow_flip_shot ) {
 		DEBUG_LOG_AIM(
 			player->get_name(),
 			"Firing %s at %d° with power %d",
-			weapon[ weap_idx ].getName(),
+			weapon[ weap_idx ].get_name(),
 			GET_DISP_ANGLE( curr_angle ),
 			curr_power
 		)
@@ -2155,7 +2155,7 @@ bool CAICore::calc_unbury( bool is_last ) {
 		DEBUG_LOG_AIM(
 			player->get_name(),
 			"Freeing myself using %s at %d° with power %d",
-			weapon[ weap_idx ].getName(),
+			weapon[ weap_idx ].get_name(),
 			GET_DISP_ANGLE( angle ),
 			power
 		)
@@ -2179,7 +2179,7 @@ bool CAICore::calc_unbury( bool is_last ) {
 		DEBUG_LOG_AIM(
 			player->get_name(),
 			"Freeing myself using %s at %d° with power %d",
-			weapon[ weap_idx ].getName(),
+			weapon[ weap_idx ].get_name(),
 			GET_DISP_ANGLE( angle ),
 			power
 		)
@@ -2205,7 +2205,7 @@ bool CAICore::calc_unbury( bool is_last ) {
 		DEBUG_LOG_AIM(
 			player->get_name(),
 			"(last!) Freeing myself using %s at %d° with power %d",
-			weapon[ weap_idx ].getName(),
+			weapon[ weap_idx ].get_name(),
 			GET_DISP_ANGLE( angle ),
 			power
 		)
@@ -2218,8 +2218,8 @@ bool CAICore::calc_unbury( bool is_last ) {
 	DEBUG_LOG_AIM(
 		player->get_name(),
 		"Nothing suitable selected (%s)",
-		item_curr   ? item[ weap_idx - WEAPONS ].getName()
-		: weap_curr ? weapon[ weap_idx ].getName()
+		item_curr   ? item[ weap_idx - WEAPONS ].get_name()
+		: weap_curr ? weapon[ weap_idx ].get_name()
 			    : "NOTHING"
 	)
 
@@ -2592,7 +2592,7 @@ bool CAICore::get_memory() {
 
 		if ( -1 < ( pref = player->get_weap_pref( idx ) ) ) {
 			int32_t subMun = weapon[ idx ].submunition; // short-cut
-			double  damage = weapon[ idx ].damage * dmgMod * weapon[ idx ].getDelayDiv();
+			double  damage = weapon[ idx ].damage * dmgMod * weapon[ idx ].get_delay_div();
 
 			// === Dirt weapons have a "damage" based on their radius ===
 			if ( ( DIRT_BALL <= idx ) && ( SMALL_DIRT_SPREAD >= idx ) ) {
@@ -3219,7 +3219,7 @@ bool CAICore::select_item( bool is_last ) {
 
 		weap_idx = weap_curr->type;
 
-		DEBUG_LOG_EMO( player->get_name(), "(SHOCKED) Quick selected %s", weapon[ weap_idx ].getName() )
+		DEBUG_LOG_EMO( player->get_name(), "(SHOCKED) Quick selected %s", weapon[ weap_idx ].get_name() )
 		return true;
 	}
 
@@ -3308,8 +3308,8 @@ bool CAICore::select_item( bool is_last ) {
 	DEBUG_LOG_EMO(
 		player->get_name(),
 		"Next selection: %s",
-		weap_curr   ? weapon[ weap_idx ].getName()
-		: item_curr ? item[ weap_idx - WEAPONS ].getName()
+		weap_curr   ? weapon[ weap_idx ].get_name()
+		: item_curr ? item[ weap_idx - WEAPONS ].get_name()
 			    : "NOTHING (fail)"
 	)
 
@@ -3544,7 +3544,7 @@ bool CAICore::setup_attack( bool is_last, int32_t& opp_attempt, int32_t& weap_at
 			DEBUG_LOG_EMO(
 				player->get_name(),
 				"Last Try Selection: %s against %s",
-				weapon[ SML_MIS ].getName(),
+				weapon[ SML_MIS ].get_name(),
 				mem_head->entry->opponent->get_name()
 			)
 
@@ -3593,8 +3593,8 @@ bool CAICore::setup_attack( bool is_last, int32_t& opp_attempt, int32_t& weap_at
 			DEBUG_LOG_EMO(
 				player->get_name(),
 				"Chosen to self destruct using %s",
-				weap_curr   ? weapon[ weap_idx ].getName()
-				: item_curr ? item[ weap_idx - WEAPONS ].getName()
+				weap_curr   ? weapon[ weap_idx ].get_name()
+				: item_curr ? item[ weap_idx - WEAPONS ].get_name()
 					    : "NOTHING (fail)"
 			)
 
@@ -4108,7 +4108,7 @@ void CAICore::update_item_score( itentry_t* pItem ) {
 		return;
 	}
 
-	DEBUG_LOG_AI( player->get_name(), "Evaluating score for %s", item[ pItem->type ].getName() )
+	DEBUG_LOG_AI( player->get_name(), "Evaluating score for %s", item[ pItem->type ].get_name() )
 
 	// reset helper boolean
 	pItem->escape = false;
@@ -4562,7 +4562,7 @@ void CAICore::update_weap_score( weentry_t* pWeap ) {
 		return;
 	}
 
-	DEBUG_LOG_AI( player->get_name(), "Evaluating score for %s", weapon[ wType ].getName() )
+	DEBUG_LOG_AI( player->get_name(), "Evaluating score for %s", weapon[ wType ].get_name() )
 
 	// reset boolean helpers
 	pWeap->blast_out = false;
@@ -4760,7 +4760,7 @@ void CAICore::update_weap_score( weentry_t* pWeap ) {
 		// Chain weapons can push through dirt, but are bad when the own tank
 		// is buried.
 		if ( ( CHAIN_GUN <= wType ) && ( JACK_HAMMER >= wType ) ) {
-			dig_score = pWeap->dmg_single * static_cast< double >( weapon[ wType ].getDelayDiv() )
+			dig_score = pWeap->dmg_single * static_cast< double >( weapon[ wType ].get_delay_div() )
 			          / ( 1.75 + player->defensive ) * ( buried > BURIED_LEVEL ? -1. : 1. );
 		}
 
@@ -5095,7 +5095,7 @@ bool CAICore::use_freeing_tool( bool free_tank, bool is_last ) {
 			player->get_name(),
 			"%sSelected %s to %s",
 			is_last ? "(LAST) " : "",
-			weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName(),
+			weap_idx < WEAPONS ? weapon[ weap_idx ].get_name() : item[ weap_idx - WEAPONS ].get_name(),
 			free_tank ? "free my tank" : "clear firing path"
 		)
 
@@ -5509,8 +5509,8 @@ void CAICore::operator() () {
 						"New best setup with angle %d, power %d using %s : (%d > %d)",
 						GET_DISP_ANGLE( curr_angle ),
 						curr_power,
-						weap_idx < WEAPONS ? weapon[ weap_idx ].getName()
-								   : item[ weap_idx - WEAPONS ].getName(),
+						weap_idx < WEAPONS ? weapon[ weap_idx ].get_name()
+								   : item[ weap_idx - WEAPONS ].get_name(),
 						best_round_score,
 						best_setup_score
 					)
@@ -5645,7 +5645,7 @@ void CAICore::operator() () {
 				"Using best setup with angle %d, power %d using %s (Score %d)",
 				GET_DISP_ANGLE( angle ),
 				power,
-				weap_idx < WEAPONS ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName(),
+				weap_idx < WEAPONS ? weapon[ weap_idx ].get_name() : item[ weap_idx - WEAPONS ].get_name(),
 				best_setup_score
 			)
 		} else if ( !is_stopped ) {
@@ -5792,7 +5792,7 @@ void CAICore::operator() () {
 			DEBUG_LOG_AI(
 				player->get_name(),
 				"Finished thinking, waiting to fire %s against %s",
-				weap_curr ? weapon[ weap_idx ].getName() : item[ weap_idx - WEAPONS ].getName(),
+				weap_curr ? weapon[ weap_idx ].get_name() : item[ weap_idx - WEAPONS ].get_name(),
 				mem_curr ? mem_curr->entry->opponent->get_name() : "Nobody"
 			)
 

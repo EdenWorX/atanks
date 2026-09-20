@@ -469,7 +469,7 @@ Standalone helpers (not built by `Makefile`):
 - `src/main.h` include order is load-bearing: `debug.h` must precede Allegro headers on Windows (`src/main.h:39-42`).
 - `globals.h` may only be included from `src/atanks.cpp`; every other unit uses `externs.h` (`src/globals.h:1-3`,
   `src/externs.h:45-80`).
-- `CWeapon::getDelayDiv()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
+- `CWeapon::get_delay_div()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
 - The `NETWORK` define reaches the code via generated `config.h` on Linux and BSD builds; macOS builds do not get it, and
   there is no CMake Windows build. Network play is currently a Linux-only first draft; proper network development is deferred
   until after the Cleanup and Modernization task (`TODO.md`).
