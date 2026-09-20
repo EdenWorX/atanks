@@ -1085,6 +1085,17 @@ bool CEnvironment::load_background_music() {
 				isSecondTry = true;
 				continue;
 			}
+
+			// Otherwise there is either an error or no music files
+			if ( background_music ) {
+				// Okay, this is odd.
+				destroy_sample( background_music );
+				background_music = nullptr;
+			}
+
+			// No music, no play
+			play_music = false;
+			return false;
 		} // end of not having a folder entry any more
 	}         // end of "endless" loop
 
@@ -1140,7 +1151,7 @@ bool CEnvironment::load_bitmaps() {
 				break;
 			case 6:
 			default:
-				folder += "/tank_gun/";
+				folder += "/tankgun/";
 				break;
 		}
 
