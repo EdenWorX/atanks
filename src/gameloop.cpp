@@ -156,7 +156,7 @@ public:
 					has_action.store( true );
 				}
 
-				obj->getNext( &next_obj );
+				obj->get_next( &next_obj );
 
 				// Trigger Explosion progress
 				if ( CLASS_EXPLOSION == class_ ) {
@@ -739,7 +739,7 @@ static inline void check_overtime( CAICore& aicore ) {
 			tank->add_damage( nullptr, tank->sh + tank->l + 1 );
 			tank->apply_damage();
 			tank->reset_flash_damage();
-			tank->getNext( &tank );
+			tank->get_next( &tank );
 		}
 
 		global.skipping_computer_play = false;
@@ -866,7 +866,7 @@ static inline void delete_destroyed( CAICore& aicore ) {
 		global.lock_class( e_class );
 
 		while ( obj ) {
-			obj->getNext( &next_obj );
+			obj->get_next( &next_obj );
 
 			// Update object if it is destroyed
 			if ( obj->destroy ) {
@@ -1022,7 +1022,7 @@ static inline void draw_objects( CAICore& aicore ) {
 				has_deco.store( true, ATOMIC_WRITE );
 			}
 
-			obj->getNext( &obj );
+			obj->get_next( &obj );
 		} // End of looping objects
 
 	} // End of looping classes
@@ -1273,7 +1273,7 @@ static inline bool explode_tanks() {
 			do_explode = true;
 		}
 
-		tank->getNext( &tank );
+		tank->get_next( &tank );
 	}
 
 	// Return if no tank is about to explode:
@@ -1288,7 +1288,7 @@ static inline bool explode_tanks() {
 	global.get_head_of_class( CLASS_TANK, &tank );
 	while ( tank ) {
 
-		tank->getNext( &tmp );
+		tank->get_next( &tmp );
 
 		// If the tank is now destroyed, let it explode
 		if ( tank->destroy ) {
@@ -1365,7 +1365,7 @@ static inline void fire_weapon() {
 				tank->activate_current_selection();
 			}
 			tank->player->time_left_to_fire = env.max_fire_time;
-			tank->getNext( &tank );
+			tank->get_next( &tank );
 		}
 
 		assert( ( STAGE_FIRE == global.stage ) && "ERROR: global.stage changed illegally!" );
@@ -1404,7 +1404,7 @@ static inline void init_new_round() {
 	global.get_head_of_class( CLASS_FLOATTEXT, &txt );
 	while ( txt ) {
 		txt->new_round();
-		txt->getNext( &txt );
+		txt->get_next( &txt );
 	}
 
 	// Initialize the static inline global values, so no old data from a previous
@@ -1522,7 +1522,7 @@ static inline void set_tank_settings() {
 			int32_t ty = global.surface[ tx ].load();
 
 			curr_tank->new_round( tx, ty );
-			curr_tank->getNext( &curr_tank );
+			curr_tank->get_next( &curr_tank );
 		}
 	}
 
@@ -1541,7 +1541,7 @@ static inline void set_tank_settings() {
 	global.get_head_of_class( CLASS_TANK, &curr_tank );
 	while ( curr_tank ) {
 		global.order[ place++ ] = curr_tank;
-		curr_tank->getNext( &curr_tank );
+		curr_tank->get_next( &curr_tank );
 	}
 
 	// Mix up the order if it is wanted to be randomized
@@ -1870,6 +1870,6 @@ static inline void update_objects( ObjectUpdater* upd ) {
 		if ( lt->player ) {
 			lt->player->sdi_has_fired.store( false, ATOMIC_WRITE );
 		}
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	}
 }

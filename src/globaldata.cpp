@@ -165,7 +165,7 @@ bool CGlobalData::are_tanks_in_box( int32_t x1, int32_t y1, int32_t x2, int32_t 
 		if ( ( !lt->destroy ) && lt->is_in_box( x1, y1, x2, y2 ) ) {
 			return true;
 		}
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	}
 
 	return false;

@@ -129,7 +129,7 @@ narrow responsibilities:
 - `src/random.h` / `src/perlin.cpp` provide random numbers (`CHANGELOG.md` 6.7 entry notes thread-local modernized RNG) and
   noise for terrain/sky.
 - `src/box.h`, `src/button.h`, `src/menu.h`, `src/optiontypes.h`, `src/optioncontent.h`, `src/optionitem*.h`,
-  `src/optionscreens.h` form the menu/options UI framework (self-managing `Menu` of `OptionItem` entries).
+  `src/optionscreens.h` form the menu/options UI framework (self-managing `CMenu` of `TOptionItem` entries).
 
 ### Gameplay Modules
 
@@ -373,7 +373,7 @@ Standalone helpers (not built by `Makefile`):
 
 1. Startup resolves `data_dir` and `config_dir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
    sounds, and background music (`CEnvironment::load_game_files()`, `src/environment.cpp:1311`).
-2. Menu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `CPlayer` objects (names, colors, teams,
+2. CMenu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `CPlayer` objects (names, colors, teams,
    inventories, money).
 3. `game()` (`src/gameloop.cpp:246`) runs a round: `init_new_round()` (`:261`), `set_tank_settings()` (`:270`), spawn of the
    `CAICore` thread and per-class `ObjectUpdater` threads, then the frame loop (`:316-489`) over stages `STAGE_AIM -> STAGE_FIRE
@@ -515,7 +515,7 @@ Standalone helpers (not built by `Makefile`):
 | `src/weapon.h/.cpp`, `src/item.h/.cpp` | arsenal | Data records, 56 + 6 + 24 catalog sizes |
 | `src/land.h/.cpp`, `src/sky.h/.cpp`, `src/levelcreator.h/.cpp` | world gen | Gradients, terrain/sky generation |
 | `src/shop.h/.cpp`, `src/score.h/.cpp` | meta | Buy/sell UI, score sorting |
-| `src/menu.h/.cpp`, `src/optionscreens.h/.cpp`, `src/option*.h/.cpp` | UI | Menu framework, option screens/items |
+| `src/menu.h/.cpp`, `src/optionscreens.h/.cpp`, `src/option*.h/.cpp` | UI | CMenu framework, option screens/items |
 | `src/network.h/.cpp`, `src/client.h/.cpp` | net | Transport + client protocol (`NETWORK` builds) |
 | `src/sound.h/.cpp`, `src/clock.h/.cpp`, `src/spinlock.h/.cpp`, `src/zbuffer.h/.cpp`, `src/debug.h/.cpp`, `src/update.h/.cpp` | services | Audio, timers, locking, z-buffer, logging, updater |
 | `src/bitmap.h`, `src/gfxData.h/.cpp`, `src/box.h/.cpp`, `src/button.h/.cpp` | gfx/UI bits | Forward decls, sGradient strips, boxes, buttons |

@@ -234,18 +234,18 @@ void CTank::activate_current_selection() {
 				// If there are only two tanks, just take the other
 				if ( 2 == global.num_tanks ) {
 					if ( other == this ) {
-						other->getNext( &other );
+						other->get_next( &other );
 					}
 				} else {
 					// Otherwise, select one by random
 					int32_t rtn = get_rand() % ( global.num_tanks - 1 );
 					while ( rtn-- ) {
-						other->getNext( &other );
+						other->get_next( &other );
 					}
 
 					// If the selection ended up with this tank, chose the next one
 					if ( other == this ) {
-						other->getNext( &other );
+						other->get_next( &other );
 					}
 				}
 
@@ -299,7 +299,7 @@ void CTank::activate_current_selection() {
 				} catch ( std::exception &e ) {
 					std::cerr << __func__ << " new CTeleport: " << e.what() << std::endl;
 				}
-				lt->getNext( &lt );
+				lt->get_next( &lt );
 			}
 		}
 
@@ -986,7 +986,7 @@ void CTank::explode( bool allow_vengeance ) {
 				++tanks;
 				med_x += ROUND( tank->x );
 			}
-			tank->getNext( &tank );
+			tank->get_next( &tank );
 		}
 
 		// Get the medium x position of all tanks (or the middle of the
@@ -1849,7 +1849,7 @@ bool CTank::tank_on_tank() {
 		     && ( ( lt->y - y ) < tank_off_y ) ) {
 			found_tank = true;
 		} else {
-			lt->getNext( &lt );
+			lt->get_next( &lt );
 		}
 	}
 

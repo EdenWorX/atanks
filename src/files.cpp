@@ -421,10 +421,10 @@ void scrollTextList( TEXTBLOCK* lines ) {
 	bool             done     = false;
 	bool             moving   = true;
 
-	EBackgroundTypes bgType =
+	EBackgroundTypes bg_type =
 		env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 
-	drawMenuBackground( bgType, tOffset, numItems );
+	drawMenuBackground( bg_type, tOffset, numItems );
 	quickChange( true );
 
 	int32_t clip_l = env.half_width - 299;
@@ -455,7 +455,7 @@ void scrollTextList( TEXTBLOCK* lines ) {
 			scrollOffset = clip_b - env.half_height - 14;
 		}
 
-		drawMenuBackground( bgType, tOffset, numItems );
+		drawMenuBackground( bg_type, tOffset, numItems );
 		lines->Render_Lines( scrollOffset, spacing, clip_t, clip_b );
 		global.make_update( env.half_width - 300, env.menu_begin_y, 601, env.screen_height - 2 * env.menu_begin_y );
 		global.do_updates();

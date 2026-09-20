@@ -245,7 +245,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Game Speed",
 	    "Custom Background",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_PORTUGUESE === */
@@ -264,7 +264,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Velocidade do jogo",
 	    "Fundo personalizado",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_FRENCH === */
@@ -283,7 +283,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Vitesse du jeu",
 	    "Fond fait sur commande",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_GERMAN === */
@@ -321,7 +321,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Rýchlosť hry",
 	    "Vlastné pozadie",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Späť",
 	    nullptr },
          { /* ===	EL_RUSSIAN === */
@@ -340,7 +340,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Скорость игры",
 	    "Собственный фон",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Назад",
 	    nullptr },
          { /* ===	EL_SPANISH === */
@@ -360,7 +360,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Game Speed",
 	    "Custom Background",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_ITALIAN === */
@@ -380,14 +380,14 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Game Speed",
 	    "Custom Background",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr } },
 	{ /* -------------------- *
          * --- MAIN         --- *
          * -------------------- */
 	  { /* === EL_ENGLISH === */
-	    "Main Menu",
+	    "Main CMenu",
 	    "Reset All",
 	    "Physics",
 	    "Weather",
@@ -405,7 +405,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Back",
 	    nullptr },
          { /* ===	EL_PORTUGUESE === */
-	    "Menu Principal",
+	    "CMenu Principal",
 	    "Reset All",
 	    "Física",
 	    "Condições Meteorológicas",
@@ -423,7 +423,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Back",
 	    nullptr },
          { /* ===	EL_FRENCH === */
-	    "Menu principal",
+	    "CMenu principal",
 	    "Reset All",
 	    "Physique",
 	    "Météo",
@@ -496,7 +496,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
-	    "Main Menu",
+	    "Main CMenu",
 	    "Reset All",
 	    "Physics",
 	    "Weather",
@@ -515,7 +515,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
-	    "Main Menu",
+	    "Main CMenu",
 	    "Reset All",
 	    "Physics",
 	    "Weather",

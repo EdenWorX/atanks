@@ -28,15 +28,15 @@
  **/
 
 
-/** @class OptionItemColour
+/** @class COptionItemColour
  * @brief abstract one option menu entry to handle an int32_t instance
  *
- * This class is a special version of the OptionItem template that can only
+ * This class is a special version of the TOptionItem template that can only
  * handle int32_t instances representing colours.
  *
  * The the only entry type supported is the ET_COLOR.
  **/
-class OptionItemColour final : public OptionItemBase {
+class COptionItemColour final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -44,10 +44,10 @@ public:
 	 */
 
 	/// Create a color entry.
-	explicit OptionItemColour(
+	explicit COptionItemColour(
 		int32_t*    color_,
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		int32_t     top_,
 		int32_t     left_,
 		int32_t     width_,
@@ -56,7 +56,7 @@ public:
 		int32_t     show_size_
 	);
 	/// Destroy a color entry.
-	~OptionItemColour() final;
+	~COptionItemColour() final;
 
 	/* ----------------------
 	 * --- Public methods ---
@@ -82,7 +82,7 @@ private:
 	 */
 
 
-	void displayCross();
+	void display_cross();
 
 
 	/* -----------------------

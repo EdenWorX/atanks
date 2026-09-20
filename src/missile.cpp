@@ -673,7 +673,7 @@ sSDI* CMissile::build_sdi_list( sSDI* sdi ) {
 				++idx;
 			} // end of in range
 		}         // End of having SDI
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	} // End of looping tanks
 
 	return pSDI;
@@ -1058,7 +1058,7 @@ void CMissile::check_tanks() {
 				y = lt->y; // I think we can live with this 'shift'.
 			}
 		}
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	}
 }
 
@@ -1112,7 +1112,7 @@ void CMissile::repulse_missile() {
 				yv += yaccel;
 			}
 		}
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	}
 }
 

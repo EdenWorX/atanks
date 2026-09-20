@@ -4,10 +4,10 @@
 #include "box.h"
 #include "main.h"
 
-/** @class BUTTON
+/** @class CButton
  * @brief Clickable menu button.
  **/
-class BUTTON {
+class CButton {
 public:
 	/* --------------------
 	 * --- constructors ---
@@ -15,14 +15,14 @@ public:
 	 */
 
 	/// Minimum ctor without text.
-	explicit BUTTON( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
+	explicit CButton( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
 	/// Ctor for using a bitmap.
-	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
+	CButton( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
 	);
 
 	/// Ctor for drawing a manual box.
-	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+	CButton( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 
 
 	/* ----------------------
@@ -33,13 +33,13 @@ public:
 	/// Render the button.
 	void draw();
 	/// Read the button geometry.
-	void getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
+	void get_location( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
 	/// Test mouse hover.
-	bool isMouseOver() const;
+	bool is_mouse_over() const;
 	/// Test button press.
-	bool isPressed() const;
+	bool is_pressed() const;
 	/// Replace the button text.
-	void setText( char const* text_ );
+	void set_text( char const* text_ );
 
 private:
 	/* -----------------------

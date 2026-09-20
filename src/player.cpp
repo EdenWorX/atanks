@@ -883,7 +883,7 @@ EControl CPlayer::control_tank( CAICore* aicore, bool allow_fire ) {
 
 			switch ( mm ) {
 				case 1:
-					// Main Menu
+					// Main CMenu
 					global.set_command( GLOBAL_COMMAND_MENU );
 					return CONTROL_QUIT;
 				case 2:
@@ -2975,8 +2975,8 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	player_bak.copy_from( *target );
 
 	// The "Are you sure" screen when deleting a player
-	Menu areyousure( MC_AREYOUSURE, env.half_width - menuMid, env.menu_begin_y );
-	areyousure.addButton(
+	CMenu areyousure( MC_AREYOUSURE, env.half_width - menuMid, env.menu_begin_y );
+	areyousure.add_button(
 		1,
 		nullptr,
 		PE_CONFIRM_DEL,
@@ -2990,7 +2990,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 		0,
 		itemPadding
 	);
-	areyousure.addButton(
+	areyousure.add_button(
 		2,
 		nullptr,
 		PE_BACK,
@@ -3006,19 +3006,19 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	);
 
 	// The menu, but with the player name as title
-	Menu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
-	menu.setTitle( player_bak.name, false );
+	CMenu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
+	menu.set_title( player_bak.name, false );
 
 	// "Name"
-	menu.addText( player_bak.name, 1, NAME_LEN, player_bak.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( player_bak.name, 1, NAME_LEN, player_bak.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Colour"
-	menu.addColor( &player_bak.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
+	menu.add_color( &player_bak.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
 	itemY += 50 + itemPadding;
 
 	// "Type"
-	menu.addValue(
+	menu.add_value(
 		&player_bak.type,
 		3,
 		nullptr,
@@ -3034,7 +3034,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Team"
-	menu.addValue(
+	menu.add_value(
 		&player_bak.team,
 		4,
 		nullptr,
@@ -3050,7 +3050,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Generate Pref"
-	menu.addValue(
+	menu.add_value(
 		&player_bak.pref_type,
 		5,
 		nullptr,
@@ -3066,15 +3066,15 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Played"
-	menu.addText( &player_bak.played, 6, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( &player_bak.played, 6, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Won"
-	menu.addText( &player_bak.won, 7, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( &player_bak.won, 7, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Tank Type"
-	menu.addValue(
+	menu.add_value(
 		&player_bak.tank_bitmap,
 		8,
 		nullptr,
@@ -3091,10 +3091,10 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 	itemY += 35 + itemPadding;
 
 	// "Delete This Player"
-	menu.addMenu( &areyousure, 9, RED, itemLeft, itemY, 150, itemFullHeight, itemPadding );
+	menu.add_menu( &areyousure, 9, RED, itemLeft, itemY, 150, itemFullHeight, itemPadding );
 
 	// "Okay" and "Back"
-	menu.addButton(
+	menu.add_button(
 		10,
 		nullptr,
 		PE_CONFIRM_EDIT,
@@ -3108,7 +3108,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 		0,
 		itemPadding
 	);
-	menu.addButton(
+	menu.add_button(
 		11,
 		nullptr,
 		PE_BACK,
@@ -3161,18 +3161,18 @@ int32_t new_player( CPlayer** target, int32_t ) {
 	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 
 	// The menu, with title from the menu class
-	Menu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
+	CMenu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Name"
-	menu.addText( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Colour"
-	menu.addColor( &player_new.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
+	menu.add_color( &player_new.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
 	itemY += 50 + itemPadding;
 
 	// "Type"
-	menu.addValue(
+	menu.add_value(
 		&player_new.type,
 		3,
 		nullptr,
@@ -3188,7 +3188,7 @@ int32_t new_player( CPlayer** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Team"
-	menu.addValue(
+	menu.add_value(
 		&player_new.team,
 		4,
 		nullptr,
@@ -3204,7 +3204,7 @@ int32_t new_player( CPlayer** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Generate Pref"
-	menu.addValue(
+	menu.add_value(
 		&player_new.pref_type,
 		5,
 		nullptr,
@@ -3222,7 +3222,7 @@ int32_t new_player( CPlayer** target, int32_t ) {
 	// "Played" and "Won" do not make sense here
 
 	// "Tank Type"
-	menu.addValue(
+	menu.add_value(
 		&player_new.tank_bitmap,
 		8,
 		nullptr,
@@ -3241,7 +3241,7 @@ int32_t new_player( CPlayer** target, int32_t ) {
 	// "Delete This Player" is surely not needed
 
 	// "Okay" and "Back"
-	menu.addButton(
+	menu.add_button(
 		10,
 		nullptr,
 		PE_CONFIRM_NEW,
@@ -3255,7 +3255,7 @@ int32_t new_player( CPlayer** target, int32_t ) {
 		0,
 		itemPadding
 	);
-	menu.addButton(
+	menu.add_button(
 		11,
 		nullptr,
 		PE_BACK,

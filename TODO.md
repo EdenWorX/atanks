@@ -471,7 +471,32 @@ per module.
 #### [ ] PF-1.15.3: Rename UI, services, and remaining modules
 
 Apply the mapping to menus/options, persistence, text, audio, and utility modules with the same rename-only discipline and
-verification as `PF-1.15.2`.
+verification as `PF-1.15.2`. Split into Action Items below: type renames go globally per batch, member/function snake_case
+goes per module.
+
+- [x] **PF-1.15.3.1**: Option framework types and members
+
+  Rename `OptionItem` → `TOptionItem`, `OptionItemBase` → `COptionItemBase`, `OptionItemColour` → `COptionItemColour`,
+  `OptionItemMenu` → `COptionItemMenu`, `OptionItemPlayer` → `COptionItemPlayer`, `Menu` → `CMenu`, and `BUTTON` → `CButton`
+  tree-wide, then snake_case their members and methods (e.g. `entryNum` → `entry_num`, `titleIdx_` → `title_idx_`) with
+  per-member review. Pure renames; verify with a build.
+
+- [ ] **PF-1.15.3.2**: Arsenal data members
+
+  Snake_case the `CWeapon`/`CItem` members and accessors (e.g. `techLevel` → `tech_level`, `getDesc` → `get_desc`), keeping
+  the two classes consistent with each other. Pure renames; verify with a build.
+
+- [ ] **PF-1.15.3.3**: Services, constants, and utilities
+
+  Snake_case persistence, text, audio, clock, lock, z-buffer, debug, updater, graphics, bitmap, and random/noise functions
+  and members, plus the `UPPER_SNAKE` constants (`MenuTitleText` → `MENU_TITLE_TEXT`,
+  `OptionClassText` → `OPTION_CLASS_TEXT`, `maxEntriesPerMenu` → `MAX_ENTRIES_PER_MENU`,
+  `maxEntriesPerClass` → `MAX_ENTRIES_PER_CLASS`). Pure renames; verify with a build.
+
+- [ ] **PF-1.15.3.4**: Round driver, meta, network, and level creator
+
+  Rename `MESSAGE_QUEUE` → `CMessageQueue` and `LevelCreator` → `CLevelCreator` tree-wide, then snake_case the round loop,
+  shop, scoring, network transport/client, and level-creator members and functions. Pure renames; verify with a build.
 
 #### [ ] PF-1.15.4: Record the convention and verify the whole tree
 

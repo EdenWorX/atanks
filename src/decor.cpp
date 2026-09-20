@@ -395,7 +395,7 @@ void CDecor::repulse_decor() {
 				yv += yaccel;
 			}
 		}
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	}
 }
 

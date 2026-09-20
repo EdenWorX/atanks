@@ -25,7 +25,7 @@ static int32_t MOUSE_DELAY_REDUCT  = 5;  // Every so many rounds the delay is re
  * -------------------------------------------
  */
 
-Menu::Menu( EMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( class_ ), menu_x( menuX ), menu_y( menuY ) {
+CMenu::CMenu( EMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( class_ ), menu_x( menuX ), menu_y( menuY ) {
 	// Save here to detect language changes.
 	menu_lang = env.language;
 
@@ -37,16 +37,16 @@ Menu::Menu( EMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( clas
 	title_x   = menu_x + text_length( font, "W" ) + 2;
 
 	// Set background style
-	bgType   = env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
-	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
-	bgItems  = ( get_rand() % 100 ) + 20;
+	bg_type   = env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bg_offset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
+	bg_items  = ( get_rand() % 100 ) + 20;
 }
 
-Menu::~Menu() {
+CMenu::~CMenu() {
 	// Remove all options
 	while ( entry_cnt > 0 ) {
-		OptionItemBase* curr = tail;
-		tail                 = curr->getPrev();
+		COptionItemBase* curr = tail;
+		tail                 = curr->get_prev();
 		delete curr; // Removes it automatically
 		--entry_cnt;
 	}
@@ -87,7 +87,7 @@ Menu::~Menu() {
  * @param[in] padding Distance between title, display and wheel buttons.
  * @return Number of options in the menu after adding the button.
  **/
-int32_t Menu::addButton(
+int32_t CMenu::add_button(
 	int32_t     title_idx,
 	char const* title_,
 	int         key_code,
@@ -101,14 +101,14 @@ int32_t Menu::addButton(
 	int         height,
 	int         padding
 ) {
-	OptionItemBase* curr        = nullptr;
-	BUTTON*         btn         = nullptr;
+	COptionItemBase* curr        = nullptr;
+	CButton*         btn         = nullptr;
 	bool            title_valid = is_title_idx_valid( title_idx );
 
 	// 1) Create the button
 	try {
 		if ( bmp || hover || released ) {
-			btn = new BUTTON(
+			btn = new CButton(
 				title_        ? title_
 				: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
 					      : nullptr,
@@ -120,7 +120,7 @@ int32_t Menu::addButton(
 				released
 			);
 		} else {
-			btn = new BUTTON(
+			btn = new CButton(
 				title_        ? title_
 				: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
 					      : nullptr,
@@ -132,13 +132,13 @@ int32_t Menu::addButton(
 			);
 		}
 	} catch ( std::bad_alloc& e ) {
-		cerr << __FUNCTION__ << " : failed to allocate new BUTTON\n";
+		cerr << __FUNCTION__ << " : failed to allocate new CButton\n";
 		cerr << " [" << e.what() << "]" << endl;
 	}
 
 	// 2) Create the option
 	try {
-		curr = new OptionItem< int, int >(
+		curr = new TOptionItem< int, int >(
 			key_code,
 			nullptr,
 			nullptr,
@@ -176,7 +176,7 @@ int32_t Menu::addButton(
  * @param[in] show_size Border length of the square displaying the currently picked color.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addColor(
+int32_t CMenu::add_color(
 	int32_t* target,
 	int32_t  title_idx,
 	int32_t  left,
@@ -186,14 +186,14 @@ int32_t Menu::addColor(
 	int32_t  show_size,
 	int32_t  padding
 ) {
-	OptionItemBase* curr        = nullptr;
+	COptionItemBase* curr        = nullptr;
 	bool            title_valid = is_title_idx_valid( title_idx );
 
 	assert( title_valid && "ERROR: The given title index is invalid" );
 
 	if ( target && title_valid ) {
 		try {
-			curr = new OptionItemColour(
+			curr = new COptionItemColour(
 				target,
 				MenuTitleText[ menu_class ][ menu_lang ][ title_idx ],
 				title_idx,
@@ -205,7 +205,7 @@ int32_t Menu::addColor(
 				show_size
 			);
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new ET_COLOR OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new ET_COLOR TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -228,17 +228,17 @@ int32_t Menu::addColor(
  * @param[in] padding Distance between title and display.
  * @return Number of options in the menu after adding the button.
  **/
-int32_t Menu::
-	addMenu( Menu* menu, int32_t title_idx, int32_t color, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding
+int32_t CMenu::
+	add_menu( CMenu* menu, int32_t title_idx, int32_t color, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding
         ) {
-	OptionItemBase* curr        = nullptr;
+	COptionItemBase* curr        = nullptr;
 	bool            title_valid = is_title_idx_valid( title_idx );
 
 	assert( title_valid && "ERROR: The given title index is invalid" );
 
 	if ( menu && title_valid ) {
 		try {
-			curr = new OptionItemMenu(
+			curr = new COptionItemMenu(
 				menu,
 				MenuTitleText[ menu_class ][ menu_lang ][ title_idx ],
 				title_idx,
@@ -250,7 +250,7 @@ int32_t Menu::
 				padding
 			);
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new ET_MENU OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new ET_MENU TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -261,7 +261,7 @@ int32_t Menu::
 /** @brief This adds a sub menu option that handles a player (edit/create)
  *
  * Important: This _MUST_ have an action function that does the real work. This
- * method ads an OptionItemPlayer instance, which is only a bridge to the
+ * method ads an COptionItemPlayer instance, which is only a bridge to the
  * action function.
  *
  * Please note: The position @a left / @a top are relative to
@@ -277,7 +277,7 @@ int32_t Menu::
  * @param[in] padding Distance between title and display.
  * @return Number of options in the menu after adding the button.
  **/
-int32_t Menu::addMenu(
+int32_t CMenu::add_menu(
 	CPlayer** player,
 	int32_t ( *action_ )( CPlayer** player_, int32_t ),
 	int32_t title_idx,
@@ -287,14 +287,14 @@ int32_t Menu::addMenu(
 	int32_t height,
 	int32_t padding
 ) {
-	OptionItemBase* curr        = nullptr;
+	COptionItemBase* curr        = nullptr;
 	bool            title_valid = is_title_idx_valid( title_idx );
 
 	assert( action_ && "ERROR: No action function, no player menu." );
 
 	if ( player && action_ ) {
 		try {
-			curr = new OptionItemPlayer(
+			curr = new COptionItemPlayer(
 				player,
 				action_,
 				title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ] : nullptr, // The ctor uses
@@ -309,7 +309,7 @@ int32_t Menu::addMenu(
 				padding
 			);
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new ET_MENU OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new ET_MENU TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -336,7 +336,7 @@ int32_t Menu::addMenu(
  * @param[in] height Height of the display area.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addText(
+int32_t CMenu::add_text(
 	char*       target,
 	int32_t     title_idx,
 	uint32_t    max_len,
@@ -348,14 +348,14 @@ int32_t Menu::addText(
 	int         height,
 	int         padding
 ) {
-	OptionItemBase* curr        = nullptr;
+	COptionItemBase* curr        = nullptr;
 	bool            title_valid = is_title_idx_valid( title_idx );
 
 	assert( title_valid && "ERROR: The given title index is invalid" );
 
 	if ( target && title_valid ) {
 		try {
-			curr = new OptionItem< char, uint32_t >(
+			curr = new TOptionItem< char, uint32_t >(
 				target,
 				max_len,
 				color,
@@ -370,7 +370,7 @@ int32_t Menu::addText(
 				padding
 			);
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new TEXT OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new TEXT TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -392,15 +392,15 @@ int32_t Menu::addText(
  * @param[in] height Height of the display area.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addToggle( bool* target, int32_t title_idx, int32_t color, int left, int top, int width, int height, int padding ) {
-	OptionItemBase* curr        = nullptr;
+int32_t CMenu::add_toggle( bool* target, int32_t title_idx, int32_t color, int left, int top, int width, int height, int padding ) {
+	COptionItemBase* curr        = nullptr;
 	bool            title_valid = is_title_idx_valid( title_idx );
 
 	assert( title_valid && "ERROR: The given title index is invalid" );
 
 	if ( target && title_valid ) {
 		try {
-			curr = new OptionItem< bool, uint32_t >(
+			curr = new TOptionItem< bool, uint32_t >(
 				target,
 				nullptr,
 				ET_TOGGLE,
@@ -421,7 +421,7 @@ int32_t Menu::addToggle( bool* target, int32_t title_idx, int32_t color, int lef
 				nullptr
 			);
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new TOGGLE OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new TOGGLE TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -443,14 +443,14 @@ int32_t Menu::addToggle( bool* target, int32_t title_idx, int32_t color, int lef
  * @param[in] height Height of the display area.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addToggle( bool* target, char const* title_, int32_t color, int left, int top, int width, int height, int padding ) {
-	OptionItemBase* curr = nullptr;
+int32_t CMenu::add_toggle( bool* target, char const* title_, int32_t color, int left, int top, int width, int height, int padding ) {
+	COptionItemBase* curr = nullptr;
 
 	assert( title_ && "ERROR: title_ must be set but is nullptr" );
 
 	if ( target && title_ ) {
 		try {
-			curr = new OptionItem< bool, uint32_t >(
+			curr = new TOptionItem< bool, uint32_t >(
 				target,
 				nullptr,
 				ET_TOGGLE,
@@ -471,7 +471,7 @@ int32_t Menu::addToggle( bool* target, char const* title_, int32_t color, int le
 				nullptr
 			);
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new TOGGLE OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new TOGGLE TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -491,16 +491,16 @@ int32_t Menu::addToggle( bool* target, char const* title_, int32_t color, int le
  * @param[in] height Height of the display area.
  * @param[in] padding Distance between title and display.
  **/
-int32_t Menu::addToggle( CPlayer** player, int left, int top, int width, int height, int padding ) {
-	OptionItemBase* curr = nullptr;
+int32_t CMenu::add_toggle( CPlayer** player, int left, int top, int width, int height, int padding ) {
+	COptionItemBase* curr = nullptr;
 
 	assert( player && *player && "ERROR: For a player toggle *player must be valid." );
 
 	if ( player && *player ) {
 		try {
-			curr = new OptionItemPlayer( player, nullptr, nullptr, -1, menu_y + top, menu_x + left, width, height, padding );
+			curr = new COptionItemPlayer( player, nullptr, nullptr, -1, menu_y + top, menu_x + left, width, height, padding );
 		} catch ( std::bad_alloc& e ) {
-			cerr << __FUNCTION__ << " : failed to allocate new ET_TOGGLE OptionItem\n";
+			cerr << __FUNCTION__ << " : failed to allocate new ET_TOGGLE TOptionItem\n";
 			cerr << " [" << e.what() << "]" << endl;
 		}
 	}
@@ -509,29 +509,29 @@ int32_t Menu::addToggle( CPlayer** player, int left, int top, int width, int hei
 }
 
 /// @brief call clear_display(full_display) on all entries
-void Menu::clearAll( bool full_clear ) {
-	OptionItemBase* curr = root;
+void CMenu::clear_all( bool full_clear ) {
+	COptionItemBase* curr = root;
 	while ( curr ) {
 		curr->clear_display( full_clear );
-		curr = curr->getNext();
+		curr = curr->get_next();
 	}
 }
 
 /// @brief return number of menu elements
-int32_t Menu::count() const {
+int32_t CMenu::count() const {
 	return entry_cnt;
 }
 
 /// @brief deletes entry with index @a index
-int32_t Menu::delete_entry( int32_t index ) {
+int32_t CMenu::delete_entry( int32_t index ) {
 	if ( ( index >= 0 ) && ( index < entry_cnt ) ) {
-		OptionItemBase* curr = this->operator[] ( index );
+		COptionItemBase* curr = this->operator[] ( index );
 		if ( curr ) {
 			if ( root == curr ) {
-				root = curr->getNext();
+				root = curr->get_next();
 			}
 			if ( tail == curr ) {
-				tail = curr->getPrev();
+				tail = curr->get_prev();
 			}
 			delete curr; // This removes it from the list.
 			--entry_cnt;
@@ -542,17 +542,17 @@ int32_t Menu::delete_entry( int32_t index ) {
 }
 
 /// @brief call display(full_display) on all entries
-void Menu::displayAll( bool full_display ) {
-	OptionItemBase* curr = root;
+void CMenu::display_all( bool full_display ) {
+	COptionItemBase* curr = root;
 	while ( curr ) {
 		// If a text field (ET_TEXT) is selected, it must be forced
 		// to redraw, so the cursor flipping can be in effect:
-		if ( curr->is_selected() && ( ET_TEXT == curr->getType() ) ) {
+		if ( curr->is_selected() && ( ET_TEXT == curr->get_type() ) ) {
 			curr->cursor_flip();
 		}
 
 		curr->display( full_display );
-		curr = curr->getNext();
+		curr = curr->get_next();
 	}
 }
 
@@ -570,7 +570,7 @@ void Menu::displayAll( bool full_display ) {
  * @param[in] do_update whether to clear the old display or not.
  *
  **/
-void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update ) {
+void CMenu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update ) {
 	int32_t item_count  = last_idx - first_idx + 1;
 	int32_t item_height = 0;
 	int32_t item_width  = 0;
@@ -586,9 +586,9 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 	int32_t curr_w = 0, curr_h = 0;
 
 	for ( int32_t num = first_idx; num <= last_idx; ++num ) {
-		OptionItemBase* curr = this->operator[] ( num );
+		COptionItemBase* curr = this->operator[] ( num );
 		if ( curr ) {
-			curr->getDimension( curr_w, curr_h );
+			curr->get_dimension( curr_w, curr_h );
 			if ( curr_w > item_width ) {
 				item_width = curr_w;
 			}
@@ -607,7 +607,7 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 	int32_t colOff = ( list_width / 2 ) - ( cols * ( item_width / 2 ) );
 
 	for ( int32_t idx = first_idx; idx <= last_idx; ++idx ) {
-		OptionItemBase* curr = this->operator[] ( idx );
+		COptionItemBase* curr = this->operator[] ( idx );
 		if ( curr ) {
 			int32_t num     = idx - first_idx;
 			int32_t cur_col = num / rows;
@@ -619,7 +619,7 @@ void Menu::distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, 
 }
 
 /// @brief return pointer to the currently selected entry or nullptr if none is selected
-OptionItemBase* Menu::getSelected() {
+COptionItemBase* CMenu::get_selected() {
 	if ( ( entry_sel > -1 ) && ( entry_sel < entry_cnt ) ) {
 		return this->operator[] ( entry_sel );
 	}
@@ -627,17 +627,17 @@ OptionItemBase* Menu::getSelected() {
 }
 
 /// @brief return a const pointer to the menu title
-char const* Menu::getTitle() const {
+char const* CMenu::get_title() const {
 	return title;
 }
 
 /// @brief move an entry somewhere else
-void Menu::move_entry( int32_t from_idx, int32_t to_idx ) {
+void CMenu::move_entry( int32_t from_idx, int32_t to_idx ) {
 	assert( ( from_idx > -1 ) && ( from_idx < entry_cnt ) && "ERROR: from_idx is out of range!" );
 	assert( ( to_idx > -1 ) && ( to_idx < entry_cnt ) && "ERROR: to_idx is out of range!" );
 
 	if ( from_idx != to_idx ) {
-		OptionItemBase* toMove = operator[] ( from_idx );
+		COptionItemBase* toMove = operator[] ( from_idx );
 		assert( toMove && "ERROR: Something is completely FUBAR here!" );
 
 		if ( to_idx > from_idx ) {
@@ -648,11 +648,11 @@ void Menu::move_entry( int32_t from_idx, int32_t to_idx ) {
 		// Take it out:
 		if ( 0 == from_idx ) {
 			// It is root
-			root = toMove->getNext();
+			root = toMove->get_next();
 		}
 		if ( ( entry_cnt - 1 ) == from_idx ) {
 			// Or tail
-			tail = toMove->getPrev();
+			tail = toMove->get_prev();
 		}
 		toMove->remove();
 		--entry_cnt;
@@ -672,9 +672,9 @@ void Menu::move_entry( int32_t from_idx, int32_t to_idx ) {
 }
 
 /// @brief do a redraw of one element
-void Menu::redraw( int32_t index, bool update_full ) {
+void CMenu::redraw( int32_t index, bool update_full ) {
 	if ( ( index >= 0 ) && ( index < entry_cnt ) ) {
-		OptionItemBase* curr = this->operator[] ( index );
+		COptionItemBase* curr = this->operator[] ( index );
 		if ( curr ) {
 			curr->clear_display( update_full );
 			curr->display( update_full );
@@ -683,22 +683,22 @@ void Menu::redraw( int32_t index, bool update_full ) {
 }
 
 /// @brief do a full redraw of everything
-void Menu::redrawAll( bool full_redraw ) {
+void CMenu::redraw_all( bool full_redraw ) {
 	SHOW_MOUSE( nullptr )
-	this->clearAll( full_redraw );
+	this->clear_all( full_redraw );
 
 	// If this is a full redraw, the background and
 	// menu title must be drawn as well.
 	if ( full_redraw ) {
-		if ( ++bgOffset == INT_MAX ) {
-			bgOffset = 0;
+		if ( ++bg_offset == INT_MAX ) {
+			bg_offset = 0;
 		}
-		drawMenuBackground( bgType, bgOffset, bgItems );
+		drawMenuBackground( bg_type, bg_offset, bg_items );
 		textout_ex( global.canvas, font, title, title_x + 2, menu_y + 12, BLACK, -1 );
 		textout_ex( global.canvas, font, title, title_x + 5, menu_y + 14, WHITE, -1 );
 	}
 
-	this->displayAll( full_redraw );
+	this->display_all( full_redraw );
 	SHOW_MOUSE( global.canvas )
 
 	if ( full_redraw ) {
@@ -706,7 +706,7 @@ void Menu::redrawAll( bool full_redraw ) {
 	}
 }
 
-void Menu::setLanguage( bool autorefresh ) {
+void CMenu::set_language( bool autorefresh ) {
 	if ( env.language != menu_lang ) {
 		menu_lang = env.language;
 
@@ -714,38 +714,38 @@ void Menu::setLanguage( bool autorefresh ) {
 			title = MenuTitleText[ menu_class ][ menu_lang ][ 0 ];
 		}
 
-		OptionItemBase*    curr   = root;
+		COptionItemBase*    curr   = root;
 		char const* const* titles = MenuTitleText[ menu_class ][ menu_lang ];
 
 		while ( curr ) {
-			auto title_idx = static_cast< int32_t >( curr->getTitleIdx() );
+			auto title_idx = static_cast< int32_t >( curr->get_title_idx() );
 
 			// 1: Set new title (if not manually set)
 			if ( title_idx > -1 ) {
-				curr->setTitle( titles[ title_idx ] );
+				curr->set_title( titles[ title_idx ] );
 			}
 
 			// 2: Set new text array if based on a pre-set
 			if ( curr->needs_text() ) {
-				char const* const* texts = OptionClassText[ curr->getTextClass() ][ menu_lang ];
-				curr->setTexts( const_cast< char const** >( texts ) );
+				char const* const* texts = OptionClassText[ curr->get_text_class() ][ menu_lang ];
+				curr->set_texts( const_cast< char const** >( texts ) );
 			}
 
 			// 3: If this is a sub-menu, call an update dispatcher
-			if ( ET_MENU == curr->getType() ) {
-				dynamic_cast< OptionItemMenu* >( curr )->setLanguage();
+			if ( ET_MENU == curr->get_type() ) {
+				dynamic_cast< COptionItemMenu* >( curr )->set_language();
 			}
 
-			curr = curr->getNext();
+			curr = curr->get_next();
 		}
 
 		if ( autorefresh ) {
-			this->redrawAll( true );
+			this->redraw_all( true );
 		}
 	}
 }
 
-void Menu::setTitle( char const* new_title, bool autorefresh ) {
+void CMenu::set_title( char const* new_title, bool autorefresh ) {
 	if ( new_title ) {
 		// Delete old title if it was set already
 		if ( title_set && title ) {
@@ -756,7 +756,7 @@ void Menu::setTitle( char const* new_title, bool autorefresh ) {
 		title_set = true;
 
 		if ( autorefresh ) {
-			this->redrawAll( true );
+			this->redraw_all( true );
 		}
 	}
 }
@@ -779,16 +779,16 @@ void Menu::setTitle( char const* new_title, bool autorefresh ) {
  *
  * @return The key code of a clicked exiting button.
  **/
-int32_t Menu::operator() () {
+int32_t CMenu::operator() () {
 	bool            has_exit_button = false;
-	OptionItemBase* curr            = root;
+	COptionItemBase* curr            = root;
 
 	while ( !has_exit_button && curr ) {
 		has_exit_button = curr->isExitButton();
-		curr            = curr->getNext();
+		curr            = curr->get_next();
 	}
 
-	assert( has_exit_button && "ERROR: A Menu without an exit button is unleavable!" );
+	assert( has_exit_button && "ERROR: A CMenu without an exit button is unleavable!" );
 
 	// Needed Loop values :
 	int32_t    key_code        = -1;
@@ -812,12 +812,12 @@ int32_t Menu::operator() () {
 	menu_ms_reset();
 
 	// Set background style
-	bgType   = env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
-	bgOffset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
-	bgItems  = ( get_rand() % 100 ) + 20;
+	bg_type   = env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
+	bg_offset = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
+	bg_items  = ( get_rand() % 100 ) + 20;
 
 	// Initial display:
-	redrawAll( true );
+	redraw_all( true );
 
 	/* ---------------------------------------
 	 * --- Input handling and drawing loop ---
@@ -828,7 +828,7 @@ int32_t Menu::operator() () {
 		if ( ms_unused > 0 ) {
 			MSLEEP( ms_unused );
 		}
-		redrawAll( true );
+		redraw_all( true );
 
 		if ( global.is_close_btn_pressed() ) {
 			key_code  = KEY_ESC;  // Exit loop
@@ -929,9 +929,9 @@ int32_t Menu::operator() () {
 		/// --------------------------------
 
 		if ( event || ( key_code > 0 ) ) {
-			curr = getSelected();
+			curr = get_selected();
 			if ( curr ) {
-				EEntryType type      = curr->getType();
+				EEntryType type      = curr->get_type();
 				bool       old_mouse = env.os_mouse; // To catch mouse changes
 
 				// Note whether clicked on elements for the clock delay reduction
@@ -960,7 +960,7 @@ int32_t Menu::operator() () {
 
 				// If this was a sub menu, redraw the current menu:
 				if ( ET_MENU == type ) {
-					redrawAll( true );
+					redraw_all( true );
 				}
 
 				// Some elements trigger end-events
@@ -999,7 +999,7 @@ int32_t Menu::operator() () {
 
 	return end_event;
 
-} // End of Menu::operator()()
+} // End of CMenu::operator()()
 
 /** @brief Get a stored option by index
  *
@@ -1007,8 +1007,8 @@ int32_t Menu::operator() () {
  *
  * @param[in] index The index of the wanted option, starting with 0.
  **/
-OptionItemBase* Menu::operator[] ( int32_t index ) {
-	OptionItemBase* result = nullptr;
+COptionItemBase* CMenu::operator[] ( int32_t index ) {
+	COptionItemBase* result = nullptr;
 
 	if ( ( -1 < index ) && ( entry_cnt > index ) ) {
 		int32_t cur_idx = 0;
@@ -1025,10 +1025,10 @@ OptionItemBase* Menu::operator[] ( int32_t index ) {
 		// Just wander, this should be safe.
 		while ( result && ( cur_idx != index ) ) {
 			if ( go_up ) {
-				result = result->getNext();
+				result = result->get_next();
 				++cur_idx;
 			} else {
-				result = result->getPrev();
+				result = result->get_prev();
 				--cur_idx;
 			}
 
@@ -1045,7 +1045,7 @@ OptionItemBase* Menu::operator[] ( int32_t index ) {
  */
 
 /// @brief simple singly list insert
-int32_t Menu::insert_option( OptionItemBase* new_opt ) {
+int32_t CMenu::insert_option( COptionItemBase* new_opt ) {
 	if ( new_opt ) {
 		// Insert into list:
 		if ( tail ) {
@@ -1062,12 +1062,12 @@ int32_t Menu::insert_option( OptionItemBase* new_opt ) {
 }
 
 /// @brief simple singly list insert with title setting
-int32_t Menu::insert_option( OptionItemBase* new_opt, int32_t title_idx, char const* title_ ) {
+int32_t CMenu::insert_option( COptionItemBase* new_opt, int32_t title_idx, char const* title_ ) {
 	if ( new_opt ) {
 		if ( title_ ) {
-			new_opt->setTitle( title_ );
+			new_opt->set_title( title_ );
 		} else if ( is_title_idx_valid( title_idx ) ) {
-			new_opt->setTitle( MenuTitleText[ menu_class ][ menu_lang ][ title_idx ] );
+			new_opt->set_title( MenuTitleText[ menu_class ][ menu_lang ][ title_idx ] );
 		}
 		return insert_option( new_opt );
 	}
@@ -1075,7 +1075,7 @@ int32_t Menu::insert_option( OptionItemBase* new_opt, int32_t title_idx, char co
 }
 
 /// @brief return true if @a title_idx is lower than the first 0x0 entry
-bool Menu::is_title_idx_valid( int32_t title_idx ) {
+bool CMenu::is_title_idx_valid( int32_t title_idx ) {
 	int32_t            curr_idx = 0;
 	char const* const* titles   = MenuTitleText[ menu_class ][ menu_lang ];
 
@@ -1104,9 +1104,9 @@ bool Menu::is_title_idx_valid( int32_t title_idx ) {
  * @return -1/+1 for ET_VALUE change buttons, associated key code for ET_BUTTON
  * and 0 in all other cases.
  **/
-int32_t Menu::selectClicked( int32_t x, int32_t y ) {
-	OptionItemBase* curr     = root;
-	OptionItemBase* result   = nullptr;
+int32_t CMenu::selectClicked( int32_t x, int32_t y ) {
+	COptionItemBase* curr     = root;
+	COptionItemBase* result   = nullptr;
 	int32_t         retval   = 0;
 	int32_t         curr_idx = -1;
 
@@ -1115,7 +1115,7 @@ int32_t Menu::selectClicked( int32_t x, int32_t y ) {
 		if ( curr->is_click_in( x, y, retval ) ) {
 			result = curr;
 		} else {
-			curr = curr->getNext();
+			curr = curr->get_next();
 		}
 	}
 
@@ -1132,8 +1132,8 @@ int32_t Menu::selectClicked( int32_t x, int32_t y ) {
  * If no entry is selected, the first one will be chosen.
  * If the last entry is selected, no entry will be chosen.
  **/
-void Menu::selectNext() {
-	OptionItemBase* curr = nullptr;
+void CMenu::selectNext() {
+	COptionItemBase* curr = nullptr;
 
 	if ( entry_sel > -1 ) {
 		curr = operator[] ( entry_sel );
@@ -1148,7 +1148,7 @@ void Menu::selectNext() {
 	} else {
 		if ( curr ) {
 			// The previous was unselected
-			curr = curr->getNext();
+			curr = curr->get_next();
 		} else {
 			curr = operator[] ( entry_sel );
 		}
@@ -1166,8 +1166,8 @@ void Menu::selectNext() {
  * If no entry is selected, the first one will be chosen.
  * If the last entry is selected, no entry will be chosen.
  **/
-void Menu::selectPrev() {
-	OptionItemBase* curr = nullptr;
+void CMenu::selectPrev() {
+	COptionItemBase* curr = nullptr;
 
 	if ( entry_sel > -1 ) {
 		curr = operator[] ( entry_sel );
@@ -1185,7 +1185,7 @@ void Menu::selectPrev() {
 
 		if ( curr ) {
 			// The next was unselected
-			curr = curr->getPrev();
+			curr = curr->get_prev();
 		} else {
 			curr = operator[] ( entry_sel );
 		}
@@ -1200,16 +1200,16 @@ void Menu::selectPrev() {
 }
 
 /// @brief little helper to be able to add options from inside the header
-void Menu::setTexts( OptionItemBase* itm, char const** texts, ETextClass text_class ) {
+void CMenu::set_texts( COptionItemBase* itm, char const** texts, ETextClass text_class ) {
 	assert( itm && ( texts || ( TC_FREETEXT != text_class ) ) && ( TC_NONE != text_class )
 	        && "ERROR: This does not fit at all!" );
 	if ( itm ) {
 		if ( ( TC_FREETEXT == text_class ) && texts ) {
-			itm->setTextClass( text_class );
-			itm->setTexts( texts );
+			itm->set_text_class( text_class );
+			itm->set_texts( texts );
 		} else if ( TC_NONE != text_class ) {
-			itm->setTextClass( text_class );
-			itm->setTexts( const_cast< char const** >( OptionClassText[ text_class ][ menu_lang ] ) );
+			itm->set_text_class( text_class );
+			itm->set_texts( const_cast< char const** >( OptionClassText[ text_class ][ menu_lang ] ) );
 		}
 	}
 }
@@ -1217,8 +1217,8 @@ void Menu::setTexts( OptionItemBase* itm, char const** texts, ETextClass text_cl
 /** @brief unselect current selected entry (if any).
  * If no entry is selected, nothing happens.
  **/
-void Menu::unselect() {
-	OptionItemBase* curr = nullptr;
+void CMenu::unselect() {
+	COptionItemBase* curr = nullptr;
 
 	if ( entry_sel > -1 ) {
 		curr = operator[] ( entry_sel );

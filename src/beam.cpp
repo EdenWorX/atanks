@@ -159,7 +159,7 @@ CBeam::~CBeam() {
 		global.get_head_of_class( CLASS_TANK, &lt );
 		while ( lt ) {
 			lt->apply_damage();
-			lt->getNext( &lt );
+			lt->get_next( &lt );
 		}
 
 		// Take out of the chain:
@@ -430,7 +430,7 @@ void CBeam::trace_beam_path() {
 						moveY = 0.;
 					} // End of having a tank
 					else {
-						lt->getNext( &lt );
+						lt->get_next( &lt );
 					}
 				} // End of looping tanks
 			}

@@ -202,7 +202,7 @@ void CExplosion::applyPhysics() {
 						yv += yaccel;
 					}
 				}
-				lt->getNext( &lt );
+				lt->get_next( &lt );
 			}
 		} else {
 			xv = 0.;
@@ -247,7 +247,7 @@ void CExplosion::applyPhysics() {
 				);
 			}
 
-			lt->getNext( &lt );
+			lt->get_next( &lt );
 		} // End of looping tanks
 	}         // End of NAPALM_JELLY special physics
 }
@@ -676,7 +676,7 @@ void CExplosion::explode() {
 					}
 				} // End of having damage to deal
 
-				lt->getNext( &lt );
+				lt->get_next( &lt );
 			} // End of looping tanks
 		}         // end of having no dirt ball
 		apply_damage = false;

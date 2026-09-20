@@ -155,7 +155,7 @@ void CFloatText::check_pos( bool is_new ) {
 					curr->push_down( this->overlaps_by( curr ), false );
 				}
 			} // End of having another text
-			curr->getNext( &curr );
+			curr->get_next( &curr );
 		}
 	} // End of not fixed text
 }

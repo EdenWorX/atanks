@@ -28,15 +28,15 @@
  **/
 
 
-/** @class OptionItemPlayer
+/** @class COptionItemPlayer
  * @brief abstract one option menu entry to handle a CPlayer instance
  *
- * This class is a special version of the OptionItem template that can only
+ * This class is a special version of the TOptionItem template that can only
  * handle CPlayer instances.
  *
  * The the only entry type supported is the ET_MENU.
  **/
-class OptionItemPlayer final : public OptionItemBase {
+class COptionItemPlayer final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -44,11 +44,11 @@ public:
 	 */
 
 	/// Create a player entry.
-	explicit OptionItemPlayer(
+	explicit COptionItemPlayer(
 		CPlayer** player_,
 		int32_t ( *action_ )( CPlayer** player_, int32_t ),
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		int32_t     top_,
 		int32_t     left_,
 		int32_t     width_,
@@ -56,7 +56,7 @@ public:
 		int32_t     padding_
 	);
 	/// Destroy a player entry.
-	~OptionItemPlayer() final;
+	~COptionItemPlayer() final;
 
 	/* ----------------------
 	 * --- Public methods ---
@@ -80,7 +80,7 @@ private:
 	 * ----------------------------------------------
 	 */
 
-	int32_t ( *actionFunc )( CPlayer** target, int32_t ) = nullptr;
+	int32_t ( *action_func )( CPlayer** target, int32_t ) = nullptr;
 
 
 	/* -----------------------

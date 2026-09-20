@@ -29,7 +29,7 @@
 #include <string>
 
 /** @file menu.h
- * @brief Declare Menu class for self managing menus
+ * @brief Declare CMenu class for self managing menus
  **/
 
 
@@ -38,12 +38,12 @@
  **/
 enum EMenuReturnCodes { MRC_None = 0, MRC_Play_Game, MRC_Load_Game, MRC_Esc_Menu };
 
-/** @class Menu
+/** @class CMenu
  * @brief A class to build menus out of option items.
  *
  * @todo : Write more
  **/
-class Menu {
+class CMenu {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -51,9 +51,9 @@ public:
 	 */
 
 	/// Create a menu.
-	explicit Menu( EMenuClass class_, int32_t menuX, int32_t menuY );
+	explicit CMenu( EMenuClass class_, int32_t menuX, int32_t menuY );
 	/// Destroy a menu.
-	~Menu();
+	~CMenu();
 
 
 	/* ----------------------
@@ -62,7 +62,7 @@ public:
 	 */
 
 	/// Add a button without action function.
-	int32_t addButton(
+	int32_t add_button(
 		int32_t     title_idx,
 		char const* title_,
 		int32_t     key_code,
@@ -79,7 +79,7 @@ public:
 
 
 	/// Add a color option.
-	int32_t addColor(
+	int32_t add_color(
 		int32_t* target,
 		int32_t  title_idx,
 		int32_t  left,
@@ -91,9 +91,9 @@ public:
 	);
 
 
-	/// Add a sub menu option with Menu target.
-	int32_t addMenu(
-		Menu*   menu,
+	/// Add a sub menu option with CMenu target.
+	int32_t add_menu(
+		CMenu*   menu,
 		int32_t title_idx,
 		int32_t color,
 		int32_t left,
@@ -105,7 +105,7 @@ public:
 
 
 	/// Add a sub menu option with CPlayer target (set title_idx to -1 to use player name).
-	int32_t addMenu(
+	int32_t add_menu(
 		CPlayer** player,
 		int32_t ( *action_ )( CPlayer** player_, int32_t ),
 		int32_t title_idx,
@@ -118,7 +118,7 @@ public:
 
 
 	/// Special minimum variant for editable text options.
-	int32_t addText(
+	int32_t add_text(
 		char*       target,
 		int32_t     title_idx,
 		uint32_t    max_len,
@@ -150,7 +150,7 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 **/
 	template< typename tgt_t >
-	int32_t addText(
+	int32_t add_text(
 		tgt_t*      target,
 		int32_t     title_idx,
 		int32_t     color,
@@ -161,14 +161,14 @@ public:
 		int32_t     height,
 		int32_t     padding
 	) {
-		OptionItemBase* curr        = nullptr;
+		COptionItemBase* curr        = nullptr;
 		bool            title_valid = is_title_idx_valid( title_idx );
 
 		assert( title_valid && "ERROR: The given title index is invalid" );
 
 		if ( target && title_valid ) {
 			try {
-				curr = new OptionItem< tgt_t, int32_t >(
+				curr = new TOptionItem< tgt_t, int32_t >(
 					target,
 					0,
 					color,
@@ -183,7 +183,7 @@ public:
 					padding
 				);
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new TEXT OptionItem\n"
+				cerr << __FUNCTION__ << " : failed to allocate new TEXT TOptionItem\n"
 				     << " [" << e.what() << "]" << endl;
 			}
 		}
@@ -192,7 +192,7 @@ public:
 	}
 
 	/// Special minimum variant for toggle types feeding a bool with variable title.
-	int32_t addToggle(
+	int32_t add_toggle(
 		bool*   target,
 		int32_t title_idx,
 		int32_t color,
@@ -205,7 +205,7 @@ public:
 
 
 	/// Special minimum variant for toggle types feeding a bool with fixed title.
-	int32_t addToggle(
+	int32_t add_toggle(
 		bool*       target,
 		char const* title_,
 		int32_t     color,
@@ -218,7 +218,7 @@ public:
 
 
 	/// Special minimum variant for toggle types handling CPlayer::selected.
-	int32_t addToggle( CPlayer** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
+	int32_t add_toggle( CPlayer** player, int32_t left, int32_t top, int32_t width, int32_t height, int32_t padding );
 
 	/** @brief Simple ET_VALUE option with direct value representation
 	 *
@@ -242,7 +242,7 @@ public:
 	 * @param[in] padding Distance between title, display and wheel buttons.
 	 **/
 	template< typename tgt_t, typename opt_t = int32_t >
-	int32_t addValue(
+	int32_t add_value(
 		tgt_t*      target,
 		int32_t     title_idx,
 		int32_t     color,
@@ -256,11 +256,11 @@ public:
 		int32_t     height,
 		int32_t     padding
 	) {
-		OptionItemBase* curr = nullptr;
+		COptionItemBase* curr = nullptr;
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_t, opt_t >(
+				curr = new TOptionItem< tgt_t, opt_t >(
 					target,
 					"",
 					title_idx,
@@ -279,7 +279,7 @@ public:
 					nullptr
 				);
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n"
+				cerr << __FUNCTION__ << " : failed to allocate new TOptionItem\n"
 				     << " [" << e.what() << "]" << endl;
 			}
 		}
@@ -308,7 +308,7 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 **/
 	template< typename tgt_t, typename opt_t = int32_t >
-	int32_t addValue(
+	int32_t add_value(
 		tgt_t*       target,
 		int32_t      title_idx,
 		char const** texts,
@@ -321,11 +321,11 @@ public:
 		int32_t      height,
 		int32_t      padding
 	) {
-		OptionItemBase* curr = nullptr;
+		COptionItemBase* curr = nullptr;
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_t, opt_t >(
+				curr = new TOptionItem< tgt_t, opt_t >(
 					target,
 					"",
 					title_idx,
@@ -343,9 +343,9 @@ public:
 					padding,
 					nullptr
 				);
-				this->setTexts( curr, texts, text_class );
+				this->set_texts( curr, texts, text_class );
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
+				cerr << __FUNCTION__ << " : failed to allocate new TOptionItem\n";
 				cerr << " [" << e.what() << "]" << endl;
 			}
 		}
@@ -375,7 +375,7 @@ public:
 	 * @param[in] display_ optional display function to use.
 	 **/
 	template< typename tgt_t, typename opt_t = int32_t >
-	int32_t addValue(
+	int32_t add_value(
 		tgt_t*       target,
 		int32_t      title_idx,
 		char const** texts,
@@ -389,11 +389,11 @@ public:
 		int32_t      padding,
 		bool ( *display_ )( tgt_t* target, int32_t x, int32_t y )
 	) {
-		OptionItemBase* curr = nullptr;
+		COptionItemBase* curr = nullptr;
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_t, opt_t >(
+				curr = new TOptionItem< tgt_t, opt_t >(
 					target,
 					"",
 					title_idx,
@@ -411,9 +411,9 @@ public:
 					padding,
 					display_
 				);
-				this->setTexts( curr, texts, text_class );
+				this->set_texts( curr, texts, text_class );
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
+				cerr << __FUNCTION__ << " : failed to allocate new TOptionItem\n";
 				cerr << " [" << e.what() << "]" << endl;
 			}
 		}
@@ -443,7 +443,7 @@ public:
 	 * @param[in] padding Distance between title and display.
 	 **/
 	template< typename tgt_t, typename opt_t = int32_t >
-	int32_t addValue(
+	int32_t add_value(
 		tgt_t* target,
 		int32_t ( *action_ )( tgt_t* target, int32_t val ),
 		int32_t      title_idx,
@@ -457,11 +457,11 @@ public:
 		int32_t      height,
 		int32_t      padding
 	) {
-		OptionItemBase* curr = nullptr;
+		COptionItemBase* curr = nullptr;
 
 		if ( target ) {
 			try {
-				curr = new OptionItem< tgt_t, opt_t >(
+				curr = new TOptionItem< tgt_t, opt_t >(
 					target,
 					action_,
 					ET_VALUE,
@@ -481,9 +481,9 @@ public:
 					padding,
 					nullptr
 				);
-				this->setTexts( curr, texts, text_class );
+				this->set_texts( curr, texts, text_class );
 			} catch ( std::bad_alloc& e ) {
-				cerr << __FUNCTION__ << " : failed to allocate new OptionItem\n";
+				cerr << __FUNCTION__ << " : failed to allocate new TOptionItem\n";
 				cerr << " [" << e.what() << "]" << endl;
 			}
 		}
@@ -492,25 +492,25 @@ public:
 	}
 
 	/// Remove all entries.
-	void    clearAll( bool full_clear );
+	void    clear_all( bool full_clear );
 	/// Delete an entry.
 	int32_t delete_entry( int32_t index );
 	/// Render all entries.
-	void    displayAll( bool full_display );
+	void    display_all( bool full_display );
 	/// Spread entries over the list area.
 	void distribute( int32_t first_idx, int32_t last_idx, int32_t list_width, int32_t list_height, int32_t y_off, bool do_update );
 	/// Fetch the selected entry.
-	OptionItemBase* getSelected();
+	COptionItemBase* get_selected();
 	/// Move an entry.
 	void            move_entry( int32_t from_idx, int32_t to_idx );      ///< Move an entry.
 	void            redraw( int32_t index, bool update_full );           ///< Redraw an entry.
-	void            redrawAll( bool full_redraw );                       ///< Redraw all entries.
-	void            setLanguage( bool autorefresh );                     ///< Retranslate the menu.
-	void            setTitle( char const* new_title, bool autorefresh ); ///< Set the menu title.
+	void            redraw_all( bool full_redraw );                       ///< Redraw all entries.
+	void            set_language( bool autorefresh );                     ///< Retranslate the menu.
+	void            set_title( char const* new_title, bool autorefresh ); ///< Set the menu title.
 
 	/* Information Getters */
 	[[nodiscard]] int32_t     count() const;    ///< Entry count.
-	[[nodiscard]] char const* getTitle() const; ///< Menu title.
+	[[nodiscard]] char const* get_title() const; ///< CMenu title.
 
 	/* ------------------------
 	 * --- Public operators ---
@@ -523,7 +523,7 @@ public:
 
 	// Get a stored option by index
 	/// Fetch an entry by index.
-	OptionItemBase* operator[] ( int32_t index );
+	COptionItemBase* operator[] ( int32_t index );
 
 private:
 	/* -----------------------
@@ -531,13 +531,13 @@ private:
 	 * -----------------------
 	 */
 
-	int32_t insert_option( OptionItemBase* new_opt );
-	int32_t insert_option( OptionItemBase* new_opt, int32_t title_idx, char const* title_ );
+	int32_t insert_option( COptionItemBase* new_opt );
+	int32_t insert_option( COptionItemBase* new_opt, int32_t title_idx, char const* title_ );
 	bool    is_title_idx_valid( int32_t title_idx );
 	int32_t selectClicked( int32_t x, int32_t y );
 	void    selectNext();
 	void    selectPrev();
-	void    setTexts( OptionItemBase* itm, char const** texts, ETextClass text_class );
+	void    set_texts( COptionItemBase* itm, char const** texts, ETextClass text_class );
 	void    unselect();
 
 	/* -----------------------
@@ -545,24 +545,24 @@ private:
 	 * -----------------------
 	 */
 
-	int32_t          bgItems    = 0;
-	int32_t          bgOffset   = 0;
-	EBackgroundTypes bgType     = BACKGROUND_BLANK;
+	int32_t          bg_items    = 0;
+	int32_t          bg_offset   = 0;
+	EBackgroundTypes bg_type     = BACKGROUND_BLANK;
 	int32_t          entry_cnt  = 0;          //!< Number of entries currently in the list.
 	int32_t          entry_sel  = -1;         //!< Currently selected entry or -1 if none is selected.
 	EMenuClass       menu_class = MC_MAIN;    //!< The class of the menu, decides upon what to display.
 	ELanguages       menu_lang  = EL_ENGLISH; //!< The language to display
 	int32_t          menu_x     = 0;          //!< X-Pos where the menu background starts
 	int32_t          menu_y     = 0;          //!< Y-Pos where the menu background starts
-	OptionItemBase*  root       = nullptr;    //!< The first menu item
-	OptionItemBase*  tail       = nullptr;    //!< The last menu item
+	COptionItemBase*  root       = nullptr;    //!< The first menu item
+	COptionItemBase*  tail       = nullptr;    //!< The last menu item
 	char const*      title      = nullptr;    //!< Name/Title of the menu
 	uint32_t         title_len  = 0;          //!< Length of the menu title with the current font.
 	bool             title_set  = false;      //!< Set to true if this has been changed to be an individual title
 	int32_t          title_x    = 0;
 };
 
-#define MENU_CLASS_DECLARES 1 ///< Declares the Menu class.
+#define MENU_CLASS_DECLARES 1 ///< Declares the CMenu class.
 
 
 // --- Helper functions for action/display usage that need optioncontent.h ---

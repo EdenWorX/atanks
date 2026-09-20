@@ -185,7 +185,7 @@ public:
 	char        tank_status[ 128 ]{ 0x0 };               ///< Status line text.
 	int32_t     tank_status_colour{ BLACK };             ///< Status line color.
 	BITMAP*     terrain{ nullptr };                      ///< Destructible terrain bitmap.
-	bool        update_menu{ true };                      ///< Menu needs redrawing.
+	bool        update_menu{ true };                      ///< CMenu needs redrawing.
 	sBox*        updates{ nullptr };                      ///< Dirty rectangles queued for redraw.
 	char*       update_string{ nullptr };                ///< Legacy update-checker message.
 	int32_t     used_voices{ 0 };                        ///< Audio voices currently playing.

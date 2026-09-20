@@ -821,7 +821,7 @@ static int32_t menu() {
 	int32_t move_btn   = env.button[ 0 ]->w / 2;
 	int32_t bn         = env.language == EL_RUSSIAN ? MENUBUTTONS * 2 : 0;
 
-	BUTTON  but_play(
+	CButton  but_play(
                 env.half_width - move_btn,
                 env.half_height - 235 + shift_menu,
                 env.button[ bn ],
@@ -829,7 +829,7 @@ static int32_t menu() {
                 env.button[ bn + 1 ]
         );
 	bn += 2;
-	BUTTON but_help(
+	CButton but_help(
 		env.half_width - move_btn,
 		env.half_height - 185 + shift_menu,
 		env.button[ bn ],
@@ -837,7 +837,7 @@ static int32_t menu() {
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_options(
+	CButton but_options(
 		env.half_width - move_btn,
 		env.half_height - 135 + shift_menu,
 		env.button[ bn ],
@@ -845,7 +845,7 @@ static int32_t menu() {
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_players(
+	CButton but_players(
 		env.half_width - move_btn,
 		env.half_height - 85 + shift_menu,
 		env.button[ bn ],
@@ -853,7 +853,7 @@ static int32_t menu() {
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_credits(
+	CButton but_credits(
 		env.half_width - move_btn,
 		env.half_height - 35 + shift_menu,
 		env.button[ bn ],
@@ -861,7 +861,7 @@ static int32_t menu() {
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_quit(
+	CButton but_quit(
 		env.half_width - move_btn,
 		env.half_height + 65 + shift_menu,
 		env.button[ bn ],
@@ -869,7 +869,7 @@ static int32_t menu() {
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_network(
+	CButton but_network(
 		env.half_width - move_btn,
 		env.half_height + 15 + shift_menu,
 		env.button[ bn ],
@@ -877,7 +877,7 @@ static int32_t menu() {
 		env.button[ bn + 1 ]
 	);
 
-	BUTTON* button[ MENUBUTTONS ] = {
+	CButton* button[ MENUBUTTONS ] = {
 		&but_play, &but_help, &but_options, &but_players, &but_credits, &but_network, &but_quit
 	};
 
@@ -930,7 +930,7 @@ static int32_t menu() {
 
 			// See where the mouse is
 			for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-				if ( button[ z ]->isMouseOver() ) {
+				if ( button[ z ]->is_mouse_over() ) {
 					if ( ( btn_over > -1 ) && ( btn_over != z ) ) {
 						button[ z ]->draw();
 						need_draw = true;
@@ -944,7 +944,7 @@ static int32_t menu() {
 			// Handle mouse click
 			if ( mouse_b & 1 ) {
 				for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-					if ( button[ z ]->isPressed() ) {
+					if ( button[ z ]->is_pressed() ) {
 						need_draw = true;
 						done      = true;
 						if ( z == 0 ) {
@@ -1113,7 +1113,7 @@ static void newgame() {
 	CTank* next_tank = nullptr;
 	global.get_head_of_class( CLASS_TANK, &tank );
 	while ( tank ) {
-		tank->getNext( &next_tank );
+		tank->get_next( &next_tank );
 		tank->player = nullptr;
 		delete tank;
 		tank = next_tank;

@@ -24,19 +24,19 @@
 
 /** @file optionitemmenu.h
  * @brief declaration of the option entry class specialized on handling
- * Menu instances
+ * CMenu instances
  **/
 
 
-/** @class OptionItemMenu
- * @brief abstract one option menu entry to handle a Menu instance
+/** @class COptionItemMenu
+ * @brief abstract one option menu entry to handle a CMenu instance
  *
- * This class is a special version of the OptionItem template that can only
- * handle Menu instances.
+ * This class is a special version of the TOptionItem template that can only
+ * handle CMenu instances.
  *
  * The the only entry type supported is the ET_MENU.
  **/
-class OptionItemMenu final : public OptionItemBase {
+class COptionItemMenu final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -44,10 +44,10 @@ public:
 	 */
 
 	/// Create a sub menu entry.
-	explicit OptionItemMenu(
-		Menu*       menu_,
+	explicit COptionItemMenu(
+		CMenu*       menu_,
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		int32_t     color_,
 		int32_t     top_,
 		int32_t     left_,
@@ -56,7 +56,7 @@ public:
 		int32_t     padding_
 	);
 	/// Destroy a sub menu entry.
-	~OptionItemMenu() final;
+	~COptionItemMenu() final;
 
 
 	/* ----------------------
@@ -75,7 +75,7 @@ public:
 	/// Menus are never exit buttons.
 	bool    isExitButton() final;
 	/// Retranslate the entry.
-	void    setLanguage();
+	void    set_language();
 
 private:
 	/* -----------------------
@@ -83,7 +83,7 @@ private:
 	 * -----------------------
 	 */
 
-	Menu* menu = nullptr; //!< Menu instance to handle
+	CMenu* menu = nullptr; //!< CMenu instance to handle
 };
 
 

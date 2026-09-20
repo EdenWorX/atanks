@@ -20,30 +20,30 @@
  * @param[in,out] player_ Pointer to the CPlayer instance to handle.
  * @param[in,out] action_ Pointer to the action function handling the button click.
  * @param[in] title_ The title of the option to display.
- * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+ * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
  * @param[in] top_ Top position of the display area.
  * @param[in] left_ Left position of the display area.
  * @param[in] width_ Width of the display area.
  * @param[in] height_ Height of the display area.
  * @param[in] padding_ Padding of the title and buttons to the display area.
  **/
-OptionItemPlayer::OptionItemPlayer(
+COptionItemPlayer::COptionItemPlayer(
 	CPlayer** player_,
 	int32_t ( *action_ )( CPlayer** player_, int32_t ),
 	char const* title_,
-	int32_t     titleIdx_,
+	int32_t     title_idx_,
 	int32_t     top_,
 	int32_t     left_,
 	int32_t     width_,
 	int32_t     height_,
 	int32_t     padding_
 )
-	: OptionItemBase(
+	: COptionItemBase(
 		ET_NONE,
 		title_                    ? title_
 		: ( player_ && *player_ ) ? ( *player_ )->get_name()
 					  : nullptr,
-		titleIdx_,
+		title_idx_,
 		nullptr,
 		title_                    ? SILVER
 		: ( player_ && *player_ ) ? ( *player_ )->color
@@ -62,10 +62,10 @@ OptionItemPlayer::OptionItemPlayer(
 
 	// For ET_MENU, action_ must be set, too, and for ET_TOGGLE *player_ must be set.
 	assert( ( action_ || ( player_ && *player_ ) ) && "ERROR: If no action_ function is set, *player_ must be valid" );
-	actionFunc = action_;
+	action_func = action_;
 	player     = player_;
 
-	if ( actionFunc ) {
+	if ( action_func ) {
 		this->type = ET_MENU;
 
 		// If this is a regular player, no menu indicator is needed.
@@ -78,8 +78,8 @@ OptionItemPlayer::OptionItemPlayer(
 }
 
 /// @brief default dtor only setting nullptr values. No further action needed.
-OptionItemPlayer::~OptionItemPlayer() {
-	actionFunc = nullptr;
+COptionItemPlayer::~COptionItemPlayer() {
+	action_func = nullptr;
 	player     = nullptr;
 }
 
@@ -92,18 +92,18 @@ OptionItemPlayer::~OptionItemPlayer() {
  *
  * This calls the provided action function.
  *
- * Note: The parameters are defined by OptionItemBase but unused
+ * Note: The parameters are defined by COptionItemBase but unused
  * here.
  *
  * @return The return code of the action function.
  **/
-int32_t OptionItemPlayer::activate( int32_t, int32_t, int32_t, int32_t ) {
+int32_t COptionItemPlayer::activate( int32_t, int32_t, int32_t, int32_t ) {
 	int32_t result = -1;
 
 	if ( ET_MENU == this->type ) {
-		result = actionFunc( player, 0 );
+		result = action_func( player, 0 );
 	} else if ( ET_TOGGLE == this->type ) {
-		this->activateToggle( &( *player )->selected );
+		this->activate_toggle( &( *player )->selected );
 	}
 
 	// Changes are displayed at once:
@@ -115,12 +115,12 @@ int32_t OptionItemPlayer::activate( int32_t, int32_t, int32_t, int32_t ) {
 }
 
 /// @brief returns always true
-bool OptionItemPlayer::canGoDown() {
+bool COptionItemPlayer::canGoDown() {
 	return true;
 }
 
 /// @brief returns always true
-bool OptionItemPlayer::canGoUp() {
+bool COptionItemPlayer::canGoUp() {
 	return true;
 }
 
@@ -128,7 +128,7 @@ bool OptionItemPlayer::canGoUp() {
  *
  * @param[in] show_full If set to true, title and buttons are redrawn.
  **/
-void OptionItemPlayer::display( bool show_full ) {
+void COptionItemPlayer::display( bool show_full ) {
 	static int32_t const team_col_hi         = 0xc0;
 	static int32_t const team_col_mi         = 0x40;
 	static int32_t const team_col_lo         = 0x18;
@@ -150,12 +150,12 @@ void OptionItemPlayer::display( bool show_full ) {
 		// Be sure to have the current name and color:
 		color = player && *player ? ( *player )->color : color;
 		if ( player && *player && ( !title || ( 0 != strcmp( ( *player )->get_name(), title ) ) ) ) {
-			setTitle( ( *player )->get_name() );
+			set_title( ( *player )->get_name() );
 		}
 
 		// Now display the player
-		int32_t tWidth   = -1 == titleIdx ? text_length( font, "W" ) + padding + 4 : 0;
-		int32_t xOff     = -1 == titleIdx ? 15 + padding + tWidth : 0;
+		int32_t tWidth   = -1 == title_idx ? text_length( font, "W" ) + padding + 4 : 0;
+		int32_t xOff     = -1 == title_idx ? 15 + padding + tWidth : 0;
 		int32_t txtLeft  = left + xOff;
 		int32_t txtColor = color;
 		int32_t xTop     = top + 1;
@@ -207,7 +207,7 @@ void OptionItemPlayer::display( bool show_full ) {
 		}
 
 		// Second the player type indicator:
-		if ( -1 == titleIdx ) {
+		if ( -1 == title_idx ) {
 			( *player )->draw_indicator( left, xTop, xHeight );
 
 			// and third the team indicator:
@@ -235,11 +235,11 @@ void OptionItemPlayer::display( bool show_full ) {
 
 	// Show decorations if wanted:
 	if ( show_full ) {
-		this->displayDeco();
+		this->display_deco();
 	}
 }
 
 /// @brief return true, the action function must be able to return an exit code.
-bool OptionItemPlayer::isExitButton() {
+bool COptionItemPlayer::isExitButton() {
 	return true;
 }

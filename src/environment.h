@@ -129,7 +129,7 @@ public:
 
 	CPlayer**     all_players               = nullptr;                    ///< All known players.
 	int32_t      available_items[ THINGS ] = { 0x0 };                    ///< Shop stock index.
-	SAMPLE*      background_music         = nullptr;                    ///< Menu background music.
+	SAMPLE*      background_music         = nullptr;                    ///< CMenu background music.
 	char**       bitmap_filenames         = nullptr;                    ///< Custom bitmap names.
 	int32_t      boxed_mode                = BM_OFF;                     ///< Boxed playfield mode.
 	BITMAP**     button                   = nullptr;                    ///< Button bitmaps.
@@ -173,13 +173,13 @@ public:
 	ELanguages   language                  = EL_ENGLISH;                ///< Interface language.
 	int32_t      lightning                 = 0;                         ///< Lightning intensity.
 	bool         load_game                  = false;                     ///< Load a savegame.
-	FONT*        main_font                 = nullptr;                   ///< Menu font.
+	FONT*        main_font                 = nullptr;                   ///< CMenu font.
 	int32_t      max_fire_time               = 0;                         ///< Human aim time limit.
 	int32_t      max_num_tanks               = 0;                         ///< Maximum tanks.
 	double       max_velocity               = 0.;                        ///< Maximum velocity.
 	int32_t      max_screen_updates        = 64;                        ///< Dirty-rectangle budget.
-	int32_t      menu_begin_y                = 0;                         ///< Menu top.
-	int32_t      menu_end_y                  = 0;                         ///< Menu bottom.
+	int32_t      menu_begin_y                = 0;                         ///< CMenu top.
+	int32_t      menu_end_y                  = 0;                         ///< CMenu bottom.
 	int32_t      meteors                   = 0;                         ///< Meteor count.
 	BITMAP**     misc                      = nullptr;                   ///< Misc bitmaps.
 	BITMAP**     missile                   = nullptr;                   ///< Missile bitmaps.

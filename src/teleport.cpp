@@ -104,7 +104,7 @@ CTeleport::CTeleport(
 			}
 
 
-			lt->getNext( &lt );
+			lt->get_next( &lt );
 		}
 	} // end of needing to check the destination
 

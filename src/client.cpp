@@ -482,7 +482,7 @@ int Game_Client( int socket_number ) {
 	// clean up old text
 	global.get_head_of_class( CLASS_FLOATTEXT, &my_object );
 	while ( my_object ) {
-		my_object->getNext( &next_obj );
+		my_object->get_next( &next_obj );
 		dynamic_cast< CFloatText * >( my_object )->new_round();
 		delete my_object;
 	}
@@ -668,7 +668,7 @@ int Game_Client( int socket_number ) {
 
 			global.get_head_of_class( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
-				my_object->getNext( &next_obj );
+				my_object->get_next( &next_obj );
 
 				if ( CLASS_EXPLOSION == class_ ) {
 					dynamic_cast< CExplosion * >( my_object )->explode();
@@ -719,7 +719,7 @@ int Game_Client( int socket_number ) {
 					my_object->require_update();
 				}
 				my_object->update();
-				my_object->getNext( &my_object );
+				my_object->get_next( &my_object );
 			}
 			++class_;
 		}
