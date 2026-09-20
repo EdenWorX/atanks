@@ -633,11 +633,11 @@ sSDI* CMissile::build_sdi_list( sSDI* sdi ) {
 		     && ( lt->player != player )                              // 2
 		     && !lt->is_flying()                                       // 3
 		     && !lt->player->sdi_has_fired.load( ATOMIC_READ )        // 4
-		     && ( lt->player->ni[ ITEM_SDI ] > lt->player->sdiShots ) // 5
+		     && ( lt->player->ni[ ITEM_SDI ] > lt->player->sdi_shots ) // 5
 		     && ( ( lt->y - 10. ) >= y ) ) {                          // 6
 			double start_x    = lt->x;
 			double start_y    = lt->y - 10.;
-			sdi[ idx ].am    = lt->player->ni[ ITEM_SDI ] - lt->player->sdiShots;
+			sdi[ idx ].am    = lt->player->ni[ ITEM_SDI ] - lt->player->sdi_shots;
 			sdi[ idx ].lvl   = ( sdi[ idx ].am - ( static_cast< int32_t >( sdi[ idx ].am ) % 5 ) ) / 5.;
 			sdi[ idx ].mod   = 1. + ( std::min( 10., sdi[ idx ].lvl ) / 20. );
 			sdi[ idx ].tank  = lt;

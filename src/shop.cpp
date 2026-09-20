@@ -554,7 +554,7 @@ void Shop::draw_shop_update( int32_t pl ) {
 		"%s %d: %s",
 		env.ingame->Get_Line( 10 ),
 		pl + 1,
-		env.players[ pl ]->getName()
+		env.players[ pl ]->get_name()
 	);
 	textprintf_ex(
 		global.canvas,
@@ -604,15 +604,15 @@ void Shop::give_interests() {
 		money            = env.players[ z ]->money;
 		int32_t intLevel = 0;
 		double  intSum   = 0.; // The summed-up interest
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "======================================================", 0 )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "======================================================", 0 )
 		DEBUG_LOG_FIN(
-			env.players[ z ]->getName(),
+			env.players[ z ]->get_name(),
 			"%2d.: %s enters the bank to get interest:",
 			( z + 1 ),
-			env.players[ z ]->getName()
+			env.players[ z ]->get_name()
 		)
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Starting Account: %10d", env.players[ z ]->money )
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "------------------------------------------------------", 0 )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Starting Account: %10d", env.players[ z ]->money )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "------------------------------------------------------", 0 )
 		while ( money && ( intLevel++ < 5 ) ) {
 			// Enter next level
 			double intPerc  = ( env.interest - 1.0 ) / intLevel;
@@ -629,26 +629,26 @@ void Shop::give_interests() {
 			money  -= ROUND( interest / intPerc );
 
 			DEBUG_LOG_FIN(
-				env.players[ z ]->getName(),
+				env.players[ z ]->get_name(),
 				"     Level %1d:  %8d credits are rated,",
 				intLevel,
 				static_cast< int32_t >( interest / intPerc )
 			)
-			DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Interest: %8d credits. (%5.2f%%)", interest, intPerc * 100. )
+			DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Interest: %8d credits. (%5.2f%%)", interest, intPerc * 100. )
 
 			// To get rid of (possible) rounding errors, add a security check:
 			if ( ( money < ( 4 * intLevel ) ) || ( interest < 1 ) ) {
 				money = 0; // With less there won't be any more interest anyway!
 			}
 
-			DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Unrated : %8d credits left.", money )
+			DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Unrated : %8d credits left.", money )
 		}
 
 		// Now give them their money:
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Sum:      %8d credits.", ROUND( intSum ) )
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "------------------------------------------------------", 0 )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Sum:      %8d credits.", ROUND( intSum ) )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "------------------------------------------------------", 0 )
 		env.players[ z ]->money += ROUND( intSum );
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Final Account   : %10d", env.players[ z ]->money )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Final Account   : %10d", env.players[ z ]->money )
 	} // End of looping players
 }
 
@@ -748,7 +748,7 @@ void Shop::init() {
 
 	// Determine maximum boost value and score
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
-		int32_t boostValue = env.players[ z ]->getBoostValue();
+		int32_t boostValue = env.players[ z ]->get_boost_value();
 		if ( boostValue > maxBoost ) {
 			maxBoost = boostValue;
 		}
@@ -991,33 +991,33 @@ static void divide_team_money() {
 void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 	// Print player info and inventory
 #ifdef ATANKS_DEBUG_FINANCE
-	DEBUG_LOG_FIN( player->getName(), "Starting to buy: (Defensiveness: %4.2lf)", player->defensive )
+	DEBUG_LOG_FIN( player->get_name(), "Starting to buy: (Defensiveness: %4.2lf)", player->defensive )
 
 
-	DEBUG_LOG_FIN( player->getName(), " --- Inventory --- ", 0 )
-	DEBUG_LOG_FIN( player->getName(), "-------------------", 0 )
+	DEBUG_LOG_FIN( player->get_name(), " --- Inventory --- ", 0 )
+	DEBUG_LOG_FIN( player->get_name(), "-------------------", 0 )
 	for ( int32_t i = 1; i < WEAPONS; ++i ) {
 		if ( player->nm[ i ] ) {
 			DEBUG_LOG_FIN(
-				player->getName(),
+				player->get_name(),
 				"% 4d x %s",
 				player->nm[ i ] / weapon[ i ].getDelayDiv(),
 				weapon[ i ].getName()
 			)
 		}
 	}
-	DEBUG_LOG_FIN( player->getName(), " - - - - - - - - - ", 0 )
+	DEBUG_LOG_FIN( player->get_name(), " - - - - - - - - - ", 0 )
 	for ( int32_t i = 1; i < ITEMS; ++i ) {
 		if ( player->ni[ i ] ) {
-			DEBUG_LOG_FIN( player->getName(), "% 4d x %s", player->ni[ i ], item[ i ].getName() )
+			DEBUG_LOG_FIN( player->get_name(), "% 4d x %s", player->ni[ i ], item[ i ].getName() )
 		}
 	}
-	DEBUG_LOG_FIN( player->getName(), "-------------------", 0 )
+	DEBUG_LOG_FIN( player->get_name(), "-------------------", 0 )
 
 	int32_t oldMoneyToSave = -1; // So the same message isn't repeated over and over again.
 #endif                               // ATANKS_DEBUG_FINANCE
 
-	player->updatePreferences( maxBoost, maxScore );
+	player->update_preferences( maxBoost, maxScore );
 
 	// money saving will be made possible when:
 	// 1. It's not the first three rounds
@@ -1039,14 +1039,14 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 
 		// The AI does not save up money in the first three or last five rounds
 		if ( ( global.current_round > 5 ) && ( ( env.rounds - global.current_round ) > 3 ) ) {
-			moneyToSave = player->getMoneyToSave( !buy_count );
+			moneyToSave = player->get_money_to_save( !buy_count );
 #ifdef ATANKS_DEBUG_FINANCE
 			if ( oldMoneyToSave != moneyToSave ) {
-				DEBUG_LOG_FIN( player->getName(), "Maximum Money to save: %d (I have %d)", moneyToSave, player->money )
+				DEBUG_LOG_FIN( player->get_name(), "Maximum Money to save: %d (I have %d)", moneyToSave, player->money )
 				oldMoneyToSave = moneyToSave;
 			}
 		} else {
-			DEBUG_LOG_FIN( player->getName(), "No money to save this round!", 0 );
+			DEBUG_LOG_FIN( player->get_name(), "No money to save this round!", 0 );
 		}
 #else
 		}
@@ -1066,13 +1066,13 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 		// the number of parachutes or damage dealing weapons is too low.
 		if ( ( player->money > moneyToSave ) || ( ( numPara < ai_level ) && ( env.landslide_type > SLIDE_NONE ) )
 		     || ( numDmgWeaps < ( ai_level * 2 ) ) ) {
-			pressed = player->chooseItemToBuy( maxBoost, last_buy_idx );
+			pressed = player->choose_item_to_buy( maxBoost, last_buy_idx );
 		} else {
 			pressed = -1; // Forced to end.
 		}
 
 		DEBUG_LOG_FIN(
-			player->getName(),
+			player->get_name(),
 			"I have %s%s%s%d credits left%s",
 			pressed > -1 ? "bought: " : "finished, with ",
 			pressed > -1 ? pressed < WEAPONS ? weapon[ pressed ].getName() : item[ pressed - WEAPONS ].getName() : "",
@@ -1083,7 +1083,7 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 		buy_count++;
 	} while ( ( pressed != -1 ) && ( buy_count < 1000 ) );
 
-	DEBUG_LOG_FIN( player->getName(), "============================================", 0 )
+	DEBUG_LOG_FIN( player->get_name(), "============================================", 0 )
 }
 
 static void draw_shop( CPlayer* pl ) {

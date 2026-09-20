@@ -403,7 +403,7 @@ void Send_And_Receive( void *all_the_data ) {
 					env.players[ counter ]->server_socket = new_socket;
 					env.players[ counter ]->previous_type = env.players[ counter ]->type;
 					env.players[ counter ]->type          = NETWORK_CLIENT;
-					printf( "Assigned connection to %s\n", env.players[ counter ]->getName() );
+					printf( "Assigned connection to %s\n", env.players[ counter ]->get_name() );
 				} else {
 					counter++;
 				}

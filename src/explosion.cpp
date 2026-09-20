@@ -242,7 +242,7 @@ void CExplosion::applyPhysics() {
 				lt->add_damage(
 					player,
 					( static_cast< double >( damage ) * damage_mod * full_rate
-				          * ( player ? player->damageMultiplier : 1. )
+				          * ( player ? player->damage_multiplier : 1. )
 				        ) / static_cast< double >( env.frames_per_second )
 				);
 			}
@@ -633,12 +633,12 @@ void CExplosion::explode() {
 						lt->add_damage( player, dmg ); // already set, no multiplier
 					} else if ( REDUCER == weap_type ) {
 						// Note: dmg was set to a fake damage of 1.0
-						lt->player->damageMultiplier *= 0.667; // already checked
+						lt->player->damage_multiplier *= 0.667; // already checked
 					} else if ( ( RIOT_BOMB <= weap_type ) && ( RIOT_BLAST >= weap_type ) ) {
 						lt->add_damage( player, 0. ); // So falling damage gets credited.
 					} else if ( ( THEFT_BOMB == weap_type ) && ( lt->player != player ) ) {
 						// Note: dmg was set to fake damage 1.0
-						auto max_amount = ROUND( player->damageMultiplier * THEFT_AMOUNT );
+						auto max_amount = ROUND( player->damage_multiplier * THEFT_AMOUNT );
 						int32_t amount = lt->player->money <= max_amount ? lt->player->money : max_amount;
 
 						// We indicate the theft by a red string on top of the tank
@@ -672,7 +672,7 @@ void CExplosion::explode() {
 						lt->player->money -= amount; // the actual theft.
 						player->money     += amount; // money goes to the shooter.
 					} else if ( THEFT_BOMB != weap_type ) {
-						lt->add_damage( player, dmg * ( player ? player->damageMultiplier : 1. ) );
+						lt->add_damage( player, dmg * ( player ? player->damage_multiplier : 1. ) );
 					}
 				} // End of having damage to deal
 
@@ -1013,7 +1013,7 @@ double get_hit_damage( CTank* tank, EWeaponType type, double hit_x, double hit_y
 	if ( tank->is_in_ellipse( hit_x, hit_y, xrad, yrad, in_rate_x, in_rate_y ) ) {
 		if ( PERCENT_BOMB == type ) {
 			dmg = ( ( tank->l + tank->sh ) / 2. ) + 1;
-		} else if ( ( ( REDUCER == type ) && ( tank->player->damageMultiplier > 0.1 ) ) // These do not do any
+		} else if ( ( ( REDUCER == type ) && ( tank->player->damage_multiplier > 0.1 ) ) // These do not do any
 		            || ( ( RIOT_BOMB <= type ) && ( RIOT_BLAST >= type ) )              // real damage, but might
 		            || ( THEFT_BOMB == type ) ) {                                       // cause falling damage,
 			dmg = 1.; // so apply minimum damage to keep track

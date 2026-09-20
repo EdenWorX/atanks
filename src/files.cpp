@@ -297,7 +297,7 @@ bool Load_Game() {
 	// To ensure backwards compatibility, all players have to check
 	// their opponent memory. Old save files do not provide any.
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-		env.players[ i ]->checkOppMem();
+		env.players[ i ]->check_opp_mem();
 	}
 
 	// Revert locale settings

@@ -26,7 +26,7 @@ struct sScore {
                 idx    = rhs.index;
                 killed = rhs.killed;
                 kills  = rhs.kills;
-                name   = rhs.getName();
+                name   = rhs.get_name();
                 score  = rhs.score;
                 diff   = kills - killed;
                 return *this;

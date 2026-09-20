@@ -194,7 +194,7 @@ public:
 					// If the tank is still alive, adjust its chess-style clock
 					if ( !tmp_tank->destroy && ( env.max_fire_time > 0 ) && ( tmp_tank == curr_tank )
 					     && ( HUMAN_PLAYER == tmp_tank->player->type ) && ( STAGE_AIM == global.stage )
-					     && second_passed && tmp_tank->player->reduceClock() ) {
+					     && second_passed && tmp_tank->player->reduce_clock() ) {
 						tmp_tank->player->skip_me = true;
 						tmp_tank                  = nullptr;
 						fire                      = false;
@@ -239,7 +239,7 @@ public:
 	/* State Getters */
 	[[nodiscard]] bool hasDone() const { return isDone.load( ATOMIC_READ ); }
 
-	[[nodiscard]] bool hasExited() const { return isExited.load( ATOMIC_READ ); }
+	[[nodiscard]] bool has_exited() const { return isExited.load( ATOMIC_READ ); }
 };
 
 /// The main game loop. Everything happens here.
@@ -437,8 +437,8 @@ void game() {
 		// check for input from network
 		for ( int32_t i = 0; i < env.num_game_players; ++i ) {
 			if ( env.players[ i ]->type == NETWORK_CLIENT ) {
-				env.players[ i ]->getNetCmd();
-				env.players[ i ]->executeNetCmd( false, &aicore );
+				env.players[ i ]->get_net_cmd();
+				env.players[ i ]->execute_net_cmd( false, &aicore );
 			}
 		}
 #endif // NETWORK
@@ -515,7 +515,7 @@ void game() {
 
 		// AI Core:
 		if ( has_aicore ) {
-			if ( aicore.hasExited() ) {
+			if ( aicore.has_exited() ) {
 				aithread.join();
 				has_aicore = false;
 			} else {
@@ -526,7 +526,7 @@ void game() {
 		// Object updaters:
 		for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
 			if ( threads[ class_ ] ) {
-				if ( updater[ class_ ].hasExited() ) {
+				if ( updater[ class_ ].has_exited() ) {
 					threads[ class_ ]->join();
 					delete threads[ class_ ];
 					threads[ class_ ] = nullptr;
@@ -555,7 +555,7 @@ void game() {
 	// remove existing tanks etc
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
 		if ( env.players[ i ]->tank ) {
-			env.players[ i ]->reclaimShield();
+			env.players[ i ]->reclaim_shield();
 			delete env.players[ i ]->tank;
 		}
 	}
@@ -720,7 +720,7 @@ static inline void check_overtime( CAICore& aicore ) {
 
 		// Stop the ai first:
 		aicore.stop();
-		while ( !aicore.hasExited() ) {
+		while ( !aicore.has_exited() ) {
 			std::this_thread::yield();
 		}
 
@@ -734,7 +734,7 @@ static inline void check_overtime( CAICore& aicore ) {
 			// And if they bought vengeance items, they'll loose
 			// one now. Expensive enough.
 			if ( tank->player ) {
-				tank->player->reclaimShield();
+				tank->player->reclaim_shield();
 			}
 			tank->add_damage( nullptr, tank->sh + tank->l + 1 );
 			tank->apply_damage();
@@ -850,7 +850,7 @@ static inline void delete_destroyed( CAICore& aicore ) {
 	vobj_t* obj      = nullptr;
 
 	// do not create new CFloatText instance while deletion is in progress
-	aicore.forbidText();
+	aicore.forbid_text();
 
 	// Now loop classes and delete destroyed objects
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
@@ -887,7 +887,7 @@ static inline void delete_destroyed( CAICore& aicore ) {
 	} // End of looping classes
 
 	// Eventually re-allow CAICore to create CFloatText instances again
-	aicore.allowText();
+	aicore.allow_text();
 }
 
 void do_naturals() {
@@ -1005,7 +1005,7 @@ static inline void draw_objects( CAICore& aicore ) {
 	set_clip_rect( global.canvas, 0, MENUHEIGHT, ( env.screen_width - 1 ), ( env.screen_height - 1 ) );
 
 	// do not create new CFloatText instance while drawing is in progress
-	aicore.forbidText();
+	aicore.forbid_text();
 
 	for ( int32_t class_ = 0; class_ < CLASS_COUNT; ++class_ ) {
 
@@ -1028,7 +1028,7 @@ static inline void draw_objects( CAICore& aicore ) {
 	} // End of looping classes
 
 	// Eventually re-allow CAICore to create CFloatText instances again
-	aicore.allowText();
+	aicore.allow_text();
 }
 
 /// @brief the ingame mini score board
@@ -1043,8 +1043,8 @@ static inline void draw_mini_scoreboard() {
 		if ( player ) {
 			int32_t     color = player->color;
 			char const* money = Add_Comma( player->money );
-			char const* name  = player->getName();
-			char const* team  = player->getTeamName();
+			char const* name  = player->get_name();
+			char const* team  = player->get_team_name();
 			int32_t     mid_y = line + ( env.font_height / 2 ) + 1;
 
 			// Strike through dead players (BLACK background *before* the name)
@@ -1057,7 +1057,7 @@ static inline void draw_mini_scoreboard() {
 			textprintf_ex( global.canvas, font, 15, line, color, -1, "(%-7s)", team );
 
 			// Display player indicator
-			player->drawIndicator( score_name_pos - env.font_height - 2, line + 1, env.font_height - 3 );
+			player->draw_indicator( score_name_pos - env.font_height - 2, line + 1, env.font_height - 3 );
 
 			// Display name
 			textprintf_ex( global.canvas, font, score_name_pos + 1, line + 1, BLACK, -1, "%s", name );
@@ -1089,8 +1089,8 @@ static inline void draw_mini_scoreboard() {
 void draw_top_bar() {
 	CTank*          tank          = global.get_curr_tank();
 	CPlayer*        player        = tank ? tank->player : nullptr;
-	char const*    name          = player ? player->getName() : nullptr;
-	char const*    team_name     = player ? player->getTeamName() : nullptr;
+	char const*    name          = player ? player->get_name() : nullptr;
+	char const*    team_name     = player ? player->get_team_name() : nullptr;
 	int32_t        color         = player ? player->color : BLACK;
 	int32_t        time_to_fire  = player ? player->time_left_to_fire : 0;
 	int32_t        y1            = 0;
@@ -1171,7 +1171,7 @@ void draw_top_bar() {
 			env.ingame->Get_Line( 21 ),
 			tank->player->ni[ ITEM_FUEL ]
 		);
-		textprintf_ex( global.canvas, font, 386, y3, BLACK, -1, "%s: %.2f", "Power", tank->player->damageMultiplier );
+		textprintf_ex( global.canvas, font, 386, y3, BLACK, -1, "%s: %.2f", "Power", tank->player->damage_multiplier );
 	} // End of displaying player info
 
 
@@ -1393,7 +1393,7 @@ static inline void init_new_round() {
 
 	// then the players in case the campaign mode rise kicks in
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-		env.players[ i ]->newRound();
+		env.players[ i ]->new_round();
 	}
 
 	// finally global, so campaign mode round is changed after the players.
@@ -1433,7 +1433,7 @@ static inline void init_new_round() {
 
 	// End each players shopping and count the number of human players
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-		env.players[ i ]->exitShop();
+		env.players[ i ]->exit_shop();
 		if ( ( env.players[ i ]->type == HUMAN_PLAYER ) || ( env.players[ i ]->type == NETWORK_CLIENT ) ) {
 			human_players++;
 		}
@@ -1462,7 +1462,7 @@ static inline bool manage_input( CAICore& aicore ) {
 		global.update_menu = false;
 		CPlayer* player    = curr_tank->player;
 		bool    can_fire  = !( has_action.load( ATOMIC_READ ) || has_explosion.load( ATOMIC_READ ) );
-		int32_t result    = player->controlTank( &aicore, can_fire );
+		int32_t result    = player->control_tank( &aicore, can_fire );
 
 		if ( CONTROL_QUIT == result ) {
 			done = true;
@@ -1594,8 +1594,8 @@ static inline void set_tank_settings() {
 	for ( int i = 0; i < env.max_num_tanks; ++i ) {
 		env.player_order[ i ] = global.order[ i ]->player;
 
-		int32_t name_len     = text_length( font, env.player_order[ i ]->getName() );
-		int32_t team_len     = text_length( font, env.player_order[ i ]->getTeamName() );
+		int32_t name_len     = text_length( font, env.player_order[ i ]->get_name() );
+		int32_t team_len     = text_length( font, env.player_order[ i ]->get_team_name() );
 
 		if ( name_len > max_name_len ) {
 			max_name_len = name_len;
@@ -1656,7 +1656,7 @@ static inline void draw_eor_scoreboard() {
 		int32_t scoLen = text_length( font, head_score );
 
 		for ( int32_t z = 0; z < env.num_game_players; z++ ) {
-			int32_t curLen = text_length( font, env.players[ z ]->getName() );
+			int32_t curLen = text_length( font, env.players[ z ]->get_name() );
 			if ( curLen > namLen ) {
 				namLen = curLen;
 			}
@@ -1719,7 +1719,7 @@ static inline void draw_eor_scoreboard() {
 				-1,
 				"%s: %s",
 				env.ingame->Get_Line( 47 ),
-				env.players[ winner ]->getName()
+				env.players[ winner ]->get_name()
 			);
 		}
 

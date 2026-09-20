@@ -188,7 +188,7 @@ static void createConfig() {
 		if ( tempPlayer ) {
 			// Error case 1: The created player is an AI player
 			if ( HUMAN_PLAYER != tempPlayer->type ) {
-				snprintf( noHumanMsg, 199, "The player \"%s\" is no human player!", tempPlayer->getName() );
+				snprintf( noHumanMsg, 199, "The player \"%s\" is no human player!", tempPlayer->get_name() );
 				errorMessage = noHumanMsg;
 				errorX       = env.half_width - text_length( font, errorMessage ) / 2;
 				errorY       = env.menu_begin_y + 15;
@@ -213,7 +213,7 @@ static void createConfig() {
 	for ( auto defaultName : defaultNames ) {
 		tempPlayer       = env.create_new_player( defaultName );
 		tempPlayer->type = static_cast< EPlayerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
-		tempPlayer->generatePreferences();
+		tempPlayer->generate_preferences();
 	}
 }
 
@@ -254,7 +254,7 @@ static char const* do_winner() {
 	for ( int32_t z = 0; z < env.num_game_players; z++ ) {
 
 		// Check the length of the name
-		int32_t curLen = text_length( font, players[ z ]->getName() );
+		int32_t curLen = text_length( font, players[ z ]->get_name() );
 		if ( curLen > namLen ) {
 			namLen = curLen;
 		}
@@ -377,7 +377,7 @@ static char const* do_winner() {
 		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
 		} else {
-			snprintf( return_string, 256, "%s: %s", env.ingame->Get_Line( 47 ), players[ idx_winner ]->getName() );
+			snprintf( return_string, 256, "%s: %s", env.ingame->Get_Line( 47 ), players[ idx_winner ]->get_name() );
 		}
 	}
 
@@ -711,8 +711,8 @@ static void initialisePlayers() {
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		env.players[ z ]->money = env.start_money;
 		env.players[ z ]->score = 0;
-		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->preftype ) ) {
-			env.players[ z ]->generatePreferences();
+		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->pref_type ) ) {
+			env.players[ z ]->generate_preferences();
 		}
 		env.players[ z ]->initialise( false );
 		env.players[ z ]->type_saved = env.players[ z ]->type;
@@ -1284,7 +1284,7 @@ static void play_demo() {
 	newgame();
 
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-		env.players[ i ]->newGame();
+		env.players[ i ]->new_game();
 
 		// give them money to spend:
 		env.players[ i ]->money +=
@@ -1318,7 +1318,7 @@ static void play_local() {
 		if ( !env.load_game ) {
 			global.current_round = env.rounds;
 			for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-				env.players[ i ]->newGame();
+				env.players[ i ]->new_game();
 			}
 		}
 

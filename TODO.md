@@ -429,7 +429,7 @@ Agreed mapping (reviewed with the user; decisions recorded below):
 - Functions/variables: mechanical snake_case per module in `PF-1.15.2`/`PF-1.15.3` (e.g. `addLandSlide` → `add_land_slide`,
   `errorMultiplier` → `error_multiplier`); Allegro/CRT/system names excluded. No per-identifier table (thousands of names).
 
-#### [ ] PF-1.15.2: Rename core state and entity classes
+#### [x] PF-1.15.2: Rename core state and entity classes
 
 Apply the agreed mapping to global state and gameplay entities first. Pure renames, no logic changes; verify with a `make
 DEBUG=YES` build plus manual in-game validation (new game, buy screen, fired shots). Split into Action Items below: type
@@ -463,7 +463,7 @@ per module.
   including the hierarchy virtuals (e.g. `getClass` → `get_class`), with per-member review. Pure renames; verify with a
   `make DEBUG=YES` build plus manual in-game validation.
 
-- [ ] **PF-1.15.2.6**: Member/function snake_case for `CPlayer` and `CAICore`
+- [x] **PF-1.15.2.6**: Member/function snake_case for `CPlayer` and `CAICore`
 
   Rename members and methods of the player state and AI core with per-member review. Pure renames; verify with a `make
   DEBUG=YES` build plus manual in-game validation.

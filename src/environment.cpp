@@ -109,7 +109,7 @@ CPlayer* CEnvironment::create_new_player( char const* player_name ) {
 	}
 
 	player->index = num_permanent_players;
-	player->setName( player_name );
+	player->set_name( player_name );
 	all_players[ num_permanent_players++ ] = player;
 
 	return player;
@@ -469,7 +469,7 @@ int32_t CEnvironment::get_player_by_name( char const* player_name ) const {
 	}
 
 	for ( int32_t i = 0; ( -1 == result ) && ( i < num_permanent_players ); ++i ) {
-		if ( !strcmp( player_name, all_players[ i ]->getName() ) ) {
+		if ( !strcmp( player_name, all_players[ i ]->get_name() ) ) {
 			result = i;
 		}
 	}

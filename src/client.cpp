@@ -97,13 +97,13 @@ bool Parse_Client_Data( char *buffer ) {
 		}
 		return false;
 	} else if ( !strcmp( args[ 0 ], "CItem" ) ) {
-		int itemindex = 0, amount = 0;
-		SAFE_STOI( itemindex, args[ 1 ] );
+		int item_index = 0, amount = 0;
+		SAFE_STOI( item_index, args[ 1 ] );
 		SAFE_STOI( amount, args[ 2 ] );
-		if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
-			global.client_player->ni[ itemindex ] = amount;
+		if ( ( item_index >= 0 ) && ( item_index < ITEMS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
+			global.client_player->ni[ item_index ] = amount;
 		}
-		if ( itemindex == ( ITEMS - 1 ) ) {
+		if ( item_index == ( ITEMS - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "HEALTH" ) ) {
@@ -176,7 +176,7 @@ bool Parse_Client_Data( char *buffer ) {
 		int number = 0;
 		SAFE_STOI( number, args[ 1 ] );
 		if ( ( number < env.num_game_players ) && ( number >= 0 ) ) {
-			env.players[ number ]->setName( args[ 2 ] );
+			env.players[ number ]->set_name( args[ 2 ] );
 		}
 		if ( number == ( env.num_game_players - 1 ) ) {
 			return true;

@@ -346,7 +346,7 @@ void CTank::activate_current_selection() {
 		else if ( ( ITEM_VENGEANCE <= ci ) && ( ITEM_FATAL_FURY >= ci ) ) {
 			// Just preparation. The tank explodes, and the vengeance goes
 			// off automatically as selected. ;-)
-			this->player->reclaimShield();
+			this->player->reclaim_shield();
 			this->add_damage( nullptr, l + sh + repair_rate + 1 );
 			this->apply_damage();
 		}
@@ -416,8 +416,8 @@ void CTank::apply_damage() {
 		}
 
 		// note damage in own and opponents memory
-		player->noteDamageFrom( credit_to, full_damage, destroy );
-		credit_to->noteDamageTo( player, full_damage, destroy );
+		player->note_damage_from( credit_to, full_damage, destroy );
+		credit_to->note_damage_to( player, full_damage, destroy );
 
 		// The award must be adapted to the situation
 		award *= self_hit ? env.scoreSelfHit : team_hit ? env.scoreTeamHit : env.scoreHitUnit;
@@ -473,7 +473,7 @@ void CTank::apply_damage() {
 
 			try {
 				new CFloatText(
-					CPlayer::selectGloatPhrase(),
+					CPlayer::select_gloat_phrase(),
 					credit_to->tank->x,
 					credit_to->tank->y - 30,
 					.0,
@@ -493,7 +493,7 @@ void CTank::apply_damage() {
 		if ( self_hit && destroy && !global.skipping_computer_play ) {
 			try {
 				new CFloatText(
-					CPlayer::selectSuicidePhrase(),
+					CPlayer::select_suicide_phrase(),
 					x,
 					y - 30,
 					.0,
@@ -1011,7 +1011,7 @@ void CTank::explode( bool allow_vengeance ) {
 		// Before the violent death is applied, halve the players'
 		// damage multiplier:
 		assert( player && "ERROR: explode Tank without player?" );
-		player->damageMultiplier = player->damageMultiplier > 1. ? 1. + ( ( player->damageMultiplier - 1. ) / 2. ) : .75;
+		player->damage_multiplier = player->damage_multiplier > 1. ? 1. + ( ( player->damage_multiplier - 1. ) / 2. ) : .75;
 
 		// Now go for it!
 		int32_t cur_stage = global.stage;
@@ -1522,7 +1522,7 @@ void CTank::new_round( int32_t pos_x, int32_t pos_y ) {
 	}
 
 	// Reclaim shield if there is one left from the end of the last round
-	player->reclaimShield();
+	player->reclaim_shield();
 
 	// Reset all values
 	cw         = 0;
@@ -1559,7 +1559,7 @@ void CTank::new_round( int32_t pos_x, int32_t pos_y ) {
 
 	// (re-)init name text
 	if ( env.name_above_tank ) {
-		name_text.set_text( player->getName() );
+		name_text.set_text( player->get_name() );
 		name_text.set_color( player->color );
 	}
 
@@ -1700,12 +1700,12 @@ void CTank::set_bitmap() {
 
 	bool had_offsets = ( ( use_tankbitmap > -1 ) && ( use_turretbitmap > -1 ) );
 
-	if ( TT_NORMAL == player->tankbitmap ) {
+	if ( TT_NORMAL == player->tank_bitmap ) {
 		use_tankbitmap   = 0;
 		use_turretbitmap = 0;
 	} else {
-		use_tankbitmap   = player->tankbitmap + TO_TANK;
-		use_turretbitmap = player->tankbitmap + TO_TURRET;
+		use_tankbitmap   = player->tank_bitmap + TO_TANK;
+		use_turretbitmap = player->tank_bitmap + TO_TURRET;
 	}
 
 	// Set needed offsets

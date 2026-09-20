@@ -87,24 +87,24 @@ struct sWeapListEntry;
  * ai_type_mod   : (from level)   Multiplier [1.0;3.0] according to ai_level_d, used on important decisions to
  *                                strengthen higher bot levels.
  * blast_*       : (0)            Damage values of the available normal missiles.
- * canMove       : (true)         As long as it is true, allows the AI to consider using fuel/rockets.
- * isMovedBy     : (0)            Set from the outside via hasMoved() to indicate the result of movement attempts.
- * isShocked     : (false)        Whether the bot is shocked by anothers massive damage they dealt.
+ * can_move       : (true)         As long as it is true, allows the AI to consider using fuel/rockets.
+ * is_moved_by     : (0)            Set from the outside via has_moved() to indicate the result of movement attempts.
+ * is_shocked     : (false)        Whether the bot is shocked by anothers massive damage they dealt.
  * revengee      : (nullptr)      sOpponent pointer set to a bot this one wants revenge against.
- * shocker       : (nullptr)      sOpponent pointer set to the bot that caused isShocked to become true.
- * needSuccess   : (true)         This is set to true and later set to false if a full targetting round resulted in a
+ * shocker       : (nullptr)      sOpponent pointer set to the bot that caused is_shocked to become true.
+ * need_success   : (true)         This is set to true and later set to false if a full targetting round resulted in a
  *                                primary target hit, or the full score is greater than zero.
- * needAim       : (true)         Causes aim() to be called. Set to false if the bot needs to free themselves.
- * isBlocked     : (false)        Set to true if an obstacle is detected or the bot is buried.
+ * need_aim       : (true)         Causes aim() to be called. Set to false if the bot needs to free themselves.
+ * is_blocked     : (false)        Set to true if an obstacle is detected or the bot is buried.
  * hill_detected : (false)        Set to true if the progress in aiming suggest, that a hill is in the firing path.
- * needMoney     : (check done)   Set to true if getMoneyToSave() returns more money than the player has.
+ * need_money     : (check done)   Set to true if get_money_to_save() returns more money than the player has.
  * tank          : (player->tank) Short cut.
  * angle         : (tank->a)      Written back current angle set on the tank.
  * power         : (tank->p)      Written back current power set on the tank.
  * weap_idx      : (tank->cw)     Written back currently chosen weapon.
  * x             : (tank->x)      Written back current x position of the tank.
  * y             : (tank->y)      Written back current y position of the tank.
- * currLife      : (tank->l + sh) Both live and remaining shield strength.
+ * curr_life      : (tank->l + sh) Both live and remaining shield strength.
  * buried        : (check done)   Number of true angles where the turret is directly covered by dirt.
  * buried_l      : (check done)   Same as buried, but left side only
  * buried_r      : (check done)   Same as buried, but right side only
@@ -138,7 +138,7 @@ struct sWeapListEntry;
  * Eventually a check is made to decide whether the bot gets lucky. This temporarily raises its AI level.
  *
  *
- * Initialization in  checkOppMem():
+ * Initialization in  check_opp_mem():
  * --------------------------------
  * Every opponent entry is evaluated, and a (possible) current shocker and/or revengee are determined.
  * The revengee is written back to the player if it is a new one.
@@ -162,9 +162,9 @@ struct sWeapListEntry;
  *                   Counted using weap_attempts in the operator() loop.
  * findRngAttempts : Range find attempts. How many corrections to the aiming are done per weapon attempt.
  *                   Counted using rng_attempts in aim() loop.
- * focusRate       : This is a modifier that lessens some corrections the lower the ai level is.
- * errorMultiplier : This is a modifier that lessens some errors the higher the ai level is.
- * maxBounce       : The higher the AI level the more bounces/wraps from walls it can follow before
+ * focus_rate       : This is a modifier that lessens some corrections the lower the ai level is.
+ * error_multiplier : This is a modifier that lessens some errors the higher the ai level is.
+ * max_bounce       : The higher the AI level the more bounces/wraps from walls it can follow before
  *                   assuming the shot has crashed.
  *
  * The results should be [if shocked]:
@@ -172,9 +172,9 @@ struct sWeapListEntry;
  * findOppAttempts : Useless   3   [2], Deadly + 1:  8    [4]
  * findWeapAttempts: Useless:  2   [1], Deadly + 1: 12    [2]
  * findRngAttempts : Useless: 10   [2], Deadly + 1: 60    [7]
- * focusRate       : Useless:  0.166,   Deadly + 1:  1.0
- * errorMultiplier : Useless:  1.2 [3], Deadly + 1:  0.02 [0.14]
- * maxBounce       : Useless:  3,       Deadly + 1: 20
+ * focus_rate       : Useless:  0.166,   Deadly + 1:  1.0
+ * error_multiplier : Useless:  1.2 [3], Deadly + 1:  0.02 [0.14]
+ * max_bounce       : Useless:  3,       Deadly + 1: 20
  *
  * As the full number of aimings can be up to Tgt*Opp*Weap*Rng attempts, the current targetting attempt
  * is finished once a new best attack plan is found.
@@ -203,7 +203,7 @@ struct sWeapListEntry;
  *      tgt_attempts : (+1)      The new target and item selections marks the beginning of a new targetting attempt.
  *      mem_curr     : (nullptr) The currently selected opponent.
  *
- *   2  done = setupAttack(bool is_last, int32_t &opp_attempt, int32_t &weap_attempt)
+ *   2  done = setup_attack(bool is_last, int32_t &opp_attempt, int32_t &weap_attempt)
  *
  *        Param 1 : is_last     : is set to true if tgt_attempts equals findTgtAttempts.
  *        Param 2 : opp_attempt : Reference to opp_attempts to have the actual opponent selection counted.
@@ -214,12 +214,12 @@ struct sWeapListEntry;
  *
  *     2.1  If either weap_attempt is 0 or mem_curr is nullptr, a new opponent selection round is started.
  *          mem_curr can be nullptr if the previous try to find an opponent failed.
- *          plStage     : (PS_SELECT_TARGET)
- *          opp_attempt : (+1) Raised by one when calling selectTarget() below.
+ *          pl_stage     : (PS_SELECT_TARGET)
+ *          opp_attempt : (+1) Raised by one when calling select_target() below.
  *
- *       2.1.1 selectDone = selectTarget(bool is_last)
+ *       2.1.1 selectDone = select_target(bool is_last)
  *               Param 1 : is_last : This is set to true if the raised opp_attempt equals findOppAttempts and is_last
- *                                   was already set to true in setupAttack() and needSuccess is true.
+ *                                   was already set to true in setup_attack() and need_success is true.
  *         2.1.1.1 If the bot is shocked, their shocker is preselected and true is returned.
  *         2.1.1.2 If the bot has a grudge against someone, the revengee is preselected and true is returned, but only
  *                 if either no opponent was selected yet, or the last opponent was someone else.
@@ -249,15 +249,15 @@ struct sWeapListEntry;
  *          and it is recorded that no new target was selected.
  *
  *     2.3  If the target selection was successful, the next item to use or weapon to fire can be selected.
- *          plStage      : (PS_SELECT_WEAPON)
- *          weap_attempt : (+1) Raised by one when calling selectItem() below.
+ *          pl_stage      : (PS_SELECT_WEAPON)
+ *          weap_attempt : (+1) Raised by one when calling select_item() below.
  *
  *       2.3.1 If the current target is new, the score lists for items and weapons are regenerated.
  *       2.3.2 At this point selectDone is set to false.
  *       2.3.3 While selectDone is false, and the AI can work, and weap_attempt is lower than findWeapAttempts,
- *             selectDone gets the return value of selectItem(bool is_last).
+ *             selectDone gets the return value of select_item(bool is_last).
  *               Param 1 : is_last : This is set to true if the raised weap_attempt equals findWeapAttempts and is_last
- *                                   was already set to true in setupAttack() and needSuccess is true.
+ *                                   was already set to true in setup_attack() and need_success is true.
  *
  *         2.3.3.1 store item_curr in item_last and weap_curr in weap_last. This is needed for the regular walking
  *                 down the ordered lists of weapons and items.
@@ -297,7 +297,7 @@ struct sWeapListEntry;
  *     2.7  If breakUp was set to true and this is not the last attempt, opp_attempt and weap_attempt are both reset
  *          to zero to trigger a new full targetting cylcle.
  *
- *   3  done = calcAttack(int32_t attempt) - called if setupAttack() returned true.
+ *   3  done = calc_attack(int32_t attempt) - called if setup_attack() returned true.
  *
  *        Param 1 : Value of tgt_attempts
  *
@@ -307,10 +307,10 @@ struct sWeapListEntry;
  *
  *      bool is_last   : (checked)       Set to true if attempt equals findTgtAttempts and no successful setup was
  *                                       found, yet.
- *      plStage        : (PS_CALCULATE)  AI enters the calculation stage.
- *      isBlocked      : (false)         Will be set to true if the aiming finds out that a hill blocks the path.
- *      hasFlipped     : (false)         Set to true by calcStandard() if flipped towards a wall.
- *      needAim        : (false)         Will be set to true if a weapon is chosen that needs aiming.
+ *      pl_stage        : (PS_CALCULATE)  AI enters the calculation stage.
+ *      is_blocked      : (false)         Will be set to true if the aiming finds out that a hill blocks the path.
+ *      has_flipped     : (false)         Set to true by calc_standard() if flipped towards a wall.
+ *      need_aim        : (false)         Will be set to true if a weapon is chosen that needs aiming.
  *      curr_overshoot : (MAX_OVERSHOOT) The overshoot for the current aiming round.
  *      offset_x       : (0)             Some weapons need a horizontal offset to aim at, like the napalm weapons.
  *      offset_y       : (0)             Some weapons need a vertical offset to aim at, like the driller.
@@ -322,9 +322,9 @@ struct sWeapListEntry;
  *          It is then tried to optimized the last attack.
  *          This is only done if the same weapon is used, as other weapons might need different approaches.
  *     3.3  If a laser is chosen and the tank is not buried enough to be evaluated as buried or blocked, return the
- *          result of calcLaser(is_last is_last).
+ *          result of calc_laser(is_last is_last).
  *
- *            Param 1 : True if is_last in calcAttack() is true and needSuccess is true.
+ *            Param 1 : True if is_last in calc_attack() is true and need_success is true.
  *
  *          Set the angle to point directly at the selected opponent and see whether the opponent can be hit or not.
  *
@@ -338,10 +338,10 @@ struct sWeapListEntry;
  *       3.3.3 Follow the beam using a mind shot and calculate a hit score.
  *       3.3.4 Use tank->shoot_clearance() to see whether the shot is blocked or crashes.
  *             If the shot does not reach the target, and is_last is true, the hit_score (might have hit someone else)
- *             is reduced. If this is not the very last attempt, curr_angle and curr_power are written back, needAim is
+ *             is reduced. If this is not the very last attempt, curr_angle and curr_power are written back, need_aim is
  *             set to true and false is returned.
  *
- *     3.4  If the tank is buried, return the result of calcUnbury(bool is_last).
+ *     3.4  If the tank is buried, return the result of calc_unbury(bool is_last).
  *
  *            Param 1 : The value of is_last is simply transported.
  *
@@ -350,26 +350,26 @@ struct sWeapListEntry;
  *       3.4.1 If either a riot bomb is chosen, or a non-shaped weapon is selected while a self destruct attempt is
  *             planned (*), the number of enemies on each side is counted to chose where to fire at.
  *             After setting curr_angle and curr_power to appropriate values, they get sanitized, and angle is set to
- *             curr_angle, power is set to curr_power, needAim is set to false as no further aiming is needed, and
- *             isBlocked is set to true as this is the situation.
+ *             curr_angle, power is set to curr_power, need_aim is set to false as no further aiming is needed, and
+ *             is_blocked is set to true as this is the situation.
  *             After that true is returned.
  *       3.4.2 If a weapon is chosen and no self destruction is wanted, the shaped weapons are the only appropriate
  *             weapons to free the trank without damaging itself. The current angle is set to 180°, the current power
  *             is set to 10 plus some random variation according to the AI level. The current values then get
- *             sanitized, and angle is set to curr_angle, power is set to curr_power, needAim is set to false as no
- *             further aiming is needed, and isBlocked is set to true as this is the situation.
+ *             sanitized, and angle is set to curr_angle, power is set to curr_power, need_aim is set to false as no
+ *             further aiming is needed, and is_blocked is set to true as this is the situation.
  *             After that true is returned.
- *       3.4.3 If this all fails but is_last is set to true, useFreeingTool() is called for an emergency selection.
- *             As a last resort, the small missile is selected if useFreeingTool() did not succeed. The current angle
+ *       3.4.3 If this all fails but is_last is set to true, use_freeing_tool() is called for an emergency selection.
+ *             As a last resort, the small missile is selected if use_freeing_tool() did not succeed. The current angle
  *             is set to a value between 100° and 160° degrees to either the left or right side, according to which
  *             side is heavier buried. The current power is set to a value between 500 and 1,000. The current values
- *             then get sanitized, and angle is set to curr_angle, power is set to curr_power, needAim is set to false
- *             as no further aiming is needed, and isBlocked is set to true as this is the situation.
+ *             then get sanitized, and angle is set to curr_angle, power is set to curr_power, need_aim is set to false
+ *             as no further aiming is needed, and is_blocked is set to true as this is the situation.
  *             After that true is returned.
  *       3.4.4 If everything failed, false is returned.
  *
  *     3.5  If the currently selected target is the bot itself, this is a self destruct attempt. Return the result of
- *          calcKamikaze(bool is_last), then.
+ *          calc_kamikaze(bool is_last), then.
  *
  *            Param 1 : The value of is_last is simply transported.
  *
@@ -389,7 +389,7 @@ struct sWeapListEntry;
  *             true is returned.
  *       3.5.6 In all other cases false is returned.
  *
- *     3.6  Otherwise this is normal aiming, and calcStandard(bool is_last, bool allow_flip_shot) is used to generated
+ *     3.6  Otherwise this is normal aiming, and calc_standard(bool is_last, bool allow_flip_shot) is used to generated
  *          the initial values to begin with.
  *
  *            Param 1 : The value of is_last is simply transported.
@@ -399,10 +399,10 @@ struct sWeapListEntry;
  *
  *          This method does no aiming but sets needed offsets and generates an angle and a power value to begin with.
  *
- *          hasFlipped : This is set to true, if the bot decides to flip through a wrap wall or towards a bounce/rubber
+ *          has_flipped : This is set to true, if the bot decides to flip through a wrap wall or towards a bounce/rubber
  *                       wall. aim() then can check whether to flip back because the wall isn't even reached.
  *       3.6.1 calculate the offsets for the x and y coordinate needed by the chosen weapon. This is done with the
- *             method calcOffset(bool is_last).
+ *             method calc_offset(bool is_last).
  *
  *               Param 1 : The value of is_last is simply transported.
  *
@@ -424,7 +424,7 @@ struct sWeapListEntry;
  *             - 20° to 35° if the opponent is below the bot,
  *             - 40° to 55° if the opponent is at about the same height and
  *             - 60° to 75° if the opponent is above the bot.
- *             The angle is then modified according to the focusRate of the bot.
+ *             The angle is then modified according to the focus_rate of the bot.
  *       3.6.3 If a wrap wall is in place, check whether shooting through it results in a shorter shot, and flip the
  *             angle if it is.
  *       3.6.4 If allow_flip_shot is true and the wall is something else than a steel wall, bots may flip the shot with
@@ -434,18 +434,18 @@ struct sWeapListEntry;
  *             raised one. If this means an obstacle is in the way, the bot might decide to remove it first.
  *       3.6.7 Calculate starting power as a raw estimation using the simple distance.
  *       3.6.8 If the shot is already known to be blocked, write back the current angle and power to the used angle
- *             and power and set needAim to false.
+ *             and power and set need_aim to false.
  *
- *     3.7  In boxed mode, the situation regarding the ceiling must be checked, but only if calcStandard() succeeded,
+ *     3.7  In boxed mode, the situation regarding the ceiling must be checked, but only if calc_standard() succeeded,
  *          the tank is not blocked and a weapon is chosen that needs aiming.
- *          This is done by calling calcBoxed(bool is_last).
+ *          This is done by calling calc_boxed(bool is_last).
  *
  *            Param 1 : The value of is_last is simply transported.
  *
  *       3.7.1 If is_last is false, the bot might "forget" to check for ceiling hits. The chance is between 33% for the
  *             useless bot and 7% for the deadly+1 bot.
  *       3.7.2 As long as the shot is regarded to be crashed, but the tracing was finished (not too many bounces/wraps)
- *             and either angle or power can be modified, traceShot() is used to see where the shot would end with the
+ *             and either angle or power can be modified, trace_shot() is used to see where the shot would end with the
  *             current angle and power.
  *
  *         3.7.2.1 If the shot ends in a steel wall or ceiling, or if the shot hits the floor bottom through a wrap
@@ -460,9 +460,9 @@ struct sWeapListEntry;
  *             positive setup score already, the path is tried to be cleared.
  *
  *         3.7.3.1 Decide whether to free the tank or to remove an obstacle.
- *         3.7.3.2 Use calcUnbury() if the tank is to be freed.
+ *         3.7.3.2 Use calc_unbury() if the tank is to be freed.
  *         3.7.3.3 Flatten the current angle if an obstacle is to be removed.
- *         3.7.3.4 Set needAim to false and isBlocked to true.
+ *         3.7.3.4 Set need_aim to false and is_blocked to true.
  *         3.7.3.5 Directly return true.
  *
  *       3.7.4 If no emergency freeing is possible, is_last is false, or its the wrong wall type or a positive setup
@@ -472,14 +472,14 @@ struct sWeapListEntry;
  *
  *     3.8  Eventually return the value of 'result'.
  *
- *   4  done = aim(bool is_last, bool can_move) - called if calcAttack() returned true, needAim is true and isBlocked is false.
+ *   4  done = aim(bool is_last, bool can_move) - called if calc_attack() returned true, need_aim is true and is_blocked is false.
  *
- *        Param 1 : True if tgt_attempts equals findTgtAttempts and needSuccess is still true.
+ *        Param 1 : True if tgt_attempts equals findTgtAttempts and need_success is still true.
  *        Param 2 : True if opp_attempts is at least halve of findOppAttempts.
  *
  *      Here the aiming is done for the selected weapon against the selected target.
  *
- *      plStage        : (PS_AIM)              The AI enters the aiming stage.
+ *      pl_stage        : (PS_AIM)              The AI enters the aiming stage.
  *      hill_detected  : (false)               Some situations indicate that a hill is between the tank and its target.
  *      best_score     : (NEUTRAL_ROUND_SCORE) Used to record the best setup for the current aiming round.
  *      best_angle     : (angle)               Used to record the angle that achieved the best aiming round score.
@@ -506,7 +506,7 @@ struct sWeapListEntry;
  *          maximum for the deadly+1 AI, and a power modifier in the interval [10;340] with 220 being the maximum for
  *          useless and 340 being the maximum for deadly bots.
  *
- *     4.2  Use void traceWeapon(int32_t &has_crashed, int32_t &has_finished)
+ *     4.2  Use void trace_weapon(int32_t &has_crashed, int32_t &has_finished)
  *          to see where the used weapon using curr_angle and curr_power will end.
  *
  *            Param 1: has_crashed is set to the number of projectiles that crashed into a steel wall or ceiling.
@@ -514,19 +514,19 @@ struct sWeapListEntry;
  *                     the very bottom of the screen due to dirt being in the way, it is considered to have crashed,
  *                     too.
  *            Param 2: has_finished is set to the number of projectiles that have been traced to the end. The bots can
- *                     only trace maxBounce wall and ceiling bounces or wraps. If the number of actual bounces exceeds
+ *                     only trace max_bounce wall and ceiling bounces or wraps. If the number of actual bounces exceeds
  *                     this limit, the projectile is considered unfinished and the tracing stops.
  *
- *          Basically this method uses traceShot() for each spread projectile of the weapon. Non-spread weapons have a
+ *          Basically this method uses trace_shot() for each spread projectile of the weapon. Non-spread weapons have a
  *          spread value of 1, so this can be done for every weapon.
- *          Weapons with submunition are then traced further using traceCluster(), which will, like traceWeapon() does
- *          on weapons without submunition, use calcHitDamage() to generate the damage values on each tank.
+ *          Weapons with submunition are then traced further using trace_cluster(), which will, like trace_weapon() does
+ *          on weapons without submunition, use calc_hit_damage() to generate the damage values on each tank.
  *
  *          The nearest hit to the primary target is recorded in curr_overshoot, reached_x and reached_y.
  *
- *     4.3  Use int32_t calcHitScore(bool is_last) to generate a score out of all damage dealt.
+ *     4.3  Use int32_t calc_hit_score(bool is_last) to generate a score out of all damage dealt.
  *
- *            Param 1: is_last is set to true if is_last in aim() is true and needSuccess is true.
+ *            Param 1: is_last is set to true if is_last in aim() is true and need_success is true.
  *
  *          This method cycles through the opponents memory, and sums up the damage done with curr_weap to a total
  *          score according to a) how much damage over the opponents health (aka overkill) has been done and b) on
@@ -566,7 +566,7 @@ struct sWeapListEntry;
  *          And finally the hit might be farther away. The last modifications might have been too strong or in the
  *          wrong direction.
  *
- *       4.6.1 Try to fix unfinished shots using void fixUnfinished(int32_t &ang_mod, int32_t &pow_mod).
+ *       4.6.1 Try to fix unfinished shots using void fix_unfinished(int32_t &ang_mod, int32_t &pow_mod).
  *
  *               Param 1 : Reference to the angle modifier to adapt.
  *               Param 2 : Reference to the power modifier to adapt.
@@ -584,7 +584,7 @@ struct sWeapListEntry;
  *             last_reverted   : true if last_ang_mod is signed differently than the resulting ang_mod.
  *             last_was_better : false
  *
- *       4.6.2 Try to fix crashed shots using void fixCrashed(int32_t &ang_mod, int32_t &pow_mod).
+ *       4.6.2 Try to fix crashed shots using void fix_crashed(int32_t &ang_mod, int32_t &pow_mod).
  *
  *               Param 1 : Reference to the angle modifier to adapt.
  *               Param 2 : Reference to the power modifier to adapt.
@@ -619,7 +619,7 @@ struct sWeapListEntry;
  *             last_was_better : true if hit_score is lower than last_score, false otherwise.
  *
  *       4.6.4 If the shot did finish and did not crash but hit farther away than the last, use
- *             void fixOvershoot(int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score).
+ *             void fix_overshoot(int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score).
  *
  *               Param 1 : Reference to the angle modifier to adapt.
  *               Param 2 : Reference to the power modifier to adapt.
@@ -674,7 +674,7 @@ struct sWeapListEntry;
  *          shot. Vertical trick shots using wind are only accepted if the resulting hit_score is positive.
  *
  *     4.8  If the power modification according to the current overshoot and ang_mod is too low, it is strengthened
- *          using the difference of the overshoot and pow_mod divided by ang_mod and multiplied by the AI's focusRate.
+ *          using the difference of the overshoot and pow_mod divided by ang_mod and multiplied by the AI's focus_rate.
  *
  *     4.9  Sanitize ang_mod and pow_mod, both applied must not lead to invalid values. Then apply both to curr_angle
  *          and curr_power.
@@ -691,12 +691,12 @@ struct sWeapListEntry;
  *     4.11 When all aiming attempts are used up, an emergency plan to free the tank or unblock its path might be
  *          triggered if all of the following conditions are true:
  *
- *          - is_last and needSuccess are both true,
+ *          - is_last and need_success are both true,
  *          - there was no best setup with a positive score, yet,
  *          - the current best round score will not create a new best setup with a positive score,
  *          - the overall best score is negative,
  *          - the best achieved overshoot is negative, indicating that the target was not yet reached and
- *          - either the overshoot is greater than the weapons radius without being a ceiling crash, or fixOvershoot()
+ *          - either the overshoot is greater than the weapons radius without being a ceiling crash, or fix_overshoot()
  *            detected a hill in the path.
  *
  *     4.12 Eventually, if a new best_round_score is achieved, remember the current settings:
@@ -705,7 +705,7 @@ struct sWeapListEntry;
  *            curr_angle       = best_angle;
  *            curr_power       = best_power;
  *
- *     4.13 Return true if either best_round_score is larger than zero, or both is_last and needSuccess are true.
+ *     4.13 Return true if either best_round_score is larger than zero, or both is_last and need_success are true.
  *
  *   5  If the aiming was successful, a few more checks are made.
  *
@@ -779,19 +779,19 @@ public:
 	// Getters
 	[[nodiscard]] CPlayer* active_player() const; ///< Planned player.
 	[[nodiscard]] bool    can_work() const;      ///< Planning may proceed.
-	[[nodiscard]] bool    hasExited() const;     ///< Planning thread finished.
+	[[nodiscard]] bool    has_exited() const;     ///< Planning thread finished.
 
 	// Setters
 	/// Enable AI speech.
-	void allowText();
+	void allow_text();
 	/// Disable AI speech.
-	void forbidText();
+	void forbid_text();
 	/// Report the movement result.
-	void hasMoved( int32_t direction );
+	void has_moved( int32_t direction );
 	/// Start planning for a player.
 	bool start( CPlayer* player_ );
 	/// Fetch the attack setup.
-	bool status( int32_t& aItem, int32_t& aAngle, int32_t& aPower, EPlayerStages& pl_stage );
+	bool status( int32_t& a_item, int32_t& a_angle, int32_t& a_power, EPlayerStages& pl_stage );
 	/// Stop planning.
 	void stop();
 	/// Note the shot was taken.
@@ -824,33 +824,33 @@ private:
 	 */
 
 	bool    aim( int32_t combo_attempt, int32_t combo_tries, bool can_move );
-	bool    calcAttack( int32_t attempt, int32_t tries );
-	bool    calcBoxed( bool is_last );
-	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weap_type );
-	int32_t calcHitScore( bool is_last );
-	bool    calcKamikaze( bool is_last );
-	bool    calcLaser( bool is_last );
-	bool    calcOffset( bool is_last );
-	bool    calcStandard( bool is_last, bool allow_flip_shot );
-	bool    calcUnbury( bool is_last );
-	void    checkItemMem();
-	void    checkOppMem();
-	void    checkWeapMem();
+	bool    calc_attack( int32_t attempt, int32_t tries );
+	bool    calc_boxed( bool is_last );
+	void    calc_hit_damage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weap_type );
+	int32_t calc_hit_score( bool is_last );
+	bool    calc_kamikaze( bool is_last );
+	bool    calc_laser( bool is_last );
+	bool    calc_offset( bool is_last );
+	bool    calc_standard( bool is_last, bool allow_flip_shot );
+	bool    calc_unbury( bool is_last );
+	void    check_item_mem();
+	void    check_opp_mem();
+	void    check_weap_mem();
 	void    destroy();
-	void    flattenCurrAng();
-	void    fixCrashed( int32_t& ang_mod, int32_t& pow_mod );
-	void    fixOvershoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score );
-	void    fixUnfinished( int32_t& ang_mod, int32_t& pow_mod );
-	bool    getMemory();
+	void    flatten_curr_ang();
+	void    fix_crashed( int32_t& ang_mod, int32_t& pow_mod );
+	void    fix_overshoot( int32_t& ang_mod, int32_t& pow_mod, int32_t hit_score );
+	void    fix_unfinished( int32_t& ang_mod, int32_t& pow_mod );
+	bool    get_memory();
 	bool    initialize();
-	bool    moveTank();
-	void    sanitizeCurr();
-	bool    selectItem( bool is_last );
-	bool    selectTarget( bool is_last );
-	bool    setupAttack( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
-	void    showFeedback( char const* feedback, int32_t col, double yv, ETextSway text_sway, int32_t dur );
-	void    traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
-	bool    traceShot(
+	bool move_tank();
+	void    sanitize_curr();
+	bool    select_item( bool is_last );
+	bool    select_target( bool is_last );
+	bool    setup_attack( bool is_last, int32_t& opp_attempt, int32_t& weap_attempt );
+	void    show_feedback( char const* feedback, int32_t col, double yv, ETextSway text_sway, int32_t dur );
+	void    trace_cluster( int32_t sub_type, int32_t sub_count, int32_t sub_x, int32_t sub_y, double inh_xv, double inh_yv );
+	bool    trace_shot(
 		   int32_t  trace_angle,
 		   int32_t  delay_idx,
 		   bool&    finished,
@@ -860,15 +860,15 @@ private:
 		   double&  end_xv,
 		   double&  end_yv
 	   );
-	void traceWeapon( int32_t& has_crashed, int32_t& has_finished );
-	void updateItemScore( itentry_t* pItem );
-	void updateOppScore( opentry_t* pOpp );
-	void updateWeapScore( weentry_t* pWeap );
-	bool useFreeingTool( bool free_tank, bool is_last );
-	bool useItem( EItemType item_type );
-	bool useItem( int32_t item_index );
-	bool useWeapon( EWeaponType weap_type );
-	bool useWeapon( int32_t weap_index );
+	void trace_weapon( int32_t& has_crashed, int32_t& has_finished );
+	void update_item_score( itentry_t* pItem );
+	void update_opp_score( opentry_t* pOpp );
+	void update_weap_score( weentry_t* pWeap );
+	bool use_freeing_tool( bool free_tank, bool is_last );
+	bool use_item( EItemType item_type );
+	bool use_item( int32_t item_index );
+	bool use_weapon( EWeaponType weap_type );
+	bool use_weapon( int32_t weap_index );
 
 
 	/* -----------------------
@@ -877,36 +877,36 @@ private:
 	 */
 
 	// Internal values
-	mutex_t    actionMutex;
-	condv_t    actionCondition;
-	EPlayerType bestType      = USELESS_PLAYER; // What the AI considers humans to be.
-	abool_t    canMove       = ATOMIC_VAR_INIT( true );
-	bool volatile canWork    = true;
+	mutex_t    action_mutex;
+	condv_t    action_condition;
+	EPlayerType best_type      = USELESS_PLAYER; // What the AI considers humans to be.
+	abool_t    can_move       = ATOMIC_VAR_INIT( true );
+	bool volatile allow_work    = true;
 	int32_t curr_angle       = 90;    //!< The angle that is currently tested
 	int32_t curr_overshoot   = 0;     //!< Current calculated distance of hit versus opponent
 	int32_t curr_power       = 0;     //!< The power that is currently tested
 	bool    curr_prime_hit   = false; //!< Whether the primary target was hit.
-	double  errorMultiplier  = 0.;    //!< Default error reduction according to AI level
+	double  error_multiplier  = 0.;    //!< Default error reduction according to AI level
 	int32_t findOppAttempts  = 0;     //!< Number of attempts to select a suitable opponent
 	int32_t findRngAttempts  = 0;     //!< Number of attempts to aim the current selection
 	int32_t findTgtAttempts  = 0;     //!< Number of attempts to come up with an attack plan
 	int32_t findWeapAttempts = 0;     //!< Number of attempts to find a suitable item/weapon
-	double  focusRate        = 0.;    //!< How good a bot can focus on a specific task
-	bool    isBlocked        = false; //!< Set to true if a shot can't get through
-	bool volatile isFinished = false; //!< Set to true when operator() ends
-	ai32_t isMovedBy         = ATOMIC_VAR_INIT( 0 );
-	bool   isShocked         = false;
-	bool volatile isStopped  = false;
-	bool volatile isWorking  = false;
-	int32_t    maxBounce     = 0;     //!< How many wall bounces/wraps can be calculated
-	bool       needAim       = false; //!< true if this is a standard shot
-	bool       needSuccess   = true;  //!< true unless a best score is achieved
+	double  focus_rate        = 0.;    //!< How good a bot can focus on a specific task
+	bool    is_blocked        = false; //!< Set to true if a shot can't get through
+	bool volatile is_finished = false; //!< Set to true when operator() ends
+	ai32_t is_moved_by         = ATOMIC_VAR_INIT( 0 );
+	bool   is_shocked         = false;
+	bool volatile is_stopped  = false;
+	bool volatile is_working  = false;
+	int32_t    max_bounce     = 0;     //!< How many wall bounces/wraps can be calculated
+	bool       need_aim       = false; //!< true if this is a standard shot
+	bool       need_success   = true;  //!< true unless a best score is achieved
 	int32_t    offset_x      = 0;
 	int32_t    offset_y      = 0;
-	plstage_t  plStage       = PS_AI_IS_IDLE;
+	plstage_t  pl_stage       = PS_AI_IS_IDLE;
 	sOpponent* revengee      = nullptr;                 //!< If set, it is tried first as a target
 	sOpponent* shocker       = nullptr;                 //!< The current fear shock winner
-	abool_t    textAllowed   = ATOMIC_VAR_INIT( true ); //!< Is new CFloatText allowed?
+	abool_t    text_allowed   = ATOMIC_VAR_INIT( true ); //!< Is new CFloatText allowed?
 	int32_t    weap_idx      = SML_MIS;
 
 	// Values taken from the player and their tank
@@ -922,8 +922,8 @@ private:
 	int32_t    buried      = 0;  //!< Full buried level
 	int32_t    buried_l    = 0;  //!< left side buried level
 	int32_t    buried_r    = 0;  //!< right side buried level
-	double     currLife    = 0.;
-	bool       hasFlipped  = false;   //!< Used by calcStandard() and aim() to check for flipping errors.
+	double     curr_life    = 0.;
+	bool       has_flipped  = false;   //!< Used by calc_standard() and aim() to check for flipping errors.
 	itentry_t* item_curr   = nullptr; //!< Currently selected entry
 	itentry_t* item_head   = nullptr; //!< Last selected entry
 	itentry_t* item_last   = nullptr; //!< Entry with highest score
@@ -935,7 +935,7 @@ private:
 	opentry_t* mem_curr    = nullptr; //!< Currently selected entry
 	opentry_t* mem_head    = nullptr; //!< Last selected entry
 	opentry_t* mem_last    = nullptr; //!< Entry with highest score
-	bool       needMoney   = false;   //!< Might alter some decisions
+	bool       need_money   = false;   //!< Might alter some decisions
 	CPlayer*    player      = nullptr;
 	int32_t    power       = 0; //!< The currently determined best power
 	CTank*      tank        = nullptr;

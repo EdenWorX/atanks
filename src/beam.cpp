@@ -127,7 +127,7 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fire_angle, int32_
 CBeam::CBeam( CPlayer *player_, double x_, double y_, double tx, double ty, int32_t weapon_type, bool is_burnt_out )
 	: CBeam( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, weapon_type, BT_SDI ) {
 	if ( player ) {
-		++player->sdiShots;
+		++player->sdi_shots;
 	}
 
 	// SDI lasers are redder than normal, even more if burnt_out
@@ -167,7 +167,7 @@ CBeam::~CBeam() {
 
 		// The player is allowed to fire one more SDI laser again:
 		if ( ( BT_SDI == beam_type ) && player ) {
-			--player->sdiShots;
+			--player->sdi_shots;
 		}
 	}
 }
@@ -421,7 +421,7 @@ void CBeam::trace_beam_path() {
 							lt->add_damage(
 								player,
 								static_cast< double >( damage ) * in_rate
-									* ( player ? player->damageMultiplier : 1. )
+									* ( player ? player->damage_multiplier : 1. )
 							);
 						}
 						// That's it

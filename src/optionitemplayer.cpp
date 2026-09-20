@@ -41,7 +41,7 @@ OptionItemPlayer::OptionItemPlayer(
 	: OptionItemBase(
 		ET_NONE,
 		title_                    ? title_
-		: ( player_ && *player_ ) ? ( *player_ )->getName()
+		: ( player_ && *player_ ) ? ( *player_ )->get_name()
 					  : nullptr,
 		titleIdx_,
 		nullptr,
@@ -149,8 +149,8 @@ void OptionItemPlayer::display( bool show_full ) {
 	if ( !drawn ) {
 		// Be sure to have the current name and color:
 		color = player && *player ? ( *player )->color : color;
-		if ( player && *player && ( !title || ( 0 != strcmp( ( *player )->getName(), title ) ) ) ) {
-			setTitle( ( *player )->getName() );
+		if ( player && *player && ( !title || ( 0 != strcmp( ( *player )->get_name(), title ) ) ) ) {
+			setTitle( ( *player )->get_name() );
 		}
 
 		// Now display the player
@@ -208,7 +208,7 @@ void OptionItemPlayer::display( bool show_full ) {
 
 		// Second the player type indicator:
 		if ( -1 == titleIdx ) {
-			( *player )->drawIndicator( left, xTop, xHeight );
+			( *player )->draw_indicator( left, xTop, xHeight );
 
 			// and third the team indicator:
 			int32_t xLeft = left + 19;

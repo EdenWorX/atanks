@@ -124,7 +124,7 @@ void editPlayers() {
 
 	// First loop to determine maximum name width
 	for ( int32_t num = 0; num < env.num_permanent_players; num++ ) {
-		int32_t xLen = text_length( font, env.all_players[ num ]->getName() );
+		int32_t xLen = text_length( font, env.all_players[ num ]->get_name() );
 		if ( xLen > max_width ) max_width = xLen;
 	}
 
@@ -568,7 +568,7 @@ int32_t selectPlayers() {
 
 	// First loop to determine maximum name width
 	for ( int32_t num = 0; num < env.num_permanent_players; num++ ) {
-		int32_t xLen = text_length( font, env.all_players[ num ]->getName() ) + ( 2 * itemPadding );
+		int32_t xLen = text_length( font, env.all_players[ num ]->get_name() ) + ( 2 * itemPadding );
 		if ( xLen > max_width ) max_width = xLen;
 	}
 
