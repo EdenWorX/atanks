@@ -45,18 +45,18 @@ public:
 	 */
 
 	/// Load lines from a file.
-	bool Load_File( char const* filename );
+	bool load_file( char const* filename );
 	/// Render to global.canvas.
-	void Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top,
+	void render_lines( int32_t scrollOffset, int32_t spacing, int32_t top,
 	                   int32_t bottom );
 
 	/* Text Getters */
 	/// Return a specific line.
-	[[nodiscard]] char const* Get_Line( int32_t index ) const;
+	[[nodiscard]] char const* get_line( int32_t index ) const;
 	/// Give us a random line.
-	[[nodiscard]] char const* Get_Random_Line() const;
+	[[nodiscard]] char const* get_random_line() const;
 	/// Return number of total lines.
-	[[nodiscard]] int32_t     Lines() const;
+	[[nodiscard]] int32_t     lines() const;
 
 
 private:
@@ -82,11 +82,11 @@ private:
 // This function returns a string with
 // comma characters between every three digits.
 // You *MUST* *NOT* free the returned string.
-char const* Add_Comma( int32_t number );
+char const* add_comma( int32_t number );
 
 void        draw_text_in_box( sBox* region, char const* text, bool with_box );
 
 // hack the newline off a string
-void Trim_Newline( char* line );
+void trim_newline( char* line );
 
 #endif // ATANKS_TEXT_H_INCLUDED

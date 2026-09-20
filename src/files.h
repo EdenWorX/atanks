@@ -14,27 +14,27 @@
 #include "wrap_dirent.h"
 
 
-bool Save_Game();
-bool Load_Game();
-bool Check_For_Saved_Game();
-bool Copy_Config_File();
+bool save_game();
+bool load_game();
+bool check_for_saved_game();
+bool copy_config_file();
 
 
 // Make sure there is a music folder in .atanks
-bool Create_Music_Folder();
-void scrollTextList( TEXTBLOCK* lines );
+bool create_music_folder();
+void scroll_text_list( TEXTBLOCK* lines );
 void flush_inputs();
-bool Load_Weapons_Text();
+bool load_weapons_text();
 
 
 #ifdef MACOSX
-int Filter_File( struct dirent* my_file );
+int filter_file( struct dirent* my_file );
 #else
-int Filter_File( const struct dirent* my_file );
+int filter_file( const struct dirent* my_file );
 #endif
 
-dirent** Find_Saved_Games( uint32_t& num_files_found );
+dirent** find_saved_games( uint32_t& num_files_found );
 
-char**   Find_Bitmaps( int32_t* bitmaps_found );
+char**   find_bitmaps( int32_t* bitmaps_found );
 
 #endif // ATANKS_FILES_H_INCLUDED

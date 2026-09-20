@@ -53,20 +53,20 @@ bool LevelCreator::is_finished() const {
 void LevelCreator::print_state() const {
 	if ( in_progress[ 0 ] ) {
 		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 115 );
-		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 42 ), env.half_width, env.half_height + 116, WHITE, -1 );
+		textout_centre_ex( global.canvas, font, env.ingame->get_line( 42 ), env.half_width, env.half_height + 116, WHITE, -1 );
 		global.make_update( env.half_width - 120, env.half_height + 115, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
 	}
 
 	if ( in_progress[ 1 ] ) {
 		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 155 );
-		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 44 ), env.half_width, env.half_height + 156, WHITE, -1 );
+		textout_centre_ex( global.canvas, font, env.ingame->get_line( 44 ), env.half_width, env.half_height + 156, WHITE, -1 );
 		global.make_update( env.half_width - 120, env.half_height + 155, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
 	}
 
 
 	if ( in_progress[ 2 ] ) {
 		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 195 );
-		textout_centre_ex( global.canvas, font, env.ingame->Get_Line( 43 ), env.half_width, env.half_height + 196, WHITE, -1 );
+		textout_centre_ex( global.canvas, font, env.ingame->get_line( 43 ), env.half_width, env.half_height + 196, WHITE, -1 );
 		global.make_update( env.half_width - 120, env.half_height + 195, env.misc[ 1 ]->w, env.misc[ 1 ]->h );
 	}
 }

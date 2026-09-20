@@ -149,7 +149,7 @@ static void credits() {
 	string    credits_file{ env.data_dir + string( "/credits.txt" ) };
 
 	TEXTBLOCK my_text( credits_file.c_str() );
-	scrollTextList( &my_text );
+	scroll_text_list( &my_text );
 }
 
 /// @brief create a fresh new config if loading was prohibited or failed
@@ -275,7 +275,7 @@ static char const* do_winner() {
 
 		// Check value length
 		char valTxt[ 32 ] = { 0 };
-		snprintf( valTxt, 16, " %14s", Add_Comma( pl_money[ z ] ) );
+		snprintf( valTxt, 16, " %14s", add_comma( pl_money[ z ] ) );
 		curLen = text_length( font, valTxt );
 		if ( curLen > valLen ) {
 			valLen = curLen;
@@ -357,27 +357,27 @@ static char const* do_winner() {
 		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
 			if ( ( ( idx_sith >= 0 ) && ( players[ idx_sith ]->score == players[ idx_winner ]->score ) )
 			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 45 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
 			}
 		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
 			if ( ( ( idx_jedi >= 0 ) && ( players[ idx_jedi ]->score == players[ idx_winner ]->score ) )
 			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
 			}
 		} else {
-			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+			snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 		}
 	} else {
 		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
-			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 45 ) );
+			snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
 		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
-			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
+			snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
 		} else {
-			snprintf( return_string, 256, "%s: %s", env.ingame->Get_Line( 47 ), players[ idx_winner ]->get_name() );
+			snprintf( return_string, 256, "%s: %s", env.ingame->get_line( 47 ), players[ idx_winner ]->get_name() );
 		}
 	}
 
@@ -424,7 +424,7 @@ static char const* do_winner() {
 			WHITE,
 			-1,
 			" %14s",
-			Add_Comma( pl_money[ score->idx ] )
+			add_comma( pl_money[ score->idx ] )
 		);
 		textprintf_right_ex( global.canvas, font, scoStart + ( 1 * scoWidth ), y + ( z * lh ), GREEN, -1, " %6d", score->kills );
 		textprintf_right_ex( global.canvas, font, scoStart + ( 2 * scoWidth ), y + ( z * lh ), RED, -1, " %6d", score->killed );
@@ -445,7 +445,7 @@ static char const* do_winner() {
 	global.do_updates();
 
 	// Add a war quote:
-	char const* quote = env.war_quotes->Get_Random_Line();
+	char const* quote = env.war_quotes->get_random_line();
 	if ( quote ) {
 		draw_text_in_box( &qarea, quote, false );
 	}
@@ -1099,7 +1099,7 @@ static void newgame() {
 	global.initialise();
 
 	// if a game should be loaded, try it or deny loading of the game
-	if ( ( env.load_game ) && ( !Load_Game() ) ) {
+	if ( ( env.load_game ) && ( !load_game() ) ) {
 		env.load_game = false;
 	}
 
@@ -1310,7 +1310,7 @@ static void play_local() {
 
 		// make sure the game has a name
 		if ( env.game_name.empty() ) {
-			env.game_name.assign( env.ingame->Get_Line( 53 ) );
+			env.game_name.assign( env.ingame->get_line( 53 ) );
 		}
 
 		newgame();
@@ -1364,7 +1364,7 @@ static void play_local() {
 			env.send_to_clients( buffer );
 
 			// Do fade and wait for user keypress
-			quickChange( true );
+			quick_change( true );
 			readkey();
 
 			for ( int i = 0; i < env.num_game_players; i++ ) {
@@ -1582,7 +1582,7 @@ int32_t main( int32_t argc, char** argv ) {
 		// determine which menu item is selected
 		switch ( global.get_command() ) {
 			case GLOBAL_COMMAND_HELP:
-				scrollTextList( env.instructions );
+				scroll_text_list( env.instructions );
 				break;
 			case GLOBAL_COMMAND_OPTIONS:
 				show_options();

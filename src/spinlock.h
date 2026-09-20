@@ -24,7 +24,7 @@ public:
 	CSpinLock& operator= ( CSpinLock const& ) = delete;
 
 	/// Test whether the caller holds the lock.
-	bool       hasLock();
+	bool       has_lock();
 	/// Acquire the lock (spin on contention).
 	void       lock();
 	/// Release the lock.

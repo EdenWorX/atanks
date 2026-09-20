@@ -1042,7 +1042,7 @@ static inline void draw_mini_scoreboard() {
 
 		if ( player ) {
 			int32_t     color = player->color;
-			char const* money = Add_Comma( player->money );
+			char const* money = add_comma( player->money );
 			char const* name  = player->get_name();
 			char const* team  = player->get_team_name();
 			int32_t     mid_y = line + ( env.font_height / 2 ) + 1;
@@ -1110,7 +1110,7 @@ void draw_top_bar() {
 		// name is first, as always
 		textout_ex( global.canvas, font, name, 2, y1 + 1, get_shade_color( color, true, PINK ), -1 );
 		textout_ex( global.canvas, font, name, 1, y1, color, -1 );
-		textprintf_ex( global.canvas, font, 1, y2, BLACK, -1, "%s", env.ingame->Get_Line( 18 ) );
+		textprintf_ex( global.canvas, font, 1, y2, BLACK, -1, "%s", env.ingame->get_line( 18 ) );
 
 		// Display set angle. 0 is directly left, 180 points directly right
 		graph_bar_center( 50, y2 + 4, color, -( tank->a - 180 ) / 2, 180 / 2 );
@@ -1118,11 +1118,11 @@ void draw_top_bar() {
 
 		// Display set power
 		graph_bar( 50, y3 + 4, color, ( tank->p ) / ( MAX_POWER / 90 ), 90 );
-		textprintf_ex( global.canvas, font, 1, y3, BLACK, -1, "%s", env.ingame->Get_Line( 19 ) );
+		textprintf_ex( global.canvas, font, 1, y3, BLACK, -1, "%s", env.ingame->get_line( 19 ) );
 		textprintf_ex( global.canvas, font, 150, y3, BLACK, -1, "%d", tank->p );
 
 		// Display the team name
-		textprintf_ex( global.canvas, font, 200, y3, BLACK, -1, "%s: %s", env.ingame->Get_Line( 20 ), team_name );
+		textprintf_ex( global.canvas, font, 200, y3, BLACK, -1, "%s: %s", env.ingame->get_line( 20 ), team_name );
 
 		// Display weapon if chosen
 		if ( tank->cw < WEAPONS ) {
@@ -1159,7 +1159,7 @@ void draw_top_bar() {
 		draw_sprite( global.canvas, env.stock[ ( tank->cw > 0 ) ? tank->cw : 1 ], 700, 1 );
 
 		// Eventually print out money, fuel and power
-		textprintf_ex( global.canvas, font, 386, y1, BLACK, -1, "$%s", Add_Comma( tank->player->money ) );
+		textprintf_ex( global.canvas, font, 386, y1, BLACK, -1, "$%s", add_comma( tank->player->money ) );
 		textprintf_ex(
 			global.canvas,
 			font,
@@ -1168,7 +1168,7 @@ void draw_top_bar() {
 			BLACK,
 			-1,
 			"%s: %d",
-			env.ingame->Get_Line( 21 ),
+			env.ingame->get_line( 21 ),
 			tank->player->ni[ ITEM_FUEL ]
 		);
 		textprintf_ex( global.canvas, font, 386, y3, BLACK, -1, "%s: %.2f", "Power", tank->player->damage_multiplier );
@@ -1184,7 +1184,7 @@ void draw_top_bar() {
 		BLACK,
 		-1,
 		"%s %d/%d",
-		env.ingame->Get_Line( 12 ),
+		env.ingame->get_line( 12 ),
 		env.rounds - global.current_round,
 		env.rounds
 	);
@@ -1196,7 +1196,7 @@ void draw_top_bar() {
 
 	// Show the wind blowing (if configured)
 	if ( env.wind_strength > 0 ) {
-		textprintf_ex( global.canvas, font, 500, y2, BLACK, -1, "%s", env.ingame->Get_Line( 22 ) );
+		textprintf_ex( global.canvas, font, 500, y2, BLACK, -1, "%s", env.ingame->get_line( 22 ) );
 
 		int32_t wcol1 = global.wind > 0 ? 1 : 0;
 		int32_t wcol2 = global.wind < 0 ? 1 : 0;
@@ -1718,13 +1718,13 @@ static inline void draw_eor_scoreboard() {
 				env.players[ winner ]->color,
 				-1,
 				"%s: %s",
-				env.ingame->Get_Line( 47 ),
+				env.ingame->get_line( 47 ),
 				env.players[ winner ]->get_name()
 			);
 		}
 
 		// Second title line: The score is to follow. (Is this needed?)
-		textout_right_ex( global.canvas, font, env.ingame->Get_Line( 50 ), env.half_width, y + ( 2 * lh ), WHITE, -1 );
+		textout_right_ex( global.canvas, font, env.ingame->get_line( 50 ), env.half_width, y + ( 2 * lh ), WHITE, -1 );
 
 		// to make the following easier, skip the three used lines
 		// (two titles, one blank)

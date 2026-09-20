@@ -369,7 +369,7 @@ void CEnvironment::find_config_dir() {
 		config_dir     += "/.atanks";
 
 		// copy the file over, if we did not yet
-		if ( !Copy_Config_File() ) {
+		if ( !copy_config_file() ) {
 			// If it did not work, look whether the directory already exists:
 			DIR* pDestDir = opendir( env.config_dir.c_str() );
 			if ( !pDestDir ) {
@@ -489,10 +489,10 @@ int32_t CEnvironment::in_game_menu() const {
 	int32_t     btns[ INGAMEBUTTONS ];
 	bool        updatew[ INGAMEBUTTONS ];
 	char const* buttext[ INGAMEBUTTONS ] = {
-		ingame->Get_Line( 69 ),
-		ingame->Get_Line( 70 ),
-		ingame->Get_Line( 71 ),
-		ingame->Get_Line( 72 ),
+		ingame->get_line( 69 ),
+		ingame->get_line( 70 ),
+		ingame->get_line( 71 ),
+		ingame->get_line( 72 ),
 	};
 
 	// Set/calculate button size and positions
@@ -1316,12 +1316,12 @@ bool CEnvironment::load_game_files() {
 	if ( EL_ENGLISH != language ) {
 		ELanguages cur_lang = language;
 		language            = EL_ENGLISH;
-		status              = Load_Weapons_Text();
+		status              = load_weapons_text();
 		language            = cur_lang;
 	}
 
 	if ( status ) {
-		status = Load_Weapons_Text();
+		status = load_weapons_text();
 	}
 
 	if ( !status ) {
@@ -1333,14 +1333,14 @@ bool CEnvironment::load_game_files() {
 	//       Thus the second load is always necessary.
 
 
-	bitmap_filenames = Find_Bitmaps( &number_of_bitmaps );
+	bitmap_filenames = find_bitmaps( &number_of_bitmaps );
 
 	// If no bitmaps where found, a custom background is futile.
 	if ( custom_background && !bitmap_filenames ) {
 		custom_background = 0;
 	}
 
-	Create_Music_Folder();
+	create_music_folder();
 	gen_items_list();
 
 	return status;

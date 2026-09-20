@@ -419,7 +419,7 @@ void COptionItemBase::set_title( char const* new_title ) {
  *
  * The only reaal purpose is to be able to add text-less
  * options in templated add methods in the CMenu class,
- * where the OptionClassText is not available.
+ * where the OPTION_CLASS_TEXT is not available.
  *
  * Call this then from the compilation unit.
  **/

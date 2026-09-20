@@ -437,11 +437,11 @@ bool Client_Cycle_Weapon( CPlayer *my_player, int forward_or_back ) {
 char const *Explain_Error( int32_t error_code ) {
 	switch ( error_code ) {
 		case CLIENT_ERROR_VERSION:
-			return env.ingame->Get_Line( 77 );
+			return env.ingame->get_line( 77 );
 		case CLIENT_ERROR_SCREENSIZE:
-			return env.ingame->Get_Line( 78 );
+			return env.ingame->get_line( 78 );
 		case CLIENT_ERROR_DISCONNECT:
-			return env.ingame->Get_Line( 79 );
+			return env.ingame->get_line( 79 );
 		default:
 			break;
 	}
@@ -505,12 +505,12 @@ int Game_Client( int socket_number ) {
 					end_of_round = true;
 					keep_playing = false;
 					printf( "Got close message.\n" );
-					global.client_message = strdup( env.ingame->Get_Line( 81 ) );
+					global.client_message = strdup( env.ingame->get_line( 81 ) );
 				} else if ( !strncmp( buffer, "NOROOM", 6 ) ) {
 					end_of_round = true;
 					keep_playing = false;
 					printf( "The server is full or the game has not started. Please try again later.\n" );
-					global.client_message = strdup( env.ingame->Get_Line( 80 ) );
+					global.client_message = strdup( env.ingame->get_line( 80 ) );
 				} else if ( !strncmp( buffer, "GAMEEND", 7 ) ) {
 					end_of_round = true;
 					keep_playing = false;
@@ -518,7 +518,7 @@ int Game_Client( int socket_number ) {
 					if ( strlen( buffer ) > 7 ) {
 						global.client_message = strdup( &( buffer[ 8 ] ) );
 					} else {
-						global.client_message = strdup( env.ingame->Get_Line( 82 ) );
+						global.client_message = strdup( env.ingame->get_line( 82 ) );
 					}
 				} else if ( !strncmp( buffer, "ROUNDEND", 8 ) ) {
 					end_of_round = true;

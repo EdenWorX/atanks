@@ -182,11 +182,11 @@ static void paint_moonpix( int32_t x, int32_t y, Moon const& mn, double xval, do
 	auto const   thetax = RAD2DEG( asin( xval ) );
 	auto const   thetay = RAD2DEG( acos( yval ) );
 	double const offset =
-		( perlin2DPoint( 1., mn.smoothness, mn.xoffset + mn.x + thetax, mn.yoffset + mn.y + thetay, mn.lambda, mn.octaves )
+		( perlin_2d_point( 1., mn.smoothness, mn.xoffset + mn.x + thetax, mn.yoffset + mn.y + thetay, mn.lambda, mn.octaves )
 	          + 1. )
 		/ 2.;
 	double const percVal =
-		( perlin2DPoint(
+		( perlin_2d_point(
 			  1.0,
 			  mn.smoothness,
 			  mn.xoffset + mn.x * 1000 + thetax,

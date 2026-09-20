@@ -3759,7 +3759,7 @@ void CAICore::trace_cluster( int32_t sub_type, int32_t sub_count, int32_t sub_x,
 
 		// Manipulate angle if applicable
 		if ( speedVar > 0. ) {
-			newMissAngle += ROUND( static_cast< double >( divergence ) * spreadVar * Noise( randStart + 1054 + sc ) );
+			newMissAngle += ROUND( static_cast< double >( divergence ) * spreadVar * noise( randStart + 1054 + sc ) );
 		}
 
 		// Be sure the angle is valid
@@ -3772,7 +3772,7 @@ void CAICore::trace_cluster( int32_t sub_type, int32_t sub_count, int32_t sub_x,
 		if ( sub_weap->countVariation > 0 ) {
 			newMissCount += ROUND(
 				static_cast< double >( sub_weap->countdown ) * sub_weap->countVariation
-				* Noise( randStart + 78689 + sc )
+				* noise( randStart + 78689 + sc )
 			);
 			// This might go wrong, so be sure it doesn't
 			if ( newMissCount <= 0 ) {
@@ -3782,7 +3782,7 @@ void CAICore::trace_cluster( int32_t sub_type, int32_t sub_count, int32_t sub_x,
 
 		// Manipulate launching speed if applicable
 		if ( speedVar > 0 ) {
-			speed += ROUND( speedVar * speed * Noise( randStart + 124786 + sc ) );
+			speed += ROUND( speedVar * speed * noise( randStart + 124786 + sc ) );
 		}
 
 		// Launch new submunition missile

@@ -51,17 +51,17 @@ void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t 
 
         for ( int32_t tCount = 0; tCount < numItems; tCount++ ) {
                 auto radius = static_cast< int32_t >(
-                        ( perlin1DPoint( 1.0, 5, ( tOffset * 0.0333 ) + tCount + 423346, 0.5, 8 ) + 1.1 ) * 20
+                        ( perlin_1d_point( 1.0, 5, ( tOffset * 0.0333 ) + tCount + 423346, 0.5, 8 ) + 1.1 ) * 20
                 ); // [0.1;2.1]
                 int32_t xpos =
                         env.half_width
                         + static_cast< int32_t >(
-                                perlin1DPoint( 1.0, 3, ( tOffset * 0.0166 ) + tCount + 232662, 0.3, 3 ) * ( 299 - radius )
+                                perlin_1d_point( 1.0, 3, ( tOffset * 0.0166 ) + tCount + 232662, 0.3, 3 ) * ( 299 - radius )
                         );
                 int32_t ypos =
                         env.half_height
                         + static_cast< int32_t >(
-                                perlin1DPoint( 1.0, 2, ( tOffset * 0.0175 ) + tCount + 42397, 0.3, 3 )
+                                perlin_1d_point( 1.0, 2, ( tOffset * 0.0175 ) + tCount + 42397, 0.3, 3 )
                                 * ( env.half_height - env.menu_begin_y - radius - 1 )
                         );
                 switch ( backType ) {
@@ -415,7 +415,7 @@ void optionsMenu() {
 	// Did the language change?
 	if ( env.language != cur_lang ) {
 		env.load_text_files();
-		Load_Weapons_Text();
+		load_weapons_text();
 	}
 }
 
@@ -485,7 +485,7 @@ int32_t selectPlayers() {
 	env.game_name.clear();
 
 	// find saved games
-	saved_game_names = Find_Saved_Games( number_saved_games );
+	saved_game_names = find_saved_games( number_saved_games );
 
 	if ( ( saved_game_names ) && ( number_saved_games ) ) {
 
@@ -632,11 +632,11 @@ int32_t selectPlayers() {
 		if ( optionsRetVal == KEY_ENTER ) {
 			if ( env.load_game ) {
 				// A set game shall be loaded
-				if ( Check_For_Saved_Game() )
+				if ( check_for_saved_game() )
 					optionsRetVal = MRC_Load_Game;
 				else {
 					optionsRetVal = 0;
-					errorMessage  = env.ingame->Get_Line( 39 );
+					errorMessage  = env.ingame->get_line( 39 );
 					errorX        = env.half_width - text_length( font, errorMessage ) / 2;
 					errorY        = env.menu_begin_y + itemFullHeight;
 				}
@@ -656,9 +656,9 @@ int32_t selectPlayers() {
 				// Check selected players
 				if ( ( playerCount < 2 ) || ( playerCount > MAXPLAYERS ) ) {
 					if ( playerCount < 2 )
-						errorMessage = env.ingame->Get_Line( 8 );
+						errorMessage = env.ingame->get_line( 8 );
 					else if ( playerCount > MAXPLAYERS )
-						errorMessage = env.ingame->Get_Line( 9 );
+						errorMessage = env.ingame->get_line( 9 );
 
 					errorX        = env.half_width - text_length( font, errorMessage ) / 2;
 					errorY        = env.menu_begin_y + itemFullHeight;

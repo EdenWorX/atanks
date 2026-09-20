@@ -170,7 +170,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 							"Sold %d %s for $%s",
 							saleable,
 							weapon[ i ].get_name(),
-							Add_Comma( ROUNDu( weapon[ i ].cost * env.sell_percent ) * saleable )
+							add_comma( ROUNDu( weapon[ i ].cost * env.sell_percent ) * saleable )
 						)
 					}
 				} // end of selling allowed
@@ -229,7 +229,7 @@ void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_we
 								"Sold %d %s for $%s",
 								saleable,
 								item[ j ].get_name(),
-								Add_Comma( ROUND( item[ j ].cost * env.sell_percent * saleable ) )
+								add_comma( ROUND( item[ j ].cost * env.sell_percent * saleable ) )
 							)
 						}
 					} // end of selling allowed
@@ -1813,7 +1813,7 @@ bool CPlayer::get_net_cmd() {
 		} else {
 			// we got data
 			net_command[ NET_COMMAND_SIZE - 1 ] = '\0';
-			Trim_Newline( net_command );
+			trim_newline( net_command );
 		}
 	}
 #endif // NETWORK
@@ -2762,7 +2762,7 @@ void CPlayer::save_to_file( FILE* file ) {
 }
 
 char const* CPlayer::select_gloat_phrase() {
-	return env.gloat->Get_Random_Line();
+	return env.gloat->get_random_line();
 }
 
 /// @return a constructed panic phrase which must be freed!
@@ -2771,7 +2771,7 @@ char const* CPlayer::select_panic_phrase( CPlayer* shocker ) {
 		return nullptr;
 	}
 
-	char const* line  = env.panic->Get_Random_Line();
+	char const* line  = env.panic->get_random_line();
 	size_t      tLen  = strlen( shocker->get_name() ) + strlen( line );
 	char*       pText = (char*)calloc( tLen + 1, sizeof( char ) );
 
@@ -2785,7 +2785,7 @@ char const* CPlayer::select_panic_phrase( CPlayer* shocker ) {
 }
 
 char const* CPlayer::select_kamikaze_phrase() {
-	return env.kamikaze->Get_Random_Line();
+	return env.kamikaze->get_random_line();
 }
 
 /// @return a constructed retaliation phrase which must be freed!
@@ -2794,7 +2794,7 @@ char const* CPlayer::select_retaliation_phrase() const {
 		return nullptr;
 	}
 
-	char const* line  = env.retaliation->Get_Random_Line();
+	char const* line  = env.retaliation->get_random_line();
 	char const* rname = revenge->get_name();
 	size_t      tLen  = strlen( rname ) + 4 + strlen( line );
 	char*       pText = (char*)calloc( tLen + 1, sizeof( char ) );
@@ -2807,11 +2807,11 @@ char const* CPlayer::select_retaliation_phrase() const {
 }
 
 char const* CPlayer::select_revenge_phrase() {
-	return env.revenge->Get_Random_Line();
+	return env.revenge->get_random_line();
 }
 
 char const* CPlayer::select_suicide_phrase() {
-	return env.suicide->Get_Random_Line();
+	return env.suicide->get_random_line();
 }
 
 /// @brief store @a last_opp to be remembered as the current/last target

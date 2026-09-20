@@ -32,7 +32,7 @@ CItem   item[ ITEMS ];
  * All data is saved in a text file for flexibility.
  * @return true on success and false on failure.
  **/
-bool Save_Game() {
+bool save_game() {
 	string save_path{ env.config_dir + string( "/" ).append( env.game_name ).append( ".sav" ) };
 
 	FILE*  game_file = fopen( save_path.c_str(), "w" );
@@ -105,7 +105,7 @@ The function returns true on success and
 false if an error occurs.
 -- Jesse
 */
-bool Load_Game() {
+bool load_game() {
 	char    line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
 	char    field[ MAX_CONFIG_LINE + 1 ] = { 0 };
 	char    value[ MAX_CONFIG_LINE + 1 ] = { 0 };
@@ -313,7 +313,7 @@ bool Load_Game() {
 /*
 Check to see if a saved game exists with the given name.
 */
-bool Check_For_Saved_Game() {
+bool check_for_saved_game() {
 	string save_path{ env.config_dir + string( "/" ).append( env.game_name ).append( ".sav" ) };
 
 	if ( !access( save_path.c_str(), R_OK ) ) {
@@ -331,7 +331,7 @@ bool Check_For_Saved_Game() {
  *
  * @return true on success, false otherwise
  */
-bool Copy_Config_File() {
+bool copy_config_file() {
 	static char xHere[ 2 ]             = ".";
 	char        buffer[ PATH_MAX + 1 ] = { 0 };
 
@@ -392,7 +392,7 @@ bool Copy_Config_File() {
 /** @brief Make sure we have a music folder
  * @return true on success or false if an error occures.
  **/
-bool Create_Music_Folder() {
+bool create_music_folder() {
 	string music_dir{ env.config_dir + string( "/music" ) };
 	DIR*   music_folder = opendir( music_dir.c_str() );
 
@@ -414,7 +414,7 @@ bool Create_Music_Folder() {
 /*
 Scroll text in a box
 */
-void scrollTextList( TEXTBLOCK* lines ) {
+void scroll_text_list( TEXTBLOCK* lines ) {
 	int32_t          spacing  = 2;
 	int32_t          tOffset  = ( RAND_MAX / 4 ) + ( get_rand() % ( RAND_MAX / 4 ) );
 	int32_t          numItems = ( get_rand() % 100 ) + 20;
@@ -425,7 +425,7 @@ void scrollTextList( TEXTBLOCK* lines ) {
 		env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 
 	drawMenuBackground( bg_type, tOffset, numItems );
-	quickChange( true );
+	quick_change( true );
 
 	int32_t clip_l = env.half_width - 299;
 	int32_t clip_t = env.menu_begin_y + 1;
@@ -449,14 +449,14 @@ void scrollTextList( TEXTBLOCK* lines ) {
 			scrollOffset--;
 		}
 
-		if ( scrollOffset < -( env.half_height - 100 + lines->Lines() * 30 ) ) {
+		if ( scrollOffset < -( env.half_height - 100 + lines->lines() * 30 ) ) {
 			scrollOffset = env.half_height - 100;
 		} else if ( scrollOffset > ( clip_b - env.half_height - 14 ) ) {
 			scrollOffset = clip_b - env.half_height - 14;
 		}
 
 		drawMenuBackground( bg_type, tOffset, numItems );
-		lines->Render_Lines( scrollOffset, spacing, clip_t, clip_b );
+		lines->render_lines( scrollOffset, spacing, clip_t, clip_b );
 		global.make_update( env.half_width - 300, env.menu_begin_y, 601, env.screen_height - 2 * env.menu_begin_y );
 		global.do_updates();
 		LINUX_REST;
@@ -504,7 +504,7 @@ void flush_inputs() {
 // This file loads weapons, naturals and items
 // from a text file
 // Returns true on success and false on failure
-bool Load_Weapons_Text() {
+bool load_weapons_text() {
 	// Be sure that numbers are understood right:
 	char const* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
 	string      weap_file{ env.data_dir };
@@ -764,9 +764,9 @@ bool Load_Weapons_Text() {
 Filter out files that do not have .sav in the name.
 */
 #ifdef MACOSX
-int Filter_File( struct dirent* my_file )
+int filter_file( struct dirent* my_file )
 #else
-int Filter_File( const struct dirent* my_file )
+int filter_file( const struct dirent* my_file )
 #endif
 {
 	if ( strstr( my_file->d_name, ".sav" ) ) {
@@ -783,10 +783,10 @@ are returned.
 After use, the return value *must* be freed.
 */
 #if defined( ATANKS_IS_LINUX )
-dirent** Find_Saved_Games( uint32_t& num_files_found ) {
+dirent** find_saved_games( uint32_t& num_files_found ) {
 	dirent** my_list = nullptr;
 
-	int32_t  status  = scandir( env.config_dir.c_str(), &my_list, Filter_File, alphasort );
+	int32_t  status  = scandir( env.config_dir.c_str(), &my_list, filter_file, alphasort );
 	if ( status < 0 ) {
 		printf( "Error trying to find saved games.\n" );
 		return nullptr;
@@ -805,7 +805,7 @@ function returns an array of filenames. If an error occures
 or no files are found, NULL is returned.
 */
 #if defined( ATANKS_IS_WINDOWS )
-dirent** Find_Saved_Games( uint32_t& num_files_found ) {
+dirent** find_saved_games( uint32_t& num_files_found ) {
 	dirent** my_list    = (dirent**)calloc( 256, sizeof( dirent* ) );
 	dirent*  one_file   = nullptr;
 	uint32_t file_count = 0;
@@ -845,7 +845,7 @@ dirent** Find_Saved_Games( uint32_t& num_files_found ) {
  * The function returns an array of bitmap file names. If no files
  * are found, or an error occures, then NULL is returned.
  * */
-char** Find_Bitmaps( int32_t* bitmaps_found ) {
+char** find_bitmaps( int32_t* bitmaps_found ) {
 	char**         my_list;
 	struct dirent* one_file;
 	int32_t        file_count = 0;

@@ -32,7 +32,7 @@ CMenu::CMenu( EMenuClass class_, int32_t menuX, int32_t menuY ) : menu_class( cl
 	assert( ( menu_class < MC_MENUCLASS_COUNT ) && "ERROR: class_ must be smaller than MC_MENUCLASS_COUNT" );
 
 	// Set title according to class and language:
-	title     = MenuTitleText[ menu_class ][ menu_lang ][ 0 ];
+	title     = MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ 0 ];
 	title_len = text_length( font, title );
 	title_x   = menu_x + text_length( font, "W" ) + 2;
 
@@ -73,7 +73,7 @@ CMenu::~CMenu() {
  * Please note: The position @a left / @a top are relative to
  * the menu position.
  *
- * @param[in] title_idx index of the title text if it is listed in MenuTitleText.
+ * @param[in] title_idx index of the title text if it is listed in MENU_TITLE_TEXT.
  * @param[in] title_ Pointer to a fixed title to be used instead of an indexed one.
  * @param[in] key_code The key code to return if the button is clicked.
  * @param[in] bmp Bitmap to use for regular display.
@@ -110,7 +110,7 @@ int32_t CMenu::add_button(
 		if ( bmp || hover || released ) {
 			btn = new CButton(
 				title_        ? title_
-				: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
+				: title_valid ? MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ]
 					      : nullptr,
 				text_only,
 				menu_x + left,
@@ -122,7 +122,7 @@ int32_t CMenu::add_button(
 		} else {
 			btn = new CButton(
 				title_        ? title_
-				: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
+				: title_valid ? MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ]
 					      : nullptr,
 				text_only,
 				menu_x + left,
@@ -143,7 +143,7 @@ int32_t CMenu::add_button(
 			nullptr,
 			nullptr,
 			title_        ? title_
-			: title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ]
+			: title_valid ? MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ]
 				      : "",
 			title_idx,
 			btn,
@@ -168,7 +168,7 @@ int32_t CMenu::add_button(
  * the menu position.
  *
  * @param[in] target Pointer to the target to handle.
- * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+ * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
  * @param[in] left Relative left position of the display area to the menu.
  * @param[in] top Relative top position of the display area to the menu.
  * @param[in] width Width of the display area. The real width might be larger.
@@ -195,7 +195,7 @@ int32_t CMenu::add_color(
 		try {
 			curr = new COptionItemColour(
 				target,
-				MenuTitleText[ menu_class ][ menu_lang ][ title_idx ],
+				MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ],
 				title_idx,
 				menu_y + top,
 				menu_x + left,
@@ -219,7 +219,7 @@ int32_t CMenu::add_color(
  * the menu position.
  *
  * @param[in] menu Pointer to the menu to handle.
- * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+ * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
  * @param[in] color Regular display color of the title.
  * @param[in] left Relative left position of the display area to the menu.
  * @param[in] top Relative top position of the display area to the menu.
@@ -240,7 +240,7 @@ int32_t CMenu::
 		try {
 			curr = new COptionItemMenu(
 				menu,
-				MenuTitleText[ menu_class ][ menu_lang ][ title_idx ],
+				MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ],
 				title_idx,
 				color,
 				menu_y + top,
@@ -269,7 +269,7 @@ int32_t CMenu::
  *
  * @param[in,out] player_ Pointer to the CPlayer instance to handle.
  * @param[in,out] action_ Pointer to the action function handling the button click.
- * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+ * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
  * @param[in] left Relative left position of the display area to the menu.
  * @param[in] top Relative top position of the display area to the menu.
  * @param[in] width Width of the display area. The real width might be larger.
@@ -297,7 +297,7 @@ int32_t CMenu::add_menu(
 			curr = new COptionItemPlayer(
 				player,
 				action_,
-				title_valid ? MenuTitleText[ menu_class ][ menu_lang ][ title_idx ] : nullptr, // The ctor uses
+				title_valid ? MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ] : nullptr, // The ctor uses
 			                                                                                       // the player
 			                                                                                       // name if
 			                                                                                       // nullptr.
@@ -326,7 +326,7 @@ int32_t CMenu::add_menu(
  * area.
  *
  * @param[in] target Pointer to the target to handle.
- * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+ * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
  * @param[in] max_len Maximum number of characters to allow.
  * @param[in] color Regular display color of the title/target.
  * @param[in] format The format to represent the text, used by snprintf().
@@ -360,7 +360,7 @@ int32_t CMenu::add_text(
 				max_len,
 				color,
 				ET_TEXT,
-				MenuTitleText[ menu_class ][ menu_lang ][ title_idx ],
+				MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ],
 				title_idx,
 				format,
 				menu_y + top,
@@ -384,7 +384,7 @@ int32_t CMenu::add_text(
  * the menu position.
  *
  * @param[in] target Pointer to the target to handle.
- * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+ * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
  * @param[in] color Regular display color of the title/target.
  * @param[in] left Relative left position of the display area to the menu.
  * @param[in] top Relative top position of the display area to the menu.
@@ -404,7 +404,7 @@ int32_t CMenu::add_toggle( bool* target, int32_t title_idx, int32_t color, int l
 				target,
 				nullptr,
 				ET_TOGGLE,
-				MenuTitleText[ menu_class ][ menu_lang ][ title_idx ],
+				MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ],
 				title_idx,
 				nullptr,
 				color,
@@ -702,7 +702,7 @@ void CMenu::redraw_all( bool full_redraw ) {
 	SHOW_MOUSE( global.canvas )
 
 	if ( full_redraw ) {
-		quickChange( false );
+		quick_change( false );
 	}
 }
 
@@ -711,11 +711,11 @@ void CMenu::set_language( bool autorefresh ) {
 		menu_lang = env.language;
 
 		if ( !title_set ) {
-			title = MenuTitleText[ menu_class ][ menu_lang ][ 0 ];
+			title = MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ 0 ];
 		}
 
 		COptionItemBase*    curr   = root;
-		char const* const* titles = MenuTitleText[ menu_class ][ menu_lang ];
+		char const* const* titles = MENU_TITLE_TEXT[ menu_class ][ menu_lang ];
 
 		while ( curr ) {
 			auto title_idx = static_cast< int32_t >( curr->get_title_idx() );
@@ -727,7 +727,7 @@ void CMenu::set_language( bool autorefresh ) {
 
 			// 2: Set new text array if based on a pre-set
 			if ( curr->needs_text() ) {
-				char const* const* texts = OptionClassText[ curr->get_text_class() ][ menu_lang ];
+				char const* const* texts = OPTION_CLASS_TEXT[ curr->get_text_class() ][ menu_lang ];
 				curr->set_texts( const_cast< char const** >( texts ) );
 			}
 
@@ -1067,7 +1067,7 @@ int32_t CMenu::insert_option( COptionItemBase* new_opt, int32_t title_idx, char 
 		if ( title_ ) {
 			new_opt->set_title( title_ );
 		} else if ( is_title_idx_valid( title_idx ) ) {
-			new_opt->set_title( MenuTitleText[ menu_class ][ menu_lang ][ title_idx ] );
+			new_opt->set_title( MENU_TITLE_TEXT[ menu_class ][ menu_lang ][ title_idx ] );
 		}
 		return insert_option( new_opt );
 	}
@@ -1077,7 +1077,7 @@ int32_t CMenu::insert_option( COptionItemBase* new_opt, int32_t title_idx, char 
 /// @brief return true if @a title_idx is lower than the first 0x0 entry
 bool CMenu::is_title_idx_valid( int32_t title_idx ) {
 	int32_t            curr_idx = 0;
-	char const* const* titles   = MenuTitleText[ menu_class ][ menu_lang ];
+	char const* const* titles   = MENU_TITLE_TEXT[ menu_class ][ menu_lang ];
 
 	while ( ( curr_idx < title_idx ) && titles[ curr_idx ] ) {
 		++curr_idx;
@@ -1209,7 +1209,7 @@ void CMenu::set_texts( COptionItemBase* itm, char const** texts, ETextClass text
 			itm->set_texts( texts );
 		} else if ( TC_NONE != text_class ) {
 			itm->set_text_class( text_class );
-			itm->set_texts( const_cast< char const** >( OptionClassText[ text_class ][ menu_lang ] ) );
+			itm->set_texts( const_cast< char const** >( OPTION_CLASS_TEXT[ text_class ][ menu_lang ] ) );
 		}
 	}
 }
@@ -1250,7 +1250,7 @@ bool display_tank_desc( int32_t* tanknum, int32_t x, int32_t y ) { // NOLINT(*-n
 	int32_t     tank_y     = y + turr_off_y + 1;
 	int32_t     text_y     = tank_y + ( tank_off_y / 2 ) - ( env.font_height / 2 );
 	int32_t     text_x     = tank_x + tank_off_x + 5;
-	char const* tank_text  = OptionClassText[ TC_TANKTYPE ][ env.language ][ *tanknum ];
+	char const* tank_text  = OPTION_CLASS_TEXT[ TC_TANKTYPE ][ env.language ][ *tanknum ];
 
 	draw_sprite( global.canvas, tank_bmp, tank_x - tank_off_x, tank_y );
 	rotate_sprite( global.canvas, turr_bmp, tank_x - turr_off_x, tank_y - turr_off_y, itofix( 224 ) );

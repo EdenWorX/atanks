@@ -18,7 +18,7 @@
  * */
 
 /* @todo : Replace old multiplication and overflow based "perlin noise" with
- * Perlins newer addition based "Simplex Noise", which is faster and produces
+ * Perlins newer addition based "Simplex noise", which is faster and produces
  * less artifacts.
  */
 
@@ -31,19 +31,19 @@ Provides noise and interpolation functionality, as prototyped in main.h
 #include "main.h"
 
 /*****************************************************************************
-Noise, Noise2D
+noise, noise_2d
 
 A floating point pseudorandom number generator.  Given a seed input value,
 returns a randomized double in the range [-1.0,+1.0] .  Maintains no state.
 
-Noise2D requires and uses two integer parameters.
+noise_2d requires and uses two integer parameters.
 *****************************************************************************/
-double Noise( int x ) {
+double noise( int x ) {
 	x = ( x << 13 ) ^ x;
 	return ( 1.0 - ( ( x * ( x * x * 15731 + 789221 ) + 1376312589 ) & 0x7fffffff ) / 1073741824.0 );
 }
 
-double Noise2D( int x, int y ) {
+double noise_2d( int x, int y ) {
 	int n;
 
 	n = x + y * 57;
@@ -86,17 +86,17 @@ double interpolate( double x1, double x2, double i ) {
  * - Tom Hudson
  *
  */
-double perlin2DPoint( double amplitude, double scale, double xo, double yo, double lambda, int octaves ) {
+double perlin_2d_point( double amplitude, double scale, double xo, double yo, double lambda, int octaves ) {
 	double maxH = 0;
 	double h    = 0;
 	for ( int iteration = 1; iteration <= octaves; iteration++ ) {
 		double zoom    = scale / ( iteration * iteration );
 		double fractX  = xo / zoom;
 		double fractY  = yo / zoom;
-		double h1      = Noise2D( (int)fractX, (int)fractY );
-		double h2      = Noise2D( (int)fractX + 1, (int)fractY );
-		double h3      = Noise2D( (int)fractX, (int)fractY + 1 );
-		double h4      = Noise2D( (int)fractX + 1, (int)fractY + 1 );
+		double h1      = noise_2d( (int)fractX, (int)fractY );
+		double h2      = noise_2d( (int)fractX + 1, (int)fractY );
+		double h3      = noise_2d( (int)fractX, (int)fractY + 1 );
+		double h4      = noise_2d( (int)fractX + 1, (int)fractY + 1 );
 
 		double xi      = fractX - (int)fractX;
 		double yi      = fractY - (int)fractY;
@@ -115,14 +115,14 @@ double perlin2DPoint( double amplitude, double scale, double xo, double yo, doub
 	return ( h / maxH );
 }
 
-double perlin1DPoint( double amplitude, double scale, double xo, double lambda, int octaves ) {
+double perlin_1d_point( double amplitude, double scale, double xo, double lambda, int octaves ) {
 	double maxH = 0;
 	double h    = 0;
 	for ( int iteration = 1; iteration <= octaves; iteration++ ) {
 		double zoom    = scale / ( iteration * iteration );
 		double fractX  = xo / zoom;
-		double h1      = Noise( (int)fractX );
-		double h2      = Noise( (int)fractX + 1 );
+		double h1      = noise( (int)fractX );
+		double h2      = noise( (int)fractX + 1 );
 		double i       = fractX - (int)fractX;
 
 		h             += amplitude * interpolate( h1, h2, i );

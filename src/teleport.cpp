@@ -212,8 +212,8 @@ void CTeleport::draw() {
 	set_trans_blender( 0, 0, 0, transMod );
 
 	for ( auto i = ROUND( maxblobs + pClock ); i > pClock; --i ) {
-		auto    xOff  = ROUND( perlin2DPoint( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
-		auto    yOff  = ROUND( perlin2DPoint( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
+		auto    xOff  = ROUND( perlin_2d_point( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
+		auto    yOff  = ROUND( perlin_2d_point( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
 		int32_t t_col = getpixel( tempBitmap, pRadius + xOff, pRadius + yOff );
 		circlefill( global.canvas, x + xOff, y + yOff, blobSize, t_col );
 	}

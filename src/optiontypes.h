@@ -57,7 +57,7 @@ enum EMenuClass {
  * These are used so repeating texts do not need to be translated over and
  * over again.
  * TC_TEXTCLASS_COUNT can be used to retrieve the number of
- * fixed menu entry text classes in OptionClassText[][][].
+ * fixed menu entry text classes in OPTION_CLASS_TEXT[][][].
  *
  * This enum is sorted alphabetically to make maintenance easier.
  **/

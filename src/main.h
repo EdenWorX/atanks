@@ -337,11 +337,11 @@ class CTank; // forwarding if not known
 
 /// === Global functions used in several compilation units ====
 double interpolate( double x1, double x2, double i );
-double Noise( int x );
-double Noise2D( int x, int y );
-double perlin1DPoint( double amplitude, double scale, double xo, double lambda, int octaves );
-double perlin2DPoint( double amplitude, double scale, double xo, double yo, double lambda, int octaves );
-void   quickChange( bool clearerror );
+double noise( int x );
+double noise_2d( int x, int y );
+double perlin_1d_point( double amplitude, double scale, double xo, double lambda, int octaves );
+double perlin_2d_point( double amplitude, double scale, double xo, double yo, double lambda, int octaves );
+void   quick_change( bool clearerror );
 
 /// === Helpful wrappers and overrides ===
 [[maybe_unused]] static inline void circle( BITMAP* bmp, double x, double y, int radius, int color ) {

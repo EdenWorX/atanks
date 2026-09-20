@@ -69,7 +69,7 @@ void generate_sky( LevelCreator* lcr, sGradient const* grad, int32_t flags ) {
 			double offset = 0;
 
 			if ( flags & GENSKY_DETAILED ) {
-				offset += perlin2DPoint( 1., 200, xoffset + x, yoffset + y, .3, 6 )
+				offset += perlin_2d_point( 1., 200, xoffset + x, yoffset + y, .3, 6 )
 				        * ( static_cast< double >( env.screen_height - MENUHEIGHT ) * messiness );
 			}
 
@@ -83,7 +83,7 @@ void generate_sky( LevelCreator* lcr, sGradient const* grad, int32_t flags ) {
 
 			global.lock_land();
 			solid_mode();
-			putpixel( temp_sky, x, y, gradientColorPoint( grad, env.screen_height - MENUHEIGHT, y + offset ) );
+			putpixel( temp_sky, x, y, gradient_color_point( grad, env.screen_height - MENUHEIGHT, y + offset ) );
 			drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
 			global.unlock_land();
 		}

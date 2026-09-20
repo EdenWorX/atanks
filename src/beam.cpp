@@ -325,12 +325,12 @@ void CBeam::make_lightning_path() {
 		for ( int32_t i = 1; i < maxP; ++i ) {
 			points[ i ].x = ROUND(
 				x + ( xv * ( static_cast< double >( i ) * stepping ) )
-				+ ( perlin2DPoint( 1.0, 10. * radius, points[ i ].x + seed, points[ i ].y, 0.3, 6 ) * radius
+				+ ( perlin_2d_point( 1.0, 10. * radius, points[ i ].x + seed, points[ i ].y, 0.3, 6 ) * radius
 			            * 10. )
 			);
 			points[ i ].y = ROUND(
 				y + ( yv * ( static_cast< double >( i ) * stepping ) )
-				+ ( perlin2DPoint( 1.0, 10. * radius, points[ i ].x, points[ i ].y + seed, 0.3, 6 ) * radius
+				+ ( perlin_2d_point( 1.0, 10. * radius, points[ i ].x, points[ i ].y + seed, 0.3, 6 ) * radius
 			            * 10. )
 			);
 		}
@@ -472,9 +472,9 @@ static void lazerPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t color ) {
 }
 
 static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age ) {
-	double pRad = ( perlin2DPoint( 1.0, 2, x1 + age, y1 + beamSeed, 0.3, 6 ) + 1 ) / 2 * beamRadius + 1;
-	double offX = ( perlin2DPoint( 1.0, 10 * pRad, x1 + age + beamSeed, y1 + age, 0.3, 6 ) + 1 ) * pRad / 2.;
-	double offY = ( perlin2DPoint( 1.0, 10 * pRad, x1 + age, y1 + age + beamSeed, 0.3, 6 ) + 1 ) * pRad / 2.;
+	double pRad = ( perlin_2d_point( 1.0, 2, x1 + age, y1 + beamSeed, 0.3, 6 ) + 1 ) / 2 * beamRadius + 1;
+	double offX = ( perlin_2d_point( 1.0, 10 * pRad, x1 + age + beamSeed, y1 + age, 0.3, 6 ) + 1 ) * pRad / 2.;
+	double offY = ( perlin_2d_point( 1.0, 10 * pRad, x1 + age, y1 + age + beamSeed, 0.3, 6 ) + 1 ) * pRad / 2.;
 
 	circlefill( dest, x1 + offX, y1 + offY, pRad, WHITE );
 }

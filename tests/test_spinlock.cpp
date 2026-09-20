@@ -17,7 +17,7 @@
 
 // Note: under USE_MUTEX_INSTEAD_OF_SPINLOCK (thread-sanitizer builds)
 // CSpinLock is aliased to std::mutex via globaldata.h, which has neither
-// hasLock() nor the spinlock contract. These tests therefore cover the real
+// has_lock() nor the spinlock contract. These tests therefore cover the real
 // CSpinLock only; release and debug builds always take this path.
 #ifndef USE_MUTEX_INSTEAD_OF_SPINLOCK
 
@@ -25,15 +25,15 @@ TEST_GROUP(SpinLock){};
 
 TEST(SpinLock, FreshLockIsFree) {
     CSpinLock guard;
-    CHECK_FALSE(guard.hasLock());
+    CHECK_FALSE(guard.has_lock());
 }
 
 TEST(SpinLock, LockUnlockCycle) {
     CSpinLock guard;
     guard.lock();
-    CHECK_TRUE(guard.hasLock());
+    CHECK_TRUE(guard.has_lock());
     guard.unlock();
-    CHECK_FALSE(guard.hasLock());
+    CHECK_FALSE(guard.has_lock());
 }
 
 TEST(SpinLock, ContendedCounter) {

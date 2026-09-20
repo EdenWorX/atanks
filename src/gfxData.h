@@ -59,13 +59,13 @@ struct sGfxData {
 	BITMAP* flameFront[ EXPLOSIONFRAMES ]{ nullptr };     ///< Flame front frames.
 
 private:
-	bool initDone = false;
+	bool init_done = false;
 };
 
 // === Helper Functions ===
 // ========================
 BITMAP* create_gradient_strip( sGradient const* grad, int32_t len );
-int32_t gradientColorPoint( sGradient const* grad, double len, double line );
+int32_t gradient_color_point( sGradient const* grad, double len, double line );
 
 
 #endif // ATANKS_GFXDATA_H_INCLUDED

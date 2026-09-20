@@ -82,7 +82,7 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 
 		if ( land_type != LAND_NONE ) {
 			surface = ROUND(
-				( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, 0, lambda, octaves ) ) / 2. * land_height
+				( 1. + perlin_2d_point( 1.0, smoothness, xoffset + x, 0, lambda, octaves ) ) / 2. * land_height
 			);
 		}
 		global.surface[ x ].store( surface > 1 ? surface : 1 );
@@ -127,7 +127,7 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			memcpy( depthStrip[ 0 ], depthStrip[ 1 ], env.screen_height * sizeof( double ) );
 			for ( int32_t d = 1; d < env.screen_height; d++ ) {
 				depthStrip[ 1 ][ d ] =
-					( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, d, lambda, octaves ) ) / 2. * heightx
+					( 1. + perlin_2d_point( 1.0, smoothness, xoffset + x, d, lambda, octaves ) ) / 2. * heightx
 					- ( land_height - d );
 				if ( depthStrip[ 1 ][ d ] > height ) {
 					depthStrip[ 1 ][ d ] = height;
@@ -205,7 +205,7 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 				offset /= 2;
 			}
 
-			color = gradientColorPoint( land_gradients[ cur_land ], height, y + offset );
+			color = gradient_color_point( land_gradients[ cur_land ], height, y + offset );
 
 			if ( env.detailed_landscape ) {
 				float   h, s, v;

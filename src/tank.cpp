@@ -437,7 +437,7 @@ void CTank::apply_damage() {
 		if ( award > 0 ) {
 			if ( credit_to->tank && !global.skipping_computer_play ) {
 				static char the_money[ 16 ] = { 0x0 };
-				snprintf( the_money, 15, "%s$%s", ( team_hit || self_hit ) ? "-" : "", Add_Comma( award ) );
+				snprintf( the_money, 15, "%s$%s", ( team_hit || self_hit ) ? "-" : "", add_comma( award ) );
 				// show how much the shooter gets
 				try {
 					new CFloatText(
@@ -1191,7 +1191,7 @@ bool CTank::is_in_ellipse( double ex, double ey, double rx, double ry, double &i
 	 *
 	 * Unfortunately, this involves a 4th order equation to allow a numerical
 	 * solution. (I have found a very nice example written in JavaScript. It
-	 * uses several functions and has ~600 Lines. A bit much for a game, right?)
+	 * uses several functions and has ~600 lines. A bit much for a game, right?)
 	 *
 	 * The second-best solution would be to determine the position on the rim of
 	 * each ellipse that is on a line between the two centers and then use their

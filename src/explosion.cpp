@@ -552,22 +552,22 @@ void CExplosion::draw_fracture( int32_t x, int32_t y, int32_t frac_angle, int32_
 
 		if ( recurseDepth < max_recurse ) {
 			for ( int32_t branchCount = 0; branchCount < 3; ++branchCount ) {
-				if ( branchCount || ( Noise( x + y + branchCount ) < 0 ) ) {
+				if ( branchCount || ( noise( x + y + branchCount ) < 0 ) ) {
 					int32_t reduction = 2;
 					int32_t newAngle  = frac_angle;
 
 					switch ( branchCount ) {
 						case 1:
-							newAngle += ROUND( 90. + ( Noise( x + y + 25 + branchCount ) * 22.5 ) );
-							reduction = ROUNDu( Noise( x + y + 1 + branchCount ) * 4. ) + 3;
+							newAngle += ROUND( 90. + ( noise( x + y + 25 + branchCount ) * 22.5 ) );
+							reduction = ROUNDu( noise( x + y + 1 + branchCount ) * 4. ) + 3;
 							break;
 						case 2:
-							newAngle += ROUND( 270. + ( Noise( x + y + 32 + branchCount ) * 22.5 ) );
-							reduction = ROUNDu( Noise( x + y + 2 + branchCount ) * 4. ) + 3;
+							newAngle += ROUND( 270. + ( noise( x + y + 32 + branchCount ) * 22.5 ) );
+							reduction = ROUNDu( noise( x + y + 2 + branchCount ) * 4. ) + 3;
 							break;
 						case 0:
 						default:
-							newAngle += ROUND( Noise( x + y + 4 ) * 30. );
+							newAngle += ROUND( noise( x + y + 4 ) * 30. );
 							break;
 					}
 
@@ -643,7 +643,7 @@ void CExplosion::explode() {
 
 						// We indicate the theft by a red string on top of the tank
 						static char the_money[ 17 ] = { 0x0 };
-						snprintf( the_money, 16, "-$%s", Add_Comma( amount ) );
+						snprintf( the_money, 16, "-$%s", add_comma( amount ) );
 
 						if ( !global.skipping_computer_play ) {
 							// show how much the shooter gets

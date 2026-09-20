@@ -35,12 +35,12 @@
 
 // Maximum number of entries including Title and 0x0 termination per menu
 /// Entries per menu including title and terminator.
-uint32_t const maxEntriesPerMenu = 18;
+uint32_t const MAX_ENTRIES_PER_MENU = 18;
 
 
 // Maximum text entries per text class including 0x0 termination
 /// Text entries per class including terminator.
-uint32_t const maxEntriesPerClass = 11;
+uint32_t const MAX_ENTRIES_PER_CLASS = 11;
 
 
 /** @brief string array for the menu content
@@ -59,7 +59,7 @@ uint32_t const maxEntriesPerClass = 11;
  * listed with two entries per line. Unless a possible third entry is the
  * finalizing 0x0 entry, it does not need its own line.
  **/
-char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerMenu ] = {
+char const* const MENU_TITLE_TEXT[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ MAX_ENTRIES_PER_MENU ] = {
 	{/* -------------------- *
          * --- AREYOUSURE   --- *
          * -------------------- */
@@ -1225,7 +1225,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
  * All text arrays end with a zero 0x0 entry. It is therefore not needed to
  * hard code any option value sizes.
  **/
-char const* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerClass ] = {
+char const* const OPTION_CLASS_TEXT[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ MAX_ENTRIES_PER_CLASS ] = {
 	{ /* -------------------- *
          * --- TC_COLOUR   --- *
          * -------------------- */

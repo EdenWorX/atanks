@@ -10,7 +10,7 @@
 
 // A constructor that also loads text from a file
 TEXTBLOCK::TEXTBLOCK( char const* filename ) {
-	if ( filename && !Load_File( filename ) ) {
+	if ( filename && !load_file( filename ) ) {
 		cerr << "Something went wrong loading text from file:";
 		cerr << filename << " !" << endl;
 	}
@@ -108,7 +108,7 @@ void draw_text_in_box( sBox* region, char const* text, bool with_box ) {
 }
 
 /// @brief Return a specific line or nullptr if @a index is out of bounds
-char const* TEXTBLOCK::Get_Line( int32_t index ) const {
+char const* TEXTBLOCK::get_line( int32_t index ) const {
 	if ( ( index > 0 ) && ( index < total_lines ) ) {
 		return complete_text[ index ];
 	}
@@ -116,14 +116,14 @@ char const* TEXTBLOCK::Get_Line( int32_t index ) const {
 }
 
 // Find a random line and return it
-char const* TEXTBLOCK::Get_Random_Line() const {
+char const* TEXTBLOCK::get_random_line() const {
 	return complete_text[ get_rand() % total_lines ];
 }
 
 // This function does most of the work. It loads an entire text
 // file into memory. Returns true on success or false if
 // something goes wrong.
-bool TEXTBLOCK::Load_File( char const* filename ) {
+bool TEXTBLOCK::load_file( char const* filename ) {
 	char    line[ MAX_LINE_LENGTH ] = { 0 };
 	int32_t lines_loaded            = 0;
 	int32_t we_have_space           = 10;
@@ -161,7 +161,7 @@ bool TEXTBLOCK::Load_File( char const* filename ) {
 		}
 
 		// Store the line:
-		Trim_Newline( line );
+		trim_newline( line );
 		complete_text[ lines_loaded++ ] = strdup( line );
 	} // end of loading text from a file
 
@@ -171,12 +171,12 @@ bool TEXTBLOCK::Load_File( char const* filename ) {
 	return true;
 }
 
-int32_t TEXTBLOCK::Lines() const {
+int32_t TEXTBLOCK::lines() const {
 	return total_lines;
 }
 
 // This method renders a part of the text to global.canvas
-void TEXTBLOCK::Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top, int32_t bottom ) {
+void TEXTBLOCK::render_lines( int32_t scrollOffset, int32_t spacing, int32_t top, int32_t bottom ) {
 	int32_t txtheight = env.font_height * spacing;
 	int32_t xPos      = env.half_width;
 	int32_t yPos      = env.half_height + scrollOffset;
@@ -191,7 +191,7 @@ void TEXTBLOCK::Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top
 }
 
 // This is a free floating function
-char const* Add_Comma( int32_t number ) {
+char const* add_comma( int32_t number ) {
 	static char return_value[ 128 ] = { 0 };
 	memset( return_value, 0, 128 );
 
@@ -223,7 +223,7 @@ char const* Add_Comma( int32_t number ) {
 	return return_value;
 }
 
-void Trim_Newline( char* line ) {
+void trim_newline( char* line ) {
 	int32_t index = 0;
 
 	while ( line[ index ] ) {

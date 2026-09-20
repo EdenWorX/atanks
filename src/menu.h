@@ -140,7 +140,7 @@ public:
 	 * area.
 	 *
 	 * @param[in] target Pointer to the target to display.
-	 * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+	 * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
 	 * @param[in] color Regular display color of the title/target.
 	 * @param[in] format The format to represent the target, used by snprintf().
 	 * @param[in] left Relative left position of the display area to the menu.
@@ -229,7 +229,7 @@ public:
 	 * area and wheel buttons to the right.
 	 *
 	 * @param[in] target Pointer to the target to handle.
-	 * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+	 * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
 	 * @param[in] color Regular display color of the title/target.
 	 * @param[in] minimum Minimum value for ET_VALUE targets.
 	 * @param[in] maximum Maximum value for ET_VALUE targets.
@@ -296,7 +296,7 @@ public:
 	 * area.
 	 *
 	 * @param[in] target Pointer to the target to handle.
-	 * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+	 * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
 	 * @param[in] texts Free text array.
 	 * @param[in] color Regular display color of the title/target.
 	 * @param[in] text_class The text class, set to TC_FREETEXT to use @a texts.
@@ -362,7 +362,7 @@ public:
 	 * area.
 	 *
 	 * @param[in] target Pointer to the target to handle.
-	 * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+	 * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
 	 * @param[in] texts Free text array.
 	 * @param[in] color Regular display color of the title/target.
 	 * @param[in] text_class The text class, set to TC_FREETEXT to use @a texts.
@@ -431,7 +431,7 @@ public:
 	 *
 	 * @param[in] target Pointer to the target to handle.
 	 * @param[in,out] action_ Pointer to the action function handling the wheel button click.
-	 * @param[in] title_idx Index of the title if it is listed in MenuTitleText.
+	 * @param[in] title_idx Index of the title if it is listed in MENU_TITLE_TEXT.
 	 * @param[in] texts Free text array.
 	 * @param[in] color Regular display color of the title/target.
 	 * @param[in] text_class The text class, set to TC_FREETEXT to use @a texts.

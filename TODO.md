@@ -486,7 +486,7 @@ goes per module.
   Snake_case the `CWeapon`/`CItem` members and accessors (e.g. `techLevel` → `tech_level`, `getDesc` → `get_desc`), keeping
   the two classes consistent with each other. Pure renames; verify with a build.
 
-- [ ] **PF-1.15.3.3**: Services, constants, and utilities
+- [x] **PF-1.15.3.3**: Services, constants, and utilities
 
   Snake_case persistence, text, audio, clock, lock, z-buffer, debug, updater, graphics, bitmap, and random/noise functions
   and members, plus the `UPPER_SNAKE` constants (`MenuTitleText` → `MENU_TITLE_TEXT`,

@@ -419,7 +419,7 @@ void CMissile::apply_physics_funky() {
 					( launchWeap->launchSpeed
 				          + ROUND( ( launchWeap ? launchWeap->speedVariation : 0.0 )
 				                   * ( launchWeap ? launchWeap->launchSpeed : 0.0 )
-				                   * Noise( get_rand() % 1000000 ) ) )
+				                   * noise( get_rand() % 1000000 ) ) )
 					* env.fps_mod;
 				double fdiff = ABSDISTANCE2( floatee_tgt->x, floatee_tgt->y, x, y );
 				xv           = ( floatee_tgt->x - x ) / fdiff * speed;
@@ -755,7 +755,7 @@ void CMissile::check_cluster() {
 		// Manipulate angle if applicable
 		if ( weap->spreadVariation > 0. ) {
 			newMissAngle += ROUND(
-				static_cast< double >( weap->divergence ) * weap->spreadVariation * Noise( randStart + 1054 + sc )
+				static_cast< double >( weap->divergence ) * weap->spreadVariation * noise( randStart + 1054 + sc )
 			);
 		}
 
@@ -769,7 +769,7 @@ void CMissile::check_cluster() {
 		if ( submunition->countVariation > 0 ) {
 			newMissCount += ROUND(
 				static_cast< double >( submunition->countdown ) * submunition->countVariation
-				* Noise( randStart + 78689 + sc )
+				* noise( randStart + 78689 + sc )
 			);
 			// This might go wrong, so be sure it doesn't
 			if ( newMissCount <= 0 ) {
@@ -779,7 +779,7 @@ void CMissile::check_cluster() {
 
 		// Manipulate launching speed if applicable
 		if ( weap->speedVariation > 0 ) {
-			launchSpeed += ROUND( weap->speedVariation * weap->launchSpeed * Noise( randStart + 124786 + sc ) );
+			launchSpeed += ROUND( weap->speedVariation * weap->launchSpeed * noise( randStart + 124786 + sc ) );
 		}
 
 		// Launch new submunition missile

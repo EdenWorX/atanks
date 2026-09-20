@@ -454,12 +454,12 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 			d_div = weapon[ itemNum ].get_delay_div();
 			name  = weapon[ itemNum ].get_name();
 			amt   = pl->nm[ itemNum ] / d_div;
-			snprintf( buf_cost, 49, "$%s", Add_Comma( weapon[ itemNum ].cost ) );
+			snprintf( buf_cost, 49, "$%s", add_comma( weapon[ itemNum ].cost ) );
 			snprintf( buf_amt, 49, "for %d", weapon[ itemNum ].amt / d_div );
 		} else {
 			name = item[ itemNum - WEAPONS ].get_name();
 			amt  = pl->ni[ itemNum - WEAPONS ];
-			snprintf( buf_cost, 49, "$%s", Add_Comma( item[ itemNum - WEAPONS ].cost ) );
+			snprintf( buf_cost, 49, "$%s", add_comma( item[ itemNum - WEAPONS ].cost ) );
 			snprintf( buf_amt, 49, "for %d", item[ itemNum - WEAPONS ].amt );
 		}
 
@@ -488,7 +488,7 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 			BLACK,
 			-1,
 			"%s: %d",
-			env.ingame->Get_Line( 40 ),
+			env.ingame->get_line( 40 ),
 			amt
 		);
 		if ( trolley[ itemNum ] ) {
@@ -552,7 +552,7 @@ void Shop::draw_shop_update( int32_t pl ) {
 		BLACK,
 		-1,
 		"%s %d: %s",
-		env.ingame->Get_Line( 10 ),
+		env.ingame->get_line( 10 ),
 		pl + 1,
 		env.players[ pl ]->get_name()
 	);
@@ -564,17 +564,17 @@ void Shop::draw_shop_update( int32_t pl ) {
 		BLACK,
 		-1,
 		"%s: $%s",
-		env.ingame->Get_Line( 11 ),
-		Add_Comma( money )
+		env.ingame->get_line( 11 ),
+		add_comma( money )
 	);
 
 	txtbuf.str( "" );
-	txtbuf << env.ingame->Get_Line( 12 ) << ": " << env.rounds - global.current_round << "/" << env.rounds;
+	txtbuf << env.ingame->get_line( 12 ) << ": " << env.rounds - global.current_round << "/" << env.rounds;
 	int txtlen = text_length( font, txtbuf.str().c_str() );
 	textout_ex( global.canvas, font, txtbuf.str().c_str(), env.half_width + 180 - txtlen, 0, BLACK, -1 );
 
 	txtbuf.str( "" );
-	txtbuf << env.ingame->Get_Line( 13 ) << ": " << env.players[ pl ]->score;
+	txtbuf << env.ingame->get_line( 13 ) << ": " << env.players[ pl ]->score;
 	txtlen = text_length( font, txtbuf.str().c_str() );
 	textout_ex( global.canvas, font, txtbuf.str().c_str(), env.half_width + 160 - txtlen, 14, BLACK, -1 );
 
@@ -765,13 +765,13 @@ void Shop::init() {
 }
 
 void Shop::perform_save_game() {
-	if ( !performed_save_game && Save_Game() ) {
+	if ( !performed_save_game && save_game() ) {
 		performed_save_game = true;
 	}
 	if ( performed_save_game ) {
-		info_text.assign( env.ingame->Get_Line( 17 ) ).append( "\"" ).append( env.game_name ).append( "\"" );
+		info_text.assign( env.ingame->get_line( 17 ) ).append( "\"" ).append( env.game_name ).append( "\"" );
 	} else {
-		info_text.assign( env.ingame->Get_Line( 41 ) );
+		info_text.assign( env.ingame->get_line( 41 ) );
 	}
 	draw_text_in_box( &info_area, info_text.c_str(), true );
 	need_draw = true;
@@ -1128,9 +1128,9 @@ static void draw_shop( CPlayer* pl ) {
 	global.current_drawing_mode = DRAW_MODE_SOLID;
 
 	if ( pl ) {
-		textout_ex( global.canvas, font, env.ingame->Get_Line( 14 ), 20, 420, WHITE, -1 );
-		textout_ex( global.canvas, font, env.ingame->Get_Line( 15 ), 20, 450, WHITE, -1 );
-		textout_ex( global.canvas, font, env.ingame->Get_Line( 16 ), 20, 465, WHITE, -1 );
+		textout_ex( global.canvas, font, env.ingame->get_line( 14 ), 20, 420, WHITE, -1 );
+		textout_ex( global.canvas, font, env.ingame->get_line( 15 ), 20, 450, WHITE, -1 );
+		textout_ex( global.canvas, font, env.ingame->get_line( 16 ), 20, 465, WHITE, -1 );
 	}
 
 	global.unlock_land();
@@ -1160,7 +1160,7 @@ void draw_simple_bg( bool drawImage ) {
 
 /** @brief Executes a fast and simple transition from global.canvas to the screen.
  **/
-void quickChange( bool clearerror ) {
+void quick_change( bool clearerror ) {
 	if ( errorMessage ) {
 		textout_ex( global.canvas, font, errorMessage, errorX, errorY, makecol( 255, 0, 0 ), -1 );
 		if ( clearerror ) {

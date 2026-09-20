@@ -13,7 +13,7 @@ sGfxData::~sGfxData() {
 
 /// @brief should be called from CEnvironment::destroy();
 void sGfxData::destroy() {
-	if ( initDone ) {
+	if ( init_done ) {
 		if ( topbar ) {
 			destroy_bitmap( topbar );
 		}
@@ -72,7 +72,7 @@ void sGfxData::destroy() {
 			}
 		}
 
-		initDone = false;
+		init_done = false;
 	}
 }
 
@@ -81,7 +81,7 @@ void sGfxData::first_init() {
 	// Note: This method is mostly uncommented, because the original
 	// function that did this was uncommented.
 
-	if ( initDone ) {
+	if ( init_done ) {
 		return;
 	}
 
@@ -229,7 +229,7 @@ void sGfxData::first_init() {
 		}
 	}
 
-	initDone = true;
+	init_done = true;
 }
 
 // === Helper Functions ===
@@ -243,14 +243,14 @@ BITMAP *create_gradient_strip( sGradient const *grad, int32_t len ) {
 	clear_to_color( strip, BLACK );
 
 	for ( int32_t currLine = 0; currLine < len; ++currLine ) {
-		int32_t color = gradientColorPoint( grad, len, currLine );
+		int32_t color = gradient_color_point( grad, len, currLine );
 		putpixel( strip, 0, currLine, color );
 	}
 
 	return strip;
 }
 
-int32_t gradientColorPoint( sGradient const *grad, double len, double line ) {
+int32_t gradient_color_point( sGradient const *grad, double len, double line ) {
 	int32_t pointCount = 0;
 	double  point      = line / len;
 	int32_t color      = BLACK;

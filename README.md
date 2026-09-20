@@ -228,7 +228,7 @@ The following were classified as external by metadata inspection; their internal
   `src/aicore.h`); `gameloop.cpp:89-243` spawns one `ObjectUpdater` thread per class behind `updMutex/updCondition` (`:85-86`)
   and joins them at `:497-541`. `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
   `CMakeLists.txt`).
-- Data flow for content: `text/weapons*.txt` -> `Load_Weapons_Text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
+- Data flow for content: `text/weapons*.txt` -> `load_weapons_text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
   -> shop UI, AI planning, firing, explosions. `text/*.txt` (speech/help) -> `CEnvironment::load_text_files()`
   (`src/environment.cpp:966ff`) -> `TEXTBLOCK*` fields -> menus, AI taunts, help screens.
 
@@ -310,7 +310,7 @@ None exist in the repository.
 - Main settings file: `<config_dir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
   `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `Save_Game_Settings()` (`:1448-1463`).
   `--noconfig` skips loading.
-- Weapon/item stats: `Load_Weapons_Text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<data_dir>/text/weapons*.txt`,
+- Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<data_dir>/text/weapons*.txt`,
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
   always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
   `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`EDataStage`, `src/globaltypes.h:81-86`).
@@ -318,7 +318,7 @@ None exist in the repository.
   `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
   `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (`src/environment.h:248-257`).
 - Savegames: `<config_dir>/<game_name>.sav`, format `VERSION/GLOBAL/CEnvironment/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
-  listing via `Find_Saved_Games()` (`*.sav` filter, `src/files.cpp:786-840`).
+  listing via `find_saved_games()` (`*.sav` filter, `src/files.cpp:786-840`).
 - Music: `Create_Music_Folder()` ensures a `music/` folder in the config dir (`src/files.cpp:395-412`); custom `*.bmp` files are
   picked up by `Find_Bitmaps()` (`:848-893`).
 
@@ -451,7 +451,7 @@ Standalone helpers (not built by `Makefile`):
   `src/*.cpp` via `file(GLOB ...)` automatically), and wire creation/update/draw into `gameloop.cpp` and teardown into
   `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
-  strings), keep the numeric field count in sync with `Load_Weapons_Text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
+  strings), keep the numeric field count in sync with `load_weapons_text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
   `src/main.h:264-267` if the count changes; check AI selection (`CAICore`), shop availability
   (`CEnvironment::gen_items_list`), and
   sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
@@ -459,7 +459,7 @@ Standalone helpers (not built by `Makefile`):
 - New option/menu entry: add the `EMenuClass`/`EEntryType` value in `src/optiontypes.h`, construct the item in
   `menu.cpp`/`optionscreens.cpp`, and persist it in `CEnvironment::save_to_file/load_from_file`.
 - New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `CEnvironment::load_text_files()`
-  and `Load_Weapons_Text()`, and add the language to the `ELanguages` enum.
+  and `load_weapons_text()`, and add the language to the `ELanguages` enum.
 - New asset: drop the numbered `N.bmp` / `N.wav` into the right folder (renumber existing files upward by hand to make room
   for inserted frames) and update the loader ranges in `environment.cpp` (`loadBitmaps`/`loadSounds`) and the `Makefile` install
   lists if a new folder is introduced.
