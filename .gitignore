@@ -8,7 +8,7 @@
 *.layout
 obj/*
 !obj/.keep_dir
-
+.clangd
 
 # Patch directory, it is purely for diff submissions
 patches

@@ -290,3 +290,17 @@ install(FILES ${ATANKS_DATA_TOPFILES} DESTINATION share/atanks)
 foreach(ATANK_ASSET_DIR button misc missile sound stock tank tankgun title text)
   install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${ATANK_ASSET_DIR}/" DESTINATION share/atanks/${ATANK_ASSET_DIR})
 endforeach()
+
+# ----------------------------------------------------------------
+# --- Generate a local .clangd for clangd/LSP users (gitignored) ---
+# ----------------------------------------------------------------
+# The generated file reflects the build directory that configured last, so  clangd gets the correct include paths, including any
+# generated headers. It is written into the source tree and stays gitignored.
+if ( CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME )
+	set( ATANKS_CLANGD_ADD_FLAGS "" )
+	string( APPEND ATANKS_CLANGD_ADD_FLAGS "    -I${CMAKE_BINARY_DIR}/,\n" )
+	string( APPEND ATANKS_CLANGD_ADD_FLAGS "    -I${CMAKE_SOURCE_DIR}/src,\n" )
+
+	configure_file( .clangd.in "${CMAKE_SOURCE_DIR}/.clangd" @ONLY )
+	message( STATUS "Generated ${CMAKE_SOURCE_DIR}/.clangd for clangd/LSP" )
+endif ()
