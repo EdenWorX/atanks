@@ -84,12 +84,12 @@ One program is built: `atanks` (`atanks.exe` on `WIN32`).
   1. `parse_args()` (`src/atanks.cpp:1134`), called at `:1498`.
   2. `env.find_data_dir()` (`:1508`); failure exits with `EXIT_FAILURE`.
   3. `game_version` derived from `VERSION` (`:1513-1518`).
-  4. `env.find_config_dir()` (`:1522`), then `loadConfig()` or `createConfig()` (`:1525-1526`).
+  4. `env.find_config_dir()` (`:1522`), then `load_config()` or `create_config()` (`:1525-1526`).
   5. `env.load_game_files()` (`:1530`); failure exits.
   6. Optional `NETWORK` threads (`Send_And_Receive`, update checker, `:1535-1562`).
   7. Main-menu loop (`:1568-1613`) dispatching on `global.get_command()`: help, options, players, credits, network game, demo,
      or local play.
-  8. `Save_Game_Settings()`, `env.destroy()`, `global.destroy()`, `allegro_exit()` (`:1633-1642`).
+  8. `save_game_settings()`, `env.destroy()`, `global.destroy()`, `allegro_exit()` (`:1633-1642`).
 - Round execution funnels into `game()` declared in `src/gameloop.h:7` via `play_local()` (`src/atanks.cpp:1313`), `play_demo()`
   (`:1257`), and `play_networked()` (`:1383`; without `-DNETWORK` this path reports an error, `:1398-1410`).
 
@@ -110,7 +110,7 @@ narrow responsibilities:
 | Locking | `src/spinlock.h`, `src/spinlock.cpp` | `CSpinLock` (atomic-flag, non-recursive) |
 | Z-buffer | `src/zbuffer.h`, `src/zbuffer.cpp` | 1-bit-per-pixel `ZBuffer::set/test` over `vector<bool>` |
 | Update protocol | `src/update.h`, `src/update.cpp` | `Update_Data` / update-checker structures |
-| Network transport | `src/network.h`, `src/network.cpp` | `sMessage`/`MESSAGE_QUEUE`, sockets (only when `NETWORK` is defined) |
+| Network transport | `src/network.h`, `src/network.cpp` | `sMessage`/`CMessageQueue`, sockets (only when `NETWORK` is defined) |
 | Network client | `src/client.h`, `src/client.cpp` | Client-side protocol constants and handling |
 
 ### Shared/Internal Utility Code
@@ -145,7 +145,7 @@ narrow responsibilities:
 | Player state | `src/player.h/.cpp` | Economy, inventories `nm[WEAPONS]/ni[ITEMS]`, personality, opponent memory, shop prefs, save/load, speech-line selection |
 | Player/AI types | `src/player_types.h/.cpp` | `EPlayerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `EPlayerStages`, `ETeamTypes{SITH,NEUTRAL,JEDI}`, modular enum arithmetic |
 | AI | `src/aicore.h/.cpp` (`CAICore`) | Background-thread bot with documented pipeline: initialize, target/weapon selection, attack calculation, aiming traces, writeback |
-| Shop | `src/shop.h/.cpp` (`bool shop(LevelCreator*)`) | Inter-round buy/sell UI |
+| Shop | `src/shop.h/.cpp` (`bool shop(CLevelCreator*)`) | Inter-round buy/sell UI |
 | Scoring | `src/score.h/.cpp` (`sScore`, `sort_scores()`) | Caller deletes the returned array |
 | Terrain/sky | `src/land.h/.cpp`, `src/sky.h/.cpp`, `src/levelcreator.h/.cpp`, `src/moon.h/.cpp`, `src/satellite.h/.cpp`, `src/teleport.h/.cpp`, `src/decor.h/.cpp`, `src/debris_pool.h/.cpp`, `src/floattext.h/.cpp` | 16 land + 16 sky gradients each (8 classic + 8 crispy), generators, decor, debris, floating text |
 | Round driver | `src/gameloop.h/.cpp` (`game()`) | Round phases, AI thread, per-class `ObjectUpdater` threads, input, firing, winner detection |
@@ -210,7 +210,7 @@ The following were classified as external by metadata inspection; their internal
    |                               |
    +-- main-menu loop .............+-- round driver game() (gameloop.cpp)
    |    (menu/options/players/       |    |
-   |     shop/selectPlayers)         |    +-- CAICore thread (aicore.h) per AI tank
+   |     shop/select_players)         |    +-- CAICore thread (aicore.h) per AI tank
    |                                 |    +-- ObjectUpdater threads per EClass
    |                                 |    +-- object lists: CTank / CMissile / CBeam /
    |                                 |         CExplosion / CTeleport / CDecor / CFloatText
@@ -307,8 +307,8 @@ None exist in the repository.
 - Runtime config directory, resolved by `CEnvironment::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
   else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, `src/main.h:144-148`). `Copy_Config_File()`
   (`src/files.cpp:334-390`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
-- Main settings file: `<config_dir>/atanks-config.txt`, loaded by `loadConfig()` (`src/atanks.cpp:727-757`, via
-  `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `Save_Game_Settings()` (`:1448-1463`).
+- Main settings file: `<config_dir>/atanks-config.txt`, loaded by `load_config()` (`src/atanks.cpp:727-757`, via
+  `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `save_game_settings()` (`:1448-1463`).
   `--noconfig` skips loading.
 - Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<data_dir>/text/weapons*.txt`,
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is

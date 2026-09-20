@@ -138,7 +138,7 @@ CTeleport::CTeleport(
 	}
 #endif // NETWORK
 
-	// Add to the chain:
+	// add to the chain:
 	global.add_object( this );
 }
 
@@ -151,7 +151,7 @@ CTeleport::CTeleport( CTeleport* remote_end, int32_t dest_x, int32_t dest_y ) : 
 		start_clock = remote_end->start_clock;
 	}
 
-	// Add to the chain:
+	// add to the chain:
 	global.add_object( this );
 }
 

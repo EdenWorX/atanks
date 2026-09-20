@@ -468,7 +468,7 @@ per module.
   Rename members and methods of the player state and AI core with per-member review. Pure renames; verify with a `make
   DEBUG=YES` build plus manual in-game validation.
 
-#### [ ] PF-1.15.3: Rename UI, services, and remaining modules
+#### [x] PF-1.15.3: Rename UI, services, and remaining modules
 
 Apply the mapping to menus/options, persistence, text, audio, and utility modules with the same rename-only discipline and
 verification as `PF-1.15.2`. Split into Action Items below: type renames go globally per batch, member/function snake_case
@@ -493,7 +493,7 @@ goes per module.
   `OptionClassText` → `OPTION_CLASS_TEXT`, `maxEntriesPerMenu` → `MAX_ENTRIES_PER_MENU`,
   `maxEntriesPerClass` → `MAX_ENTRIES_PER_CLASS`). Pure renames; verify with a build.
 
-- [ ] **PF-1.15.3.4**: Round driver, meta, network, and level creator
+- [x] **PF-1.15.3.4**: Round driver, meta, network, and level creator
 
   Rename `MESSAGE_QUEUE` → `CMessageQueue` and `LevelCreator` → `CLevelCreator` tree-wide, then snake_case the round loop,
   shop, scoring, network transport/client, and level-creator members and functions. Pure renames; verify with a build.

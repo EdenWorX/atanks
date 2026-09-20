@@ -22,7 +22,7 @@ void draw_top_bar();
 // Here we try to match the buffer with an action. We then attempt to
 // perform the action. Remember, this is a command from the server, so
 // it is either giving us some info or telling us to create something.
-bool Parse_Client_Data( char *buffer ) {
+bool parse_client_data( char *buffer ) {
 	char   args[ CLIENT_ARGS ][ BUFFER_SIZE ];
 	char   letter;
 	int    dest_string;
@@ -325,7 +325,7 @@ bool Parse_Client_Data( char *buffer ) {
 	return false;
 }
 
-void Create_Sky() {
+void create_sky() {
 	if ( env.custom_background && env.bitmap_filenames ) {
 		if ( env.sky ) {
 			destroy_bitmap( env.sky );
@@ -351,7 +351,7 @@ void Create_Sky() {
 } // end of create sky function
 
 // Send a shot command to the server
-bool Client_Fire( CPlayer *my_player, int my_socket ) {
+bool client_fire( CPlayer *my_player, int my_socket ) {
 	if ( !my_player ) {
 		return false;
 	}
@@ -365,7 +365,7 @@ bool Client_Fire( CPlayer *my_player, int my_socket ) {
 }
 
 // Adjust our power on the client side
-bool Client_Power( CPlayer *my_player, int more_or_less ) {
+bool client_power( CPlayer *my_player, int more_or_less ) {
 	if ( ( my_player ) && ( my_player->tank ) ) {
 		if ( ( more_or_less == CLIENT_UP ) && ( my_player->tank->p < 1996 ) ) {
 			my_player->tank->p += 5;
@@ -377,7 +377,7 @@ bool Client_Power( CPlayer *my_player, int more_or_less ) {
 	return false;
 }
 
-bool Client_Angle( CPlayer *my_player, int left_or_right ) {
+bool client_angle( CPlayer *my_player, int left_or_right ) {
 	if ( !my_player ) {
 		return false;
 	}
@@ -393,7 +393,7 @@ bool Client_Angle( CPlayer *my_player, int left_or_right ) {
 	return true;
 }
 
-bool Client_Cycle_Weapon( CPlayer *my_player, int forward_or_back ) {
+bool client_cycle_weapon( CPlayer *my_player, int forward_or_back ) {
 	bool found = false;
 
 	if ( !my_player->tank ) {
@@ -434,7 +434,7 @@ bool Client_Cycle_Weapon( CPlayer *my_player, int forward_or_back ) {
 // On success, a pointer to char is returned.
 // On failure, a nullptr is returned.
 // The returned pointer does NOT need to be freed.
-char const *Explain_Error( int32_t error_code ) {
+char const *explain_error( int32_t error_code ) {
 	switch ( error_code ) {
 		case CLIENT_ERROR_VERSION:
 			return env.ingame->get_line( 77 );
@@ -487,13 +487,13 @@ int Game_Client( int socket_number ) {
 		delete my_object;
 	}
 
-	Create_Sky(); // so we have a background
+	create_sky(); // so we have a background
 
 	SAFE_WRITE( socket_number, "%s", "VERSION" );
 
 	while ( !end_of_round ) {
 		// check for waiting input from the server
-		incoming = Check_For_Incoming_Data( socket_number );
+		incoming = check_for_incoming_data( socket_number );
 		if ( incoming ) {
 			ssize_t bytes_read;
 
@@ -528,7 +528,7 @@ int Game_Client( int socket_number ) {
 
 				else // not a special command, parse it
 				{
-					if ( Parse_Client_Data( buffer ) ) {
+					if ( parse_client_data( buffer ) ) {
 						if ( game_stage < CLIENT_PLAYING ) {
 							game_stage++;
 						}
@@ -732,23 +732,23 @@ int Game_Client( int socket_number ) {
 			my_key = readkey();
 			my_key = my_key >> 8;
 			if ( my_key == KEY_SPACE ) {
-				Client_Fire( global.client_player, socket_number );
+				client_fire( global.client_player, socket_number );
 				fired = true;
 			} else if ( my_key == KEY_ESC ) {
 				end_of_round = true;
 				close( socket_number );
 			} else if ( my_key == KEY_UP ) {
-				Client_Power( global.client_player, CLIENT_UP );
+				client_power( global.client_player, CLIENT_UP );
 			} else if ( my_key == KEY_DOWN ) {
-				Client_Power( global.client_player, CLIENT_DOWN );
+				client_power( global.client_player, CLIENT_DOWN );
 			} else if ( my_key == KEY_LEFT ) {
-				Client_Angle( global.client_player, CLIENT_LEFT );
+				client_angle( global.client_player, CLIENT_LEFT );
 			} else if ( my_key == KEY_RIGHT ) {
-				Client_Angle( global.client_player, CLIENT_RIGHT );
+				client_angle( global.client_player, CLIENT_RIGHT );
 			} else if ( ( my_key == KEY_Z ) || ( my_key == KEY_BACKSPACE ) ) {
-				Client_Cycle_Weapon( global.client_player, CYCLE_BACK );
+				client_cycle_weapon( global.client_player, CYCLE_BACK );
 			} else if ( ( my_key == KEY_C ) || ( my_key == KEY_TAB ) ) {
-				Client_Cycle_Weapon( global.client_player, CYCLE_FORWARD );
+				client_cycle_weapon( global.client_player, CYCLE_FORWARD );
 				global.update_menu = true;
 			}
 

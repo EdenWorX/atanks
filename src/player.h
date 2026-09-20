@@ -90,14 +90,14 @@ public:
 	void       exit_shop();                                                         ///< Leave the shop screen.
 	void       generate_preferences();                                              ///< Build AI personality.
 	int32_t    get_boost_value();                                                    ///< Compute shop boost value.
-	int32_t    get_item_pref( int32_t idx );                                         ///< Read item preference.
+	int32_t    get_item_pref( int32_t idx );                                         ///< read item preference.
 	int32_t    get_money_to_save( bool first_look );                                  ///< Compute round savings.
-	bool       get_net_cmd();                                                        ///< Read the network command.
+	bool       get_net_cmd();                                                        ///< read the network command.
 	sOpponent* get_opp_mem( int32_t idx );                                           ///< Fetch opponent memory.
-	int32_t    get_weap_pref( int32_t idx );                                         ///< Read weapon preference.
+	int32_t    get_weap_pref( int32_t idx );                                         ///< read weapon preference.
 	void       initialise( bool loaded_game );                                     ///< Initialize for a round.
-	bool       load_from_file( FILE* file );                                       ///< Read settings.
-	void       load_game_data( FILE* file, int32_t file_version );                 ///< Read savegame data.
+	bool       load_from_file( FILE* file );                                       ///< read settings.
+	void       load_game_data( FILE* file, int32_t file_version );                 ///< read savegame data.
 	void       new_game();                                                          ///< Reset for a new game.
 	void       new_round();                                                            ///< Reset for a new round.
 	void       note_damage_from( CPlayer* opponent, int32_t damage, bool destroyed ); ///< Record received damage.

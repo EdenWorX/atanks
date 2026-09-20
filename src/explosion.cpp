@@ -132,7 +132,7 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 		global.add_land_slide( x - radius - 1, x + radius + 1, true );
 	}
 
-	// Add to the chain:
+	// add to the chain:
 	global.add_object( this );
 }
 

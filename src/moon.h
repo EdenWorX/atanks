@@ -8,7 +8,7 @@
 #include "levelcreator.h"
 
 
-void draw_moons( LevelCreator* lcr, BITMAP* sky, int32_t width, int32_t height );
+void draw_moons( CLevelCreator* lcr, BITMAP* sky, int32_t width, int32_t height );
 
 
 #endif // ATANKS_MOON_H

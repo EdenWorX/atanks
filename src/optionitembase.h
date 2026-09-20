@@ -91,11 +91,11 @@ public:
 
 	void            clear_display( bool update_full );                         ///< Clear the display area.
 	void            cursor_flip();                                             ///< Blink the text cursor.
-	void            get_dimension( int32_t& tgt_width, int32_t& tgt_height );   ///< Read the display size.
+	void            get_dimension( int32_t& tgt_width, int32_t& tgt_height );   ///< read the display size.
 	COptionItemBase* get_next();                                                 ///< Next list entry.
 	COptionItemBase* get_prev();                                                 ///< Previous list entry.
-	uint32_t        get_text_class();                                            ///< Read the text class.
-	EEntryType      get_type();                                                 ///< Read the entry type.
+	uint32_t        get_text_class();                                            ///< read the text class.
+	EEntryType      get_type();                                                 ///< read the entry type.
 	void            insert_after( COptionItemBase* new_prev );                  ///< Insert an entry after this.
 	void            insert_before( COptionItemBase* new_next );                 ///< Insert an entry before this.
 	bool            is_click_in( int32_t x, int32_t y, int32_t& ret );         ///< Hit-test a click.
@@ -111,8 +111,8 @@ public:
 	void            unselect();                                                ///< Deselect the entry.
 
 	// Status Getters
-	[[nodiscard]] int32_t  get_key_code() const;  ///< Read the button key code.
-	[[nodiscard]] uint32_t get_title_idx() const; ///< Read the title index.
+	[[nodiscard]] int32_t  get_key_code() const;  ///< read the button key code.
+	[[nodiscard]] uint32_t get_title_idx() const; ///< read the title index.
 	[[nodiscard]] bool     is_selected() const; ///< Test the selection state.
 
 	// virtuals to be implemented by the deriving template

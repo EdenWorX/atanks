@@ -148,8 +148,8 @@ sGradient const* const sky_gradients[] = {
 #define GENSKY_DETAILED   1
 #define GENSKY_DITHERGRAD 2
 
-class LevelCreator;
+class CLevelCreator;
 
-void generate_sky( LevelCreator* lcr, sGradient const* grad, int32_t flags );
+void generate_sky( CLevelCreator* lcr, sGradient const* grad, int32_t flags );
 
 #endif // ATANKS_SKY_H_INCLUDED

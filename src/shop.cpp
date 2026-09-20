@@ -14,9 +14,9 @@
 
 
 /// ==== helper functions ====
-static int32_t calcPotentialDmg( int32_t weapNum );
+static int32_t calc_potential_dmg( int32_t weap_num );
 static void    divide_team_money();
-static void    do_ai_shopping( CPlayer* pl, int32_t maxBoost, int32_t maxScore );
+static void    do_ai_shopping( CPlayer* pl, int32_t max_boost, int32_t max_score );
 static void    draw_shop( CPlayer* pl );
 
 /// ==== External functions used ====
@@ -57,9 +57,9 @@ private:
 	int32_t       lastMouse_b{ 0 };
 	int32_t       lastMouse_x{ 0 };
 	int32_t       lastMouse_y{ 0 };
-	LevelCreator* lvl_creator{ nullptr };
-	int32_t       maxBoost{ 0 };
-	int32_t       maxScore{ 0 };
+	CLevelCreator* lvl_creator{ nullptr };
+	int32_t       max_boost{ 0 };
+	int32_t       max_score{ 0 };
 	int32_t       money{ 0 };
 	bool          need_draw{ false };
 	bool          performed_save_game{ false };
@@ -69,7 +69,7 @@ private:
 
 
 public:
-	explicit Shop( LevelCreator* lvl_creator_ ) : lvl_creator( lvl_creator_ ) {}
+	explicit Shop( CLevelCreator* lvl_creator_ ) : lvl_creator( lvl_creator_ ) {}
 
 	~Shop() = default;
 
@@ -79,7 +79,7 @@ public:
 		for ( int32_t pl = 0; ( pl < env.num_game_players ) && !global.is_close_btn_pressed(); pl++ ) {
 			if ( HUMAN_PLAYER != env.players[ pl ]->type ) {
 				// computer players have their own function for their shopping
-				do_ai_shopping( env.players[ pl ], maxBoost, maxScore );
+				do_ai_shopping( env.players[ pl ], max_boost, max_score );
 			} else {
 				// Be sure no input from previous human players or from pressing
 				// the "Play" button on the player selection screen carry over:
@@ -182,13 +182,13 @@ void Shop::check_mouse_position() {
 				CWeapon* weap = &weapon[ hoverOver_new ];
 				info_text.assign( "Radius: " ).append( std::to_string( weap->radius ) );
 				info_text.append( "\nYield : " )
-					.append( std::to_string( calcPotentialDmg( hoverOver_new ) * weap->spread ) );
+					.append( std::to_string( calc_potential_dmg( hoverOver_new ) * weap->spread ) );
 				info_text.append( "\n\n" ).append( weap->get_desc() );
 			} else {
 				int32_t itemNum = hoverOver_new - WEAPONS;
 				CItem*   it      = &item[ itemNum ];
 				if ( ( itemNum >= ITEM_VENGEANCE ) && ( itemNum <= ITEM_FATAL_FURY ) ) {
-					double potDmg = calcPotentialDmg( ROUND( it->vals[ 0 ] ) ) * it->vals[ 1 ];
+					double potDmg = calc_potential_dmg( ROUND( it->vals[ 0 ] ) ) * it->vals[ 1 ];
 					info_text.assign( "Potential Damage: " ).append( std::to_string( ROUND( potDmg ) ) );
 					info_text.append( "\n\n" ).append( it->get_desc() );
 				} else {
@@ -419,7 +419,7 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 		qtyTxtLen = text_length( font, "Qty. in inventory: ddd" );
 	}
 
-	// Erase top gap:
+	// erase top gap:
 	if ( full_redraw ) {
 		global.lock_land();
 		rectfill(
@@ -749,18 +749,18 @@ void Shop::init() {
 	// Determine maximum boost value and score
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		int32_t boostValue = env.players[ z ]->get_boost_value();
-		if ( boostValue > maxBoost ) {
-			maxBoost = boostValue;
+		if ( boostValue > max_boost ) {
+			max_boost = boostValue;
 		}
-		if ( env.players[ z ]->score > maxScore ) {
-			maxScore = env.players[ z ]->score;
+		if ( env.players[ z ]->score > max_score ) {
+			max_score = env.players[ z ]->score;
 		}
 	}
 
 	// If this is demo mode, raise the max boost level, as there
 	// are no human players to define a maximum value
 	if ( global.demo_mode ) {
-		maxBoost += static_cast< int32_t >( env.rounds - global.current_round );
+		max_boost += static_cast< int32_t >( env.rounds - global.current_round );
 	}
 }
 
@@ -868,7 +868,7 @@ void Shop::take_out_of_trolley( int32_t pl ) {
 }
 
 /// ==== The Shop (tm) ====
-bool shop( LevelCreator* lvl_creator ) {
+bool shop( CLevelCreator* lvl_creator ) {
 	Shop new_shop( lvl_creator );
 	new_shop();
 
@@ -879,7 +879,7 @@ bool shop( LevelCreator* lvl_creator ) {
 	}
 
 
-	// The LevelCreator, if not finished, can work alone, now:
+	// The CLevelCreator, if not finished, can work alone, now:
 	if ( !lvl_creator->is_finished() ) {
 		lvl_creator->work_alone();
 	}
@@ -908,8 +908,8 @@ bool shop( LevelCreator* lvl_creator ) {
 /*
  *  Calculate the potential damage for a given weapon.
  */
-static int32_t calcPotentialDmg( int32_t weapNum ) {
-	CWeapon* weap = &weapon[ weapNum ];
+static int32_t calc_potential_dmg( int32_t weap_num ) {
+	CWeapon* weap = &weapon[ weap_num ];
 
 	if ( ( weap->submunition >= 0 ) && ( weap->numSubmunitions > 0 ) ) {
 		return weapon[ weap->submunition ].damage * weap->numSubmunitions;
@@ -988,7 +988,7 @@ static void divide_team_money() {
 }
 
 /// @brief dedicated function for AI shopping.
-void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
+void do_ai_shopping( CPlayer* player, int32_t max_boost, int32_t max_score ) {
 	// Print player info and inventory
 #ifdef ATANKS_DEBUG_FINANCE
 	DEBUG_LOG_FIN( player->get_name(), "Starting to buy: (Defensiveness: %4.2lf)", player->defensive )
@@ -1017,7 +1017,7 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 	int32_t oldMoneyToSave = -1; // So the same message isn't repeated over and over again.
 #endif                               // ATANKS_DEBUG_FINANCE
 
-	player->update_preferences( maxBoost, maxScore );
+	player->update_preferences( max_boost, max_score );
 
 	// money saving will be made possible when:
 	// 1. It's not the first three rounds
@@ -1066,7 +1066,7 @@ void do_ai_shopping( CPlayer* player, int32_t maxBoost, int32_t maxScore ) {
 		// the number of parachutes or damage dealing weapons is too low.
 		if ( ( player->money > moneyToSave ) || ( ( numPara < ai_level ) && ( env.landslide_type > SLIDE_NONE ) )
 		     || ( numDmgWeaps < ( ai_level * 2 ) ) ) {
-			pressed = player->choose_item_to_buy( maxBoost, last_buy_idx );
+			pressed = player->choose_item_to_buy( max_boost, last_buy_idx );
 		} else {
 			pressed = -1; // Forced to end.
 		}

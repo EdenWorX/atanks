@@ -61,7 +61,7 @@ public:
 	 * ----------------------
 	 */
 
-	/// Add a button without action function.
+	/// add a button without action function.
 	int32_t add_button(
 		int32_t     title_idx,
 		char const* title_,
@@ -78,7 +78,7 @@ public:
 	);
 
 
-	/// Add a color option.
+	/// add a color option.
 	int32_t add_color(
 		int32_t* target,
 		int32_t  title_idx,
@@ -91,7 +91,7 @@ public:
 	);
 
 
-	/// Add a sub menu option with CMenu target.
+	/// add a sub menu option with CMenu target.
 	int32_t add_menu(
 		CMenu*   menu,
 		int32_t title_idx,
@@ -104,7 +104,7 @@ public:
 	);
 
 
-	/// Add a sub menu option with CPlayer target (set title_idx to -1 to use player name).
+	/// add a sub menu option with CPlayer target (set title_idx to -1 to use player name).
 	int32_t add_menu(
 		CPlayer** player,
 		int32_t ( *action_ )( CPlayer** player_, int32_t ),

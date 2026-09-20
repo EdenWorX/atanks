@@ -12,7 +12,7 @@ Static temp land bitmap for faster land creation
 static BITMAP* temp_land = nullptr;
 
 // Define how the land will look.
-void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
+void generate_land( CLevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 	double* depthStrip[ 2 ] = { nullptr, nullptr };
 	double  smoothness      = 100.;
 	int32_t octaves         = 8;

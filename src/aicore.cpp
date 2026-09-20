@@ -1114,7 +1114,7 @@ int32_t CAICore::calc_hit_score( bool is_last ) {
 			)
 
 
-			// 2: Add the simple damage to the score:
+			// 2: add the simple damage to the score:
 			hit_score += ROUND(
 				static_cast< double >( opp->dmg_done ) * opp->team_mod * self_mod
 				* ( shock_hit ? ai_over_mod : 1. )
@@ -1139,7 +1139,7 @@ int32_t CAICore::calc_hit_score( bool is_last ) {
 					kill_bonus *= ai_type_mod;
 				}
 
-				// Add some more for killing the shocker:
+				// add some more for killing the shocker:
 				if ( shock_hit ) {
 					kill_bonus += kill_bonus / ai_over_mod;
 				}
@@ -1172,7 +1172,7 @@ int32_t CAICore::calc_hit_score( bool is_last ) {
 					over_score /= ( player->defensive - 2. ) * -1.;
 				}
 
-				// Add a fraction of the overkill score
+				// add a fraction of the overkill score
 				hit_score += ROUND( over_score / ( 10. - ai_level_d ) );
 			} // End of overkill score
 		}         // end of having damage done
@@ -2131,7 +2131,7 @@ bool CAICore::calc_unbury( bool is_last ) {
 			}
 		}
 
-		// Add a variant to the angle:
+		// add a variant to the angle:
 		curr_angle += ( ( get_rand() % 21 ) - 10 ) / ai_level;
 
 		// If riot charges are used, 45° is the lower border.
@@ -4356,7 +4356,7 @@ void CAICore::update_opp_score( opentry_t* pOpp ) {
 
 			DEBUG_LOG_EMO( player->get_name(), " --> Anger cooled down to   : %d", entry->revenge_dmg )
 
-			// Add current damage
+			// add current damage
 			entry->revenge_dmg += entry->damage_last;
 
 			DEBUG_LOG_EMO( player->get_name(), " --> Anger raised again to  : %d", entry->revenge_dmg )
@@ -4410,7 +4410,7 @@ void CAICore::update_opp_score( opentry_t* pOpp ) {
 			}
 		}
 	} else {
-		// Add points for their weakness, more if the bot is offensive
+		// add points for their weakness, more if the bot is offensive
 		life_score = ( player->defensive + 3. ) / 2. * pOpp->diff_life;
 	}
 	// Note:
@@ -4419,7 +4419,7 @@ void CAICore::update_opp_score( opentry_t* pOpp ) {
 
 
 	/* -------------------------------------------------------------
-	 * --- 4) Add points for distance                            ---
+	 * --- 4) add points for distance                            ---
 	 * --- The theory is, that weaker bots concentrate on nearer ---
 	 * --- enemies first, while stronger bots do not mind.       ---
 	 * ------------------------------------------------------------- */
@@ -4427,7 +4427,7 @@ void CAICore::update_opp_score( opentry_t* pOpp ) {
 
 
 	/* -------------------------------------------------------------
-	 * --- 5) Add points the easier the target is to be killed.  ---
+	 * --- 5) add points the easier the target is to be killed.  ---
 	 * --- The easier, and cheaper, the better. But even much    ---
 	 * --- better if this bot needs money.                       ---
 	 * ------------------------------------------------------------- */
@@ -4448,7 +4448,7 @@ void CAICore::update_opp_score( opentry_t* pOpp ) {
 
 
 	/* --------------------------------------------------------------
-	 * --- 6) Add or dock points regarding AI level               ---
+	 * --- 6) add or dock points regarding AI level               ---
 	 * --- More powerful opponents are targeted preferably, while ---
 	 * --- weaker ones are not considered to be such a threat.    ---
 	 * --- Note: Human players are handled like the best AI       ---
@@ -4480,7 +4480,7 @@ void CAICore::update_opp_score( opentry_t* pOpp ) {
 
 
 	/* -------------------------------------------------------------
-	 * --- 7) Add points for score difference                    ---
+	 * --- 7) add points for score difference                    ---
 	 * --- Target the leading bots earlier, losing ones later.   ---
 	 * ------------------------------------------------------------- */
 	auto opp_level_d = static_cast< double >(

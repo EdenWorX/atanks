@@ -105,7 +105,7 @@ void CVirtualObject::update() {
 		return;
 	}
 
-	// Add update area for the current dimension
+	// add update area for the current dimension
 	if ( dim_cur.w > 0 ) {
 		int32_t left =
 			LEFT == align    ? dim_cur.x

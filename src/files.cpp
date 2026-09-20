@@ -424,7 +424,7 @@ void scroll_text_list( TEXTBLOCK* lines ) {
 	EBackgroundTypes bg_type =
 		env.dynamic_menu_bg ? static_cast< EBackgroundTypes >( get_rand() % BACKGROUND_COUNT ) : BACKGROUND_BLANK;
 
-	drawMenuBackground( bg_type, tOffset, numItems );
+	draw_menu_background( bg_type, tOffset, numItems );
 	quick_change( true );
 
 	int32_t clip_l = env.half_width - 299;
@@ -455,7 +455,7 @@ void scroll_text_list( TEXTBLOCK* lines ) {
 			scrollOffset = clip_b - env.half_height - 14;
 		}
 
-		drawMenuBackground( bg_type, tOffset, numItems );
+		draw_menu_background( bg_type, tOffset, numItems );
 		lines->render_lines( scrollOffset, spacing, clip_t, clip_b );
 		global.make_update( env.half_width - 300, env.menu_begin_y, 601, env.screen_height - 2 * env.menu_begin_y );
 		global.do_updates();

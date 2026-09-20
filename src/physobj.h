@@ -76,7 +76,7 @@ public:
 	/// Render the object.
 	void inline draw() override { CVirtualObject::draw(); };
 
-	/// Read the current velocity.
+	/// read the current velocity.
 	void get_velocity( double &xv_, double &yv_ );
 
 	/* Status Getters */

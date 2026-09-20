@@ -27,13 +27,13 @@
 #include "menu.h"
 
 /// Draw a menu background.
-void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t numItems );
+void    draw_menu_background( EBackgroundTypes backType, int32_t tOffset, int32_t numItems );
 /// Run the player editor.
-void    editPlayers();
+void    edit_players();
 /// Run the options menu.
-void    optionsMenu();
+void    options_menu();
 /// Run the player selection.
-int32_t selectPlayers();
+int32_t select_players();
 
 
 #endif // ATANKS_OPTIONSCREENS_H_INCLUDED

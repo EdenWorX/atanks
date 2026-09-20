@@ -647,7 +647,7 @@ sSDI* CMissile::build_sdi_list( sSDI* sdi ) {
 			sdi[ idx ].y     = start_y;
 
 
-			/* Add the SDI to the list if:
+			/* add the SDI to the list if:
 			 * 1: The missile is within maximum range
 			 *    Note: For every 5 SDIs the maximum range is raised by 5% with a maximum of 50%
 			 * 2: but further away than the minimum distance and

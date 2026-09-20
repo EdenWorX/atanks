@@ -1800,7 +1800,7 @@ char const* CPlayer::get_name() const {
 // close the socket and hand control over to the AI.
 bool CPlayer::get_net_cmd() {
 #ifdef NETWORK
-	if ( Check_For_Incoming_Data( server_socket ) ) {
+	if ( check_for_incoming_data( server_socket ) ) {
 		// we have something coming down the pipe
 		memset( net_command, '\0', NET_COMMAND_SIZE ); // clear buffer
 		size_t status = read( server_socket, net_command, NET_COMMAND_SIZE );

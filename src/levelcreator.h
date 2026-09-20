@@ -12,17 +12,17 @@
 ///
 /// Runs terrain and sky generation (perlin noise, see perlin.cpp) off the
 /// main thread while the menu stays responsive.
-class LevelCreator {
+class CLevelCreator {
 	abool_t   in_progress[ 4 ]{ false };
 	abool_t   i_must_yield{ true };
 	abool_t   i_shall_die{ false };
-	CSpinLock fiLock;
-	int32_t   fiVal = 0;
+	CSpinLock fi_lock;
+	int32_t   fi_val = 0;
 	void      add_fi();
 
 public:
 	/// Construct a level creator.
-	explicit LevelCreator();
+	explicit CLevelCreator();
 	/// Run background generation.
 	void operator() ();
 	/// Abort background generation.

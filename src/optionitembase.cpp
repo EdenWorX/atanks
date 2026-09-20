@@ -466,7 +466,7 @@ int32_t COptionItemBase::activate_menu( CMenu* target ) {
 	return 0;
 }
 
-/** @brief Add the result of key press @a raw_key to @a target.
+/** @brief add the result of key press @a raw_key to @a target.
  *
  * Please make sure that @a has at least one byte free space excluding
  * null character termination!
@@ -537,7 +537,7 @@ void COptionItemBase::display_deco( int32_t show_color ) {
 			xLeft          -= title_len + padding;
 			xWidth          = title_len + padding;
 
-			// Add a nice shadow if wanted
+			// add a nice shadow if wanted
 			if ( env.shadowed_text ) {
 				textout_ex(
 					global.canvas,

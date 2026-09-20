@@ -132,7 +132,7 @@ protected:
 	 * -------------------------
 	 */
 
-	/// Read the bitmap, if any.
+	/// read the bitmap, if any.
 	[[nodiscard]] BITMAP* get_bitmap() const { return bitmap; }
 
 	/// Test whether a bitmap is set.

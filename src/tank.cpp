@@ -50,7 +50,7 @@ CTank::CTank()
 	mass  = 3000;
 	a    += get_rand() % 180;
 
-	// Add to the chain:
+	// add to the chain:
 	global.add_object( this );
 	global.num_tanks++;
 }
@@ -1091,7 +1091,7 @@ int32_t CTank::how_buried( int32_t *left, int32_t *right ) {
 		}
 	}
 
-	// Add a full result to right to negate left half and count only right half
+	// add a full result to right to negate left half and count only right half
 	if ( left ) {
 		*left += result;
 		if ( *left < 0 ) {

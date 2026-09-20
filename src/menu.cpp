@@ -693,7 +693,7 @@ void CMenu::redraw_all( bool full_redraw ) {
 		if ( ++bg_offset == INT_MAX ) {
 			bg_offset = 0;
 		}
-		drawMenuBackground( bg_type, bg_offset, bg_items );
+		draw_menu_background( bg_type, bg_offset, bg_items );
 		textout_ex( global.canvas, font, title, title_x + 2, menu_y + 12, BLACK, -1 );
 		textout_ex( global.canvas, font, title, title_x + 5, menu_y + 14, WHITE, -1 );
 	}

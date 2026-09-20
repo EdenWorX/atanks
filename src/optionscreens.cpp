@@ -27,7 +27,7 @@ int32_t switch_language( ELanguages *lang, int32_t val );
  * Someday, we should make this more generic; have it take the box dimensions
  * as an input parameter.
  **/
-void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
+void    draw_menu_background( EBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
         rectfill(
                 global.canvas,
                 env.half_width - 300,
@@ -92,7 +92,7 @@ void    drawMenuBackground( EBackgroundTypes backType, int32_t tOffset, int32_t 
 }
 
 /// @brief Show a screen listing all players allowing to create new and edit existing ones.
-void editPlayers() {
+void edit_players() {
 	/// @todo : Currently the width is fixed on 600. This should be made
 	/// more dynamic like the height. Although the height is fixed, too...
 	/// However, there is much to do to get an adaptable and good looking menu...
@@ -115,9 +115,9 @@ void editPlayers() {
 	int32_t first_idx   = menu.add_menu( &player_new, new_player, 1, menuMid - 53, itemY, 100, itemHeight, itemPadding );
 	itemY              += itemHeight + itemPadding;
 
-	// Add one entry per player
+	// add one entry per player
 	// One CMenu per player:
-	// Add one edit option per player
+	// add one edit option per player
 	int32_t last_idx    = first_idx;
 	int32_t max_width   = 100;
 	plListHeight       -= itemY; // this is left.
@@ -137,7 +137,7 @@ void editPlayers() {
 	// Distribute the player list:
 	menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, false );
 
-	// Add "back" button
+	// add "back" button
 	menu.add_button(
 		2,
 		nullptr,
@@ -175,7 +175,7 @@ void editPlayers() {
 			optionsRetVal = 0;
 		} else if ( PE_CONFIRM_NEW & optionsRetVal ) {
 			if ( player_new ) {
-				// Add a menu entry for the new player:
+				// add a menu entry for the new player:
 				menu.add_menu(
 					&env.all_players[ env.num_permanent_players - 1 ],
 					edit_player,
@@ -198,7 +198,7 @@ void editPlayers() {
 }
 
 /// @brief The main options menu
-void optionsMenu() {
+void options_menu() {
 	/// @todo : Currently the width is fixed on 600. This should be made
 	/// more dynamic like the height. Although the height is fixed, too...
 	/// However, there is much to do to get an adaptable and good looking menu...
@@ -420,7 +420,7 @@ void optionsMenu() {
 }
 
 /// @brief Show a screen that shows the preparations to create a new game.
-int32_t selectPlayers() {
+int32_t select_players() {
 	/// @todo : Currently the width is fixed on 600. This should be made
 	/// more dynamic like the height. Although the height is fixed, too...
 	/// However, there is much to do to get an adaptable and good looking menu...
@@ -561,7 +561,7 @@ int32_t selectPlayers() {
 		menu.add_toggle( &env.campaign_mode, idx++, WHITE, menuMid + 25, itemY, 100, itemHeight + 5, itemPadding );
 	itemY             += itemFullHeight + 7; // ET_TOGGLE needs more height
 
-	// Add one entry per player
+	// add one entry per player
 	int32_t last_idx   = first_idx;
 	int32_t max_width  = 100;
 	plListHeight      -= itemY; // this is left.
@@ -645,7 +645,7 @@ int32_t selectPlayers() {
 				int32_t playerCount = 0;
 				env.num_game_players  = 0;
 
-				// Add selected players to the game:
+				// add selected players to the game:
 				for ( int z = 0; z < env.num_permanent_players; z++ ) {
 					if ( env.all_players[ z ]->selected ) {
 						env.add_game_player( env.all_players[ z ] );
@@ -1364,7 +1364,7 @@ static void
 
 /// @brief Switch language helper function
 /// Note: The real use of this function is, that it generates a return
-///       code, so optionsMenu() can react on the language change. ;-)
+///       code, so options_menu() can react on the language change. ;-)
 int32_t switch_language( ELanguages *lang, int32_t val ) {
 	ELanguages old_lang = *lang;
 

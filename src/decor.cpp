@@ -69,7 +69,7 @@ CDecor::CDecor( double x_, double y_, double xv_, double yv_, int32_t max_radius
 
 	max_vel = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
-	// Add to the chain:
+	// add to the chain:
 	global.add_object( this );
 }
 
@@ -223,7 +223,7 @@ void CDecor::applyPhysics() {
 		xv += xaccel;
 		yv += yaccel;
 
-		// Add repulsion:
+		// add repulsion:
 		repulse_decor();
 
 		// Be sure that neither xv outruns wind nor yv is

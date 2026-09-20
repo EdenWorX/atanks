@@ -117,7 +117,7 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fire_angle, int32_
 		play_natural_sound( weap_type, ( points[ 0 ].x + points[ num_points - 1 ].x ) / 2, 175 + ( radius * 10 ), 1000 );
 	}
 
-	// Add to the chain unless it is a mind shot:
+	// add to the chain unless it is a mind shot:
 	if ( BT_MIND_SHOT != beam_type ) {
 		global.add_object( this );
 	}

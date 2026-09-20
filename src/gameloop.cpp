@@ -695,7 +695,7 @@ static inline void check_fps( ObjectUpdater* upd ) {
 			USLEEP( us_unused );
 		}
 
-		// Add what has been used until now:
+		// add what has been used until now:
 		game_us_needed += game_us_get();
 	}
 }
@@ -1426,7 +1426,7 @@ static inline void init_new_round() {
 	// everyone gets to buy stuff. While the (human)
 	// player(s) are at it, generate the next level
 	// in the background.
-	LevelCreator lvlCreator;
+	CLevelCreator lvlCreator;
 	std::thread  gen_land_thread( std::ref( lvlCreator ) );
 	shop( &lvlCreator );
 	gen_land_thread.join();
@@ -1696,7 +1696,7 @@ static inline void draw_eor_scoreboard() {
 			textout_centre_ex( global.canvas, font, "Press any key to exit", x + ( w / 2 ), y + h + 4, SILVER, -1 );
 		}
 
-		// Add the padding now, or it must be summed in everywhere!
+		// add the padding now, or it must be summed in everywhere!
 		x += pd;
 		y += pd;
 		w -= 2 * pd;

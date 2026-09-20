@@ -106,7 +106,7 @@ public:
 	bool    load_bitmaps();                                               ///< Load bitmaps.
 	bool    load_fonts();                                                 ///< Load fonts.
 	bool    load_game_files();                                             ///< Load game files.
-	void    load_from_file( FILE* file );                                ///< Read settings.
+	void    load_from_file( FILE* file );                                ///< read settings.
 	bool    load_sounds();                                                ///< Load sounds.
 	void    load_text_files();                                           ///< Load localized text.
 		void       new_round();                                                  ///< Reset per-round options.

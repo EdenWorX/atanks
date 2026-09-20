@@ -32,7 +32,7 @@ public:
 
 	/// Render the button.
 	void draw();
-	/// Read the button geometry.
+	/// read the button geometry.
 	void get_location( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
 	/// Test mouse hover.
 	bool is_mouse_over() const;

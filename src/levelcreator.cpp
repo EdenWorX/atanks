@@ -10,47 +10,47 @@
 
 
 static inline double colorDistance( int32_t col1, int32_t col2 );
-static inline void   set_level_settings( LevelCreator* lcr );
+static inline void   set_level_settings( CLevelCreator* lcr );
 
 
 /// Level Creator Methods implementation
-LevelCreator::LevelCreator() = default;
+CLevelCreator::CLevelCreator() = default;
 
 /// The operator is just a wrapper.
-void LevelCreator::operator() () {
-	fiVal = 1;
+void CLevelCreator::operator() () {
+	fi_val = 1;
 	set_level_settings( this );
-	fiVal = 0;
+	fi_val = 0;
 }
 
-void LevelCreator::add_fi() {
-	fiLock.lock();
-	++fiVal;
-	fiLock.unlock();
+void CLevelCreator::add_fi() {
+	fi_lock.lock();
+	++fi_val;
+	fi_lock.unlock();
 }
 
-bool LevelCreator::can_work() const {
+bool CLevelCreator::can_work() const {
 	return !i_shall_die;
 }
 
-void LevelCreator::die_now() {
+void CLevelCreator::die_now() {
 	i_shall_die = true;
 }
 
-bool LevelCreator::has_progress() {
-	fiLock.lock();
-	bool result = ( fiVal > 0 );
-	fiVal       = 0;
-	fiLock.unlock();
+bool CLevelCreator::has_progress() {
+	fi_lock.lock();
+	bool result = ( fi_val > 0 );
+	fi_val       = 0;
+	fi_lock.unlock();
 
 	return result;
 }
 
-bool LevelCreator::is_finished() const {
+bool CLevelCreator::is_finished() const {
 	return in_progress[ 3 ];
 }
 
-void LevelCreator::print_state() const {
+void CLevelCreator::print_state() const {
 	if ( in_progress[ 0 ] ) {
 		draw_sprite( global.canvas, env.misc[ 1 ], env.half_width - 120, env.half_height + 115 );
 		textout_centre_ex( global.canvas, font, env.ingame->get_line( 42 ), env.half_width, env.half_height + 116, WHITE, -1 );
@@ -71,12 +71,12 @@ void LevelCreator::print_state() const {
 	}
 }
 
-/// @brief Tell the LevelCreator that it does not need to yield any more
-void LevelCreator::work_alone() {
+/// @brief Tell the CLevelCreator that it does not need to yield any more
+void CLevelCreator::work_alone() {
 	i_must_yield = false;
 }
 
-void LevelCreator::working_on( int32_t what ) {
+void CLevelCreator::working_on( int32_t what ) {
 	if ( ( what > 0 ) && ( what < 5 ) ) {
 		add_fi();
 		in_progress[ what - 1 ] = true;
@@ -84,7 +84,7 @@ void LevelCreator::working_on( int32_t what ) {
 }
 
 /// @brief yield if it is not working alone
-void LevelCreator::yield() {
+void CLevelCreator::yield() {
 	if ( i_must_yield ) {
 		std::this_thread::yield();
 	}
@@ -113,7 +113,7 @@ double colorDistance( int32_t col1, int32_t col2 ) {
  * This must work in parallel with the shop(), so any drawing must
  * lock the land, do the drawing and unlock it again.
  **/
-static inline void set_level_settings( LevelCreator* lcr ) {
+static inline void set_level_settings( CLevelCreator* lcr ) {
 
 	//  -------------------------
 	// ===  Choosing colours   ===

@@ -55,7 +55,7 @@
 *** static local variables ***
 *****************************/
 static bool        allow_network = true;
-static string      fullPath;
+static string      full_path;
 static EFullScreen full_screen      = FULL_SCREEN_EITHER;
 static bool        load_config_file = true;
 static int32_t     screen_mode      = GFX_AUTODETECT_WINDOWED;
@@ -75,26 +75,26 @@ extern CItem   item[ ITEMS ];        // from files.cpp
 /*****************************
 *** static local functions ***
 *****************************/
-static void        Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech );
+static void        change_settings( bool old_sound, int32_t old_itech, int32_t old_wtech );
 static void        close_button_handler();
-static void        createConfig();
+static void        create_config();
 static void        credits();
 static char const* do_winner();
 static void        endgame_cleanup();
 void               init_mouse_cursor();
 static void        init_game_settings();
-static void        initialisePlayers();
-static bool        loadConfig();
-static bool        loadPlayers( FILE* file );
+static void        initialise_players();
+static bool        load_config();
+static bool        load_players( FILE* file );
 static int32_t     menu();
-static void        newgame();
+static void        new_game();
 static int32_t     parse_args( int32_t argc, char** argv );
 static void        play_demo();
 static void        play_local();
 static void        play_networked();
 static void        print_text_help();
-static void        print_text_initmsg();
-static bool        Save_Game_Settings( char const* path );
+static void        print_text_init_msg();
+static bool        save_game_settings( char const* path );
 static void        show_options();
 static void        title();
 
@@ -113,7 +113,7 @@ void draw_simple_bg( bool drawImage ); // from shop.cpp
  * This function detects changes to some environment settings and, if a
  * change has happened, makes the required changes to the game environment.
  **/
-static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech ) {
+static void change_settings( bool old_sound, int32_t old_itech, int32_t old_wtech ) {
 	// first, check for a change in the sound settings
 	if ( old_sound != env.sound_enabled ) {
 		if ( env.sound_enabled ) {
@@ -153,7 +153,7 @@ static void credits() {
 }
 
 /// @brief create a fresh new config if loading was prohibited or failed
-static void createConfig() {
+static void create_config() {
 	env.num_permanent_players = 0;
 
 	// Override full screen settings from command line
@@ -345,7 +345,7 @@ static char const* do_winner() {
 	rect( global.canvas, x, y, x + w, y + h, WHITE );
 	rect( global.canvas, x + 1, y + 1, x + w - 1, y + h - 1, GREY );
 
-	// Add the padding now, or it must be summed in everywhere!
+	// add the padding now, or it must be summed in everywhere!
 	x += pd;
 	y += pd;
 	w -= 2 * pd;
@@ -444,7 +444,7 @@ static char const* do_winner() {
 	}
 	global.do_updates();
 
-	// Add a war quote:
+	// add a war quote:
 	char const* quote = env.war_quotes->get_random_line();
 	if ( quote ) {
 		draw_text_in_box( &qarea, quote, false );
@@ -707,7 +707,7 @@ static void init_game_settings() {
 	}
 }
 
-static void initialisePlayers() {
+static void initialise_players() {
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		env.players[ z ]->money = env.start_money;
 		env.players[ z ]->score = 0;
@@ -719,13 +719,13 @@ static void initialisePlayers() {
 	}
 }
 
-static bool loadConfig() {
+static bool load_config() {
 	bool result = false;
 
-	fullPath.assign( env.config_dir + string( "/atanks-config.txt" ) );
+	full_path.assign( env.config_dir + string( "/atanks-config.txt" ) );
 
 	if ( load_config_file ) {
-		FILE* old_config_file = fopen( fullPath.c_str(), "r" );
+		FILE* old_config_file = fopen( full_path.c_str(), "r" );
 
 		if ( old_config_file ) {
 			env.load_from_file( old_config_file );
@@ -742,7 +742,7 @@ static bool loadConfig() {
 			env.load_text_files();
 
 			// ...then the players last
-			result = loadPlayers( old_config_file );
+			result = load_players( old_config_file );
 
 			fclose( old_config_file );
 		}
@@ -751,7 +751,7 @@ static bool loadConfig() {
 	return result;
 }
 
-static bool loadPlayers( FILE* file ) {
+static bool load_players( FILE* file ) {
 	int32_t max_pl = env.num_permanent_players;
 
 	if ( env.all_players ) {
@@ -1017,7 +1017,7 @@ static int32_t menu() {
 				result = SIG_QUIT_GAME;
 			}
 
-			// Erase key presses
+			// erase key presses
 			K = 0;
 
 			// Print out update info if any
@@ -1094,7 +1094,7 @@ static int32_t menu() {
 	return result;
 }
 
-static void newgame() {
+static void new_game() {
 	env.initialise();
 	global.initialise();
 
@@ -1105,7 +1105,7 @@ static void newgame() {
 
 	// Now check back whether to load a game
 	if ( !env.load_game ) {
-		initialisePlayers();
+		initialise_players();
 	}
 
 	// There must not be any tanks!
@@ -1281,7 +1281,7 @@ static void play_demo() {
 		}
 	}
 
-	newgame();
+	new_game();
 
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
 		env.players[ i ]->new_game();
@@ -1306,14 +1306,14 @@ static void play_demo() {
 }
 
 static void play_local() {
-	if ( selectPlayers() != MRC_Esc_Menu ) {
+	if ( select_players() != MRC_Esc_Menu ) {
 
 		// make sure the game has a name
 		if ( env.game_name.empty() ) {
 			env.game_name.assign( env.ingame->get_line( 53 ) );
 		}
 
-		newgame();
+		new_game();
 
 		if ( !env.load_game ) {
 			global.current_round = env.rounds;
@@ -1377,7 +1377,7 @@ static void play_local() {
 
 static void play_networked() {
 #ifdef NETWORK
-	client_socket = Setup_Client_Socket( env.server_name, env.server_port );
+	client_socket = setup_client_socket( env.server_name, env.server_port );
 	if ( client_socket >= 0 ) {
 		bool keep_playing = true;
 		cout << "Ready to play networked" << endl;
@@ -1386,7 +1386,7 @@ static void play_networked() {
 			keep_playing = Game_Client( client_socket );
 		}
 
-		Clean_Up_Client_Socket( client_socket );
+		clean_up_client_socket( client_socket );
 	} else {
 		cerr << "ERROR: Unable to connect to server " << env.server_name << ", port " << env.server_port << endl;
 	}
@@ -1423,7 +1423,7 @@ static void print_text_help() {
 	     << "    --nobackground   Do not display the green menu background." << endl;
 }
 
-static void print_text_initmsg() {
+static void print_text_init_msg() {
 	cout << "Atomic Tanks Version " << VERSION << " (-h for help)\n"
 	     << "Authors: Tom Hudson        (rewrite, additions, improvements)\n"
 	     << "         Stevante Software (original design)\n"
@@ -1440,7 +1440,7 @@ the config file name.
 The function returns true on success and false on failure.
 -- Jesse
 */
-static bool Save_Game_Settings( char const* path ) {
+static bool save_game_settings( char const* path ) {
 	FILE* file = fopen( path, "w" );
 	if ( !file ) {
 		perror( "Error trying to open text file for writing.\n" );
@@ -1463,14 +1463,14 @@ static void show_options() {
 	int32_t temp_itech = env.itemtech_level;
 	int32_t temp_wtech = env.weapontech_level;
 
-	optionsMenu();
+	options_menu();
 
-	if ( !Save_Game_Settings( fullPath.c_str() ) ) {
+	if ( !save_game_settings( full_path.c_str() ) ) {
 		cerr << "atanks.cpp:" << __LINE__ << " Failed to save game settings from " << __FUNCTION__ << endl;
 	}
 
 	// check for changes to settings
-	Change_Settings( temp_sound, temp_itech, temp_wtech );
+	change_settings( temp_sound, temp_itech, temp_wtech );
 }
 
 static void title() {
@@ -1487,7 +1487,7 @@ static void title() {
 }
 
 int32_t main( int32_t argc, char** argv ) {
-	print_text_initmsg();
+	print_text_init_msg();
 
 	// Parse arguments and exit early if needed
 	int32_t result = parse_args( argc, argv );
@@ -1517,8 +1517,8 @@ int32_t main( int32_t argc, char** argv ) {
 	env.find_config_dir();
 
 	// load or create a configuration
-	if ( !loadConfig() ) {
-		createConfig();
+	if ( !load_config() ) {
+		create_config();
 	}
 
 	// Load game files
@@ -1554,7 +1554,7 @@ int32_t main( int32_t argc, char** argv ) {
 		send_receive->listening_port = env.network_port;
 
 		// quit option already cleared by calloc call
-		network_thread = new std::thread( Send_And_Receive, send_receive );
+		network_thread = new std::thread( send_and_receive, send_receive );
 	}
 #endif // NETWORK
 
@@ -1588,7 +1588,7 @@ int32_t main( int32_t argc, char** argv ) {
 				show_options();
 				break;
 			case GLOBAL_COMMAND_PLAYERS:
-				editPlayers();
+				edit_players();
 				break;
 			case GLOBAL_COMMAND_CREDITS:
 				credits();
@@ -1629,7 +1629,7 @@ int32_t main( int32_t argc, char** argv ) {
 #endif // 0
 #endif // NETWORK
 
-	if ( !Save_Game_Settings( fullPath.c_str() ) ) {
+	if ( !save_game_settings( full_path.c_str() ) ) {
 		// This is a very critical issue, but as we are ending here, we just report it
 		cerr << "atanks.cpp: Failed to save game settings from atanks::main()!" << endl;
 		result = EXIT_FAILURE;

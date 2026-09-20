@@ -43,7 +43,7 @@ CFloatText::CFloatText(
 	set_sway_type( sway_type );
 	set_speed( xv_, yv_ );
 
-	// Add to the chain:
+	// add to the chain:
 	global.add_object( this );
 }
 

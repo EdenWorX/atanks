@@ -130,8 +130,8 @@ sGradient const* const land_gradients[] = {
 	land_gradient13, land_gradient14, land_gradient15, land_gradient16
 };
 
-class LevelCreator;
+class CLevelCreator;
 
-void generate_land( LevelCreator* lcr, int32_t yoffset, int32_t heightx );
+void generate_land( CLevelCreator* lcr, int32_t yoffset, int32_t heightx );
 
 #endif // ATANKS_LAND_H_INCLUDED

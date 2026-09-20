@@ -172,7 +172,7 @@ void COptionItemPlayer::display( bool show_full ) {
 				txtColor = BLACK;
 			}
 
-			// Add a button like area for the name
+			// add a button like area for the name
 			rect( global.canvas, txtLeft, top, left + width, top + height, txtColor );
 			rect( global.canvas, txtLeft + 1, top + 1, left + width - 1, top + height - 1, txtColor );
 			hline( global.canvas, txtLeft + 1, top + height - 1, left + width - 1, shColor );

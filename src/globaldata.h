@@ -104,13 +104,13 @@ public:
 	void first_init();
 	/// Return a debris item to the pool.
 	void free_debris_item( item_t* item );
-	int32_t                          get_command();                         ///< Read the pending menu command.
-	CTank*                            get_curr_tank();                       ///< Read the tank whose turn it is.
+	int32_t                          get_command();                         ///< read the pending menu command.
+	CTank*                            get_curr_tank();                       ///< read the tank whose turn it is.
 	item_t*                          get_debris_item( int32_t radius );     ///< Take a pool debris item.
 	CTank*                            get_next_tank( bool* wrapped_around ); ///< Advance to the next live tank.
 	CTank*                            get_random_tank();                     ///< Pick a random live tank.
 	void                             initialise();                          ///< Clear objects and reset per-round state.
-	bool                             is_close_btn_pressed();                   ///< Read the close-button flag.
+	bool                             is_close_btn_pressed();                   ///< read the close-button flag.
 	void                             lock_class( EClass class_ );            ///< Lock an object-class list.
 	void                             lock_land();                            ///< Lock the terrain.
 	/// Queue a background dirty rectangle.

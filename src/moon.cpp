@@ -98,7 +98,7 @@ static inline double coverage( double distance, double radius ) {
  * @param[in,out] zbuffer buffer to record which pixels are "taken".
  **/
 static void draw_amoon(
-	LevelCreator* lcr,
+	CLevelCreator* lcr,
 	BITMAP*       sky,
 	Moon const&   mn,
 	int32_t       x0,
@@ -214,7 +214,7 @@ static void paint_moonpix( int32_t x, int32_t y, Moon const& mn, double xval, do
  * @param[in] width The width of the area to draw moons in
  * @param[in] height The height of the area to draw moons in
  **/
-void draw_moons( LevelCreator* lcr, BITMAP* sky, int32_t width, int32_t height ) {
+void draw_moons( CLevelCreator* lcr, BITMAP* sky, int32_t width, int32_t height ) {
 	bool const darkside = get_rand() > ( RAND_MAX / 2 + 1 );
 	ZBuffer    zbuffer( width, height );
 
