@@ -559,3 +559,4 @@ quantities/prices, fired shots).
 - [ ] `make test` and `make test-all` run green (unit suite in release and debug dirs, `WP PF-1.11`).
 - [ ] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).
 - [x] `make install` populates `bin/atanks`, metainfo, desktop file, icons, and data with no stray files (`WP PF-1.12`).
+- [ ] PLAY with an empty player roster returns to the menu instead of aborting (empty-roster guard).

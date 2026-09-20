@@ -169,8 +169,10 @@ void edit_players() {
 			CPlayer *to_delete = env.all_players[ num ];
 			env.delete_perm_player( to_delete );
 
-			// redistribute the remaining:
-			menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, true );
+			// redistribute the remaining (if there are any left):
+			if ( last_idx >= first_idx ) {
+				menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, true );
+			}
 
 			optionsRetVal = 0;
 		} else if ( PE_CONFIRM_NEW & optionsRetVal ) {
@@ -443,6 +445,12 @@ int32_t select_players() {
 	dirent **saved_game_names;
 	char   **game_list = nullptr;
 
+	// Without permanent players there is nothing to select; new players
+	// must be created via the PLAYERS screen first.
+	if ( !env.num_permanent_players ) {
+		return MRC_Esc_Menu;
+	}
+
 	// Use new menu system:
 	// "Select Players"
 	CMenu     menu( MC_PLAY, env.half_width - menuMid, env.menu_begin_y );
@@ -580,8 +588,10 @@ int32_t select_players() {
 	last_idx--;
 
 
-	// Distribute the player list:
-	menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, false );
+	// Distribute the player list (if there is one; see the roster check above):
+	if ( last_idx >= first_idx ) {
+		menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, false );
+	}
 
 	// The "Okay" and "Back" buttons have their own texts to be translated
 	menu.add_button(
