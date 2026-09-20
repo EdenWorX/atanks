@@ -62,24 +62,24 @@ public:
 	 */
 
 	/* --- non-inline methods --- */
-	void         addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ); ///< Queue a dirty rectangle.
+	void         add_update_area( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ); ///< Queue a dirty rectangle.
 	/// Advance the object state.
 	virtual void applyPhysics();
 	/// Render the object.
 	virtual void draw();
 	/// Reset the object state.
 	virtual void initialise();
-	void         setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ); ///< Set the dirty rectangle.
+	void         set_update_area( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ); ///< Set the dirty rectangle.
 
 	/* variable helpers to also allow double coordinates */
 	/// Queue a dirty rectangle; coordinates are rounded.
-	void addUpdateArea( double left_, double top_, int32_t width_, int32_t height_ ) {
-		addUpdateArea( ROUND( left_ ), ROUND( top_ ), width_, height_ );
+	void add_update_area( double left_, double top_, int32_t width_, int32_t height_ ) {
+		add_update_area( ROUND( left_ ), ROUND( top_ ), width_, height_ );
 	}
 
 	/// Set the dirty rectangle; coordinates are rounded.
-	void setUpdateArea( double left_, double top_, int32_t width_, int32_t height_ ) {
-		setUpdateArea( ROUND( left_ ), ROUND( top_ ), width_, height_ );
+	void set_update_area( double left_, double top_, int32_t width_, int32_t height_ ) {
+		set_update_area( ROUND( left_ ), ROUND( top_ ), width_, height_ );
 	}
 
 	/// Redraw the object if required.
@@ -87,11 +87,11 @@ public:
 
 	/* --- inline methods --- */
 	/// Flag the object for redraw.
-	void requireUpdate() { needsUpdate.store( true, ATOMIC_WRITE ); }
+	void require_update() { needsUpdate.store( true, ATOMIC_WRITE ); }
 
 	/* --- pure virtual (abstract) methods --- */
 	/// Return the object class.
-	virtual EClass getClass() = 0;
+	virtual EClass get_class() = 0;
 
 	/* ------------------------------
 	 * --- templated list getters ---
@@ -133,13 +133,13 @@ protected:
 	 */
 
 	/// Read the bitmap, if any.
-	[[nodiscard]] BITMAP* getBitmap() const { return bitmap; }
+	[[nodiscard]] BITMAP* get_bitmap() const { return bitmap; }
 
 	/// Test whether a bitmap is set.
-	[[nodiscard]] bool    hasBitmap() const { return ( bitmap != nullptr ); }
+	[[nodiscard]] bool    has_bitmap() const { return ( bitmap != nullptr ); }
 
 	/// Replace the bitmap.
-	void                  setBitmap( BITMAP* bitmap_ );
+	void                  set_bitmap( BITMAP* bitmap_ );
 
 
 	/* -------------------------
@@ -153,8 +153,8 @@ protected:
 	sBox       dim_cur{};            ///< Current dirty rectangle.
 	sBox       dim_old{};            ///< Previous dirty rectangle.
 	int32_t   height    = 0;        ///< Bitmap height.
-	int32_t   maxAge    = -1;       ///< Lifespan in frames (-1 is forever).
-	EPhysType physType = PT_NORMAL; ///< Special physics processing.
+	int32_t   max_age    = -1;       ///< Lifespan in frames (-1 is forever).
+	EPhysType phys_type = PT_NORMAL; ///< Special physics processing.
 	int32_t   width     = 0;        ///< Bitmap width.
 	double    xv        = 0.;       ///< Horizontal velocity.
 	double    yv        = 0.;       ///< Vertical velocity.

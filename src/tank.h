@@ -57,37 +57,37 @@ public:
 	 */
 
 	void    activate();                                                                                      ///< Show turn labels.
-	void    activateCurrentSelection();                                                                      ///< Fire selected weapon.
-	void    addDamage( CPlayer* damageFrom, double damage_ );                                                 ///< Record inbound damage.
-	void    applyDamage();                                                                                   ///< Apply recorded damage.
+	void    activate_current_selection();                                                                      ///< Fire selected weapon.
+	void    add_damage( CPlayer* damage_from, double damage_ );                                                 ///< Record inbound damage.
+	void    apply_damage();                                                                                   ///< Apply recorded damage.
 	void    applyPhysics() final;                                                                            ///< Advance physics.
 	void    check_weapon();                                                                                  ///< Validate weapon index.
 	void    deactivate();                                                                                    ///< Hide turn labels.
 	void    draw() final;                                                                                    ///< Render the tank.
 	void    explode( bool allow_vengeance );                                                                 ///< Destroy the tank.
-	int32_t getBottom();                                                                                     ///< Lowest tank pixel.
-	void    getGuntop( int32_t angle_, double& top_x, double& top_y );                                       ///< Muzzle position.
-	int32_t howBuried( int32_t* left, int32_t* right );                                                      ///< Measure dirt burial.
-	bool    isFlying();                                                                                      ///< Test airborne state.
-	bool    isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );                                       ///< Test box overlap.
-	bool    isInBox( double x1, double y1, double x2, double y2 );                                           ///< Rounded box overlap.
-	bool    isInEllipse( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y ); ///< Test ellipse overlap.
-	bool    moveTank( int32_t direction );                                                                   ///< Drive the tank.
-	void    newRound( int32_t pos_x, int32_t pos_y );                                                        ///< Spawn for a new round.
+	int32_t get_bottom();                                                                                     ///< Lowest tank pixel.
+	void    get_guntop( int32_t angle_, double& top_x, double& top_y );                                       ///< Muzzle position.
+	int32_t how_buried( int32_t* left, int32_t* right );                                                      ///< Measure dirt burial.
+	bool    is_flying();                                                                                      ///< Test airborne state.
+	bool    is_in_box( int32_t x1, int32_t y1, int32_t x2, int32_t y2 );                                       ///< Test box overlap.
+	bool    is_in_box( double x1, double y1, double x2, double y2 );                                           ///< Rounded box overlap.
+	bool    is_in_ellipse( double ex, double ey, double rx, double ry, double& in_rate_x, double& in_rate_y ); ///< Test ellipse overlap.
+	bool    move_tank( int32_t direction );                                                                  ///< Drive the tank.
+	void    new_round( int32_t pos_x, int32_t pos_y );                                                       ///< Spawn for a new round.
 	void    reactivate_shield();                                                                             ///< Reload the shield.
 	void    repair();                                                                                        ///< Field-repair the tank.
 	bool    repulse( double xpos, double ypos, double* xa, double* ya, EPhysType phys_type );                ///< Repulsor pushback.
-	void    resetFlashDamage();                                                                              ///< Flush flash damage.
-	bool    shootClearance( int32_t targetAngle, double minimumClearance, bool& crashed );                   ///< Check shot clearance.
-	void    simActivateCurrentSelection();                                                                   ///< Fire simultaneously.
+	void    reset_flash_damage();                                                                              ///< Flush flash damage.
+	bool    shoot_clearance( int32_t target_angle, double minimum_clearance, bool& crashed );                   ///< Check shot clearance.
+	void    sim_activate_current_selection();                                                                   ///< Fire simultaneously.
 
 	/// Return the object class.
-	EClass  getClass() final { return CLASS_TANK; }
+	EClass  get_class() final { return CLASS_TANK; }
 
 	/* Status Getters */
-	[[nodiscard]] double  getDiameter() const;          ///< Tank diameter.
-	[[nodiscard]] int32_t getMaxLife() const;           ///< Maximum life.
-	[[nodiscard]] bool    hasRepulsorActivated() const; ///< Repulsor shield active.
+	[[nodiscard]] double  get_diameter() const;          ///< Tank diameter.
+	[[nodiscard]] int32_t get_max_life() const;           ///< Maximum life.
+	[[nodiscard]] bool    has_repulsor_activated() const; ///< Repulsor shield active.
 
 
 	/* ----------------------
@@ -98,12 +98,12 @@ public:
 	int32_t   a                 = 90;      ///< Aim angle.
 	int32_t   cw                = SML_MIS; ///< Current weapon index.
 	int32_t   fire_another_shot = 0;       ///< Pending extra shots.
-	CFloatText healthText;                  ///< Health label.
+	CFloatText health_text;                  ///< Health label.
 	int32_t   l = 100;                     ///< Life.
-	CFloatText nameText;                    ///< Name label.
+	CFloatText name_text;                    ///< Name label.
 	int32_t   p  = MAX_POWER / 2;          ///< Shot power.
 	int32_t   sh = 0;                      ///< Shield strength.
-	CFloatText shieldText;                  ///< Shield label.
+	CFloatText shield_text;                  ///< Shield label.
 	int32_t   sht = 0;                     ///< Shield type.
 
 private:
@@ -112,8 +112,8 @@ private:
 	 * -----------------------
 	 */
 
-	void setBitmap();
-	void setTextPositions( bool renew_colour );
+	void set_bitmap();
+	void set_text_positions( bool renew_colour );
 	bool tank_on_tank(); // is this tank on top of another?
 
 
@@ -122,14 +122,14 @@ private:
 	 * -----------------------
 	 */
 
-	CPlayer*   creditTo = nullptr;
+	CPlayer*   credit_to = nullptr;
 	double    damage   = 0.;
 	CSpinLock damage_lock;
 	int32_t   delay_fall       = env.landslide_delay * 100; //!< time the tank will hover
-	int32_t   flashdamage      = 0;
-	bool      isTeleported     = false; //!< Set to true if a teleport occurs to award falling damage.
-	int32_t   maxLife          = 100;   //!< amount awarded at beginning of round
-	bool      newDamager       = false;
+	int32_t   flash_damage      = 0;
+	bool      is_teleported     = false; //!< Set to true if a teleport occurs to award falling damage.
+	int32_t   max_life          = 100;   //!< amount awarded at beginning of round
+	bool      new_damager       = false;
 	int32_t   para             = 0;
 	int32_t   repair_rate      = 0;
 	int32_t   repulsion        = 0;

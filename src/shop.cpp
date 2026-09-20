@@ -401,7 +401,7 @@ void Shop::do_human_shopping( int32_t pl ) {
 
 void Shop::draw_weapon_list( CPlayer* pl ) {
 	// Some pre-calculations and settings.
-	int32_t        startX         = env.screen_width - STUFF_BAR_WIDTH;
+	int32_t        start_x         = env.screen_width - STUFF_BAR_WIDTH;
 	int32_t        halfBar        = STUFF_BAR_HEIGHT / 2;
 	static int32_t qtyTxtLen      = 0;
 	BITMAP*        imgReleased    = env.gfx_data.stuff_bar[ 0 ];
@@ -424,14 +424,14 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 		global.lock_land();
 		rectfill(
 			global.canvas,
-			startX,
+			start_x,
 			STUFF_BAR_HEIGHT - 5,
-			startX + env.gfx_data.stuff_icon_base->w,
+			start_x + env.gfx_data.stuff_icon_base->w,
 			STUFF_BAR_HEIGHT,
 			makecol( 8, 110, 24 )
 		);
 		global.unlock_land();
-		global.make_update( startX, STUFF_BAR_HEIGHT - 5, env.gfx_data.stuff_icon_base->w, 5 );
+		global.make_update( start_x, STUFF_BAR_HEIGHT - 5, env.gfx_data.stuff_icon_base->w, 5 );
 	}
 
 	// go through all items and draw them on the screen with
@@ -439,7 +439,7 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 	for ( int32_t slot = 1; ( slot <= btps ) && !global.is_close_btn_pressed(); ++slot ) {
 		int32_t     itemIdx = slot + item_scrolled_to - 1;
 		int32_t     itemNum = env.available_items[ itemIdx ];
-		int32_t     startY  = slot * STUFF_BAR_HEIGHT;
+		int32_t     start_y  = slot * STUFF_BAR_HEIGHT;
 		char const* name    = nullptr;
 		int32_t     amt     = 0;
 		int32_t     d_div   = 1;
@@ -473,18 +473,18 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 		global.lock_land();
 
 		// Draw the background sprites
-		draw_sprite( global.canvas, ( hoverOver == itemNum ) ? imgPressed : imgReleased, startX, startY );
-		draw_sprite( global.canvas, env.gfx_data.stuff_icon_base, startX, startY );
-		draw_sprite( global.canvas, env.stock[ itemNum ], startX, startY - 5 );
-		global.make_update( startX, startY, STUFF_BAR_WIDTH, STUFF_BAR_HEIGHT + 5 );
+		draw_sprite( global.canvas, ( hoverOver == itemNum ) ? imgPressed : imgReleased, start_x, start_y );
+		draw_sprite( global.canvas, env.gfx_data.stuff_icon_base, start_x, start_y );
+		draw_sprite( global.canvas, env.stock[ itemNum ], start_x, start_y - 5 );
+		global.make_update( start_x, start_y, STUFF_BAR_WIDTH, STUFF_BAR_HEIGHT + 5 );
 
 		// Draw the text:
-		textout_ex( global.canvas, font, name, startX + 45, startY - 1, BLACK, -1 );
+		textout_ex( global.canvas, font, name, start_x + 45, start_y - 1, BLACK, -1 );
 		textprintf_ex(
 			global.canvas,
 			font,
-			startX + 45,
-			startY + halfBar - 4,
+			start_x + 45,
+			start_y + halfBar - 4,
 			BLACK,
 			-1,
 			"%s: %d",
@@ -495,8 +495,8 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 			textprintf_ex(
 				global.canvas,
 				font,
-				startX + 45 + qtyTxtLen,
-				startY + halfBar - 4,
+				start_x + 45 + qtyTxtLen,
+				start_y + halfBar - 4,
 				trolley[ itemNum ] > 0 ? col_add : col_sub,
 				-1,
 				"%+d",
@@ -508,7 +508,7 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 			font,
 			buf_cost,
 			env.screen_width - 45 - text_length( font, buf_cost ),
-			startY - 1,
+			start_y - 1,
 			BLACK,
 			-1
 		);
@@ -517,7 +517,7 @@ void Shop::draw_weapon_list( CPlayer* pl ) {
 			font,
 			buf_amt,
 			env.screen_width - 45 - text_length( font, buf_amt ),
-			startY + halfBar - 4,
+			start_y + halfBar - 4,
 			BLACK,
 			-1
 		);

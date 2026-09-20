@@ -108,21 +108,21 @@ static void draw_amoon(
 	bool          darkside,
 	ZBuffer&      zbuffer
 ) {
-	int32_t startX = std::min( x0, x1 );
-	int32_t endX   = std::max( x0, x1 );
-	int32_t startY = std::min( y0, y1 );
-	int32_t endY   = std::max( y0, y1 );
+	int32_t start_x = std::min( x0, x1 );
+	int32_t end_x   = std::max( x0, x1 );
+	int32_t start_y = std::min( y0, y1 );
+	int32_t end_y   = std::max( y0, y1 );
 
 	clear_to_color( mn.bitmap, BLACK );
-	blit( sky, mn.bitmap, startX, startY, 0, 0, mn.radius * 2, mn.radius * 2 );
+	blit( sky, mn.bitmap, start_x, start_y, 0, 0, mn.radius * 2, mn.radius * 2 );
 
 	double const radius  = mn.radius;
 	double       radius2 = radius * radius;
 
-	for ( int32_t y = startY; ( y < endY ) && lcr->can_work(); ++y ) {
+	for ( int32_t y = start_y; ( y < end_y ) && lcr->can_work(); ++y ) {
 		bool hityet = false;
 
-		for ( int32_t x = startX; ( x < endX ) && lcr->can_work(); ++x ) {
+		for ( int32_t x = start_x; ( x < end_x ) && lcr->can_work(); ++x ) {
 			/* Occupied? */
 			if ( zbuffer.test( x, y ) ) {
 				continue;
@@ -150,7 +150,7 @@ static void draw_amoon(
 			/* Now, should we paint this side of the moon? */
 			if ( xval != 0.0 && ( ( xval < 0 ) == darkside ) ) {
 				lcr->yield();
-				paint_moonpix( x - startX, y - startY, mn, fabs( xval ), yval, edgeval );
+				paint_moonpix( x - start_x, y - start_y, mn, fabs( xval ), yval, edgeval );
 			}
 
 			/* Mark this pixel as occupied */
@@ -162,7 +162,7 @@ static void draw_amoon(
 	// Put the moon on the sky bitmap:
 	global.lock_land();
 	drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
-	blit( mn.bitmap, sky, 0, 0, startX, startY, mn.radius * 2, mn.radius * 2 );
+	blit( mn.bitmap, sky, 0, 0, start_x, start_y, mn.radius * 2, mn.radius * 2 );
 	drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
 	global.unlock_land();
 }

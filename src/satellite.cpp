@@ -33,7 +33,7 @@ void SATELLITE::move() {
 
 	// If the satellite is firing, move the beam
 	if ( beam ) {
-		beam->moveStart( xv < 0 ? x + 10 : x + 40, y + 20 );
+		beam->move_start( xv < 0 ? x + 10 : x + 40, y + 20 );
 	}
 }
 

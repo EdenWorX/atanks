@@ -53,7 +53,7 @@ public:
 	void   explode();            ///< Detonate the explosion.
 
 	/// Return the object class.
-	EClass getClass() final { return CLASS_EXPLOSION; }
+	EClass get_class() final { return CLASS_EXPLOSION; }
 
 
 private:
@@ -64,7 +64,7 @@ private:
 
 	void do_clear();
 	void do_throw();
-	void drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse );
+	void draw_fracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segment_length, int32_t max_recurse );
 
 
 	/* -----------------------
@@ -73,18 +73,18 @@ private:
 	 */
 
 	bool    apply_damage = true;
-	int32_t curFrame     = 1;
+	int32_t cur_frame     = 1;
 	int32_t damage       = 0;
 	int32_t etime        = 0;
-	int32_t exclock      = 0;
-	bool    hasCleared   = false;
-	int32_t hasDebris    = 0;
-	bool    hasSlid      = false;
-	bool    hasThrown    = false;
+	int32_t ex_clock      = 0;
+	bool    has_cleared   = false;
+	int32_t has_debris    = 0;
+	bool    has_slid      = false;
+	bool    has_thrown    = false;
 	double  impact_xv    = 0.;
 	double  impact_yv    = 0.;
-	int32_t maxDebris    = 0;
-	int32_t maxFrame     = 0;
+	int32_t max_debris    = 0;
+	int32_t max_frame     = 0;
 	bool    peaked       = false;
 	int32_t radius       = 10;
 };

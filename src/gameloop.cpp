@@ -151,7 +151,7 @@ public:
 				// Make sure we know when stuff is happening!
 				if ( !has_action.load( ATOMIC_READ )
 				     && ( ( ( ( CLASS_BEAM == class_ ) || ( CLASS_MISSILE == class_ ) )
-				            && dynamic_cast< CPhysicalObject* >( obj )->isWeapon() )
+				            && dynamic_cast< CPhysicalObject* >( obj )->is_weapon() )
 				          || ( CLASS_TELEPORT == class_ ) ) ) {
 					has_action.store( true );
 				}
@@ -177,15 +177,15 @@ public:
 						if ( tmp_tank->fire_another_shot ) {
 							if ( !( tmp_tank->fire_another_shot % env.volley_delay ) ) {
 								has_action.store( true );
-								tmp_tank->activateCurrentSelection();
+								tmp_tank->activate_current_selection();
 							}
 							tmp_tank->fire_another_shot--;
 						}
 
 						// Move and possibly apply pending damage
 						tmp_tank->applyPhysics();
-						tmp_tank->resetFlashDamage();
-						if ( tmp_tank->isFlying() ) {
+						tmp_tank->reset_flash_damage();
+						if ( tmp_tank->is_flying() ) {
 							has_action.store( true );
 						}
 					}
@@ -736,9 +736,9 @@ static inline void check_overtime( CAICore& aicore ) {
 			if ( tank->player ) {
 				tank->player->reclaimShield();
 			}
-			tank->addDamage( nullptr, tank->sh + tank->l + 1 );
-			tank->applyDamage();
-			tank->resetFlashDamage();
+			tank->add_damage( nullptr, tank->sh + tank->l + 1 );
+			tank->apply_damage();
+			tank->reset_flash_damage();
 			tank->getNext( &tank );
 		}
 
@@ -870,7 +870,7 @@ static inline void delete_destroyed( CAICore& aicore ) {
 
 			// Update object if it is destroyed
 			if ( obj->destroy ) {
-				obj->requireUpdate();
+				obj->require_update();
 				obj->update();
 
 				// For deleting the object, the class must be unlocked,
@@ -1108,7 +1108,7 @@ void draw_top_bar() {
 	// Fill in player info if possible :
 	if ( player ) {
 		// name is first, as always
-		textout_ex( global.canvas, font, name, 2, y1 + 1, GetShadeColor( color, true, PINK ), -1 );
+		textout_ex( global.canvas, font, name, 2, y1 + 1, get_shade_color( color, true, PINK ), -1 );
 		textout_ex( global.canvas, font, name, 1, y1, color, -1 );
 		textprintf_ex( global.canvas, font, 1, y2, BLACK, -1, "%s", env.ingame->Get_Line( 18 ) );
 
@@ -1349,7 +1349,7 @@ static inline void fire_weapon() {
 
 	if ( curr_tank && !curr_tank->destroy ) {
 		has_action.store( true );
-		curr_tank->simActivateCurrentSelection();
+		curr_tank->sim_activate_current_selection();
 	}
 
 	// Have everything launched in simultaneous mode
@@ -1362,7 +1362,7 @@ static inline void fire_weapon() {
 				tank->player->skip_me = false;
 			} else {
 				has_action.store( true );
-				tank->activateCurrentSelection();
+				tank->activate_current_selection();
 			}
 			tank->player->time_left_to_fire = env.max_fire_time;
 			tank->getNext( &tank );
@@ -1403,7 +1403,7 @@ static inline void init_new_round() {
 	CFloatText* txt = nullptr;
 	global.get_head_of_class( CLASS_FLOATTEXT, &txt );
 	while ( txt ) {
-		txt->newRound();
+		txt->new_round();
 		txt->getNext( &txt );
 	}
 
@@ -1521,7 +1521,7 @@ static inline void set_tank_settings() {
 			int32_t tx = ( x + 1 ) * ( env.screen_width / ( global.num_tanks + 1 ) );
 			int32_t ty = global.surface[ tx ].load();
 
-			curr_tank->newRound( tx, ty );
+			curr_tank->new_round( tx, ty );
 			curr_tank->getNext( &curr_tank );
 		}
 	}
@@ -1606,7 +1606,7 @@ static inline void set_tank_settings() {
 
 		// Reset tank flash damage and activate their first shields:
 		if ( env.player_order[ i ]->tank ) {
-			env.player_order[ i ]->tank->resetFlashDamage();
+			env.player_order[ i ]->tank->reset_flash_damage();
 			env.player_order[ i ]->tank->reactivate_shield();
 		}
 	}

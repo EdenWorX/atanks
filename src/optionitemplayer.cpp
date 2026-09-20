@@ -198,7 +198,7 @@ void OptionItemPlayer::display( bool show_full ) {
 					title,
 					txtLeft + 2,
 					xTop + 2,
-					GetShadeColor( txtColor, true, PINK ),
+					get_shade_color( txtColor, true, PINK ),
 					-1
 				);
 			}

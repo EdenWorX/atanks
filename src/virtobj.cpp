@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-void CVirtualObject::addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+void CVirtualObject::add_update_area( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
 	// compute right and bottom coordinates for new and old areas
 	int32_t newRight  = left_ + width_;
 	int32_t newBottom = top_ + height_;
@@ -54,17 +54,17 @@ void CVirtualObject::draw() {
 		// The update area depends on the rotation state (aka the angle)
 		if ( angle ) {
 			int32_t length = std::max( width, height ) + ( std::min( width, height ) / 2 );
-			setUpdateArea( x - ( length / 2. ), y - ( length / 2. ), length, length );
+			set_update_area( x - ( length / 2. ), y - ( length / 2. ), length, length );
 		} else {
-			setUpdateArea( x - ( width / 2. ) - 1, y - ( height / 2. ) - 1., width + 2, height + 2 );
+			set_update_area( x - ( width / 2. ) - 1, y - ( height / 2. ) - 1., width + 2, height + 2 );
 		}
-		requireUpdate();
+		require_update();
 	}
 }
 
 void CVirtualObject::initialise() {
 	age     = 0;
-	maxAge  = -1;
+	max_age  = -1;
 	x       = 0;
 	y       = 0;
 	xv      = 0;
@@ -74,7 +74,7 @@ void CVirtualObject::initialise() {
 }
 
 /// @brief Set a new bitmap and store width and height for easy drawing.
-void CVirtualObject::setBitmap( BITMAP* bitmap_ ) {
+void CVirtualObject::set_bitmap( BITMAP* bitmap_ ) {
 	if ( bitmap_ != bitmap ) {
 		bitmap = bitmap_;
 
@@ -88,7 +88,7 @@ void CVirtualObject::setBitmap( BITMAP* bitmap_ ) {
 	}
 }
 
-void CVirtualObject::setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+void CVirtualObject::set_update_area( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
 	dim_cur.x = left_;
 	dim_cur.y = top_;
 	dim_cur.w = width_;

@@ -77,11 +77,11 @@ public:
 	void inline draw() override { CVirtualObject::draw(); };
 
 	/// Read the current velocity.
-	void getVelocity( double &xv_, double &yv_ );
+	void get_velocity( double &xv_, double &yv_ );
 
 	/* Status Getters */
 	/// Test whether this is weapon fire.
-	[[nodiscard]] bool isWeapon() const;
+	[[nodiscard]] bool is_weapon() const;
 
 
 	/* ----------------------
@@ -89,10 +89,10 @@ public:
 	 * ----------------------
 	 */
 
-	bool    allowDirtyWrap = true;  //!< Whether ceiling wrap is allowed into dirt bottom
+	bool    allow_dirty_wrap = true;  //!< Whether ceiling wrap is allowed into dirt bottom
 	double  drag           = 0.;    ///< Air drag.
-	bool    hitSomething   = false; ///< Collision occurred.
-	int32_t weapType       = 0;     ///< Weapon type index.
+	bool    hit_something   = false; ///< Collision occurred.
+	int32_t weap_type       = 0;     ///< Weapon type index.
 
 protected:
 	/* -------------------------
@@ -112,18 +112,18 @@ protected:
 	 */
 
 	int32_t bounces      = 0;     //!< Bounces off walls, floor and ceiling
-	bool    isWeaponFire = true;  ///< Fired as a weapon.
+	bool    is_weapon_fire = true;  ///< Fired as a weapon.
 	bool    lacerated    = false; //!< Set to true if the velocity check fails.
 	double  mass         = 0.;    ///< Mass.
-	double  maxVel       = 0.;    //!< maximum Velocity
-	double  mindDelay    = 0.;    //!< for mind shots to travel through dirt if delayed
-	double  mindPassed   = 0.;    //!< Counts the amount of dirt a delayed shot already passed through
+	double  max_vel       = 0.;    //!< maximum Velocity
+	double  mind_delay    = 0.;    //!< for mind shots to travel through dirt if delayed
+	double  mind_passed   = 0.;    //!< Counts the amount of dirt a delayed shot already passed through
 	bool    noimpact     = false; ///< Skip impact handling.
 	int32_t spin         = 0;     ///< Spin.
 };
 
 /// global helper methods:
-bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed );
-void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, double &ryv );
+bool check_pixels_between_two_points( double *start_x, double *start_y, double end_x, double end_y, double can_delay, double *has_delayed );
+void get_dirt_bounce_react( double x, double y, double xv, double yv, double &rxv, double &ryv );
 
 #endif // PHYSOBJ_DEFINE

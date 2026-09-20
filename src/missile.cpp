@@ -51,7 +51,7 @@ CMissile::CMissile(
 )
 	: CPhysicalObject( MT_WEAPON == missile_type )
 	, ai_level( ai_level_ )
-	, missileType( missile_type ) {
+	, missile_type( missile_type ) {
 	this->player = player_;
 
 #ifdef NETWORK
@@ -67,61 +67,61 @@ CMissile::CMissile(
 	yv = yvel;
 
 	// Get and set weapon/item data
-	weapType = weapon_type;
-	if ( weapType < WEAPONS ) {
-		weap = &weapon[ weapType ];
+	weap_type = weapon_type;
+	if ( weap_type < WEAPONS ) {
+		weap = &weapon[ weap_type ];
 	} else {
-		weap = &naturals[ weapType - WEAPONS ];
+		weap = &naturals[ weap_type - WEAPONS ];
 	}
 	assert( env.missile[ weap->picpoint ] && "Missile has no Bitmap loaded!" );
-	setBitmap( env.missile[ weap->picpoint ] );
+	set_bitmap( env.missile[ weap->picpoint ] );
 	drag     = weap->drag;
 	mass     = weap->mass;
 	noimpact = weap->noimpact;
 
-	// The maxVel value results in a small missile being able to be accelerated
+	// The max_vel value results in a small missile being able to be accelerated
 	// by 25% over MAX_POWER, while a large Napalm Bomb can go up to 220%.
-	maxVel = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
-	DEBUG_LOG_PHY( "CPhysicalObject", "env.maxVel: %5.2lf, mass: %5.2lf, obj.maxVel: %5.2lf", env.max_velocity, mass, maxVel )
+	max_vel = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	DEBUG_LOG_PHY( "CPhysicalObject", "env.max_vel: %5.2lf, mass: %5.2lf, obj.max_vel: %5.2lf", env.max_velocity, mass, max_vel )
 
 	// Meteors and dirt balls are "volatile" and can not be accelerated
 	// over MAX_POWER. (Pre-caution against "forever" going naturals)
-	if ( ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) )
-	     || ( ( DIRT_BALL <= weapType ) && ( SUP_DIRT_BALL >= weapType ) ) ) {
-		maxVel = std::min( maxVel, static_cast< double >( MAX_POWER ) );
+	if ( ( ( SML_METEOR <= weap_type ) && ( LRG_METEOR >= weap_type ) )
+	     || ( ( DIRT_BALL <= weap_type ) && ( SUP_DIRT_BALL >= weap_type ) ) ) {
+		max_vel = std::min( max_vel, static_cast< double >( MAX_POWER ) );
 	}
 
-	if ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) ) {
+	if ( ( SML_METEOR <= weap_type ) && ( LRG_METEOR >= weap_type ) ) {
 		angle  = get_rand() % 360;
 		spin   = ( get_rand() % 20 ) - 10;
-		maxAge = MAX_METEOR_AGE;
-	} else if ( weapType == NAPALM_JELLY ) {
+		max_age = MAX_METEOR_AGE;
+	} else if ( weap_type == NAPALM_JELLY ) {
 		// Napalm grows, others do not:
-		isGrowing      = true;
-		growRadius     = 1;
-		maxAge         = MAX_JELLY_AGE;
-		allowDirtyWrap = false;
+		is_growing      = true;
+		grow_radius     = 1;
+		max_age         = MAX_JELLY_AGE;
+		allow_dirty_wrap = false;
 	} else {
-		growRadius = weap->radius;
-		if ( FUNKY_BOMBLET == weapType ) {
-			maxAge = ( MAX_MISSILE_AGE / 7 ) + ( get_rand() % ( MAX_MISSILE_AGE / 4 ) );
+		grow_radius = weap->radius;
+		if ( FUNKY_BOMBLET == weap_type ) {
+			max_age = ( MAX_MISSILE_AGE / 7 ) + ( get_rand() % ( MAX_MISSILE_AGE / 4 ) );
 		}
 		// With MMA 15 seconds, this is 2 + [0;3] = [2;5] seconds
-		else if ( FUNKY_DEATHLET == weapType ) {
-			maxAge = ( MAX_MISSILE_AGE / 5 ) + ( get_rand() % ( MAX_MISSILE_AGE / 3 ) );
+		else if ( FUNKY_DEATHLET == weap_type ) {
+			max_age = ( MAX_MISSILE_AGE / 5 ) + ( get_rand() % ( MAX_MISSILE_AGE / 3 ) );
 		}
 		// With MMA 15 seconds, this is 3 + [0;4] = [3;7] seconds
 		else {
-			maxAge = MAX_MISSILE_AGE;
+			max_age = MAX_MISSILE_AGE;
 		}
 	}
 
-	// Finalize maxAge to be for frames, not seconds:
-	maxAge *= env.frames_per_second;
+	// Finalize max_age to be for frames, not seconds:
+	max_age *= env.frames_per_second;
 
-	// Set funky colour of the funky bomblets/deathlets and add some maxAge
+	// Set funky colour of the funky bomblets/deathlets and add some max_age
 	// variation so they do not detonate in groups.
-	if ( ( weapType == FUNKY_BOMBLET ) || ( weapType == FUNKY_DEATHLET ) ) {
+	if ( ( weap_type == FUNKY_BOMBLET ) || ( weap_type == FUNKY_DEATHLET ) ) {
 		int32_t temp_number = get_rand() % 5;
 		switch ( temp_number ) {
 			case 0:
@@ -144,15 +144,15 @@ CMissile::CMissile(
 		}
 
 		// Variation +/- 1 Second in frames:
-		maxAge += ( get_rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second;
+		max_age += ( get_rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second;
 	}
 
 	// Some weapons must not wrap through dirt ceilings if the bottom
 	// pixel they would warp into is occupied:
-	if ( ( ( SML_ROLLER <= weapType ) && ( SMALL_MIRV >= weapType ) )
-	     || ( ( CLUSTER <= weapType ) && ( SUP_CLUSTER >= weapType ) )
-	     || ( ( SML_NAPALM <= weapType ) && ( LRG_NAPALM >= weapType ) ) || ( CLUSTER_MIRV == weapType ) ) {
-		allowDirtyWrap = false;
+	if ( ( ( SML_ROLLER <= weap_type ) && ( SMALL_MIRV >= weap_type ) )
+	     || ( ( CLUSTER <= weap_type ) && ( SUP_CLUSTER >= weap_type ) )
+	     || ( ( SML_NAPALM <= weap_type ) && ( LRG_NAPALM >= weap_type ) ) || ( CLUSTER_MIRV == weap_type ) ) {
+		allow_dirty_wrap = false;
 	}
 
 	// If this is a mind shot with a delay characteristic, like
@@ -162,7 +162,7 @@ CMissile::CMissile(
 	// dirt. This simulates the clearing of the path by previous
 	// missiles, so the AI can track those weapons better.
 	if ( MT_MIND_SHOT == missile_type ) {
-		this->mindDelay = weap->radius * delay_idx_;
+		this->mind_delay = weap->radius * delay_idx_;
 	}
 
 	// Otherwise add it to the chain:
@@ -176,7 +176,7 @@ CMissile::CMissile(
 
 CMissile::~CMissile() {
 	// Take out of the chain:
-	if ( MT_MIND_SHOT != missileType ) {
+	if ( MT_MIND_SHOT != missile_type ) {
 		global.remove_object( this );
 	}
 }
@@ -184,50 +184,50 @@ CMissile::~CMissile() {
 void CMissile::applyPhysics() {
 	// Increase age and get rid of the missile if it
 	// is caught in some endless loop.
-	if ( ( ++age > maxAge ) || ( y < -65535 ) ) {
-		hitSomething = true;
-		if ( MT_MIND_SHOT != missileType ) {
+	if ( ( ++age > max_age ) || ( y < -65535 ) ) {
+		hit_something = true;
+		if ( MT_MIND_SHOT != missile_type ) {
 			trigger();
 		} else {
 			destroy = true;
 		}
 		return;
 	} else {
-		hitSomething = false;
+		hit_something = false;
 	}
 
 	// Riot charges / blasts go off immediately:
-	if ( ( RIOT_CHARGE <= weapType ) && ( RIOT_BLAST >= weapType ) ) {
+	if ( ( RIOT_CHARGE <= weap_type ) && ( RIOT_BLAST >= weap_type ) ) {
 		trigger();
 		return;
 	}
 
 	// Napalm grows first:
-	if ( isGrowing ) {
-		if ( age < maxAge ) {
-			growRadius = ROUND(
+	if ( is_growing ) {
+		if ( age < max_age ) {
+			grow_radius = ROUND(
 				static_cast< double >( weap->radius )
-				* ( static_cast< double >( age ) / static_cast< double >( maxAge ) )
+				* ( static_cast< double >( age ) / static_cast< double >( max_age ) )
 			);
-			if ( growRadius < 2 ) {
-				growRadius = 2;
+			if ( grow_radius < 2 ) {
+				grow_radius = 2;
 			}
 		} else {
-			isGrowing = false; // Finished growing!
+			is_growing = false; // Finished growing!
 		}
 	}
 
 	// Normal and digging physic types need an angle
 	// and can be repulsed
-	if ( ( PT_NORMAL == physType ) || ( PT_DIGGING == physType ) ) {
+	if ( ( PT_NORMAL == phys_type ) || ( PT_DIGGING == phys_type ) ) {
 
-		if ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) ) {
+		if ( ( SML_METEOR <= weap_type ) && ( LRG_METEOR >= weap_type ) ) {
 			angle = ( angle + spin ) % 360;
 		} else {
 			angle = ROUND( RAD2DEG( atan( yv / xv ) ) * 256. / 360. ) - 64 + ( xv < 0 ? 128 : 0 );
 		}
 
-		if ( ( MT_MIND_SHOT != missileType )
+		if ( ( MT_MIND_SHOT != missile_type )
 		     // You need 20 SDI units to have them calculate repulsing 100% of the time
 		     || ( ( SDI_PREDICTOR == ai_level ) && ( ( get_rand() % 20 ) < player->ni[ ITEM_SDI ] ) )
 		     // Useless and Guesser never predict repulsors and Rangefinder starts with a 50% chance.
@@ -235,53 +235,53 @@ void CMissile::applyPhysics() {
 		          && ( ( ( maxAiLevel - RAND_AI_0P ) + ( maxAiLevel - RAND_AI_1P ) ) < 10 ) )
 		     // Note: Even the deadly has no 100%, which is on purpose.
 		) {
-			Repulse_Missile();
+			repulse_missile();
 		}
 	}
 
 	// === 1) Handle standard physics projectiles ===
-	if ( PT_NORMAL == physType ) {
-		applyPhysicsNormal();
+	if ( PT_NORMAL == phys_type ) {
+		apply_physics_normal();
 	} // --- end of normal physic types ---
 
 	// === 2) Handle rolling projectiles ===
-	else if ( PT_ROLLING == physType ) {
-		applyPhysicsRolling();
+	else if ( PT_ROLLING == phys_type ) {
+		apply_physics_rolling();
 	} // --- end of rolling physic types ---
 
 	// === 3) Handle funky projectiles ===
-	else if ( PT_FUNKY_FLOAT == physType ) {
-		applyPhysicsFunky();
+	else if ( PT_FUNKY_FLOAT == phys_type ) {
+		apply_physics_funky();
 	} // --- end of funky float physic types ---
 
 	// === 4) Handle other projectiles ===
 	else {
-		applyPhysicsOther();
+		apply_physics_other();
 	} // end of checking 'others'
 
 	// Final check against the terrain
-	if ( !hitSomething && ( y > MENUHEIGHT ) && ( y < ( env.screen_height - 1 ) ) ) {
+	if ( !hit_something && ( y > MENUHEIGHT ) && ( y < ( env.screen_height - 1 ) ) ) {
 		auto    round_x = ROUND( x );
 		auto    round_y = ROUND( y );
 		int32_t hitpix  = getpixel( global.terrain, round_x, round_y );
-		if ( ( ( PT_DIGGING == physType ) && ( PINK == hitpix ) )
-		     || ( ( PT_DIGGING != physType ) && ( PINK != hitpix ) ) ) {
-			hitSomething = true;
+		if ( ( ( PT_DIGGING == phys_type ) && ( PINK == hitpix ) )
+		     || ( ( PT_DIGGING != phys_type ) && ( PINK != hitpix ) ) ) {
+			hit_something = true;
 		}
 	}
 
 	// No "ceiling drops" are triggered in boxed mode
-	if ( !hitSomething && ( y <= MENUHEIGHT ) && env.is_boxed ) {
+	if ( !hit_something && ( y <= MENUHEIGHT ) && env.is_boxed ) {
 		yv           = 0;
-		hitSomething = true;
+		hit_something = true;
 	}
 
 	// Be sure any trigger/detonation is on screen ...
-	if ( hitSomething && ( y <= MENUHEIGHT ) ) {
+	if ( hit_something && ( y <= MENUHEIGHT ) ) {
 		y = MENUHEIGHT + 1;
 	}
 
-	triggerTest();
+	trigger_test();
 }
 
 /// @return The number of bounces done since the missile was fired
@@ -298,25 +298,25 @@ int32_t CMissile::direction() const {
 void CMissile::draw() {
 	if ( destroy
 	     // Do not draw mind shots
-	     || ( MT_MIND_SHOT == missileType ) ) {
+	     || ( MT_MIND_SHOT == missile_type ) ) {
 		return;
 	}
 
 	// draw arrow impostor if it is above the screen
 	if ( y < MENUHEIGHT ) {
 		// Back up original values
-		BITMAP* bbitmap = getBitmap();
+		BITMAP* bbitmap = get_bitmap();
 		double  by      = y;
 		int32_t bangle  = angle;
 
 		// Set arrow values
-		setBitmap( env.misc[ 3 ] );
+		set_bitmap( env.misc[ 3 ] );
 		y     = MENUHEIGHT + ( height / 2. );
 		angle = 0;
 		CPhysicalObject::draw();
 
 		// restore original values:
-		setBitmap( bbitmap );
+		set_bitmap( bbitmap );
 		y     = by;
 		angle = bangle;
 
@@ -326,9 +326,9 @@ void CMissile::draw() {
 	// draw missile on the screen
 
 	// Napalm jellies need a special drawing due to their growing nature.
-	if ( weapType == NAPALM_JELLY ) {
-		if ( isGrowing ) {
-			draw_Napalm_Blob( this, x, y, growRadius, age / weap->etime );
+	if ( weap_type == NAPALM_JELLY ) {
+		if ( is_growing ) {
+			draw_Napalm_Blob( this, x, y, grow_radius, age / weap->etime );
 		} else {
 			draw_Napalm_Blob( this, x, y, weap->radius, age / weap->etime );
 		}
@@ -336,19 +336,19 @@ void CMissile::draw() {
 	} // end of napalm
 
 	// try drawing a funky bomblet
-	else if ( ( FUNKY_BOMBLET == weapType ) || ( FUNKY_DEATHLET == weapType ) ) {
+	else if ( ( FUNKY_BOMBLET == weap_type ) || ( FUNKY_DEATHLET == weap_type ) ) {
 
 		circlefill( global.canvas, x, y, 4, funky_colour );
 		circle( global.canvas, x, y, 5, BLACK );
-		setUpdateArea( x - 10, y - 10, 20, 20 );
-		requireUpdate();
+		set_update_area( x - 10, y - 10, 20, 20 );
+		require_update();
 	}
 
 	// draw anything else
 	else {
 
 		// Digging weapons scorch the earth they travel through
-		if ( PT_DIGGING == physType ) {
+		if ( PT_DIGGING == phys_type ) {
 			uint32_t scorches = 3 + ( 3 * ABSDISTANCE2( x, y, x + xv, y + yv ) );
 
 			for ( uint32_t i = 0; i < scorches; ++i ) {
@@ -391,7 +391,7 @@ struct sSDI {
 	double  y     = 0.;
 };
 
-void CMissile::applyPhysicsFunky() {
+void CMissile::apply_physics_funky() {
 	// Funky Floats have a 0.75% chance to randomly change their direction
 	if ( 0 == ( get_rand() % 150 ) ) {
 
@@ -411,8 +411,8 @@ void CMissile::applyPhysicsFunky() {
 			CTank* floatee_tgt = global.get_random_tank();
 			if ( floatee_tgt ) {
 				CWeapon* launchWeap =
-					FUNKY_BOMBLET == weapType ? &weapon[ FUNKY_BOMB ]
-					: FUNKY_DEATHLET == weapType
+					FUNKY_BOMBLET == weap_type ? &weapon[ FUNKY_BOMB ]
+					: FUNKY_DEATHLET == weap_type
 						? &weapon[ FUNKY_DEATH ]
 						: nullptr;
 				double speed =
@@ -449,8 +449,8 @@ void CMissile::applyPhysicsFunky() {
 		} else {
 			y            = env.screen_height;
 			yv           = 0;
-			hitSomething = true;
-			age          = maxAge;
+			hit_something = true;
+			age          = max_age;
 		}
 	}
 
@@ -470,36 +470,36 @@ void CMissile::applyPhysicsFunky() {
 	y += yv;
 }
 
-void CMissile::applyPhysicsNormal() {
+void CMissile::apply_physics_normal() {
 	// Standard physics can be applied
 	CPhysicalObject::applyPhysics();
 
 	// If a mind shot napalm jelly hit something, it is counted as
 	// destroyed immediately.
-	if ( hitSomething && ( MT_MIND_SHOT == missileType ) && ( NAPALM_JELLY == weapType ) ) {
+	if ( hit_something && ( MT_MIND_SHOT == missile_type ) && ( NAPALM_JELLY == weap_type ) ) {
 		destroy = true;
 	}
 
 	// mirvs trigger above ground
-	if ( !hitSomething && ( ( weapType == SMALL_MIRV ) || ( weapType == CLUSTER_MIRV ) ) && ( yv > 0 ) ) {
+	if ( !hit_something && ( ( weap_type == SMALL_MIRV ) || ( weap_type == CLUSTER_MIRV ) ) && ( yv > 0 ) ) {
 
-		int32_t above_ground = Height_Above_Ground();
+		int32_t above_ground = height_above_ground();
 
 		if ( ( above_ground > 0 ) && ( above_ground < TRIGGER_HEIGHT ) ) {
-			hitSomething = true;
+			hit_something = true;
 		}
 	}
 
 
 	// Missiles that get too slow on a rubber floor, trigger when stopped.
-	if ( !hitSomething && ( WALL_RUBBER == env.current_wall_type ) && ( ROUND( y ) >= ( env.screen_height - 2 ) )
+	if ( !hit_something && ( WALL_RUBBER == env.current_wall_type ) && ( ROUND( y ) >= ( env.screen_height - 2 ) )
 	     && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) ) {
-		hitSomething = true;
+		hit_something = true;
 	}
 
 
 	// Unless something is hit, smoke might be produced:
-	if ( !hitSomething && !global.skipping_computer_play && ( MT_MIND_SHOT != missileType )
+	if ( !hit_something && !global.skipping_computer_play && ( MT_MIND_SHOT != missile_type )
 	     && !( get_rand() % ( env.frames_per_second / 10 ) ) ) {
 		try {
 			new CDecor( x, y, xv / env.frames_per_second, xv / env.frames_per_second, weap->radius / 20, DECOR_SMOKE, 0 );
@@ -509,7 +509,7 @@ void CMissile::applyPhysicsNormal() {
 	}
 }
 
-void CMissile::applyPhysicsOther() {
+void CMissile::apply_physics_other() {
 	// Check X:
 	if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screen_width - 1 ) ) ) {
 		if ( WALL_RUBBER == env.current_wall_type ) {
@@ -521,7 +521,7 @@ void CMissile::applyPhysicsOther() {
 		} else {
 			x            = xv < 0. ? 1 : env.screen_width - 1;
 			xv           = 0;
-			hitSomething = true;
+			hit_something = true;
 		}
 	}
 
@@ -532,7 +532,7 @@ void CMissile::applyPhysicsOther() {
 	}
 
 	// Apply gravitation, digging types are reversed and scorch the ground:
-	if ( PT_DIGGING == physType ) {
+	if ( PT_DIGGING == phys_type ) {
 		yv -= env.fall_vector * 0.05;
 	} else {
 		yv += env.fall_vector * 0.05;
@@ -543,13 +543,13 @@ void CMissile::applyPhysicsOther() {
 	x += xv;
 }
 
-void CMissile::applyPhysicsRolling() {
+void CMissile::apply_physics_rolling() {
 	// check whether anything is hit
 	auto round_x = ROUND( x );
 	auto round_y = ROUND( y );
 	if ( ( x < 2 ) || ( x > ( env.screen_width - 3 ) ) || ( y > ( env.screen_height - 3 ) )
 	     || ( PINK != getpixel( global.terrain, round_x, round_y ) ) ) {
-		hitSomething = true;
+		hit_something = true;
 	}
 
 	else {
@@ -558,8 +558,8 @@ void CMissile::applyPhysicsRolling() {
 		// - The small roller can climb four and fall six pixels.
 		// - The large roller can climb six and fall nine pixels.
 		// - The death roller can climb nine and fall twelve pixels.
-		int32_t maxClimb = SML_ROLLER == weapType ? 4 : LRG_ROLLER == weapType ? 6 : DTH_ROLLER == weapType ? 9 : 1;
-		int32_t maxFall  = SML_ROLLER == weapType ? 6 : LRG_ROLLER == weapType ? 9 : DTH_ROLLER == weapType ? 12 : 1;
+		int32_t maxClimb = SML_ROLLER == weap_type ? 4 : LRG_ROLLER == weap_type ? 6 : DTH_ROLLER == weap_type ? 9 : 1;
+		int32_t maxFall  = SML_ROLLER == weap_type ? 6 : LRG_ROLLER == weap_type ? 9 : DTH_ROLLER == weap_type ? 12 : 1;
 
 		// get next surface pixel
 		float surfY = static_cast< float >( global.surface[ ROUND( x + xv ) ].load( ATOMIC_READ ) ) - 1.f;
@@ -586,7 +586,7 @@ void CMissile::applyPhysicsRolling() {
 				y = surfY - 1;
 			} else {
 				// too steep!
-				hitSomething = true;
+				hit_something = true;
 			}
 		}
 
@@ -602,13 +602,13 @@ void CMissile::applyPhysicsRolling() {
 		}
 
 		// Fix y if the projectile threats to go through the floor
-		if ( !hitSomething && ( y > ( env.screen_height - 5 ) ) ) {
+		if ( !hit_something && ( y > ( env.screen_height - 5 ) ) ) {
 			y = env.screen_height - 5;
 		}
 	} // End of rolling projectile movement
 }
 
-sSDI* CMissile::Build_SDI_List( sSDI* sdi ) {
+sSDI* CMissile::build_sdi_list( sSDI* sdi ) {
 	// Reset SDI list:
 	for ( int32_t i = 0; i < MAXPLAYERS; i++ ) {
 		sdi[ i ].next = nullptr;
@@ -631,20 +631,20 @@ sSDI* CMissile::Build_SDI_List( sSDI* sdi ) {
 		 */
 		if ( !lt->destroy                                             // 1
 		     && ( lt->player != player )                              // 2
-		     && !lt->isFlying()                                       // 3
+		     && !lt->is_flying()                                       // 3
 		     && !lt->player->sdi_has_fired.load( ATOMIC_READ )        // 4
 		     && ( lt->player->ni[ ITEM_SDI ] > lt->player->sdiShots ) // 5
 		     && ( ( lt->y - 10. ) >= y ) ) {                          // 6
-			double startX    = lt->x;
-			double startY    = lt->y - 10.;
+			double start_x    = lt->x;
+			double start_y    = lt->y - 10.;
 			sdi[ idx ].am    = lt->player->ni[ ITEM_SDI ] - lt->player->sdiShots;
 			sdi[ idx ].lvl   = ( sdi[ idx ].am - ( static_cast< int32_t >( sdi[ idx ].am ) % 5 ) ) / 5.;
 			sdi[ idx ].mod   = 1. + ( std::min( 10., sdi[ idx ].lvl ) / 20. );
 			sdi[ idx ].tank  = lt;
 			sdi[ idx ].range = static_cast< double >( SDI_DISTANCE );
-			sdi[ idx ].dist  = FABSDISTANCE2( x, y, startX, startY );
-			sdi[ idx ].x     = startX;
-			sdi[ idx ].y     = startY;
+			sdi[ idx ].dist  = FABSDISTANCE2( x, y, start_x, start_y );
+			sdi[ idx ].x     = start_x;
+			sdi[ idx ].y     = start_y;
 
 
 			/* Add the SDI to the list if:
@@ -655,7 +655,7 @@ sSDI* CMissile::Build_SDI_List( sSDI* sdi ) {
 			 */
 			if ( ( sdi[ idx ].dist <= ( sdi[ idx ].range * sdi[ idx ].mod ) ) // 1
 			     && ( sdi[ idx ].dist > lt->player->ni[ ITEM_SDI ] )          // 2
-			     && !checkPixelsBetweenTwoPoints( &startX, &startY, x, y, 0.0, nullptr ) /* 3 */ ) {
+			     && !check_pixels_between_two_points( &start_x, &start_y, x, y, 0.0, nullptr ) /* 3 */ ) {
 				// This can be added!
 				if ( pSDI ) {
 					// Must be sorted in
@@ -679,7 +679,7 @@ sSDI* CMissile::Build_SDI_List( sSDI* sdi ) {
 	return pSDI;
 }
 
-void CMissile::Check_Cluster() {
+void CMissile::check_cluster() {
 	CWeapon* submunition    = &weapon[ weap->submunition ];
 	double  divergenceStep = static_cast< double >( weap->divergence ) / static_cast< double >( weap->numSubmunitions - 1 );
 	int32_t startPoint     = divergenceStep < 0. ? 0 : 180;
@@ -687,14 +687,14 @@ void CMissile::Check_Cluster() {
 	EPhysType submunitionPhys = PT_NORMAL;
 	double    inheritedXV     = weap->impartVelocity * xv;
 	double    inheritedYV     = weap->impartVelocity * yv;
-	int32_t   startY          = ROUND( y ) - 20;
+	int32_t   start_y          = ROUND( y ) - 20;
 	bool      ceiling_crash   = false;
 
 	// See whether the weapon was fired into a ceiling:
 	// This applies for both steel ceilings and wrap ceilings,
 	// but the latter only if no ceiling wrap is activated or
 	// if the next pixel at the bottom is dirt.
-	if ( env.is_boxed && ( startY <= MENUHEIGHT ) // Base condition
+	if ( env.is_boxed && ( start_y <= MENUHEIGHT ) // Base condition
 	     && ( ( ( WALL_WRAP == env.current_wall_type )
 	            && ( !env.do_box_wrap // <- No wrap makes it steel
 	                                  // \/ dirt makes the ceiling unwrapable
@@ -702,29 +702,29 @@ void CMissile::Check_Cluster() {
 	          || ( WALL_STEEL == env.current_wall_type ) ) ) { // This always blasts
 		ceiling_crash = true;
 		// If the weapon is fired into a ceiling, adapt starting y
-		startY = MENUHEIGHT + 20;
+		start_y = MENUHEIGHT + 20;
 	}
 
 	// if napalm is going off, play its burn out sound
-	if ( ( weapType >= SML_NAPALM ) && ( weapType <= LRG_NAPALM ) ) {
-		play_explosion_sound( weapType, ROUND( x ), 128 + ( weap->radius / 2 ), 1000 );
+	if ( ( weap_type >= SML_NAPALM ) && ( weap_type <= LRG_NAPALM ) ) {
+		play_explosion_sound( weap_type, ROUND( x ), 128 + ( weap->radius / 2 ), 1000 );
 	}
 
 	// Change physics of the submunitions for the funky bombs
-	if ( ( weapType == FUNKY_BOMB ) || ( weapType == FUNKY_DEATH ) ) {
+	if ( ( weap_type == FUNKY_BOMB ) || ( weap_type == FUNKY_DEATH ) ) {
 		submunitionPhys = PT_FUNKY_FLOAT;
 	}
 
 	// If this is a steel wall hit, the start point angle needs
 	// to be adapted.
 	if ( ( WALL_STEEL == env.current_wall_type ) && !ceiling_crash ) {
-		if ( ( CLUSTER <= weapType ) && ( SUP_CLUSTER >= weapType ) ) {
+		if ( ( CLUSTER <= weap_type ) && ( SUP_CLUSTER >= weap_type ) ) {
 			if ( x < 2 ) {
 				startPoint -= weap->divergence + 1 + ( get_rand() % 10 );
 			} else if ( x > ( env.screen_width - 3 ) ) {
 				startPoint += weap->divergence + 1 + ( get_rand() % 10 );
 			}
-		} else if ( ( SML_NAPALM <= weapType ) && ( LRG_NAPALM >= weapType ) ) {
+		} else if ( ( SML_NAPALM <= weap_type ) && ( LRG_NAPALM >= weap_type ) ) {
 			if ( x < 2 ) {
 				startPoint -= 10 + get_rand() % 21;
 			} else if ( x > ( env.screen_width - 3 ) ) {
@@ -737,7 +737,7 @@ void CMissile::Check_Cluster() {
 	// to be erased.
 	if ( ceiling_crash ) {
 		startPoint = 0;
-		if ( ( SMALL_MIRV == weapType ) || ( CLUSTER_MIRV == weapType ) ) {
+		if ( ( SMALL_MIRV == weap_type ) || ( CLUSTER_MIRV == weap_type ) ) {
 			inheritedYV = std::abs( inheritedYV );
 		}
 	}
@@ -790,28 +790,28 @@ void CMissile::Check_Cluster() {
 			newmis = new CMissile(
 				player,
 				x,
-				startY,
+				start_y,
 				env.slope[ newMissAngle ][ 0 ] * launchSpeed * env.fps_mod + inheritedXV,
 				env.slope[ newMissAngle ][ 1 ] * launchSpeed * env.fps_mod + inheritedYV,
 				weap->submunition,
-				missileType,
+				missile_type,
 				ai_level,
 				0
 			);
-			newmis->physType  = submunitionPhys;
+			newmis->phys_type  = submunitionPhys;
 			newmis->countdown = newMissCount;
-			newmis->setUpdateArea( newmis->x - 20, newmis->y - 20, 40, 40 );
+			newmis->set_update_area( newmis->x - 20, newmis->y - 20, 40, 40 );
 		} catch ( std::exception& e ) {
 			std::cerr << __func__ << " new CMissile: " << e.what() << std::endl;
 		}
 	} // End of looping submunitions
 }
 
-bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
+bool CMissile::check_missile_hit( sSDI* sdi ) {
 	bool will_hit = false;
 
 	// Try to predict the coordinates where the missile will go down:
-	CMissile mind_shot( player, x, y, xv, yv, weapType, MT_MIND_SHOT, SDI_PREDICTOR, 0 );
+	CMissile mind_shot( player, x, y, xv, yv, weap_type, MT_MIND_SHOT, SDI_PREDICTOR, 0 );
 
 	// Adapt missile drag if the player has dimpled/slick projectiles
 	if ( player->ni[ ITEM_DIMPLEP ] ) {
@@ -827,7 +827,7 @@ bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 	double   x_vel     = 0.;
 	double   y_vel     = 0.;
 	uint32_t max_range = ROUNDu( sdi->range * std::max( ROUND( sdi->range ), weap->radius ) );
-	mind_shot.getVelocity( x_vel, y_vel );
+	mind_shot.get_velocity( x_vel, y_vel );
 
 	// Apply physics until the missile is either destroyed, or
 	// it is moving away from the tank and the tank is outside
@@ -838,7 +838,7 @@ bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 		mind_shot.applyPhysics();
 		x_dist = sdi->x - mind_shot.x;
 		y_dist = sdi->y - mind_shot.y;
-		mind_shot.getVelocity( x_vel, y_vel );
+		mind_shot.get_velocity( x_vel, y_vel );
 	}
 
 	// If the missile is destroyed, check whether the explosion would
@@ -849,9 +849,9 @@ bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 	// If so, shoot it down!
 	if ( mind_shot.destroy ) {
 		CTank*   lt    = sdi->tank;
-		int32_t x_rad = DRILLER == weapType ? weap->radius / 20 : weap->radius;
-		int32_t y_rad = ( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) ? weap->radius / 20 : weap->radius;
-		double  tank_rad = lt->getDiameter() / 2.;
+		int32_t x_rad = DRILLER == weap_type ? weap->radius / 20 : weap->radius;
+		int32_t y_rad = ( ( SHAPED_CHARGE <= weap_type ) && ( CUTTER >= weap_type ) ) ? weap->radius / 20 : weap->radius;
+		double  tank_rad = lt->get_diameter() / 2.;
 
 		if ( ( std::abs( x_dist ) <= x_rad )            // tank in x range
 		     && ( std::abs( y_dist ) <= y_rad )         // tank in y range
@@ -860,11 +860,11 @@ bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 		                                                // Is farther away than when it goes off:
 		          || ( ABSDISTANCE2( x, y, lt->x, lt->y ) >= ABSDISTANCE2( mind_shot.x, mind_shot.y, lt->x, lt->y ) ) )
 		     // Not a direct hit with repulsors up while not being buried.
-		     && !( lt->isInBox( mind_shot.x - tank_rad, mind_shot.y - tank_rad, mind_shot.x + tank_rad, mind_shot.y + tank_rad )
-		           && lt->hasRepulsorActivated() && ( ( BURIED_LEVEL / 4 ) > lt->howBuried( nullptr, nullptr ) ) ) ) {
+		     && !( lt->is_in_box( mind_shot.x - tank_rad, mind_shot.y - tank_rad, mind_shot.x + tank_rad, mind_shot.y + tank_rad )
+		           && lt->has_repulsor_activated() && ( ( BURIED_LEVEL / 4 ) > lt->how_buried( nullptr, nullptr ) ) ) ) {
 
 			// The point looks promising, but is it worth it?
-			double dmg = get_hit_damage( lt, static_cast< EWeaponType >( weapType ), x, y );
+			double dmg = get_hit_damage( lt, static_cast< EWeaponType >( weap_type ), x, y );
 			if ( dmg < ( lt->sh + lt->l ) ) {
 				will_hit = true;
 			}
@@ -874,11 +874,11 @@ bool CMissile::Check_Missile_Hit( sSDI* sdi ) {
 	return will_hit;
 }
 
-bool CMissile::Check_Roller( double old_delta_x ) {
+bool CMissile::check_roller( double old_delta_x ) {
 	bool quell = noimpact;
 	if ( age > 1 ) {
 		quell    = true; // No detonation, just switch to rolling
-		physType = PT_ROLLING;
+		phys_type = PT_ROLLING;
 		age      = 0;
 
 		// Set rolling start position and initial movement
@@ -937,7 +937,7 @@ bool CMissile::Check_Roller( double old_delta_x ) {
 		                 && ( !env.do_box_wrap || ( global.surface[ ROUND( x ) ].load( ATOMIC_READ ) < env.screen_height ) ) )
 		               || ( WALL_STEEL == env.current_wall_type ) ) ) ) {
 			quell        = false;
-			hitSomething = true;
+			hit_something = true;
 		}
 	} // End of switching roller physics
 	return quell;
@@ -949,8 +949,8 @@ bool CMissile::Check_Roller( double old_delta_x ) {
 // or NULL if no tank will shoot.
 /* Update:
  * -------
- * Check_SDI() can do it all on its own and is now called from
- * triggerTest() if (and *only* if) the missile isn't going off
+ * check_sdi() can do it all on its own and is now called from
+ * trigger_test() if (and *only* if) the missile isn't going off
  * anyway.
  * This allows SDI to be spared on missiles that are exploding anyway.
  * Further it makes the game loop much simpler.
@@ -965,21 +965,21 @@ bool CMissile::Check_Roller( double old_delta_x ) {
  * the result is many times more accurate. ;-)
  * - Sven
  */
-void CMissile::Check_SDI() {
+void CMissile::check_sdi() {
 	static sSDI sdi[ MAXPLAYERS ];
 
 	if (    // The Predictor don't checks itself:
 		( SDI_PREDICTOR == ai_level )
 		// can't shoot jelly, dirt balls, digging projectiles
 		// and anything with submunition.
-		|| ( PT_DIGGING == physType ) || ( weapType == NAPALM_JELLY ) || ( weap->submunition > 0 )
+		|| ( PT_DIGGING == phys_type ) || ( weap_type == NAPALM_JELLY ) || ( weap->submunition > 0 )
 		// Funky Floats are "invisible" with a chance of 50%
-		|| ( ( PT_FUNKY_FLOAT == physType ) && ( get_rand() % 2 ) ) ) {
+		|| ( ( PT_FUNKY_FLOAT == phys_type ) && ( get_rand() % 2 ) ) ) {
 		return;
 	}
 
 	// Build the SDI list
-	sSDI* pSDI = Build_SDI_List( sdi );
+	sSDI* pSDI = build_sdi_list( sdi );
 
 	// Create the SDI list
 	CTank* lt       = nullptr;
@@ -991,11 +991,11 @@ void CMissile::Check_SDI() {
 	while ( !shotDown && pSDI ) {
 		// 20% base chance with +1% per SDI over one.
 		if ( ( get_rand() % 100 ) < ( 19 + pSDI->am ) ) {
-			if ( Check_Missile_Hit( pSDI ) ) {
+			if ( check_missile_hit( pSDI ) ) {
 				shotDown = true;
 
 				// The actual shooting is only done if this is no mind shot
-				if ( MT_MIND_SHOT != missileType ) {
+				if ( MT_MIND_SHOT != missile_type ) {
 					lt = pSDI->tank;
 
 					// The player has a 1% chance per SDI (with 50% max)
@@ -1040,16 +1040,16 @@ void CMissile::Check_SDI() {
 	} // End of going through SDI list
 }
 
-void CMissile::Check_Tanks() {
+void CMissile::check_tanks() {
 	CTank* lt = nullptr;
 
 	// Has it hit a tank?
 	global.get_head_of_class( CLASS_TANK, &lt );
 	while ( lt ) {
-		if ( !lt->destroy && lt->isInBox( x, y, x, y ) ) {
-			hitSomething = true;
-			if ( MT_MIND_SHOT != missileType ) {
-				lt->requireUpdate();
+		if ( !lt->destroy && lt->is_in_box( x, y, x, y ) ) {
+			hit_something = true;
+			if ( MT_MIND_SHOT != missile_type ) {
+				lt->require_update();
 			}
 
 			// Be sure the detonation does not take place
@@ -1064,7 +1064,7 @@ void CMissile::Check_Tanks() {
 
 // This function returns the distance above ground of
 // the missile.
-int32_t CMissile::Height_Above_Ground() {
+int32_t CMissile::height_above_ground() {
 	auto rx = ROUND( x );
 
 	if ( ( rx < 1 ) || ( rx >= env.screen_width ) ) {
@@ -1097,7 +1097,7 @@ int32_t CMissile::Height_Above_Ground() {
 }
 
 // Modify xv/yv according to repulse shields in the vicinity of the missile
-void CMissile::Repulse_Missile() {
+void CMissile::repulse_missile() {
 	CTank*  lt     = nullptr;
 	double xaccel = 0;
 	double yaccel = 0;
@@ -1107,7 +1107,7 @@ void CMissile::Repulse_Missile() {
 	while ( lt ) {
 		if ( !lt->destroy && ( lt->player != player ) ) {
 
-			if ( lt->repulse( x + xv, y + yv, &xaccel, &yaccel, physType ) ) {
+			if ( lt->repulse( x + xv, y + yv, &xaccel, &yaccel, phys_type ) ) {
 				xv += xaccel;
 				yv += yaccel;
 			}
@@ -1119,26 +1119,26 @@ void CMissile::Repulse_Missile() {
 void CMissile::trigger() {
 	// Create explosion
 	try {
-		new CExplosion( player, x, y, xv, yv, weapType, isWeaponFire );
+		new CExplosion( player, x, y, xv, yv, weap_type, is_weapon_fire );
 	} catch ( std::exception& e ) {
 		std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 	}
 
 	// If the explosion is near a wrapping wall, a second "fake"
 	// explosion must be generated to display the wrapping effect
-	if ( ( WALL_WRAP == env.current_wall_type ) && ( weapType < WEAPONS ) ) {
+	if ( ( WALL_WRAP == env.current_wall_type ) && ( weap_type < WEAPONS ) ) {
 		int32_t left  = 0;
 		int32_t top   = 0;
-		int32_t x_rad = weapon[ weapType ].radius;
-		int32_t y_rad = weapon[ weapType ].radius;
+		int32_t x_rad = weapon[ weap_type ].radius;
+		int32_t y_rad = weapon[ weap_type ].radius;
 
 		// Driller is smaller
-		if ( DRILLER == weapType ) {
+		if ( DRILLER == weap_type ) {
 			x_rad /= 20;
 		}
 
 		// shaped charges are flatter
-		if ( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) {
+		if ( ( SHAPED_CHARGE <= weap_type ) && ( CUTTER >= weap_type ) ) {
 			y_rad /= 20;
 		}
 
@@ -1163,7 +1163,7 @@ void CMissile::trigger() {
 			int32_t new_x = left ? left : ROUND( x );
 			int32_t new_y = top ? top : ROUND( y );
 			try {
-				new CExplosion( player, new_x, new_y, xv, yv, weapType, isWeaponFire );
+				new CExplosion( player, new_x, new_y, xv, yv, weap_type, is_weapon_fire );
 			} catch ( std::exception& e ) {
 				std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 			}
@@ -1172,20 +1172,20 @@ void CMissile::trigger() {
 
 	destroy = true;
 
-	if ( weapType < SML_METEOR ) {
-		play_explosion_sound( weapType, ROUND( x ), 255, 1000 );
+	if ( weap_type < SML_METEOR ) {
+		play_explosion_sound( weap_type, ROUND( x ), 255, 1000 );
 	} else {
-		play_natural_sound( weapType, ROUND( x ), 255, 1000 );
+		play_natural_sound( weap_type, ROUND( x ), 255, 1000 );
 	}
 }
 
-void CMissile::triggerTest() {
+void CMissile::trigger_test() {
 	bool quell = noimpact;
 
 	// No tests are needed if a too high velocity has
 	// just lacerated the projectile.
 	if ( lacerated ) {
-		if ( ( MT_MIND_SHOT == missileType ) || quell ) {
+		if ( ( MT_MIND_SHOT == missile_type ) || quell ) {
 			// Only end of performance is needed to know.
 			destroy = true;
 		} else {
@@ -1194,32 +1194,32 @@ void CMissile::triggerTest() {
 		return;
 	}
 
-	// update hitSomething if any tank was hit
-	Check_Tanks();
+	// update hit_something if any tank was hit
+	check_tanks();
 
 	// Unless quelled, check what is to be done
 	bool do_check = ( !quell && ( y > MENUHEIGHT ) );
 
 	// Do not check if the missile is on screen, does not hit anything and the pixel check is negative (no dirt)
-	if ( do_check && !hitSomething && ( y < env.screen_height ) && ( x >= 0. ) && ( x < env.screen_width ) ) {
+	if ( do_check && !hit_something && ( y < env.screen_height ) && ( x >= 0. ) && ( x < env.screen_width ) ) {
 		do_check = ( PINK != getpixel( global.terrain, ROUND( x ), ROUND( y ) ) );
 	}
 
 	// Only continue if all checks passed:
 	if ( do_check ) {
 		// A roller changes from flying to rolling
-		if ( ( weapType >= SML_ROLLER ) && ( weapType <= DTH_ROLLER ) && ( PT_NORMAL == physType ) ) {
-			quell = Check_Roller( xv );
+		if ( ( weap_type >= SML_ROLLER ) && ( weap_type <= DTH_ROLLER ) && ( PT_NORMAL == phys_type ) ) {
+			quell = check_roller( xv );
 		} // End of roller handling
 
 		// A burrower or penetrator changes from flying to digging
-		else if ( ( weapType == BURROWER ) || ( weapType == PENETRATOR ) ) {
-			if ( PT_DIGGING == physType ) {
+		else if ( ( weap_type == BURROWER ) || ( weap_type == PENETRATOR ) ) {
+			if ( PT_DIGGING == phys_type ) {
 				// If it hit, it must not be quelled.
-				quell = !hitSomething;
-			} else if ( PT_NORMAL == physType ) {
+				quell = !hit_something;
+			} else if ( PT_NORMAL == phys_type ) {
 				// This is the switch
-				physType  = PT_DIGGING;
+				phys_type  = PT_DIGGING;
 				quell     = true;
 				xv       *= 0.1;
 				yv       *= 0.1;
@@ -1231,8 +1231,8 @@ void CMissile::triggerTest() {
 		else if ( weap->submunition >= 0 ) {
 			quell = true; // This one is done
 
-			if ( ( weap->numSubmunitions > 0 ) && ( MT_MIND_SHOT != missileType ) ) {
-				Check_Cluster();
+			if ( ( weap->numSubmunitions > 0 ) && ( MT_MIND_SHOT != missile_type ) ) {
+				check_cluster();
 			} // End of having submunition count
 
 			destroy = true;
@@ -1246,28 +1246,28 @@ void CMissile::triggerTest() {
 	}
 
 	// Riot charges always go off in an instant.
-	if ( ( weapType >= RIOT_CHARGE ) && ( weapType <= RIOT_BLAST ) ) {
+	if ( ( weap_type >= RIOT_CHARGE ) && ( weap_type <= RIOT_BLAST ) ) {
 		quell   = false;
 		destroy = true;
 	}
 
 
 	// Eventually trigger missiles that hit something or are lacerated
-	if ( hitSomething && !quell ) {
-		if ( MT_MIND_SHOT == missileType ) {
+	if ( hit_something && !quell ) {
+		if ( MT_MIND_SHOT == missile_type ) {
 			destroy = true;
 		} else {
 			trigger();
 		}
-	} else if ( ( yv > 0. ) && ( ( weapType < RIOT_BOMB ) || ( weapType > SMALL_DIRT_SPREAD ) ) && ( weapType < BALLISTICS ) ) {
+	} else if ( ( yv > 0. ) && ( ( weap_type < RIOT_BOMB ) || ( weap_type > SMALL_DIRT_SPREAD ) ) && ( weap_type < BALLISTICS ) ) {
 		// Otherwise it is time to check whether any tank SDI shoots it down
-		Check_SDI();
+		check_sdi();
 	}
 }
 
 /// @brief special method to update private members iof sub munition missiles.
 /// This method is only interesting for CAICore tracing clusters.
 void CMissile::update_submun( EPhysType p_type, int32_t cnt_down ) {
-	physType  = p_type;
+	phys_type  = p_type;
 	countdown = cnt_down;
 }

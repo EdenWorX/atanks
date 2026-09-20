@@ -81,7 +81,7 @@ public:
 	void   update_submun( EPhysType p_type, int32_t cnt_down ); ///< Release submunitions.
 
 	/// Return the object class.
-	EClass getClass() final { return CLASS_MISSILE; }
+	EClass get_class() final { return CLASS_MISSILE; }
 
 	/* Status Getters */
 	[[nodiscard]] int32_t bounced() const;   ///< Bounce count.
@@ -94,20 +94,20 @@ private:
 	 * -----------------------
 	 */
 
-	void    applyPhysicsFunky();   // Handle funky projectiles
-	void    applyPhysicsNormal();  // Handle standard physics projectiles
-	void    applyPhysicsOther();   // Handle what is not normal, funky or rolling
-	void    applyPhysicsRolling(); // Handle rolling projectiles
-	sSDI*   Build_SDI_List( sSDI* sdi );
-	void    Check_Cluster();                    // Check/Launch weapons with submunition
-	bool    Check_Missile_Hit( sSDI* sdi );     // Check whether the missile will hit a certain target
-	bool    Check_Roller( double old_delta_x ); // Check whether a roller triggers
-	void    Check_SDI();                        // see if missile should be shot down
-	void    Check_Tanks();                      // see whether any tank is hit
-	int32_t Height_Above_Ground();
-	void    Repulse_Missile();
+	void    apply_physics_funky();   // Handle funky projectiles
+	void    apply_physics_normal();  // Handle standard physics projectiles
+	void    apply_physics_other();   // Handle what is not normal, funky or rolling
+	void    apply_physics_rolling(); // Handle rolling projectiles
+	sSDI*   build_sdi_list( sSDI* sdi );
+	void    check_cluster();                    // Check/Launch weapons with submunition
+	bool    check_missile_hit( sSDI* sdi );     // Check whether the missile will hit a certain target
+	bool    check_roller( double old_delta_x ); // Check whether a roller triggers
+	void    check_sdi();                        // see if missile should be shot down
+	void    check_tanks();                      // see whether any tank is hit
+	int32_t height_above_ground();
+	void    repulse_missile();
 	void    trigger();
-	void    triggerTest();
+	void    trigger_test();
 
 
 	/* -----------------------
@@ -118,9 +118,9 @@ private:
 	int32_t      ai_level     = 0; // Level of the AI shooting a mind shot
 	int32_t      countdown    = -1;
 	int32_t      funky_colour = BLACK;
-	int32_t      growRadius   = 0;
-	bool         isGrowing    = false;
-	EMissileType missileType  = MT_WEAPON;
+	int32_t      grow_radius   = 0;
+	bool         is_growing    = false;
+	EMissileType missile_type  = MT_WEAPON;
 	CWeapon*      weap         = nullptr;
 };
 

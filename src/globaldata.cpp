@@ -75,7 +75,7 @@ void CGlobalData::add_object( vobj_t* object ) {
 		return;
 	}
 
-	EClass class_ = object->getClass();
+	EClass class_ = object->get_class();
 
 	obj_locks[ class_ ].lock();
 
@@ -162,7 +162,7 @@ bool CGlobalData::are_tanks_in_box( int32_t x1, int32_t y1, int32_t x2, int32_t 
 
 	while ( lt ) {
 		// Tank found, is it in the box?
-		if ( ( !lt->destroy ) && lt->isInBox( x1, y1, x2, y2 ) ) {
+		if ( ( !lt->destroy ) && lt->is_in_box( x1, y1, x2, y2 ) ) {
 			return true;
 		}
 		lt->getNext( &lt );
@@ -875,7 +875,7 @@ void CGlobalData::remove_object( vobj_t* object ) {
 		return;
 	}
 
-	EClass class_ = object->getClass();
+	EClass class_ = object->get_class();
 
 	/// --- 1: Is the list empty? ---
 	if ( nullptr == heads[ class_ ] ) {

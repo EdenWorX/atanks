@@ -25,9 +25,9 @@ CFloatText::CFloatText(
 		sky_col = getpixel( env.sky, pos_x, pos_y - MENUHEIGHT );
 	}
 
-	halfColor = GetShadeColor( color, true, sky_col );
+	half_color = get_shade_color( color, true, sky_col );
 	align     = alignment;
-	maxAge    = max_age;
+	max_age    = max_age;
 
 	if ( text_ ) {
 		set_text( text_ );
@@ -48,7 +48,7 @@ CFloatText::CFloatText(
 }
 
 CFloatText::~CFloatText() {
-	requireUpdate();
+	require_update();
 	this->update();
 
 	// Only do the final update if the dimensions have been set
@@ -124,9 +124,9 @@ void CFloatText::applyPhysics() {
 	dim_cur.x  = ROUND( pos_x );
 	dim_cur.y  = ROUND( pos_y );
 
-	requireUpdate();
+	require_update();
 
-	if ( ( maxAge != -1 ) && ( ++age > maxAge ) ) {
+	if ( ( max_age != -1 ) && ( ++age > max_age ) ) {
 		destroy = true;
 	}
 }
@@ -189,7 +189,7 @@ void CFloatText::draw() {
 
 	double  shadeFade = 0.75;
 	int32_t frontCol  = color;
-	int32_t shadeCol  = halfColor;
+	int32_t shadeCol  = half_color;
 
 	// If either shadowed or fading text is enabled, a background
 	// average colour is needed.
@@ -197,8 +197,8 @@ void CFloatText::draw() {
 		int32_t backCol = global.get_avg_bgcolor( left, top, left + dim_cur.w, top + dim_cur.h, xv, yv );
 
 		// If fading text is activated, the front colour must be calculated as well
-		if ( env.fading_text && ( maxAge > 0 ) && ( age >= ( maxAge / 2 ) ) ) {
-			double calcMax    = maxAge / 2.;
+		if ( env.fading_text && ( max_age > 0 ) && ( age >= ( max_age / 2 ) ) ) {
+			double calcMax    = max_age / 2.;
 			double calcAge    = age - calcMax;
 			double frontFade  = 1.0 - ( calcAge / calcMax );
 
@@ -245,9 +245,9 @@ void CFloatText::draw() {
 	textout_ex( global.canvas, font, text, left, top, frontCol, -1 );
 }
 
-void CFloatText::newRound() {
-	if ( maxAge > 0 ) {
-		age = maxAge + 1;
+void CFloatText::new_round() {
+	if ( max_age > 0 ) {
+		age = max_age + 1;
 	}
 }
 
@@ -351,7 +351,7 @@ void CFloatText::set_color( int32_t color_ ) {
 		sky_col = getpixel( env.sky, left, top - MENUHEIGHT );
 	}
 
-	halfColor = GetShadeColor( color, true, sky_col );
+	half_color = get_shade_color( color, true, sky_col );
 }
 
 void CFloatText::set_pos( int32_t xpos, int32_t ypos ) {
@@ -433,7 +433,7 @@ void CFloatText::set_text( char const* text_ ) {
 ///            would be too dark to make a difference.
 /// @param[in] bg_colour If not PINK, the background colour is taken into account
 ///            and the result darkened or lightened more according to @a do_lighten
-int32_t GetShadeColor( int32_t colour, bool do_lighten, int32_t bg_colour ) {
+int32_t get_shade_color( int32_t colour, bool do_lighten, int32_t bg_colour ) {
 	int32_t r = getr( colour ), g = getg( colour ), b = getb( colour );
 	float   h, s, v;
 

@@ -30,7 +30,7 @@
 #endif
 
 CTeleport::~CTeleport() {
-	requireUpdate();
+	require_update();
 	update();
 	if ( dim_cur.w > 0 ) {
 		global.make_bgupdate( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
@@ -52,18 +52,18 @@ CTeleport::~CTeleport() {
 }
 
 CTeleport::CTeleport(
-	CVirtualObject* targetObj,
-	int32_t         destinationX,
-	int32_t         destinationY,
-	int32_t         objRadius,
+	CVirtualObject* target_obj,
+	int32_t         destination_x,
+	int32_t         destination_y,
+	int32_t         obj_radius,
 	int32_t         duration,
 	int32_t         type
 )
 	: CVirtualObject()
 	, clock( duration )
-	, object( targetObj )
-	, radius( objRadius )
-	, startClock( duration ) {
+	, object( target_obj )
+	, radius( obj_radius )
+	, start_clock( duration ) {
 
 	if ( object ) {
 		x = object->x;
@@ -78,28 +78,28 @@ CTeleport::CTeleport(
 
 		global.get_head_of_class( CLASS_TANK, &lt );
 		while ( lt ) {
-			if ( ( std::abs( lt->x - destinationX ) < objRadius ) && ( lt->y > destinationY )
-			     && ( ( lt->y - destinationY ) < objRadius ) ) {
+			if ( ( std::abs( lt->x - destination_x ) < obj_radius ) && ( lt->y > destination_y )
+			     && ( ( lt->y - destination_y ) < obj_radius ) ) {
 				need_check = true;
 
 				// Maybe move left
-				if ( ( ( destinationX > ( objRadius * 2 ) ) && ( destinationX <= lt->x ) )
-				     || ( destinationX >= ( env.screen_width - ( objRadius * 2 ) ) ) ) {
-					destinationX -= ROUND( std::abs( lt->x - destinationX ) );
+				if ( ( ( destination_x > ( obj_radius * 2 ) ) && ( destination_x <= lt->x ) )
+				     || ( destination_x >= ( env.screen_width - ( obj_radius * 2 ) ) ) ) {
+					destination_x -= ROUND( std::abs( lt->x - destination_x ) );
 				}
 				// Or move right
-				else if ( destinationX < ( env.screen_width - ( objRadius * 2 ) ) ) {
-					destinationX += ROUND( std::abs( lt->x - destinationX ) );
+				else if ( destination_x < ( env.screen_width - ( obj_radius * 2 ) ) ) {
+					destination_x += ROUND( std::abs( lt->x - destination_x ) );
 				}
 
 				// Maybe move up
-				if ( ( ( destinationY > ( MENUHEIGHT + ( objRadius * 2 ) ) ) && ( destinationY <= lt->y ) )
-				     || ( destinationY >= ( env.screen_height - ( objRadius * 2 ) ) ) ) {
-					destinationY -= ROUND( std::abs( lt->y - destinationY ) );
+				if ( ( ( destination_y > ( MENUHEIGHT + ( obj_radius * 2 ) ) ) && ( destination_y <= lt->y ) )
+				     || ( destination_y >= ( env.screen_height - ( obj_radius * 2 ) ) ) ) {
+					destination_y -= ROUND( std::abs( lt->y - destination_y ) );
 				}
 				// Or move down
-				else if ( destinationY < ( env.screen_height - ( objRadius * 2 ) ) ) {
-					destinationY += ROUND( std::abs( lt->y - destinationY ) );
+				else if ( destination_y < ( env.screen_height - ( obj_radius * 2 ) ) ) {
+					destination_y += ROUND( std::abs( lt->y - destination_y ) );
 				}
 			}
 
@@ -109,7 +109,7 @@ CTeleport::CTeleport(
 	} // end of needing to check the destination
 
 	try {
-		remote = new CTeleport( this, destinationX, destinationY );
+		remote = new CTeleport( this, destination_x, destination_y );
 	} catch ( std::bad_alloc& e ) {
 		std::cerr << "Error creating CTeleport: " << e.what() << std::endl;
 	}
@@ -120,7 +120,7 @@ CTeleport::CTeleport(
 	// this seems to be the teleport we usually use
 	int   playerindex = 0;
 	bool  found       = false;
-	CTank* the_tank    = dynamic_cast< CTank* >( targetObj );
+	CTank* the_tank    = dynamic_cast< CTank* >( target_obj );
 
 	// match the player with the tank
 	while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
@@ -133,7 +133,7 @@ CTeleport::CTeleport(
 
 	if ( found ) {
 		char buffer[ 64 ] = { 0x0 };
-		snprintf( buffer, 63, "CTeleport %d %d %d", playerindex, destinationX, destinationY );
+		snprintf( buffer, 63, "CTeleport %d %d %d", playerindex, destination_x, destination_y );
 		env.send_to_clients( buffer );
 	}
 #endif // NETWORK
@@ -142,13 +142,13 @@ CTeleport::CTeleport(
 	global.add_object( this );
 }
 
-CTeleport::CTeleport( CTeleport* remoteEnd, int32_t destX, int32_t destY ) : CVirtualObject(), remote( remoteEnd ) {
-	this->x = destX;
-	this->y = destY;
+CTeleport::CTeleport( CTeleport* remote_end, int32_t dest_x, int32_t dest_y ) : CVirtualObject(), remote( remote_end ) {
+	this->x = dest_x;
+	this->y = dest_y;
 	if ( remote ) {
-		clock      = remoteEnd->startClock;
-		radius     = remoteEnd->radius;
-		startClock = remoteEnd->startClock;
+		clock      = remote_end->start_clock;
+		radius     = remote_end->radius;
+		start_clock = remote_end->start_clock;
 	}
 
 	// Add to the chain:
@@ -168,7 +168,7 @@ void CTeleport::applyPhysics() {
 		clock = remote->clock;
 	}
 
-	if ( clock-- < -startClock / 2 ) {
+	if ( clock-- < -start_clock / 2 ) {
 		destroy = true;
 	}
 }
@@ -189,15 +189,15 @@ void CTeleport::draw() {
 		pClock = 1.0 + ( 1.0 - ( pClock * 2.0 ) );
 	}
 
-	auto transMod = ROUND( 255. - ( pClock / startClock * 255. ) );
+	auto transMod = ROUND( 255. - ( pClock / start_clock * 255. ) );
 	if ( transMod > 255 ) {
 		transMod = 255;
 	} else if ( transMod < 0 ) {
 		transMod = 0;
 	}
 
-	blobSize           -= ROUND( 8. / ( startClock / pClock ) + 1. );
-	pRadius            -= ROUND( radius / ( startClock / pClock ) + 1. );
+	blobSize           -= ROUND( 8. / ( start_clock / pClock ) + 1. );
+	pRadius            -= ROUND( radius / ( start_clock / pClock ) + 1. );
 	maxblobs           += pRadius * 4;
 
 	BITMAP* tempBitmap  = create_bitmap( radius * 2, radius * 2 );
@@ -220,8 +220,8 @@ void CTeleport::draw() {
 
 	drawing_mode( DRAW_MODE_SOLID, nullptr, 0, 0 );
 
-	setUpdateArea( x - pRadius - blobSize, y - pRadius - blobSize, ( pRadius + blobSize ) * 2, ( pRadius + blobSize ) * 2 );
-	requireUpdate();
+	set_update_area( x - pRadius - blobSize, y - pRadius - blobSize, ( pRadius + blobSize ) * 2, ( pRadius + blobSize ) * 2 );
+	require_update();
 
 	destroy_bitmap( tempBitmap );
 }

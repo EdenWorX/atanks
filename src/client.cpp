@@ -121,11 +121,11 @@ bool Parse_Client_Data( char *buffer ) {
 			env.players[ tank_index ]->tank->sht = shield_type;
 			// set the text over the tank
 			sprintf( some_text, "%d", health );
-			env.players[ tank_index ]->tank->healthText.set_text( some_text );
-			env.players[ tank_index ]->tank->healthText.set_color( env.players[ tank_index ]->color );
+			env.players[ tank_index ]->tank->health_text.set_text( some_text );
+			env.players[ tank_index ]->tank->health_text.set_color( env.players[ tank_index ]->color );
 			sprintf( some_text, "%d", shield );
-			env.players[ tank_index ]->tank->shieldText.set_text( some_text );
-			env.players[ tank_index ]->tank->healthText.set_color( env.players[ tank_index ]->color );
+			env.players[ tank_index ]->tank->shield_text.set_text( some_text );
+			env.players[ tank_index ]->tank->health_text.set_color( env.players[ tank_index ]->color );
 		}
 		if ( tank_index == ( env.num_game_players - 1 ) ) {
 			return true;
@@ -164,7 +164,7 @@ bool Parse_Client_Data( char *buffer ) {
 				printf( "Attempt to create CTank failed in client code: %s\n", e.what() );
 			}
 			env.players[ counter ]->tank->player = env.players[ counter ];
-			env.players[ counter ]->tank->nameText.set_text( nullptr );
+			env.players[ counter ]->tank->name_text.set_text( nullptr );
 		}
 		return true;
 	}
@@ -279,7 +279,7 @@ bool Parse_Client_Data( char *buffer ) {
 		if ( ( player_num >= 0 ) && ( player_num < env.num_game_players ) && ( env.players[ player_num ]->tank ) ) {
 			CTank *lt = env.players[ player_num ]->tank;
 			try {
-				new CTeleport( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
+				new CTeleport( lt, new_x, new_y, lt->get_diameter(), 120, ITEM_TELEPORT );
 			} catch ( std::bad_alloc &e ) {
 				printf( "Attempt to create teleport failed in client code: %s\n", e.what() );
 			}
@@ -483,7 +483,7 @@ int Game_Client( int socket_number ) {
 	global.get_head_of_class( CLASS_FLOATTEXT, &my_object );
 	while ( my_object ) {
 		my_object->getNext( &next_obj );
-		dynamic_cast< CFloatText * >( my_object )->newRound();
+		dynamic_cast< CFloatText * >( my_object )->new_round();
 		delete my_object;
 	}
 
@@ -677,7 +677,7 @@ int Game_Client( int socket_number ) {
 				my_object->applyPhysics();
 
 				if ( my_object->destroy ) {
-					my_object->requireUpdate();
+					my_object->require_update();
 					my_object->update();
 					delete my_object;
 					if ( CLASS_TELEPORT == class_ ) {
@@ -716,7 +716,7 @@ int Game_Client( int socket_number ) {
 			while ( my_object ) {
 				my_object->draw();
 				if ( CLASS_FLOATTEXT == class_ ) {
-					my_object->requireUpdate();
+					my_object->require_update();
 				}
 				my_object->update();
 				my_object->getNext( &my_object );

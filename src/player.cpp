@@ -425,11 +425,11 @@ EControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 
 	// Do not try to start the AI if this players tank is
 	// about to be destroyed or while it is moving.
-	if ( !tank || tank->destroy || tank->isFlying() || ( tank->l < 1 ) ) {
+	if ( !tank || tank->destroy || tank->is_flying() || ( tank->l < 1 ) ) {
 		return CONTROL_NONE;
 	}
 
-	tank->requireUpdate();
+	tank->require_update();
 
 	/* Start the AI for this player if:
 	 * 1) The AI is idle and
@@ -554,14 +554,14 @@ EControl CPlayer::computerControls( CAICore* aicore, bool allow_fire ) {
 
 	// If the AI wants to move their tank, do so:
 	else if ( PS_MOVE_LEFT == plStage ) {
-		if ( tank->moveTank( DIR_LEFT ) ) {
+		if ( tank->move_tank( DIR_LEFT ) ) {
 			aicore->hasMoved( DIR_LEFT );
 			return CONTROL_OTHER;
 		} else {
 			aicore->hasMoved( 0 ); // No movement possible
 		}
 	} else if ( PS_MOVE_RIGHT == plStage ) {
-		if ( tank->moveTank( DIR_RIGHT ) ) {
+		if ( tank->move_tank( DIR_RIGHT ) ) {
 			aicore->hasMoved( DIR_RIGHT );
 			return CONTROL_OTHER;
 		} else {
@@ -1096,9 +1096,9 @@ EControl CPlayer::executeNetCmd( bool my_turn, CAICore* aicore ) {
 		}
 		if ( tank ) {
 			if ( strstr( net_command, "LEFT" ) ) {
-				tank->moveTank( DIR_LEFT );
+				tank->move_tank( DIR_LEFT );
 			} else {
-				tank->moveTank( DIR_RIGHT );
+				tank->move_tank( DIR_RIGHT );
 			}
 			global.update_menu = true;
 		}
@@ -2013,10 +2013,10 @@ EControl CPlayer::humanControls( CAICore* aicore ) {
 
 			// move the tank
 			if ( ( K == KEY_COMMA ) || ( K == KEY_H ) ) {
-				moved = tank->moveTank( DIR_LEFT );
+				moved = tank->move_tank( DIR_LEFT );
 			}
 			if ( ( K == KEY_STOP ) || ( K == KEY_J ) ) {
-				moved = tank->moveTank( DIR_RIGHT );
+				moved = tank->move_tank( DIR_RIGHT );
 			}
 
 			if ( moved ) {
@@ -2545,7 +2545,7 @@ void CPlayer::newRound() {
 			global.set_command( GLOBAL_COMMAND_QUIT );
 		}
 	}
-	// tank->newRound() doesn't need to be called, because
+	// tank->new_round() doesn't need to be called, because
 	// the game loop will do that on tank placement.
 
 	// if we are playing in a campaign, raise the AI level for every 20% played
@@ -2601,7 +2601,7 @@ void CPlayer::noteDamageFrom( CPlayer* opponent, int32_t damage, bool destroyed 
 			int32_t rev_dmg = opponents[ idx ].damage_last + opponents[ idx ].revenge_dmg;
 
 			if ( ( opponents[ idx ].opponent != this ) && ( opponents[ idx ].opponent != revenge )
-			     && ( rev_dmg > ( vengeanceThreshold * tank->getMaxLife() ) ) && ( rev_dmg > max_score ) ) {
+			     && ( rev_dmg > ( vengeanceThreshold * tank->get_max_life() ) ) && ( rev_dmg > max_score ) ) {
 
 				revenge = opponents[ idx ].opponent;
 

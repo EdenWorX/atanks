@@ -67,14 +67,14 @@ public:
 
 	void   applyPhysics() final;                  ///< Advance physics.
 	void   draw() final;                          ///< Render the text.
-	void   newRound();                            ///< Expire round-scoped texts.
+	void   new_round();                                 ///< Expire round-scoped texts.
 	void   set_color( int32_t color_ );           ///< Set the text color.
 	void   set_pos( int32_t xpos, int32_t ypos ); ///< Set the text position.
 	void   set_sway_type( ETextSway sway_type );  ///< Set the sway type.
 	void   set_text( char const* text_ );         ///< Set the text content.
 
 	/// Return the object class.
-	EClass getClass() final { return CLASS_FLOATTEXT; }
+	EClass get_class() final { return CLASS_FLOATTEXT; }
 
 	/* Little inline helper */
 	/// Set the text position; coordinates are rounded.
@@ -99,7 +99,7 @@ private:
 	 */
 
 	int32_t   color     = SILVER; //!< Foreground colour
-	int32_t   halfColor = GREY;   //!< Shadow colour
+	int32_t   half_color = GREY;   //!< Shadow colour
 	bool      is_fixed  = false;  //!< Whether new texts can push this out of the way
 	bool      is_pushed = false;
 	double    pos_x     = 0.;
@@ -111,6 +111,6 @@ private:
 // This function returns a shade colour, which
 // is either brighter or darker depending on
 // the given colour and options.
-int32_t GetShadeColor( int32_t colour, bool do_lighten, int32_t bg_colour );
+int32_t get_shade_color( int32_t colour, bool do_lighten, int32_t bg_colour );
 
 #endif

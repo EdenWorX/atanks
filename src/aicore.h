@@ -108,7 +108,7 @@ struct sWeapListEntry;
  * buried        : (check done)   Number of true angles where the turret is directly covered by dirt.
  * buried_l      : (check done)   Same as buried, but left side only
  * buried_r      : (check done)   Same as buried, but right side only
- * maxLife       : (check done)   The current maxLife value of the tank for this game round.
+ * max_life       : (check done)   The current max_life value of the tank for this game round.
  *
  * Information from last round:
  * last_opp      : (from player)  sOpponent pointer set to the opponent that was attacked last.
@@ -336,7 +336,7 @@ struct sWeapListEntry;
  *             attack that is performed.
  *       3.3.2 Set curr_angle to an angle pointing directly at the selected target and add the value of 'drift'.
  *       3.3.3 Follow the beam using a mind shot and calculate a hit score.
- *       3.3.4 Use tank->shootClearance() to see whether the shot is blocked or crashes.
+ *       3.3.4 Use tank->shoot_clearance() to see whether the shot is blocked or crashes.
  *             If the shot does not reach the target, and is_last is true, the hit_score (might have hit someone else)
  *             is reduced. If this is not the very last attempt, curr_angle and curr_power are written back, needAim is
  *             set to true and false is returned.
@@ -826,7 +826,7 @@ private:
 	bool    aim( int32_t combo_attempt, int32_t combo_tries, bool can_move );
 	bool    calcAttack( int32_t attempt, int32_t tries );
 	bool    calcBoxed( bool is_last );
-	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weapType );
+	void    calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weap_type );
 	int32_t calcHitScore( bool is_last );
 	bool    calcKamikaze( bool is_last );
 	bool    calcLaser( bool is_last );
@@ -931,7 +931,7 @@ private:
 	sOpponent* last_opp    = nullptr; //!< The opponent attacked in the last round
 	int32_t    last_pow    = 0;       //!< Power used in last round
 	int32_t    last_weap   = 0;       //!< weapon used in the last round
-	int32_t    maxLife     = 100;
+	int32_t    max_life     = 100;
 	opentry_t* mem_curr    = nullptr; //!< Currently selected entry
 	opentry_t* mem_head    = nullptr; //!< Last selected entry
 	opentry_t* mem_last    = nullptr; //!< Entry with highest score

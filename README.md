@@ -135,9 +135,9 @@ narrow responsibilities:
 
 | Area | Key files | Notes |
 |---|---|---|
-| Object hierarchy root | `src/virtobj.h/.cpp` (`CVirtualObject`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `getClass()` |
+| Object hierarchy root | `src/virtobj.h/.cpp` (`CVirtualObject`) | List node (`prev`/`next`), position, dirty-rect updates, virtual `applyPhysics/draw/initialise`, pure `get_class()` |
 | Physics mixin | `src/physobj.h/.cpp` (`CPhysicalObject : CVirtualObject`) | Gravity/drag/mass, bounces, `weapType`, angle macros |
-| Tank avatar | `src/tank.h/.cpp` (`CTank final : CPhysicalObject`) | Aim/power/selection, health/shield, `moveTank`, `addDamage/applyDamage/explode/repair`, `CSpinLock damage_lock` |
+| Tank avatar | `src/tank.h/.cpp` (`CTank final : CPhysicalObject`) | Aim/power/selection, health/shield, `move_tank`, `add_damage/apply_damage/explode/repair`, `CSpinLock damage_lock` |
 | Projectile | `src/missile.h/.cpp` (`CMissile final : CPhysicalObject`) | `EMissileType{MT_WEAPON,MT_ITEM,MT_NATURAL,MT_MIND_SHOT}`, SDI/cluster/roller handling |
 | Detonation | `src/explosion.h/.cpp` (`CExplosion final : CPhysicalObject`) | Terrain deformation, throwing, damage, napalm/debris |
 | Beams (lasers) | `src/beam.h/.cpp` | Laser-class weapons parallel to ballistic missiles |
@@ -447,7 +447,7 @@ Standalone helpers (not built by `Makefile`):
 ## Adding or Modifying Code
 
 - New gameplay entity: subclass `CVirtualObject` (or `CPhysicalObject` for ballistic behavior) in a new `src/<name>.h/.cpp`
-  pair, return the matching `EClass` from `getClass()`, add the files to the VS projects' file lists (CMake picks up
+  pair, return the matching `EClass` from `get_class()`, add the files to the VS projects' file lists (CMake picks up
   `src/*.cpp` via `file(GLOB ...)` automatically), and wire creation/update/draw into `gameloop.cpp` and teardown into
   `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display

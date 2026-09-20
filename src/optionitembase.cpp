@@ -545,7 +545,7 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
 					title,
 					xLeft + 1,
 					text_top + 1,
-					GetShadeColor( tColor, true, PINK ),
+					get_shade_color( tColor, true, PINK ),
 					-1
 				);
 			}
@@ -672,7 +672,7 @@ void OptionItemBase::displayText( char const* target ) {
 						txt_p,
 						left + 4,
 						text_top + 1,
-						GetShadeColor( color, true, PINK ),
+						get_shade_color( color, true, PINK ),
 						-1
 					);
 				}

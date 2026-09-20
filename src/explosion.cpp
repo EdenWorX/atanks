@@ -48,14 +48,14 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 	mass         = 3;
 	x            = x_;
 	y            = y_;
-	maxVel       = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	max_vel       = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
 	CWeapon* weap = nullptr;
-	weapType     = type;
-	if ( weapType < WEAPONS ) {
-		weap = &weapon[ weapType ];
+	weap_type     = type;
+	if ( weap_type < WEAPONS ) {
+		weap = &weapon[ weap_type ];
 	} else {
-		weap = &naturals[ weapType - WEAPONS ];
+		weap = &naturals[ weap_type - WEAPONS ];
 	}
 
 	radius = weap->radius;
@@ -66,7 +66,7 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 	// and all other explosions at least reach into the area:
 	int32_t minHeightMiss = MENUHEIGHT + ( env.is_boxed ? 1 : 0 );
 	int32_t minHeightDirt = minHeightMiss + radius;
-	if ( ( weapType >= DIRT_BALL ) && ( weapType <= SMALL_DIRT_SPREAD ) ) {
+	if ( ( weap_type >= DIRT_BALL ) && ( weap_type <= SMALL_DIRT_SPREAD ) ) {
 		if ( y < minHeightDirt ) {
 			y = minHeightDirt;
 		}
@@ -77,34 +77,34 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 	// For all others
 	// Some weapons have no damage to apply:
 	// Note: Napalm Jellies deal damage over time and not at once.
-	if ( ( NAPALM_JELLY == weapType ) || ( ( weapType >= RIOT_BOMB ) && ( weapType <= CLUSTER_MIRV ) ) ) {
+	if ( ( NAPALM_JELLY == weap_type ) || ( ( weap_type >= RIOT_BOMB ) && ( weap_type <= CLUSTER_MIRV ) ) ) {
 
 		// Riot weapons must set who caused falling damage, but the
 		// others do not trigger any
-		if ( ( NAPALM_JELLY == weapType ) || ( weapType >= DIRT_BALL ) ) {
+		if ( ( NAPALM_JELLY == weap_type ) || ( weap_type >= DIRT_BALL ) ) {
 			apply_damage = false;
 		}
 
 		// Neither of these would throw debris or clear terrain
 		// (Note: Riot weapons need a special trigger to clear terrain once.)
-		hasThrown  = true;
-		hasCleared = true;
+		has_thrown  = true;
+		has_cleared = true;
 	} else if ( env.debris_level > 0 ) {
-		maxDebris = ( radius * 2 ) / ( 8 - ( 2 * env.debris_level ) );
-		maxFrame  = 2 + ( 2 * env.debris_level );
+		max_debris = ( radius * 2 ) / ( 8 - ( 2 * env.debris_level ) );
+		max_frame  = 2 + ( 2 * env.debris_level );
 
 		// Tremor, Shockwave and Tectonic Shift must not throw debris around
-		if ( ( TREMOR <= weapType ) && ( TECTONIC >= weapType ) ) {
-			maxDebris = 0;
-		} else if ( maxDebris < 5 ) {
-			maxDebris = 5;
+		if ( ( TREMOR <= weap_type ) && ( TECTONIC >= weap_type ) ) {
+			max_debris = 0;
+		} else if ( max_debris < 5 ) {
+			max_debris = 5;
 		}
 	}
 
 	// Lasers and beams do only issue a tiny explosion to add the
 	// dirt throw effect and some boom bang.
-	if ( ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) )
-	     || ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) ) {
+	if ( ( ( weap_type >= SML_LAZER ) && ( weap_type <= LRG_LAZER ) )
+	     || ( ( weap_type >= SML_LIGHTNING ) && ( weap_type <= LRG_LIGHTNING ) ) ) {
 		apply_damage = false;
 		etime        = 0;
 
@@ -112,18 +112,18 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 			radius = 2;
 		}
 
-		maxDebris /= radius;
+		max_debris /= radius;
 
-		if ( maxDebris < 3 ) {
-			maxDebris = 3;
-		} else if ( maxDebris > 6 ) {
-			maxDebris = 6;
+		if ( max_debris < 3 ) {
+			max_debris = 3;
+		} else if ( max_debris > 6 ) {
+			max_debris = 6;
 		}
 	}
 
 	// Napalm Jellies need a bit more variation:
-	if ( NAPALM_JELLY == weapType ) {
-		curFrame = ( ( get_rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second ) / etime;
+	if ( NAPALM_JELLY == weap_type ) {
+		cur_frame = ( ( get_rand() % ( 2 * env.frames_per_second ) ) - env.frames_per_second ) / etime;
 	}
 
 	// Unless this is a napalm jelly, that does not clear away any dirt,
@@ -146,7 +146,7 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 /// @brief default dtor
 CExplosion::~CExplosion() {
 	// If this is a tremor, the landslide has to be released
-	if ( ( TREMOR <= weapType ) && ( TECTONIC >= weapType ) ) {
+	if ( ( TREMOR <= weap_type ) && ( TECTONIC >= weap_type ) ) {
 		global.unlock_land_slide( dim_cur.x, dim_cur.x + dim_cur.w );
 	}
 
@@ -156,7 +156,7 @@ CExplosion::~CExplosion() {
 
 /// @brief Physics for the Napalm Jelly, the only explosion that can 'move'
 void CExplosion::applyPhysics() {
-	if ( NAPALM_JELLY == weapType ) {
+	if ( NAPALM_JELLY == weap_type ) {
 		if ( !global.skipping_computer_play && !( get_rand() % ( env.frames_per_second / 2 ) ) ) {
 			try {
 				new CDecor( x, y, 0, -2. * env.fall_vector, radius / 2, DECOR_SMOKE, 0 );
@@ -169,7 +169,7 @@ void CExplosion::applyPhysics() {
 		// for hit and damage calculation. Thus a tank that is only
 		// grazed by the full blob receives a lot less damage.
 		double blobSize =
-			radius - ( static_cast< double >( curFrame ) / static_cast< double >( EXPLOSIONFRAMES ) * radius ) + 1.;
+			radius - ( static_cast< double >( cur_frame ) / static_cast< double >( EXPLOSIONFRAMES ) * radius ) + 1.;
 		if ( blobSize < 1. ) {
 			blobSize = 1.;
 		}
@@ -197,7 +197,7 @@ void CExplosion::applyPhysics() {
 			while ( lt ) {
 				if ( !lt->destroy ) {
 
-					if ( lt->repulse( x + xv, y + yv, &xaccel, &yaccel, physType ) ) {
+					if ( lt->repulse( x + xv, y + yv, &xaccel, &yaccel, phys_type ) ) {
 						xv += xaccel;
 						yv += yaccel;
 					}
@@ -211,7 +211,7 @@ void CExplosion::applyPhysics() {
 
 		// Enable next round checking, because dirt can fall
 		// away so the jelly might follow.
-		hitSomething = false;
+		hit_something = false;
 
 		// Napalm keeps burning, check all tanks
 		double in_rate_x  = 0.;
@@ -223,14 +223,14 @@ void CExplosion::applyPhysics() {
 
 		while ( lt ) {
 
-			if ( !lt->destroy && lt->isInEllipse( x, y, blobSize, blobSize, in_rate_x, in_rate_y ) ) {
+			if ( !lt->destroy && lt->is_in_ellipse( x, y, blobSize, blobSize, in_rate_x, in_rate_y ) ) {
 				double full_rate = in_rate_x * in_rate_y;
 				// If the tank is hit enough for the Napalm to "attach",
 				// stop all movement:
 				if ( ( full_rate > 0.9 ) && ( y >= lt->y ) ) {
 					xv           = 0.;
 					yv           = 0.;
-					hitSomething = true;
+					hit_something = true;
 					// Note: When the blob shrinks, it can "fall off".
 				}
 
@@ -239,7 +239,7 @@ void CExplosion::applyPhysics() {
 					full_rate = 0.5;
 				}
 				// Apply damage, but do it per frame
-				lt->addDamage(
+				lt->add_damage(
 					player,
 					( static_cast< double >( damage ) * damage_mod * full_rate
 				          * ( player ? player->damageMultiplier : 1. )
@@ -254,16 +254,16 @@ void CExplosion::applyPhysics() {
 
 /// @brief draw the explosions according to weapon type and shape
 void CExplosion::draw() {
-	if ( ( curFrame > 1 ) && ( curFrame <= ( EXPLOSIONFRAMES + 1 ) ) && ( NAPALM_JELLY != weapType ) ) {
+	if ( ( cur_frame > 1 ) && ( cur_frame <= ( EXPLOSIONFRAMES + 1 ) ) && ( NAPALM_JELLY != weap_type ) ) {
 		/* This group includes:
 		 * - all regular explosives,
 		 * - all items and naturals,
 		 * - tremor, shockwave and tectonic shift.
 		 */
-		int32_t flameIdx = curFrame - 2;
-		int32_t rad      = ( radius * curFrame ) / EXPLODEFRAMES;
+		int32_t flameIdx = cur_frame - 2;
+		int32_t rad      = ( radius * cur_frame ) / EXPLODEFRAMES;
 
-		switch ( weapType ) {
+		switch ( weap_type ) {
 			case SHAPED_CHARGE:
 			case WIDE_BOY:
 			case CUTTER:
@@ -276,7 +276,7 @@ void CExplosion::draw() {
 					ftofix( static_cast< double >( radius ) / 300. )
 				);
 
-				setUpdateArea(
+				set_update_area(
 					x - radius - 1,
 					y - ( radius / 20. ) - 1,
 					( radius + 1 ) * 2,
@@ -292,7 +292,7 @@ void CExplosion::draw() {
 					itofix( 192 ),
 					ftofix( static_cast< double >( radius ) / 300. )
 				);
-				setUpdateArea(
+				set_update_area(
 					x - ( radius / 20. ) - 1,
 					y - radius - 1,
 					( ( radius / 20 ) + 1 ) * 2,
@@ -302,30 +302,30 @@ void CExplosion::draw() {
 			case TREMOR:
 			case SHOCKWAVE:
 			case TECTONIC:
-				if ( curFrame <= ( EXPLODEFRAMES + 1 ) ) {
+				if ( cur_frame <= ( EXPLODEFRAMES + 1 ) ) {
 					double tst_width =
-						static_cast< double >( curFrame ) / static_cast< double >( EXPLODEFRAMES )
+						static_cast< double >( cur_frame ) / static_cast< double >( EXPLODEFRAMES )
 						* static_cast< double >( radius ) / 3.;
-					drawFracture(
+					draw_fracture(
 						ROUND( x ),
 						ROUND( y ),
 						angle,
 						static_cast< int32_t >( .75 + tst_width ),
 						ROUND( radius * 1.75 ),
-						( weapType - TREMOR + 1 ) * 3
+						( weap_type - TREMOR + 1 ) * 3
 					);
 					global.add_land_slide( dim_cur.x, dim_cur.x + dim_cur.w, true );
 				}
 				break;
 			case RIOT_BOMB:
 			case HVY_RIOT_BOMB:
-				if ( curFrame <= EXPLODEFRAMES ) {
+				if ( cur_frame <= EXPLODEFRAMES ) {
 					int32_t colour = player ? player->color : BLUE;
 
 					circlefill( global.terrain, x, y, rad, PINK );
 					circle( global.canvas, x, y, rad, colour );
 
-					setUpdateArea( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
+					set_update_area( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
 				} else if ( !peaked ) {
 					// Do it here or the slide has an ugly delay.
 					peaked = true;
@@ -334,7 +334,7 @@ void CExplosion::draw() {
 				break;
 			case RIOT_CHARGE:
 			case RIOT_BLAST:
-				if ( curFrame <= EXPLODEFRAMES ) {
+				if ( cur_frame <= EXPLODEFRAMES ) {
 					double sx = x - env.slope[ angle ][ 0 ] * 15;
 					double sy = y - env.slope[ angle ][ 1 ] * 15;
 					double x1 = sx + env.slope[ ( angle + 45 ) % 360 ][ 0 ] * rad;
@@ -345,7 +345,7 @@ void CExplosion::draw() {
 					triangle( global.canvas, sx, sy, x1, y1, x2, y2, player ? player->color : BLUE );
 					triangle( global.terrain, sx, sy, x1, y1, x2, y2, PINK );
 
-					setUpdateArea( sx - rad - 1, sy - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
+					set_update_area( sx - rad - 1, sy - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
 					global.add_land_slide( sx - rad - 1, sx + rad + 1, true );
 				} else if ( !peaked ) {
 					// Do it here or the slide has an ugly delay.
@@ -359,11 +359,11 @@ void CExplosion::draw() {
 			case SML_LIGHTNING:
 			case MED_LIGHTNING:
 			case LRG_LIGHTNING:
-				setUpdateArea( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
+				set_update_area( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
 				break;
 			case PERCENT_BOMB:
 			default:
-				if ( ( weapType <= LAST_EXPLOSIVE ) || ( weapType >= WEAPONS ) || ( weapType == PERCENT_BOMB ) ) {
+				if ( ( weap_type <= LAST_EXPLOSIVE ) || ( weap_type >= WEAPONS ) || ( weap_type == PERCENT_BOMB ) ) {
 					rotate_scaled_sprite(
 						global.canvas,
 						env.gfx_data.explosions[ flameIdx ],
@@ -372,9 +372,9 @@ void CExplosion::draw() {
 						itofix( 0 ),
 						ftofix( static_cast< double >( radius ) / 107. )
 					);
-					setUpdateArea( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
-				} else if ( curFrame <= EXPLODEFRAMES ) {
-					if ( !peaked && ( weapType >= DIRT_BALL ) && ( weapType <= SMALL_DIRT_SPREAD ) ) {
+					set_update_area( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
+				} else if ( cur_frame <= EXPLODEFRAMES ) {
+					if ( !peaked && ( weap_type >= DIRT_BALL ) && ( weap_type <= SMALL_DIRT_SPREAD ) ) {
 						BITMAP* tmp    = create_bitmap( rad * 2, rad * 2 ); // for mixing
 						int32_t colour = player ? player->color : GREEN;
 						clear_to_color( tmp, PINK );
@@ -424,10 +424,10 @@ void CExplosion::draw() {
 							rad * 2
 						);
 						destroy_bitmap( tmp );
-						setUpdateArea( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
-					} else if ( REDUCER == weapType ) {
+						set_update_area( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
+					} else if ( REDUCER == weap_type ) {
 						int32_t col_front = player ? player->color : SILVER;
-						int32_t col_back  = GetShadeColor( PURPLE, false, col_front );
+						int32_t col_back  = get_shade_color( PURPLE, false, col_front );
 
 						int32_t col_mid   = makecol(
                                                         ( getr( col_front ) + getr( col_back ) ) / 2,
@@ -436,83 +436,83 @@ void CExplosion::draw() {
                                                 );
 						circlefill( global.canvas, x, y, rad, col_front );
 
-						for ( int32_t i = 1 + ( curFrame % 2 ); i < rad; i += 2 ) {
+						for ( int32_t i = 1 + ( cur_frame % 2 ); i < rad; i += 2 ) {
 							circle( global.canvas, x, y, i, i < ( rad / 2 ) ? col_mid : col_back );
 						}
-						setUpdateArea( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
-					} else if ( THEFT_BOMB == weapType ) {
+						set_update_area( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
+					} else if ( THEFT_BOMB == weap_type ) {
 						int32_t col_front = GOLD;
-						int32_t col_back  = GetShadeColor( BLACK, false, col_front );
+						int32_t col_back  = get_shade_color( BLACK, false, col_front );
 
 						circlefill( global.canvas, x, y, rad, col_front );
 						circle( global.canvas, x, y, rad / 2, col_back );
 
-						setUpdateArea( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
+						set_update_area( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
 					} else {
 						// This is something else. But what?
-						fprintf( stderr, "CExplosion::draw() Unknown weapon type %d\n", weapType );
+						fprintf( stderr, "CExplosion::draw() Unknown weapon type %d\n", weap_type );
 						circlefill( global.canvas, x, y, rad, RED );
-						setUpdateArea( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
+						set_update_area( x - rad - 1, y - rad - 1, ( rad + 1 ) * 2, ( rad + 1 ) * 2 );
 					}
-				} else if ( !peaked && ( curFrame > EXPLODEFRAMES ) && ( DIRT_BALL <= weapType ) && ( SUP_DIRT_BALL >= weapType ) ) {
+				} else if ( !peaked && ( cur_frame > EXPLODEFRAMES ) && ( DIRT_BALL <= weap_type ) && ( SUP_DIRT_BALL >= weap_type ) ) {
 					// Do it here or the slide has an ugly delay.
 					peaked = true;
 					do_clear();
 				}
 				break;
 		}
-	} else if ( NAPALM_JELLY == weapType ) {
+	} else if ( NAPALM_JELLY == weap_type ) {
 		// The Jelly does not use flameFront and is drawn individually.
 		int32_t blobSize =
-			curFrame > 0
+			cur_frame > 0
 				? static_cast< int32_t >(
 					  radius
-					  - ( static_cast< double >( curFrame ) / static_cast< double >( EXPLOSIONFRAMES ) * radius )
+					  - ( static_cast< double >( cur_frame ) / static_cast< double >( EXPLOSIONFRAMES ) * radius )
 				  ) + 1
 				: radius;
-		if ( ( blobSize > 0 ) && ( curFrame <= ( EXPLOSIONFRAMES + 1 ) ) ) {
+		if ( ( blobSize > 0 ) && ( cur_frame <= ( EXPLOSIONFRAMES + 1 ) ) ) {
 			if ( blobSize < 2 ) {
 				// avoid a circle size crash
 				blobSize = 2;
 			}
-			draw_Napalm_Blob( this, x, y, blobSize, curFrame );
+			draw_Napalm_Blob( this, x, y, blobSize, cur_frame );
 		}
 	}
 
 	/// === Allow clearing once peaked on high enough frame ===
 	///---------------------------------------------------------
-	if ( !peaked && ( curFrame > EXPLODEFRAMES ) && ( NAPALM_JELLY != weapType ) ) {
+	if ( !peaked && ( cur_frame > EXPLODEFRAMES ) && ( NAPALM_JELLY != weap_type ) ) {
 		peaked = true;
 		do_clear();
 	}
 
 	/// === Throw if the frame is in range and it has not thrown, yet ===
 	///-------------------------------------------------------------------
-	if ( !hasThrown && ( curFrame > 1 ) && ( curFrame <= EXPLOSIONFRAMES )
-	     && ( ( weapType <= TECTONIC ) || ( weapType > REDUCER ) ) && ( NAPALM_JELLY != weapType ) ) {
+	if ( !has_thrown && ( cur_frame > 1 ) && ( cur_frame <= EXPLOSIONFRAMES )
+	     && ( ( weap_type <= TECTONIC ) || ( weap_type > REDUCER ) ) && ( NAPALM_JELLY != weap_type ) ) {
 
 		do_throw();
 
 		// The tremor types do not need clearing!
-		if ( ( TREMOR > weapType ) || ( TECTONIC < weapType ) ) {
+		if ( ( TREMOR > weap_type ) || ( TECTONIC < weap_type ) ) {
 			do_clear();
 		}
 	}
 }
 
 /// @brief Draw recursive fractures
-void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse ) {
+void CExplosion::draw_fracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segment_length, int32_t max_recurse ) {
 	typedef struct FracParams {
 		int32_t x;
 		int32_t y;
 		int32_t frac_angle;
 		int32_t width;
-		int32_t segmentLength;
+		int32_t segment_length;
 		int32_t recurseDepth;
 	} FracParams;
 
 	std::stack< FracParams > s;
-	s.push( FracParams{ x, y, frac_angle, width, segmentLength, 0 } );
+	s.push( FracParams{ x, y, frac_angle, width, segment_length, 0 } );
 
 	while ( !s.empty() ) {
 		FracParams p = s.top();
@@ -523,7 +523,7 @@ void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t
 		y                    = p.y;
 		frac_angle           = p.frac_angle;
 		width                = p.width;
-		segmentLength        = p.segmentLength;
+		segment_length        = p.segment_length;
 		int32_t recurseDepth = p.recurseDepth;
 
 		double  xLen         = env.slope[ frac_angle ][ 1 ] * width;
@@ -533,8 +533,8 @@ void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t
 		double  y1           = y + yLen;
 		double  x2           = x - xLen;
 		double  y2           = y - yLen;
-		double  x3           = x + ( env.slope[ frac_angle ][ 0 ] * segmentLength );
-		double  y3           = y + ( env.slope[ frac_angle ][ 1 ] * segmentLength );
+		double  x3           = x + ( env.slope[ frac_angle ][ 0 ] * segment_length );
+		double  y3           = y + ( env.slope[ frac_angle ][ 1 ] * segment_length );
 
 		triangle( global.terrain, x1, y1, x2, y2, x3, y3, PINK );
 
@@ -550,7 +550,7 @@ void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t
 			dim_cur.h = ROUND( std::max( { y1, y2, y3, static_cast< double >( dim_cur.h ) } ) ); // Bottom
 		}
 
-		if ( recurseDepth < maxRecurse ) {
+		if ( recurseDepth < max_recurse ) {
 			for ( int32_t branchCount = 0; branchCount < 3; ++branchCount ) {
 				if ( branchCount || ( Noise( x + y + branchCount ) < 0 ) ) {
 					int32_t reduction = 2;
@@ -585,7 +585,7 @@ void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t
 						ROUND( y3 ),
 						newAngle,
 						width / reduction,
-						segmentLength / reduction,
+						segment_length / reduction,
 						recurseDepth + 1 } );
 				} // end of adding an actual new branch
 			}         // end of adding up to three branches
@@ -600,16 +600,16 @@ void CExplosion::drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t
 void CExplosion::explode() {
 	/// === Time and frame advancement ===
 	///------------------------------------
-	if ( curFrame <= ( EXPLOSIONFRAMES + 1 ) ) {
-		if ( ++exclock > etime ) {
-			exclock = 0;
-			++curFrame;
-			requireUpdate();
+	if ( cur_frame <= ( EXPLOSIONFRAMES + 1 ) ) {
+		if ( ++ex_clock > etime ) {
+			ex_clock = 0;
+			++cur_frame;
+			require_update();
 		}
 	} // End of time and frame advancement
 
 	// Check whether the explosion ends:
-	if ( curFrame > ( EXPLOSIONFRAMES + 1 ) ) {
+	if ( cur_frame > ( EXPLOSIONFRAMES + 1 ) ) {
 		destroy = true;
 	}
 
@@ -618,10 +618,10 @@ void CExplosion::explode() {
 	if ( apply_damage ) {
 		// In this case, the affected tanks must be checked first
 		CTank* lt    = nullptr;
-		auto  wType = static_cast< EWeaponType >( weapType );
+		auto  wType = static_cast< EWeaponType >( weap_type );
 
 		// But do not check dirt balls, they deal no damage
-		if ( ( DIRT_BALL > weapType ) || ( SUP_DIRT_BALL < weapType ) ) {
+		if ( ( DIRT_BALL > weap_type ) || ( SUP_DIRT_BALL < weap_type ) ) {
 
 			global.get_head_of_class( CLASS_TANK, &lt );
 
@@ -629,14 +629,14 @@ void CExplosion::explode() {
 				double dmg = get_hit_damage( lt, wType, x, y );
 
 				if ( dmg > 0. ) {
-					if ( PERCENT_BOMB == weapType ) {
-						lt->addDamage( player, dmg ); // already set, no multiplier
-					} else if ( REDUCER == weapType ) {
+					if ( PERCENT_BOMB == weap_type ) {
+						lt->add_damage( player, dmg ); // already set, no multiplier
+					} else if ( REDUCER == weap_type ) {
 						// Note: dmg was set to a fake damage of 1.0
 						lt->player->damageMultiplier *= 0.667; // already checked
-					} else if ( ( RIOT_BOMB <= weapType ) && ( RIOT_BLAST >= weapType ) ) {
-						lt->addDamage( player, 0. ); // So falling damage gets credited.
-					} else if ( ( THEFT_BOMB == weapType ) && ( lt->player != player ) ) {
+					} else if ( ( RIOT_BOMB <= weap_type ) && ( RIOT_BLAST >= weap_type ) ) {
+						lt->add_damage( player, 0. ); // So falling damage gets credited.
+					} else if ( ( THEFT_BOMB == weap_type ) && ( lt->player != player ) ) {
 						// Note: dmg was set to fake damage 1.0
 						auto max_amount = ROUND( player->damageMultiplier * THEFT_AMOUNT );
 						int32_t amount = lt->player->money <= max_amount ? lt->player->money : max_amount;
@@ -671,8 +671,8 @@ void CExplosion::explode() {
 
 						lt->player->money -= amount; // the actual theft.
 						player->money     += amount; // money goes to the shooter.
-					} else if ( THEFT_BOMB != weapType ) {
-						lt->addDamage( player, dmg * ( player ? player->damageMultiplier : 1. ) );
+					} else if ( THEFT_BOMB != weap_type ) {
+						lt->add_damage( player, dmg * ( player ? player->damageMultiplier : 1. ) );
 					}
 				} // End of having damage to deal
 
@@ -689,12 +689,12 @@ void CExplosion::explode() {
 
 /// @brief Clear the background (Display must be locked!)
 void CExplosion::do_clear() {
-	if ( hasCleared && hasSlid ) {
+	if ( has_cleared && has_slid ) {
 		return;
 	}
 
 	// Use a calculated radius for pre-mature clearing
-	int32_t rad = ( radius * curFrame ) / EXPLODEFRAMES;
+	int32_t rad = ( radius * cur_frame ) / EXPLODEFRAMES;
 
 	// If the radius is below 3, the early clearing would jeopardize
 	// debris throwing, so opt out if the radius is much larger
@@ -710,23 +710,23 @@ void CExplosion::do_clear() {
 	// Raise rad so no flood of "(rad + 1)" calculations is needed.
 	int32_t area_rad = rad + 1;
 
-	if ( !hasCleared ) {
+	if ( !has_cleared ) {
 
 		// Now clear, according to the weapon type
-		if ( ( weapType >= SHAPED_CHARGE ) && ( weapType <= CUTTER ) ) {
+		if ( ( weap_type >= SHAPED_CHARGE ) && ( weap_type <= CUTTER ) ) {
 			int32_t yrad = ( rad - 1 ) / 20;
 			ellipsefill( global.terrain, x, y, rad, yrad, PINK );
 			global.add_land_slide( x - area_rad, x + area_rad, true );
-			addUpdateArea( x - area_rad, y - ( yrad + 1 ), area_rad * 2, ( yrad + 1 ) * 2 );
-		} else if ( weapType == DRILLER ) {
+			add_update_area( x - area_rad, y - ( yrad + 1 ), area_rad * 2, ( yrad + 1 ) * 2 );
+		} else if ( weap_type == DRILLER ) {
 			int32_t xrad = rad / 20;
 			ellipsefill( global.terrain, x, y, xrad, rad, PINK );
 			global.add_land_slide( x - xrad - 1, x + xrad + 1, true );
-			addUpdateArea( x - ( xrad + 1 ), y - area_rad, ( xrad + 1 ) * 2, area_rad * 2 );
-		} else if ( ( ( weapType <= LAST_EXPLOSIVE ) || ( weapType >= WEAPONS ) || ( weapType == PERCENT_BOMB ) || ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) || ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) ) && ( NAPALM_JELLY != weapType ) ) {
+			add_update_area( x - ( xrad + 1 ), y - area_rad, ( xrad + 1 ) * 2, area_rad * 2 );
+		} else if ( ( ( weap_type <= LAST_EXPLOSIVE ) || ( weap_type >= WEAPONS ) || ( weap_type == PERCENT_BOMB ) || ( ( weap_type >= SML_LAZER ) && ( weap_type <= LRG_LAZER ) ) || ( ( weap_type >= SML_LIGHTNING ) && ( weap_type <= LRG_LIGHTNING ) ) ) && ( NAPALM_JELLY != weap_type ) ) {
 			circlefill( global.terrain, x, y, rad, PINK );
 			global.add_land_slide( x - area_rad, x + area_rad, true );
-			addUpdateArea( x - area_rad, y - area_rad, area_rad * 2, area_rad * 2 );
+			add_update_area( x - area_rad, y - area_rad, area_rad * 2, area_rad * 2 );
 		}
 
 	} // End of clearing
@@ -734,15 +734,15 @@ void CExplosion::do_clear() {
 	// If rad did not reach radius (yet), this isn't done
 	if ( ( rad >= radius ) || peaked ) {
 
-		if ( !hasSlid ) {
+		if ( !has_slid ) {
 			// Allow the land slide to happen:
-			area_rad = 1 + ( ( weapType == DRILLER ) ? rad / 20 : rad );
+			area_rad = 1 + ( ( weap_type == DRILLER ) ? rad / 20 : rad );
 			global.unlock_land_slide( ROUND( x - area_rad ), ROUND( x + area_rad ) );
-			hasSlid = true;
+			has_slid = true;
 		}
 
-		if ( !hasCleared ) {
-			hasCleared = true;
+		if ( !has_cleared ) {
+			has_cleared = true;
 		}
 	}
 }
@@ -751,25 +751,25 @@ void CExplosion::do_clear() {
 void CExplosion::do_throw() {
 	// Do never throw when skipping AI play, and
 	// opt out if debris generation is forbidden
-	if ( !hasThrown && ( global.skipping_computer_play || ( hasDebris >= maxDebris ) || ( curFrame > maxFrame ) ) ) {
-		hasThrown = true;
+	if ( !has_thrown && ( global.skipping_computer_play || ( has_debris >= max_debris ) || ( cur_frame > max_frame ) ) ) {
+		has_thrown = true;
 	}
 
 	// Early out if this is already done or no further deco is allowed
-	if ( hasThrown || global.has_too_much_deco ) {
+	if ( has_thrown || global.has_too_much_deco ) {
 		return;
 	}
 
 	// The delay used for smoke and debris.
-	int32_t delay_dirt  = ( etime * ( maxFrame - curFrame ) ) - exclock;
-	int32_t delay_smoke = ( etime * ( EXPLODEFRAMES - curFrame ) ) - exclock;
+	int32_t delay_dirt  = ( etime * ( max_frame - cur_frame ) ) - ex_clock;
+	int32_t delay_smoke = ( etime * ( EXPLODEFRAMES - cur_frame ) ) - ex_clock;
 	// Note: CDecor checks against delay>0, thus a negative delay
 	//       is no problem here.
 
 	// The radius is not always the radius, so use shortcuts:
-	int32_t rad  = ( radius * maxFrame ) / EXPLODEFRAMES;
-	int32_t xrad = DRILLER == weapType ? rad / 20 : rad;
-	int32_t yrad = ( ( SHAPED_CHARGE <= weapType ) && ( CUTTER >= weapType ) ) ? rad / 20 : rad;
+	int32_t rad  = ( radius * max_frame ) / EXPLODEFRAMES;
+	int32_t xrad = DRILLER == weap_type ? rad / 20 : rad;
+	int32_t yrad = ( ( SHAPED_CHARGE <= weap_type ) && ( CUTTER >= weap_type ) ) ? rad / 20 : rad;
 
 	// A minimum radius of 1 is needed for the debris seek to make sense:
 	if ( rad < 1 ) {
@@ -786,11 +786,11 @@ void CExplosion::do_throw() {
 
 	// If this is a meteor, the damage mod is tweaked or the debris more
 	// looks like a collapsing rock than anything thrown.
-	bool    isMeteor = ( ( SML_METEOR <= weapType ) && ( LRG_METEOR >= weapType ) );
+	bool    isMeteor = ( ( SML_METEOR <= weap_type ) && ( LRG_METEOR >= weap_type ) );
 	BITMAP* meteor   = nullptr;
 	if ( isMeteor ) {
-		meteor      = env.missile[ naturals[ weapType - WEAPONS ].picpoint ];
-		damage_mod *= 2. * static_cast< double >( weapType - SML_METEOR + 1 );
+		meteor      = env.missile[ naturals[ weap_type - WEAPONS ].picpoint ];
+		damage_mod *= 2. * static_cast< double >( weap_type - SML_METEOR + 1 );
 	}
 
 	// Now move through the x-axis and create debris and smoke.
@@ -801,7 +801,7 @@ void CExplosion::do_throw() {
 	double  minX   = x - xrad;
 	double  maxY   = 0.;
 	int32_t round  = 1;
-	int32_t deb_rad, diameter, seek_area = hasDebris % 3;
+	int32_t deb_rad, diameter, seek_area = has_debris % 3;
 	double  max_x_vel, max_y_vel, mod_x_vel, mod_y_vel;
 
 	do {
@@ -816,7 +816,7 @@ void CExplosion::do_throw() {
 		mod_y_vel = max_y_vel * -0.50; // Make positive
 
 		// If this isn't weapon fire, reduce the maximum velocities
-		if ( !isWeaponFire ) {
+		if ( !is_weapon_fire ) {
 			max_x_vel *= 0.75;
 			max_y_vel *= 0.66;
 		}
@@ -845,14 +845,14 @@ void CExplosion::do_throw() {
 		maxY = std::min( y + ( y - ypos ), bottom - deb_rad );
 
 		// find first earth pixel:
-		if ( ( ypos < y ) && ( maxY > ypos ) && checkPixelsBetweenTwoPoints( &xpos, &ypos, xpos, maxY, 0.0, nullptr ) ) {
+		if ( ( ypos < y ) && ( maxY > ypos ) && check_pixels_between_two_points( &xpos, &ypos, xpos, maxY, 0.0, nullptr ) ) {
 
 			// Try to get a free debris pool item
 			sDebrisItem* deb_item = global.get_debris_item( deb_rad );
 
 			if ( nullptr == deb_item ) {
 				// pool is full and at its limit.
-				hasDebris = maxDebris;
+				has_debris = max_debris;
 				break;
 			}
 
@@ -919,8 +919,8 @@ void CExplosion::do_throw() {
 				new CDecor( rimx, rimy, dxv, dyv, deb_rad, DECOR_DIRT, delay_dirt, deb_item, met_item );
 				// Clear the source to not take these pixels again.
 				circlefill( global.terrain, xpos, ypos, deb_rad, PINK );
-				addUpdateArea( xpos - deb_rad, ypos - deb_rad, diameter, diameter );
-				addUpdateArea( rimx - deb_rad, rimy - deb_rad, diameter, diameter );
+				add_update_area( xpos - deb_rad, ypos - deb_rad, diameter, diameter );
+				add_update_area( rimx - deb_rad, rimy - deb_rad, diameter, diameter );
 			} catch ( ... ) {
 				// As the decor was not created, the item can be released again
 				global.free_debris_item( deb_item );
@@ -935,21 +935,21 @@ void CExplosion::do_throw() {
 			} catch ( ... ) { /* nothing.. really... it doesn't matter */
 			}
 
-			// Advance hasDebris and get new seeking area
-			seek_area = ++hasDebris % 3;
+			// Advance has_debris and get new seeking area
+			seek_area = ++has_debris % 3;
 		} // End of having hit a pixel
 
 		// Count tries to advance rounds (if needed)
-		if ( ++deb_round >= maxDebris ) {
+		if ( ++deb_round >= max_debris ) {
 			deb_round = 0;
 			++round;
 		}
-	} while ( ( round < max_rounds ) && ( hasDebris < maxDebris ) );
+	} while ( ( round < max_rounds ) && ( has_debris < max_debris ) );
 
-	// If the calculated radius did not reach radius (yet), and hasDebris
-	// has not reached maxDebris, yet, the throwing is not finished, yet.
-	if ( ( rad >= radius ) || ( hasDebris >= maxDebris ) ) {
-		hasThrown = true;
+	// If the calculated radius did not reach radius (yet), and has_debris
+	// has not reached max_debris, yet, the throwing is not finished, yet.
+	if ( ( rad >= radius ) || ( has_debris >= max_debris ) ) {
+		has_thrown = true;
 	}
 }
 
@@ -978,8 +978,8 @@ void draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius,
 		circle( global.canvas, x, y, i + hi_mod, makecol( r, 25 + g, b ) );
 	}
 
-	blob->setUpdateArea( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
-	blob->requireUpdate();
+	blob->set_update_area( x - radius - 1, y - radius - 1, ( radius + 1 ) * 2, ( radius + 1 ) * 2 );
+	blob->require_update();
 }
 
 /** @brief return the damage of a weapon against a tank
@@ -1010,7 +1010,7 @@ double get_hit_damage( CTank* tank, EWeaponType type, double hit_x, double hit_y
 	double in_rate_y = 0.;
 	double dmg       = 0.;
 
-	if ( tank->isInEllipse( hit_x, hit_y, xrad, yrad, in_rate_x, in_rate_y ) ) {
+	if ( tank->is_in_ellipse( hit_x, hit_y, xrad, yrad, in_rate_x, in_rate_y ) ) {
 		if ( PERCENT_BOMB == type ) {
 			dmg = ( ( tank->l + tank->sh ) / 2. ) + 1;
 		} else if ( ( ( REDUCER == type ) && ( tank->player->damageMultiplier > 0.1 ) ) // These do not do any

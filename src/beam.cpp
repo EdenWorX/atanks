@@ -40,34 +40,34 @@ static void lazerPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t color );
 static void lightningPoint( BITMAP *dest, int32_t x1, int32_t y1, int32_t age );
 
 /// @brief CBeam constructor
-CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t EWeaponType, EBeamType beam_type )
+CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fire_angle, int32_t weapon_type, EBeamType beam_type )
 	: CPhysicalObject( BT_WEAPON == beam_type )
-	, beamType( beam_type )
-	, tgtRightX( env.screen_width ) {
+	, beam_type( beam_type )
+	, tgt_right_x( env.screen_width ) {
 	this->player   = player_;
-	this->weapType = EWeaponType;
+	this->weap_type = weapon_type;
 
-	assert( ( ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) )
-	          || ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) )
+	assert( ( ( ( weap_type >= SML_LIGHTNING ) && ( weap_type <= LRG_LIGHTNING ) )
+	          || ( ( weap_type >= SML_LAZER ) && ( weap_type <= LRG_LAZER ) ) )
 	        && "ERROR: CBeam ctor called with something else than Lightning or Laser!" );
 
 #ifdef NETWORK
 	char buffer[ 256 ];
-	sprintf( buffer, "CBeam %d %d %d %d", (int)x_, (int)y_, fireAngle, EWeaponType );
+	sprintf( buffer, "CBeam %d %d %d %d", (int)x_, (int)y_, fire_angle, weapon_type );
 	env.send_to_clients( buffer );
 #endif // NETWORK
 
 	x     = x_;
 	y     = y_;
-	angle = fireAngle % 360;
+	angle = fire_angle % 360;
 	xv    = env.slope[ angle ][ 0 ];
 	yv    = env.slope[ angle ][ 1 ];
 
 
-	if ( weapType < WEAPONS ) {
-		weap = &( weapon[ weapType ] );
+	if ( weap_type < WEAPONS ) {
+		weap = &( weapon[ weap_type ] );
 	} else {
-		weap = &( naturals[ weapType - WEAPONS ] );
+		weap = &( naturals[ weap_type - WEAPONS ] );
 	}
 	radius = weap->radius;
 
@@ -88,77 +88,77 @@ CBeam::CBeam( CPlayer *player_, double x_, double y_, int32_t fireAngle, int32_t
 	int32_t base_age     = 5;                          // Doubled for laser
 	int32_t weap_size    = 0;                          // aka "small"
 
-	if ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) {
-		numPoints = 4 + ( get_rand() % 9 ); // 4 - 12
-		weap_size = weapType - SML_LIGHTNING;
-	} else if ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) {
+	if ( ( weap_type >= SML_LIGHTNING ) && ( weap_type <= LRG_LIGHTNING ) ) {
+		num_points = 4 + ( get_rand() % 9 ); // 4 - 12
+		weap_size = weap_type - SML_LIGHTNING;
+	} else if ( ( weap_type >= SML_LAZER ) && ( weap_type <= LRG_LAZER ) ) {
 		base_age     *= 2;
 		age_per_size *= 2;
-		weap_size     = weapType - SML_LAZER;
-		if ( BT_SDI != beamType ) {
+		weap_size     = weap_type - SML_LAZER;
+		if ( BT_SDI != beam_type ) {
 			// The SDI constructor produces its own color
-			color = makecol( 255 - ( ( weapType - SML_LAZER ) * 64 ), 128, 64 + ( ( weapType - SML_LAZER ) * 64 ) );
+			color = makecol( 255 - ( ( weap_type - SML_LAZER ) * 64 ), 128, 64 + ( ( weap_type - SML_LAZER ) * 64 ) );
 		}
-		if ( !global.skipping_computer_play && ( ( BT_WEAPON == beamType ) || ( BT_SDI == beamType ) ) ) {
-			play_fire_sound( weapType, ROUND( x ), 128 + ( radius * 10 ), 1500 - ( radius * 50 ) );
+		if ( !global.skipping_computer_play && ( ( BT_WEAPON == beam_type ) || ( BT_SDI == beam_type ) ) ) {
+			play_fire_sound( weap_type, ROUND( x ), 128 + ( radius * 10 ), 1500 - ( radius * 50 ) );
 		}
 	}
 
-	maxAge = base_age + ( age_per_size * weap_size );
-	damage = static_cast< double >( weap->damage ) / static_cast< double >( maxAge );
+	max_age = base_age + ( age_per_size * weap_size );
+	damage = static_cast< double >( weap->damage ) / static_cast< double >( max_age );
 
 	// Set an offset seed
 	seed = get_rand() % std::max( env.screen_width, env.screen_height );
 
-	createBeamPath();
+	create_beam_path();
 
 	// Now that the points are clear, a lightning bolt can emit its thunder:
-	if ( !global.skipping_computer_play && ( BT_NATURAL == beamType ) ) {
-		play_natural_sound( weapType, ( points[ 0 ].x + points[ numPoints - 1 ].x ) / 2, 175 + ( radius * 10 ), 1000 );
+	if ( !global.skipping_computer_play && ( BT_NATURAL == beam_type ) ) {
+		play_natural_sound( weap_type, ( points[ 0 ].x + points[ num_points - 1 ].x ) / 2, 175 + ( radius * 10 ), 1000 );
 	}
 
 	// Add to the chain unless it is a mind shot:
-	if ( BT_MIND_SHOT != beamType ) {
+	if ( BT_MIND_SHOT != beam_type ) {
 		global.add_object( this );
 	}
 }
 
 /// @brief special constructor for SDI lasers
-CBeam::CBeam( CPlayer *player_, double x_, double y_, double tx, double ty, int32_t EWeaponType, bool is_burnt_out )
-	: CBeam( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, EWeaponType, BT_SDI ) {
+CBeam::CBeam( CPlayer *player_, double x_, double y_, double tx, double ty, int32_t weapon_type, bool is_burnt_out )
+	: CBeam( player_, x_, y_, GET_ANGLE( std::abs( ty - y_ ), tx - x_ ) + 90, weapon_type, BT_SDI ) {
 	if ( player ) {
 		++player->sdiShots;
 	}
 
 	// SDI lasers are redder than normal, even more if burnt_out
 	color = makecol(
-		is_burnt_out ? 255 : 240 - ( ( weapType - SML_LAZER ) * 16 ),
+		is_burnt_out ? 255 : 240 - ( ( weap_type - SML_LAZER ) * 16 ),
 		is_burnt_out ? 32 : 64,
-		is_burnt_out ? ( weapType - SML_LAZER ) * 32 : 128
+		is_burnt_out ? ( weap_type - SML_LAZER ) * 32 : 128
 	);
 
 	// Limit the laser to the missiles coordinates
-	points[ numPoints - 1 ].x = ROUND( tx );
-	points[ numPoints - 1 ].y = ROUND( ty );
+	points[ num_points - 1 ].x = ROUND( tx );
+	points[ num_points - 1 ].y = ROUND( ty );
 }
 
 /// @brief CBeam destructor
 CBeam::~CBeam() {
-	requireUpdate();
+	require_update();
 	update();
 
-	if ( BT_MIND_SHOT != beamType ) {
+	if ( BT_MIND_SHOT != beam_type ) {
 		global.make_bgupdate( dim_cur.x, dim_cur.y, dim_cur.w, dim_cur.h );
 		global.make_bgupdate( dim_old.x, dim_old.y, dim_old.w, dim_old.h );
 
 		// Let the land slide where the beam burned through:
-		global.add_land_slide( tgtLeftX, tgtRightX, false );
+		global.add_land_slide( tgt_left_x, tgt_right_x, false );
 
 		// Apply damage to all hit tanks:
 		CTank *lt = nullptr;
 		global.get_head_of_class( CLASS_TANK, &lt );
 		while ( lt ) {
-			lt->applyDamage();
+			lt->apply_damage();
 			lt->getNext( &lt );
 		}
 
@@ -166,27 +166,27 @@ CBeam::~CBeam() {
 		global.remove_object( this );
 
 		// The player is allowed to fire one more SDI laser again:
-		if ( ( BT_SDI == beamType ) && player ) {
+		if ( ( BT_SDI == beam_type ) && player ) {
 			--player->sdiShots;
 		}
 	}
 }
 
 void CBeam::applyPhysics() {
-	if ( ++age > maxAge ) {
+	if ( ++age > max_age ) {
 		destroy = true;
 	}
 
-	if ( BT_SDI != beamType ) {
-		createBeamPath();
+	if ( BT_SDI != beam_type ) {
+		create_beam_path();
 	}
 
-	if ( BT_MIND_SHOT != beamType ) {
+	if ( BT_MIND_SHOT != beam_type ) {
 		if ( !global.skipping_computer_play && !( get_rand() % ( env.frames_per_second / 5 ) ) ) {
 			try {
 				new CDecor(
-					points[ numPoints - 1 ].x,
-					points[ numPoints - 1 ].y,
+					points[ num_points - 1 ].x,
+					points[ num_points - 1 ].y,
 					( get_rand() % 7 ) - 3,
 					1 - ( get_rand() % 6 ),
 					radius,
@@ -201,13 +201,13 @@ void CBeam::applyPhysics() {
 		try {
 			new CExplosion(
 				player,
-				points[ numPoints - 1 ].x,
-				points[ numPoints - 1 ].y,
-				points[ numPoints - 1 ].x - points[ 0 ].x,
-				points[ numPoints - 1 ].y - points[ 0 ].y,
-				weapType,
+				points[ num_points - 1 ].x,
+				points[ num_points - 1 ].y,
+				points[ num_points - 1 ].x - points[ 0 ].x,
+				points[ num_points - 1 ].y - points[ 0 ].y,
+				weap_type,
 				damage,
-				isWeaponFire
+				is_weapon_fire
 			);
 		} catch ( std::exception &e ) {
 			std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
@@ -217,7 +217,7 @@ void CBeam::applyPhysics() {
 
 void CBeam::draw() {
 	// never draw mind shots!
-	if ( BT_MIND_SHOT == beamType ) {
+	if ( BT_MIND_SHOT == beam_type ) {
 		return;
 	}
 
@@ -230,50 +230,50 @@ void CBeam::draw() {
 	beamRadius = radius;
 	beamSeed   = seed;
 
-	for ( int32_t i = 1; i < numPoints; ++i ) {
+	for ( int32_t i = 1; i < num_points; ++i ) {
 		int32_t left   = std::min( points[ i - 1 ].x, points[ i ].x );
 		int32_t top    = std::min( points[ i - 1 ].y, points[ i ].y );
 		int32_t right  = std::max( points[ i - 1 ].x, points[ i ].x );
 		int32_t bottom = std::max( points[ i - 1 ].y, points[ i ].y );
 
-		if ( ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) {
+		if ( ( weap_type >= SML_LIGHTNING ) && ( weap_type <= LRG_LIGHTNING ) ) {
 			do_line( global.canvas, points[ i - 1 ].x, points[ i - 1 ].y, points[ i ].x, points[ i ].y, age, lightningPoint
 			);
-		} else if ( ( weapType >= SML_LAZER ) && ( weapType <= LRG_LAZER ) ) {
+		} else if ( ( weap_type >= SML_LAZER ) && ( weap_type <= LRG_LAZER ) ) {
 			do_line( global.canvas, points[ i - 1 ].x, points[ i - 1 ].y, points[ i ].x, points[ i ].y, color, lazerPoint
 			);
 		}
 
-		addUpdateArea( left - radius, top - radius, right - left + ( 2 * radius ), bottom - top + ( 2 * radius ) );
+		add_update_area( left - radius, top - radius, right - left + ( 2 * radius ), bottom - top + ( 2 * radius ) );
 	}
 
 	drawing_mode( oldDrawingMode, nullptr, 0, 0 );
 	global.current_drawing_mode = oldDrawingMode;
 
-	requireUpdate();
+	require_update();
 }
 
 // === Private method implementations ===
 // ======================================
 
 /// @brief Create the basic points array with path tracing
-void CBeam::createBeamPath() {
+void CBeam::create_beam_path() {
 	// First determine the direct target - where does the beam end?
 	double tx = x, ty = y;
-	hitSomething = false;
+	hit_something = false;
 
 	// If this is not the first call, use the already known endpoints
-	if ( ( points[ 0 ].x || points[ 0 ].y || points[ numPoints - 1 ].x || points[ numPoints - 1 ].y )
-	     && !global.is_dirt_in_box( points[ 0 ].x, points[ 0 ].y, points[ numPoints - 1 ].x, points[ numPoints - 1 ].y ) ) {
-		tx = points[ numPoints - 1 ].x;
-		ty = points[ numPoints - 1 ].y;
+	if ( ( points[ 0 ].x || points[ 0 ].y || points[ num_points - 1 ].x || points[ num_points - 1 ].y )
+	     && !global.is_dirt_in_box( points[ 0 ].x, points[ 0 ].y, points[ num_points - 1 ].x, points[ num_points - 1 ].y ) ) {
+		tx = points[ num_points - 1 ].x;
+		ty = points[ num_points - 1 ].y;
 	} else {
 		// The first point is the starting point, the last will become the target
 		points[ 0 ].x = ROUND( x );
 		points[ 0 ].y = ROUND( y );
 	}
 
-	while ( !hitSomething && ( tx > -radius ) && ( tx < ( env.screen_width + radius ) ) && ( ty > -radius )
+	while ( !hit_something && ( tx > -radius ) && ( tx < ( env.screen_width + radius ) ) && ( ty > -radius )
 	        && ( ty < ( env.screen_height + radius ) ) ) {
 
 		// Assume PINK for off screen pixels
@@ -288,38 +288,38 @@ void CBeam::createBeamPath() {
 			tx += xv;
 			ty += yv;
 		} else {
-			hitSomething = true;
+			hit_something = true;
 		}
 	} // End of tracing pixels
 
 	// tx and ty now result in the first obstacle (or screen border)
 	// on a direct path.
-	points[ numPoints - 1 ].x = ROUND( tx );
-	points[ numPoints - 1 ].y = ROUND( ty );
+	points[ num_points - 1 ].x = ROUND( tx );
+	points[ num_points - 1 ].y = ROUND( ty );
 
 	// If this is a lightning strike, points between the first and last
 	// have to be (re-)generated.
-	makeLightningPath();
+	make_lightning_path();
 
 	// Generate new lightning offsets checking for collisions:
-	traceBeamPath();
+	trace_beam_path();
 
 	// If this is a mind_shot, it is immediately destroyed
-	if ( BT_MIND_SHOT == beamType ) {
+	if ( BT_MIND_SHOT == beam_type ) {
 		destroy = true;
 	}
 }
 
 /// @brief get the end of a mind shot laser
-void CBeam::getEndPoint( int32_t &x, int32_t &y ) {
-	x = points[ numPoints - 1 ].x;
-	y = points[ numPoints - 1 ].y;
+void CBeam::get_end_point( int32_t &x, int32_t &y ) {
+	x = points[ num_points - 1 ].x;
+	y = points[ num_points - 1 ].y;
 }
 
 /// @brief create the lightning steps between the beginning and the end
-void CBeam::makeLightningPath() {
-	if ( ( numPoints > 2 ) && ( weapType >= SML_LIGHTNING ) && ( weapType <= LRG_LIGHTNING ) ) {
-		int32_t maxP     = numPoints - 1;
+void CBeam::make_lightning_path() {
+	if ( ( num_points > 2 ) && ( weap_type >= SML_LIGHTNING ) && ( weap_type <= LRG_LIGHTNING ) ) {
+		int32_t maxP     = num_points - 1;
 		double  stepping = FABSDISTANCE2( points[ 0 ].x, points[ 0 ].y, points[ maxP ].x, points[ maxP ].y ) / maxP;
 
 		for ( int32_t i = 1; i < maxP; ++i ) {
@@ -338,7 +338,7 @@ void CBeam::makeLightningPath() {
 }
 
 /// @brief this method is used by the satellite to move the beam with itself.
-void CBeam::moveStart( double x_, double y_ ) {
+void CBeam::move_start( double x_, double y_ ) {
 	x             = x_;
 	y             = y_;
 	points[ 0 ].x = ROUND( x );
@@ -346,19 +346,19 @@ void CBeam::moveStart( double x_, double y_ ) {
 }
 
 /// @brief walk through the beam points and check whether anything is hit
-void CBeam::traceBeamPath() {
+void CBeam::trace_beam_path() {
 	int32_t minRange = radius + 2;
 	bool    canHit   = false;
 
-	hitSomething     = false;
+	hit_something     = false;
 
-	for ( int32_t i = 1; !hitSomething && ( i < numPoints ); ++i ) {
-		double startX   = points[ i - 1 ].x;
-		double startY   = points[ i - 1 ].y;
-		double endX     = points[ i ].x;
-		double endY     = points[ i ].y;
-		bool   chkTanks = BT_SDI != beamType && global.are_tanks_in_box( startX, startY, endX, endY );
-		bool   chkDirt  = global.is_dirt_in_box( startX, startY, endX, endY );
+	for ( int32_t i = 1; !hit_something && ( i < num_points ); ++i ) {
+		double start_x   = points[ i - 1 ].x;
+		double start_y   = points[ i - 1 ].y;
+		double end_x     = points[ i ].x;
+		double end_y     = points[ i ].y;
+		bool   chkTanks = BT_SDI != beam_type && global.are_tanks_in_box( start_x, start_y, end_x, end_y );
+		bool   chkDirt  = global.is_dirt_in_box( start_x, start_y, end_x, end_y );
 
 		// Break this if there is nothing possibly in between
 		if ( !( chkTanks || chkDirt ) ) {
@@ -366,8 +366,8 @@ void CBeam::traceBeamPath() {
 		}
 
 		int32_t range  = 0;
-		double  distX  = endX - startX;
-		double  distY  = endY - startY;
+		double  distX  = end_x - start_x;
+		double  distY  = end_y - start_y;
 		double  absX   = std::abs( distX );
 		double  absY   = std::abs( distY );
 		double  moveX  = distX / ( absX > absY ? absX : absY );
@@ -375,9 +375,9 @@ void CBeam::traceBeamPath() {
 		auto    toMove = ROUND( std::max( absX, absY ) );
 
 		// Now wander along the path:
-		while ( !hitSomething && ( range < toMove ) && ( startX > 0 ) && ( startX < ( env.screen_width - 1 ) )
-		        && ( startY > MENUHEIGHT ) && ( startY < ( env.screen_height - 1 ) )
-		        && ( !chkDirt || ( PINK == getpixel( global.terrain, startX, startY ) ) ) ) {
+		while ( !hit_something && ( range < toMove ) && ( start_x > 0 ) && ( start_x < ( env.screen_width - 1 ) )
+		        && ( start_y > MENUHEIGHT ) && ( start_y < ( env.screen_height - 1 ) )
+		        && ( !chkDirt || ( PINK == getpixel( global.terrain, start_x, start_y ) ) ) ) {
 
 			// Only check for tanks if the total range is large enough
 			// and if there are tanks in the path
@@ -390,35 +390,35 @@ void CBeam::traceBeamPath() {
 				while ( lt ) {
 					// Tank found, is it hit?
 					if ( !lt->destroy
-					     && lt->isInBox( startX - radius, startY - radius, startX + radius, startY + radius ) ) {
-						hitSomething = true;
-						lt->requireUpdate();
+					     && lt->is_in_box( start_x - radius, start_y - radius, start_x + radius, start_y + radius ) ) {
+						hit_something = true;
+						lt->require_update();
 
 						// 'Lock' the beam end on the tank:
-						if ( startY < ( lt->y + radius ) ) {
-							startY = lt->y + radius;
+						if ( start_y < ( lt->y + radius ) ) {
+							start_y = lt->y + radius;
 						}
-						if ( startY > ( lt->y + ( 2 * radius ) ) ) {
-							startY = lt->y + ( 2 * radius );
+						if ( start_y > ( lt->y + ( 2 * radius ) ) ) {
+							start_y = lt->y + ( 2 * radius );
 						}
-						if ( startX < ( lt->x - ( radius / 2. ) ) ) {
-							startX = lt->x - ( radius / 2. );
+						if ( start_x < ( lt->x - ( radius / 2. ) ) ) {
+							start_x = lt->x - ( radius / 2. );
 						}
-						if ( startX > ( lt->x + ( radius / 2. ) ) ) {
-							startX = lt->x + ( radius / 2. );
+						if ( start_x > ( lt->x + ( radius / 2. ) ) ) {
+							start_x = lt->x + ( radius / 2. );
 						}
 
 						// Get the in_rates
 						double in_rate_x, in_rate_y;
-						if ( ( BT_MIND_SHOT != beamType )
-						     && lt->isInEllipse( startX, startY, radius, radius, in_rate_x, in_rate_y ) ) {
+						if ( ( BT_MIND_SHOT != beam_type )
+						     && lt->is_in_ellipse( start_x, start_y, radius, radius, in_rate_x, in_rate_y ) ) {
 							double in_rate = in_rate_x * in_rate_y;
 							if ( in_rate < 0.9 ) {
 								// Beams do not 'splash'.
 								in_rate = 0.9;
 							}
 
-							lt->addDamage(
+							lt->add_damage(
 								player,
 								static_cast< double >( damage ) * in_rate
 									* ( player ? player->damageMultiplier : 1. )
@@ -435,31 +435,31 @@ void CBeam::traceBeamPath() {
 				} // End of looping tanks
 			}
 
-			// Advance startX/Y
-			startX += moveX;
-			startY += moveY;
+			// Advance start_x/Y
+			start_x += moveX;
+			start_y += moveY;
 			++range;
 		} // End of regular check
 
-		// If dirt was hit, hitSomething must be adapted
-		if ( ( PINK != getpixel( global.terrain, startX, startY ) ) ) {
-			hitSomething = true;
+		// If dirt was hit, hit_something must be adapted
+		if ( ( PINK != getpixel( global.terrain, start_x, start_y ) ) ) {
+			hit_something = true;
 		}
 
-		if ( hitSomething
-		     && ( ( ROUND( startX ) != points[ numPoints - 1 ].x ) || ( ROUND( startY ) != points[ numPoints - 1 ].y )
+		if ( hit_something
+		     && ( ( ROUND( start_x ) != points[ num_points - 1 ].x ) || ( ROUND( start_y ) != points[ num_points - 1 ].y )
 		     ) ) {
 			// Reset the points to the new circumstances:
-			points[ numPoints - 1 ].x = ROUND( startX );
-			points[ numPoints - 1 ].y = ROUND( startY );
-			makeLightningPath();
+			points[ num_points - 1 ].x = ROUND( start_x );
+			points[ num_points - 1 ].y = ROUND( start_y );
+			make_lightning_path();
 
 			// Note down x position for dirt slide on destruction:
-			if ( ( startX - radius - 1 ) < tgtLeftX ) {
-				tgtLeftX = ROUND( startX - radius - 1. );
+			if ( ( start_x - radius - 1 ) < tgt_left_x ) {
+				tgt_left_x = ROUND( start_x - radius - 1. );
 			}
-			if ( ( startX + radius + 1 ) > tgtRightX ) {
-				tgtRightX = ROUND( startX + radius + 1. );
+			if ( ( start_x + radius + 1 ) > tgt_right_x ) {
+				tgt_right_x = ROUND( start_x + radius + 1. );
 			}
 		} // End of checking pixels
 	}         // End of looping points

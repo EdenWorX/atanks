@@ -1073,11 +1073,11 @@ int32_t CAICore::calcHitScore( bool is_last ) {
 	bool       can_overkill = true;
 	ETeamTypes target_team  = mem_curr ? mem_curr->entry->opponent->team : TEAM_NEUTRAL;
 	bool       tgt_team_hit = false;
-	auto       weapType     = static_cast< EWeaponType >( weap_curr->type );
+	auto       weap_type     = static_cast< EWeaponType >( weap_curr->type );
 
 
 	// Dirt weapons and the reducer can not overkill
-	if ( ( ( DIRT_BALL <= weapType ) && ( SUP_DIRT_BALL >= weapType ) ) || ( REDUCER == weapType ) ) {
+	if ( ( ( DIRT_BALL <= weap_type ) && ( SUP_DIRT_BALL >= weap_type ) ) || ( REDUCER == weap_type ) ) {
 		can_overkill = false;
 	}
 
@@ -1203,10 +1203,10 @@ int32_t CAICore::calcHitScore( bool is_last ) {
  * @param[in] hit_y y coordinate where the current selection hit.
  * @param[in] weap_rad Calculated radius of the weapon.
  * @param[in] dmg Calculated damage of the weapon.
- * @param[in] weapType Type of the weapon.
+ * @param[in] weap_type Type of the weapon.
  * @return The resulting score
  **/
-void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weapType ) {
+void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, double dmg, EWeaponType weap_type ) {
 	if ( ( nullptr == weap_curr ) // no weapon no score
 	     || ( 0 == weap_rad ) ) { // no radius, no hit
 		return;
@@ -1217,7 +1217,7 @@ void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, doub
 	// As dirt balls and reducers must be evaluated, they get a fake
 	// damage of their radius so a score can be generated.
 	if ( 0 == dmg ) {
-		if ( ( ( DIRT_BALL <= weapType ) && ( SUP_DIRT_BALL >= weapType ) ) || ( REDUCER == weapType ) ) {
+		if ( ( ( DIRT_BALL <= weap_type ) && ( SUP_DIRT_BALL >= weap_type ) ) || ( REDUCER == weap_type ) ) {
 			dmg = weap_rad;
 		} else {
 			return;
@@ -1226,7 +1226,7 @@ void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, doub
 
 	// Napalm blobs have a much higher full damage output
 	// than listed, as they do damage over time:
-	if ( NAPALM_JELLY == weapType ) {
+	if ( NAPALM_JELLY == weap_type ) {
 		dmg *= static_cast< double >( EXPLOSIONFRAMES * weapon[ NAPALM_JELLY ].etime ) / ai_over_mod;
 	}
 
@@ -1249,18 +1249,18 @@ void CAICore::calcHitDamage( int32_t hit_x, int32_t hit_y, double weap_rad, doub
 
 			// For dirt balls, only whether the tank is in x-range counts
 			// as dirt falls down
-			if ( ( DIRT_BALL <= weapType ) && ( SUP_DIRT_BALL >= weapType ) && ( oppTank->x > ( hit_x - weap_rad ) )
+			if ( ( DIRT_BALL <= weap_type ) && ( SUP_DIRT_BALL >= weap_type ) && ( oppTank->x > ( hit_x - weap_rad ) )
 			     && ( oppTank->x < ( hit_x + weap_rad ) ) ) {
 				part_dmg = dmg;
 			} else {
 				// All others need a normal check
-				part_dmg = get_hit_damage( oppTank, weapType, hit_x, hit_y );
+				part_dmg = get_hit_damage( oppTank, weap_type, hit_x, hit_y );
 			}
 
 			if ( part_dmg > 0. ) {
 
 				// REDUCER must be set, it is only checked as valid, yet:
-				if ( REDUCER == weapType ) {
+				if ( REDUCER == weap_type ) {
 					part_dmg = opp->entry->opponent->damageMultiplier * 25.;
 				}
 
@@ -1316,7 +1316,7 @@ bool CAICore::calcKamikaze( bool is_last ) {
 				// For this it is necessary to look at the terrain.
 				// This does not make sense if there isn't a flat area
 				// at either side of the tank with an even height.
-				int32_t bottom  = tank->getBottom();
+				int32_t bottom  = tank->get_bottom();
 				int32_t max_rad = weapon[ weap_idx ].radius / 20;
 
 				// With a power of 150, the weapon can be hurled ~45 pixels.
@@ -1491,13 +1491,13 @@ bool CAICore::calcLaser( bool is_last ) {
 	// Let's see where the laser ends:
 	double start_x = 0;
 	double start_y = 0;
-	player->tank->getGuntop( curr_angle, start_x, start_y );
+	player->tank->get_guntop( curr_angle, start_x, start_y );
 
 	CBeam    mind_beam( player, start_x, start_y, curr_angle, weap_curr->type, BT_MIND_SHOT );
 
 	int32_t end_x = 0;
 	int32_t end_y = 0;
-	mind_beam.getEndPoint( end_x, end_y );
+	mind_beam.get_end_point( end_x, end_y );
 
 	// Generate a score for this
 	curr_prime_hit = false;
@@ -1521,7 +1521,7 @@ bool CAICore::calcLaser( bool is_last ) {
 
 	// If the target is behind a dirt wall, break up this attempt
 	bool crashed = false;
-	if ( !tank->shootClearance( curr_angle, mem_curr->distance, crashed ) || crashed ) {
+	if ( !tank->shoot_clearance( curr_angle, mem_curr->distance, crashed ) || crashed ) {
 
 		// ...unless this is a forced success ...
 		if ( is_last ) {
@@ -1665,7 +1665,7 @@ bool CAICore::calcOffset( bool is_last ) {
 				int32_t mov_x = SIGN( global.wind );
 				int32_t max_x = pos_x - ( offset_x / ( RAND_AI_0P ? 1 : 2 ) );
 				// Note: Yes, the RAND_AI_0P is the mentioned additional check. ;)
-				int32_t max_y = mem_curr->entry->opponent->tank->getBottom();
+				int32_t max_y = mem_curr->entry->opponent->tank->get_bottom();
 
 				for ( ; !found && ( pos_x != max_x ); pos_x += mov_x ) {
 					if ( global.surface[ pos_x ].load() <= ( max_y - ai_level ) ) {
@@ -1696,7 +1696,7 @@ bool CAICore::calcOffset( bool is_last ) {
 		int32_t max_dist =
 			RAND_AI_0P ? ( dist_x * 2 ) + RAND_AI_1P        // normal shot
 				   : weapon[ weap_idx ].radius * 2 / 3; // trick shot
-		auto    seek_y  = ROUND( ( mem_curr->opY + mem_curr->entry->opponent->tank->getBottom() ) / 2. );
+		auto    seek_y  = ROUND( ( mem_curr->opY + mem_curr->entry->opponent->tank->get_bottom() ) / 2. );
 		auto    left_x  = ROUND( mem_curr->opX - dist_x );
 		auto    right_x = ROUND( mem_curr->opX + dist_x );
 		int32_t left_y  = left_x > 2 ? std::abs( global.surface[ left_x ].load() ) : 0;
@@ -1769,7 +1769,7 @@ bool CAICore::calcOffset( bool is_last ) {
 		int32_t pos_y    = global.surface[ pos_x ].load();
 		int32_t max_dist = rad_x * 2 / 3;
 		auto    min_y    = ROUND( mem_curr->opY - rad_x );
-		int32_t max_y    = mem_curr->entry->opponent->tank->getBottom() + rad_x;
+		int32_t max_y    = mem_curr->entry->opponent->tank->get_bottom() + rad_x;
 		bool    found_l  = false;
 		bool    found_r  = false;
 
@@ -1953,10 +1953,10 @@ bool CAICore::calcStandard( bool is_last, bool allow_flip_shot ) {
 		clearance = opX > x ? x - 2 : env.screen_width - x - 2;
 	}
 
-	while ( ( new_angle < ( 180 - max_drift ) ) && !tank->shootClearance( new_angle, clearance, crashed ) && !crashed ) {
+	while ( ( new_angle < ( 180 - max_drift ) ) && !tank->shoot_clearance( new_angle, clearance, crashed ) && !crashed ) {
 		++new_angle;
 	}
-	while ( ( new_angle > ( 180 + max_drift ) ) && !tank->shootClearance( new_angle, clearance, crashed ) && !crashed ) {
+	while ( ( new_angle > ( 180 + max_drift ) ) && !tank->shoot_clearance( new_angle, clearance, crashed ) && !crashed ) {
 		--new_angle;
 	}
 
@@ -2122,11 +2122,11 @@ bool CAICore::calcUnbury( bool is_last ) {
 		curr_angle     = 180;
 
 		if ( go_left ) {
-			while ( ( curr_angle < 250 ) && ( tank->shootClearance( curr_angle, dist, crashed ) || !crashed ) ) {
+			while ( ( curr_angle < 250 ) && ( tank->shoot_clearance( curr_angle, dist, crashed ) || !crashed ) ) {
 				++curr_angle;
 			}
 		} else {
-			while ( ( curr_angle > 110 ) && ( tank->shootClearance( curr_angle, dist, crashed ) || !crashed ) ) {
+			while ( ( curr_angle > 110 ) && ( tank->shoot_clearance( curr_angle, dist, crashed ) || !crashed ) ) {
 				--curr_angle;
 			}
 		}
@@ -2462,8 +2462,8 @@ bool CAICore::getMemory() {
 			// The other values depend on whether an active tank was found:
 			if ( oppTank ) {
 				mem_curr->is_buried =
-					oppTank->howBuried( &mem_curr->buried_l, &mem_curr->buried_r ) > BURIED_LEVEL;
-				mem_curr->hasRepulse = oppTank->hasRepulsorActivated();
+					oppTank->how_buried( &mem_curr->buried_l, &mem_curr->buried_r ) > BURIED_LEVEL;
+				mem_curr->hasRepulse = oppTank->has_repulsor_activated();
 				mem_curr->opLife     = oppTank->l + oppTank->sh;
 				mem_curr->opX        = oppTank->x;
 				mem_curr->opY        = oppTank->y;
@@ -3001,9 +3001,9 @@ bool CAICore::initialize() {
 		angle     = tank->a;
 		power     = tank->p;
 		weap_idx  = tank->cw;
-		buried    = tank->howBuried( &buried_l, &buried_r );
+		buried    = tank->how_buried( &buried_l, &buried_r );
 		currLife  = tank->l + tank->sh;
-		maxLife   = tank->getMaxLife();
+		max_life   = tank->get_max_life();
 		x         = tank->x;
 		y         = tank->y;
 		last_ang  = 180;
@@ -3703,17 +3703,17 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 	double    startPoint    = divStep < 0. ? 0. : 180.;
 	int32_t   randStart     = get_rand() % 1000000;
 	EPhysType subPhys       = PT_NORMAL;
-	int32_t   startY        = sub_y - 20;
+	int32_t   start_y        = sub_y - 20;
 	int32_t   cl_overshoot  = MAX_OVERSHOOT;
 	int32_t   old_overshoot = curr_overshoot; // overshoot is only used for mirvs and funkies
 	double    radius        = sub_weap->radius;
 	double    sub_dmg       = sub_weap->damage * player->damageMultiplier;
 
 	// If the weapon is fired into a ceiling, adapt starting y
-	if ( env.is_boxed && ( startY <= BOXED_TOP )
+	if ( env.is_boxed && ( start_y <= BOXED_TOP )
 	     && ( ( WALL_STEEL == env.current_wall_type )
 	          || ( ( WALL_WRAP == env.current_wall_type ) && ( !env.is_boxed || !env.do_box_wrap ) ) ) ) {
-		startY = MENUHEIGHT + 20;
+		start_y = MENUHEIGHT + 20;
 	}
 
 	// Change physics of the sub munitions for the funky bomb
@@ -3789,7 +3789,7 @@ void CAICore::traceCluster( int32_t subType, int32_t subCount, int32_t sub_x, in
 		CMissile mind_shot(
 			player,
 			sub_x,
-			startY,
+			start_y,
 			env.slope[ newMissAngle ][ 0 ] * speed * env.fps_mod + inh_xv,
 			env.slope[ newMissAngle ][ 1 ] * speed * env.fps_mod + inh_yv,
 			subType,
@@ -3898,7 +3898,7 @@ bool CAICore::traceShot(
 	double  old_yv       = 0;
 	double  old_y        = 0;
 
-	tank->getGuntop( trace_angle, top_x, top_y );
+	tank->get_guntop( trace_angle, top_x, top_y );
 
 	CMissile mind_shot( player, top_x, top_y, vel_x, vel_y, weap_idx, MT_MIND_SHOT, ai_level, delay_idx );
 
@@ -3920,7 +3920,7 @@ bool CAICore::traceShot(
 		mind_shot.applyPhysics();
 
 		if ( can_top_wrap ) {
-			mind_shot.getVelocity( vel_x, vel_y );
+			mind_shot.get_velocity( vel_x, vel_y );
 			if ( ( ( old_yv < 0. ) && ( vel_y < 0. ) && ( mind_shot.y > old_y ) )
 			     || ( ( old_yv > 0. ) && ( vel_y > 0. ) && ( mind_shot.y < old_y ) ) ) {
 				top_wrapped = true;
@@ -3934,7 +3934,7 @@ bool CAICore::traceShot(
 
 	// If the missile is destroyed, the number of bounces is in order.
 	if ( mind_shot.destroy ) {
-		mind_shot.getVelocity( end_xv, end_yv );
+		mind_shot.get_velocity( end_xv, end_yv );
 		finished   = true;
 		reached_x_ = ROUND( mind_shot.x );
 		reached_y_ = ROUND( mind_shot.y );
@@ -4366,7 +4366,7 @@ void CAICore::updateOppScore( opentry_t* pOpp ) {
 		}
 
 		// Now see whether a new act of vengeance is initiated:
-		if ( ( entry->revenge_dmg > ( player->vengeanceThreshold * maxLife ) )
+		if ( ( entry->revenge_dmg > ( player->vengeanceThreshold * max_life ) )
 		     && ( ( get_rand() % 100 ) <= player->vengeful ) ) {
 
 			// Okay, the potential is there...
@@ -4507,7 +4507,7 @@ void CAICore::updateOppScore( opentry_t* pOpp ) {
 	double damage_score = ( entry->damage_from * ai_level_d ) - ( entry->damage_to * opp_level_d );
 	double kill_score =
 		entry->killed_them > 0. // If we did not kill them, yet, the score must not become too extreme
-			? ( ( entry->killed_me * ai_level_d ) / ( entry->killed_them * opp_level_d ) ) * maxLife
+			? ( ( entry->killed_me * ai_level_d ) / ( entry->killed_them * opp_level_d ) ) * max_life
 			: entry->killed_me * ai_level_d / opp_level_d; // Like 1 death but without life multiplier.
 	double prev_score = entry->damage_last;
 
@@ -4845,7 +4845,7 @@ void CAICore::updateWeapScore( weentry_t* pWeap ) {
 			double in_rate_x = 0.;
 			double in_rate_y = 0.;
 
-			if ( lt->isInEllipse( xhit, yhit, xrad, yrad, in_rate_x, in_rate_y ) ) {
+			if ( lt->is_in_ellipse( xhit, yhit, xrad, yrad, in_rate_x, in_rate_y ) ) {
 				double in_rate = in_rate_x * in_rate_y;
 
 				if ( in_rate < rate_limit ) {
@@ -5196,7 +5196,7 @@ bool CAICore::moveTank() {
 	 * - If the overshoot is negative (too short), move towards the target.
 	 * - If the overshoot is positive (too far), move away from the target.
 	 */
-	double  min_dist  = tank->getDiameter() + mem_curr->entry->opponent->tank->getDiameter();
+	double  min_dist  = tank->get_diameter() + mem_curr->entry->opponent->tank->get_diameter();
 	int32_t want_dist = 0; // Eventually move in this direction ...
 	int32_t want_dir  = 0; // ... by this amount
 

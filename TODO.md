@@ -457,7 +457,7 @@ per module.
   Rename members and methods (e.g. `AI_clock` → `ai_clock`, `newRound` → `new_round`) with per-member review. Pure renames;
   verify with a `make DEBUG=YES` build plus manual in-game validation.
 
-- [ ] **PF-1.15.2.5**: Member/function snake_case for entity classes
+- [x] **PF-1.15.2.5**: Member/function snake_case for entity classes
 
   Rename members and methods of `CTank`, `CMissile`, `CExplosion`, `CBeam`, `CDecor`, `CTeleport`, and `CFloatText`,
   including the hierarchy virtuals (e.g. `getClass` → `get_class`), with per-member review. Pure renames; verify with a

@@ -34,28 +34,28 @@ public:
 	 */
 	/// Create the source end.
 	explicit CTeleport(
-		CVirtualObject* targetObj,
-		int32_t         destinationX,
-		int32_t         destinationY,
-		int32_t         objRadius,
+		CVirtualObject* target_obj,
+		int32_t         destination_x,
+		int32_t         destination_y,
+		int32_t         obj_radius,
 		int32_t         duration,
 		int32_t         type
 	);
 
 	/// Delegate with a rounded radius.
 	CTeleport(
-		CVirtualObject* targetObj,
-		int32_t         destinationX,
-		int32_t         destinationY,
-		double          objRadius,
+		CVirtualObject* target_obj,
+		int32_t         destination_x,
+		int32_t         destination_y,
+		double          obj_radius,
 		int32_t         duration,
 		int32_t         type
 	)
-		: CTeleport( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
+		: CTeleport( target_obj, destination_x, destination_y, ROUND( obj_radius ), duration, type ) {}
 
 	/// Delegate with rounded coordinates.
-	CTeleport( CVirtualObject* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
-		: CTeleport( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
+	CTeleport( CVirtualObject* target_obj, double destination_x, double destination_y, double obj_radius, int32_t duration, int32_t type )
+		: CTeleport( target_obj, ROUND( destination_x ), ROUND( destination_y ), ROUND( obj_radius ), duration, type ) {}
 
 	/// Destroy a teleport.
 	~CTeleport() final;
@@ -70,7 +70,7 @@ public:
 	void   draw() final;         ///< Render the teleport.
 
 	/// Return the object class.
-	EClass getClass() final { return CLASS_TELEPORT; }
+	EClass get_class() final { return CLASS_TELEPORT; }
 
 
 private:
@@ -80,7 +80,7 @@ private:
 	 */
 
 	// Target constructor
-	CTeleport( CTeleport* remoteEnd, int32_t destX, int32_t destY );
+	CTeleport( CTeleport* remote_end, int32_t dest_x, int32_t dest_y );
 
 
 	/* -----------------------
@@ -92,7 +92,7 @@ private:
 	CVirtualObject* object     = nullptr;
 	int32_t         radius     = 0;
 	CTeleport*       remote     = nullptr;
-	int32_t         startClock = 0;
+	int32_t         start_clock = 0;
 };
 
 #endif // TELEPORT_DEFINE

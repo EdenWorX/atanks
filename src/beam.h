@@ -56,9 +56,9 @@ public:
 	 */
 
 	/// Fire an angled beam.
-	explicit CBeam( CPlayer* player_, double x_, double y_, int32_t fireAngle, int32_t EWeaponType, EBeamType beam_type );
+	explicit CBeam( CPlayer* player_, double x_, double y_, int32_t fire_angle, int32_t weapon_type, EBeamType beam_type );
 	/// Fire a point-to-point beam.
-	CBeam( CPlayer* player_, double x_, double y_, double tx, double ty, int32_t EWeaponType, bool is_burnt_out );
+	CBeam( CPlayer* player_, double x_, double y_, double tx, double ty, int32_t weapon_type, bool is_burnt_out );
 	/// Destroy a beam.
 	~CBeam() final;
 
@@ -70,11 +70,11 @@ public:
 
 	void   applyPhysics() final;                  ///< Advance physics.
 	void   draw() final;                          ///< Render the beam.
-	void   getEndPoint( int32_t& x, int32_t& y ); ///< Fetch the beam end point for mind shots.
-	void   moveStart( double x_, double y_ );     ///< Move the beam start for the satellite.
+	void   get_end_point( int32_t& x, int32_t& y ); ///< Fetch the beam end point for mind shots.
+	void   move_start( double x_, double y_ );     ///< Move the beam start for the satellite.
 
 	/// Return the object class.
-	EClass getClass() final { return CLASS_BEAM; }
+	EClass get_class() final { return CLASS_BEAM; }
 
 
 private:
@@ -83,9 +83,9 @@ private:
 	 * -----------------------
 	 */
 
-	void createBeamPath();
-	void makeLightningPath();
-	void traceBeamPath();
+	void create_beam_path();
+	void make_lightning_path();
+	void trace_beam_path();
 
 
 	/* -----------------------
@@ -93,15 +93,15 @@ private:
 	 * -----------------------
 	 */
 
-	EBeamType beamType  = BT_WEAPON;
+	EBeamType beam_type  = BT_WEAPON;
 	int32_t   color     = WHITE;
 	double    damage    = 0.;
-	int32_t   numPoints = 2; // Default for lasers
+	int32_t   num_points = 2; // Default for lasers
 	Point   points[ 12 ];  // Maximum for lightnings
 	int32_t   radius    = 0;
 	int32_t   seed      = 0;
-	int32_t   tgtLeftX  = 0;
-	int32_t   tgtRightX = 0;
+	int32_t   tgt_left_x  = 0;
+	int32_t   tgt_right_x = 0;
 	CWeapon*   weap      = nullptr;
 };
 
