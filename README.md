@@ -444,6 +444,22 @@ Standalone helpers (not built by `Makefile`):
   was uniformly formatted with it.
 - Documentation files (`README.md`, `AGENTS.md`, `TODO*.md`, `docs/*`) wrap prose at a maximum line length of 128 characters
 
+## Coding Conventions
+
+- Language standard: C++17 (`CMAKE_CXX_STANDARD 17`); no C++20+ features. Style is defined by `.clang-format`
+  (clang-format 19 or later): 140-column limit, attached braces, one parameter per line in declarations, left-aligned
+  pointers, sorted case-sensitive includes.
+- Naming: variables and functions in snake_case (`var_name`, `func_name()`), classes and structs in PascalCase (`MyClass`),
+  templates in PascalCase with `T` prefix (`TContainer`), constants and macros in UPPER_SNAKE (`MAX_SIZE`); prefix `C` for
+  important classes (`CPlayer`, `CTank`), `T` for templates (`TOptionItem`), `s` for widely-used structs (`sScore`).
+  Enumerations use the `E` prefix (`EClass`, `EPlayerType`) with UPPER_SNAKE enumerators; typedefs are lowercase short names
+  with a `_t` postfix (`plstage_t`, `head_t`). External names (Allegro, CRT, system APIs) are never renamed.
+- Headers use guards of the form `ATANKS_<NAME>_H_INCLUDED`; `src/globals.h` may only be included from `src/atanks.cpp`
+  (other units use `src/externs.h`). New `src/*.cpp` files are picked up by CMake automatically but must be added to the
+  legacy `vs12`/`vs14` projects by hand.
+- Ownership is manual: mirror every allocation with a deallocation in the same module; `CSpinLock` is non-recursive.
+- Log via the `DEBUG_LOG*` macros (they compile away in release builds); never `printf`-debug gameplay code.
+
 ## Adding or Modifying Code
 
 - New gameplay entity: subclass `CVirtualObject` (or `CPhysicalObject` for ballistic behavior) in a new `src/<name>.h/.cpp`
