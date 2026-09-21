@@ -178,6 +178,62 @@ else ()
 	endif ()
 endif ()
 
+# tomlplusplus for the weapons/item data migration (WP PF-1.17). Header-only,
+# resolved like CppUTest with online as a last resort: a local install first
+# (CMake package config, then a system header probe — upstream ships no .pc
+# file, so there is no pkg-config tier), pinned FetchContent (release tag
+# v3.4.0) third. Only src/files.cpp will include the header (WP PF-1.17.3), so
+# include dirs stay off the global compile lines; the check below proves the
+# resolved headers work (result cached, re-verified after clean).
+set( ATANK_HAVE_TOMLPLUSPLUS OFF )
+find_package( tomlplusplus QUIET )
+find_path( TOMLPLUSPLUS_INCLUDE_DIR NAMES toml++/toml.hpp )
+if ( TOMLPLUSPLUS_INCLUDE_DIR )
+	if ( TARGET tomlplusplus::tomlplusplus )
+		set( ATANK_TOMLPLUSPLUS_TARGET tomlplusplus::tomlplusplus )
+		message( STATUS "tomlplusplus: using CMake package and system headers" )
+	else ()
+		add_library( AtanksTomlPP INTERFACE )
+		target_include_directories( AtanksTomlPP INTERFACE "${TOMLPLUSPLUS_INCLUDE_DIR}" )
+		set( ATANK_TOMLPLUSPLUS_TARGET AtanksTomlPP )
+		message( STATUS "tomlplusplus: using system headers in ${TOMLPLUSPLUS_INCLUDE_DIR}" )
+	endif ()
+	set( ATANK_TOMLPLUSPLUS_INCLUDE_DIRS "${TOMLPLUSPLUS_INCLUDE_DIR}" )
+	set( ATANK_HAVE_TOMLPLUSPLUS ON )
+else ()
+	include( FetchContent )
+	fetchcontent_declare( tomlplusplus
+			      GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+			      GIT_TAG v3.4.0 )
+	fetchcontent_makeavailable( tomlplusplus )
+	if ( TARGET tomlplusplus::tomlplusplus )
+		set( ATANK_TOMLPLUSPLUS_TARGET tomlplusplus::tomlplusplus )
+	else ()
+		add_library( AtanksTomlPP INTERFACE )
+		target_include_directories( AtanksTomlPP INTERFACE "${tomlplusplus_SOURCE_DIR}/include" )
+		set( ATANK_TOMLPLUSPLUS_TARGET AtanksTomlPP )
+	endif ()
+	message( STATUS "tomlplusplus: using FetchContent v3.4.0" )
+	set( ATANK_TOMLPLUSPLUS_INCLUDE_DIRS "${tomlplusplus_SOURCE_DIR}/include" )
+	set( ATANK_HAVE_TOMLPLUSPLUS ON )
+endif ()
+
+# Prove the resolved headers compile (header-only: plain include dirs suffice,
+# no link libraries needed). Result cached per build dir by the check module.
+include( CheckCXXSourceCompiles )
+set( CMAKE_REQUIRED_INCLUDES ${ATANK_TOMLPLUSPLUS_INCLUDE_DIRS} )
+check_cxx_source_compiles( "#include <toml++/toml.hpp>
+int main() {
+	toml::table tbl;
+	tbl.insert( \"answer\", 42 );
+	return tbl[ \"answer\" ].value_or( 0 ) == 42 ? 0 : 1;
+}
+" ATANK_TOMLPLUSPLUS_WORKS )
+unset( CMAKE_REQUIRED_INCLUDES )
+if ( NOT ATANK_TOMLPLUSPLUS_WORKS )
+	message( FATAL_ERROR "tomlplusplus headers unusable: remove the broken local install, or provide network for FetchContent" )
+endif ()
+
 # Install rules mirroring the Makefile install target. (Distribution, doc, and
 # analysis targets arrive in WP PF-1.9.4 and WP PF-1.12.)
 

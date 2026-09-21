@@ -559,7 +559,24 @@ display strings), so data edits no longer require reading parser code. Done 2026
 
 Implement the simple parser, migrate `text/weapons*.txt` data and translation display strings, and adapt shop, AI weapon
 selection, and firing code. Verify parsed stats are identical to the legacy parser output and check in-game (buy screen
-quantities/prices, fired shots).
+quantities/prices, fired shots). Split into Action Items below; each fits one focused session.
+
+- [x] **PF-1.17.3.1**: Wire tomlplusplus in three tiers (`find_package`, system header probe, FetchContent `v3.4.0`),
+  include only from `src/files.cpp`. Verify configure works with and without network. No parser changes yet.
+  Done 2026-09-21: tiers plus interface target, per-tier status messages, and a cached header compile check in
+  `CMakeLists.txt`. Verified tier 3 end-to-end, tier 2 with real headers fully offline, tier 1 with a staged package
+  offline, clean FATAL when all tiers unavailable, no `ctest` leakage, full `atanks` build links. Nothing includes
+  toml++ yet.
+- [ ] **PF-1.17.3.2**: Author `text/weapons.toml` from `text/weapons.txt` per `docs/weapons_toml_spec.md` (86 records,
+  transcode ES/it sources to UTF-8); keep the `.txt` files untouched. Verify field-by-field against the source,
+  script-assisted. No code changes yet.
+- [ ] **PF-1.17.3.3**: Author the 7 `text/weapons_*.toml` translations (name/desc only, base order, short files keep
+  English fallback per spec). No code changes yet.
+- [ ] **PF-1.17.3.4**: Reimplement `load_weapons_text()` on toml++ (strict base counts, lenient translations, typed reads;
+  needs Action Items `PF-1.17.3.1`–`PF-1.17.3.3`). Verify parsed stats identical to legacy output for all records and
+  translations, plus green builds and unit tests.
+- [ ] **PF-1.17.3.5**: Adapt shop/AI/firing consumers if needed, validate in-game (buy-screen quantities/prices, fired
+  shots of every class), then remove the legacy `.txt` files and update install lists and docs.
 
 ### Planned follow-ups (not yet numbered; become `TODO-PF-*` after `TODO-PF-1`)
 
@@ -581,3 +598,5 @@ quantities/prices, fired shots).
 - [x] `make install` populates `bin/atanks`, metainfo, desktop file, icons, and data with no stray files (`WP PF-1.12`).
 - [ ] PLAY/PLAYERS with an empty roster force-creates a human player plus the default AI set instead of aborting.
 - [ ] `git grep "MAX_CONFIG_LINE" -- src` returns zero hits (static config buffers gone, `WP PF-1.16`).
+- [x] toml++ resolves via CMake package, system header probe, and FetchContent `v3.4.0` with a green header check
+  (`WP PF-1.17`).

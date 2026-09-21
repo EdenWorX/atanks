@@ -7,6 +7,12 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
 
 ## Important Issues
 
+- [ ] **High**: `make test*` broken environment-wide since 2026-09-21: the system CppUTest 4.0 install (headers, libs,
+  `.pc`) vanished, so tiers 1-2 miss, and the pinned `v4.0` FetchContent fallback fails because that release declares
+  `cmake_minimum_required` below the installed CMake 4.3 floor. Not caused by repo changes (the `atanks` binary still
+  configures and links; only `atanks_tests` is affected). Unblocks when the system package is reinstalled or the pin is
+  bumped (user decision; pin `v4.0` was agreed in `WP PF-1.11`). Meanwhile validate with `-DBUILD_TESTING=OFF` builds
+  plus manual in-game checks. Found while verifying `PF-1.17.3.1`.
 - [ ] **High**: potential null-pointer dereference in `src/missile.cpp:413-423` (`MISSILE::applyPhysicsFunky`). `launchWeap`
   is null for any weapon type other than `FUNKY_BOMBLET`/`FUNKY_DEATHLET`, but line 419 dereferences it unconditionally
   while lines 420-422 guard with ternaries. Verified safe with shipped data (parents map to bomblet submunitions, and AI
