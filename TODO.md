@@ -567,9 +567,12 @@ quantities/prices, fired shots). Split into Action Items below; each fits one fo
   `CMakeLists.txt`. Verified tier 3 end-to-end, tier 2 with real headers fully offline, tier 1 with a staged package
   offline, clean FATAL when all tiers unavailable, no `ctest` leakage, full `atanks` build links. Nothing includes
   toml++ yet.
-- [ ] **PF-1.17.3.2**: Author `text/weapons.toml` from `text/weapons.txt` per `docs/weapons_toml_spec.md` (86 records,
+- [x] **PF-1.17.3.2**: Author `text/weapons.toml` from `text/weapons.txt` per `docs/weapons_toml_spec.md` (86 records,
   transcode ES/it sources to UTF-8); keep the `.txt` files untouched. Verify field-by-field against the source,
   script-assisted. No code changes yet.
+  Done 2026-09-21: generated with exact counts (56/6/24), round-trip verified zero mismatches (names, descs, all
+  numerics with TOML int/float types, item `vals`); ES/it transcoded via latin-1 (no 0x80-0x9F bytes, identical to
+  cp1252 here). New file `text/weapons.toml`, `.txt` sources untouched.
 - [ ] **PF-1.17.3.3**: Author the 7 `text/weapons_*.toml` translations (name/desc only, base order, short files keep
   English fallback per spec). No code changes yet.
 - [ ] **PF-1.17.3.4**: Reimplement `load_weapons_text()` on toml++ (strict base counts, lenient translations, typed reads;
