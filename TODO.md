@@ -378,7 +378,7 @@ already-conforming `ATANKS_WRAP_DIRENT_H` is untouched.
 Rebuild all GNU targets including the `DEBUG`/`aidebug`/`fulldebug` flavors to prove the renames broke nothing, and confirm the
 `AGENTS.md` guard rule matches the final tree.
 
-### [ ] PF-1.15: Normalize naming conventions (own Work Package, major refactoring)
+### [x] PF-1.15: Normalize naming conventions (own Work Package, major refactoring)
 
 Apply the planned convention throughout the tree: variables/functions → snake_case (`var_name`, `func_name()`), classes/structs
 → PascalCase (`MyClass`, `MyStruct`), templates → PascalCase with `T` prefix (`TContainer`), constants/macros → UPPER_SNAKE
@@ -498,21 +498,31 @@ goes per module.
   Rename `MESSAGE_QUEUE` → `CMessageQueue` and `LevelCreator` → `CLevelCreator` tree-wide, then snake_case the round loop,
   shop, scoring, network transport/client, and level-creator members and functions. Pure renames; verify with a build.
 
-#### [ ] PF-1.15.4: Record the convention and verify the whole tree
+#### [x] PF-1.15.4: Record the convention and verify the whole tree
 
 Ensure the final convention is recorded in `README.md` (`AGENTS.md` already carries it), then run a full build across GNU
-targets and DEBUG flavors plus an in-game check to confirm behavior is preserved.
+targets and DEBUG flavors plus an in-game check to confirm behavior is preserved. Verified 2026-09-21: `make user`,
+`make DEBUG=YES`, `make aidebug`, `make fulldebug`, `make test-all`, and `make doc` green; user confirmed in-game behavior
+preserved and identical game speed at 60 vs 120 FPS.
 
 ### [ ] PF-1.16: Modernize config parsing, remove `MAX_CONFIG_LINE`
 
 The constant (`src/files.h:6-7`) sizes static char arrays for configuration file loading, C89-style; replace the parsing with
 modern C++17 methods (the `sscanf()` lists were already removed in commit `f3c129bd`) and drop the constant and its `@todo`.
 
-#### [ ] PF-1.16.1: Inventory static-buffer uses and design the replacement
+#### [x] PF-1.16.1: Inventory static-buffer uses and design the replacement
 
 Grep for `MAX_CONFIG_LINE` and the static char arrays it sizes across the config/savegame loading code (`src/files.cpp`,
 `src/environment.cpp`, `PLAYER::load_from_file` paths) and design the C++17 replacement (`std::string`/`getline`-style
 parsing). No code changes yet.
+
+Inventory 2026-09-21: five loaders share one `FIELD=value` line protocol over `fgets(line, 128)`, each with its own
+`line`/`field`/`value` statics — `load_game()` (`src/files.cpp:108`), `CEnvironment::load_from_file()`
+(`src/environment.cpp:644`), `CGlobalData::load_from_file()` (`src/globaldata.cpp:614`), `CPlayer::load_from_file()`
+(`src/player.cpp:2112`), `CPlayer::load_game_data()` (`src/player.cpp:2270`); overlong lines silently split today.
+Design: one shared growing line reader in `src/files.h/.cpp` (keep `FILE*` flow, no truncation), split at first `=`
+via `std::string::find`, keep section/record sentinels and `SAFE_*` conversion. Out of scope: weapons loader
+(`src/files.cpp:541,745`, `WP PF-1.17`) and `TEXTBLOCK` loader (`src/text.cpp:146`, other constant).
 
 #### [ ] PF-1.16.2: Reimplement parsing and drop the constant
 
@@ -522,13 +532,13 @@ save/load round-trip (settings persist across restart; old config files still lo
 ### [ ] PF-1.17: Migrate weapons/item data to a documented format (late WP)
 
 There is no spec for the positional `text/weapons*.txt` format beyond the parser code (`Load_Weapons_Text()`, `src/files.cpp`).
-As a late step of the modernization, switch to a documented format with a clear spec and a simple parser (INI or YAML), document
-the spec, and migrate data, translations, shop, and AI selection code.
+As a late step of the modernization, switch to a documented format with a clear spec and a simple parser (CSV, INI, TOML or
+YAML), document the spec, and migrate data, translations, shop, and AI selection code.
 
-#### [ ] PF-1.17.1: Decide INI vs YAML with the user
+#### [ ] PF-1.17.1: Decide CSV vs INI vs TOML vs YAML with the user
 
-Compare dependency and build impact (hand-rolled INI parser vs a YAML library) and record the decision with rationale. No code
-changes yet.
+Compare dependency and build impact (hand-rolled INI or CSV parser vs a TOML or YAML library) and record the decision with
+rationale. No code changes yet.
 
 #### [ ] PF-1.17.2: Write the format specification
 
@@ -560,3 +570,4 @@ quantities/prices, fired shots).
 - [x] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).
 - [x] `make install` populates `bin/atanks`, metainfo, desktop file, icons, and data with no stray files (`WP PF-1.12`).
 - [ ] PLAY/PLAYERS with an empty roster force-creates a human player plus the default AI set instead of aborting.
+- [ ] `git grep "MAX_CONFIG_LINE" -- src` returns zero hits (static config buffers gone, `WP PF-1.16`).

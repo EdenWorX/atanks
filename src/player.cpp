@@ -2114,90 +2114,70 @@ bool CPlayer::load_from_file( FILE* file ) {
 		return false;
 	}
 
-	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char* result                       = nullptr;
+	string line;
+	string field;
+	string value;
+	bool   result = false;
 
 	setlocale( LC_NUMERIC, "C" );
 
 	// read until we hit line "*CPlayer*" or "***" or EOF
 	do {
-		result = fgets( line, MAX_CONFIG_LINE, file );
-		if ( !result || !strncmp( line, "***", 3 ) ) {
+		result = read_config_line( file, line );
+		if ( !result || !strncmp( line.c_str(), "***", 3 ) ) {
 			// eof OR end of record
 			return false;
 		}
-	} while ( 0 != strncmp( line, "*CPlayer*", 8 ) );
+	} while ( 0 != strncmp( line.c_str(), "*CPlayer*", 8 ) );
 
 	bool done = false;
 
 	while ( result && !done ) {
 		// read a line
-		memset( line, '\0', MAX_CONFIG_LINE );
-		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
+		if ( ( result = read_config_line( file, line ) ) ) {
 
 			// if we hit end of the record, stop
-			if ( !strncmp( line, "***", 3 ) ) {
+			if ( !strncmp( line.c_str(), "***", 3 ) ) {
 				done = true;
 				continue; // This exits the loop as well
 			}
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
-			// find equal sign
-			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-				equal_position++;
-			}
-
-			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) {
+			// separate field from value
+			if ( !split_config_field( line, field, value ) ) {
 				continue; // Go to next line
 			}
 
-			// separate field from value
-			memset( field, '\0', MAX_CONFIG_LINE );
-			memset( value, '\0', MAX_CONFIG_LINE );
-			strncpy( field, line, equal_position );
-			strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
-
 			// check which field we have and process value
-			if ( !strcasecmp( field, "NAME" ) ) {
+			if ( !strcasecmp( field.c_str(), "NAME" ) ) {
 				name.assign( value );
 				if ( name.length() > NAME_LEN ) {
 					name.erase( NAME_LEN );
 				}
-			} else if ( !strcasecmp( field, "COLOR" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "COLOR" ) ) {
 				SAFE_STOI( color, value );
-			} else if ( !strcasecmp( field, "DEFENSIVE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "DEFENSIVE" ) ) {
 				SAFE_STOD( defensive, value );
-			} else if ( !strcasecmp( field, "PAINSENSITIVITY" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PAINSENSITIVITY" ) ) {
 				SAFE_STOD( pain_sensitivity, value );
-			} else if ( !strcasecmp( field, "PLAYED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PLAYED" ) ) {
 				SAFE_STOUL( played, value );
-			} else if ( !strcasecmp( field, "PREFTYPE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PREFTYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= 0 ) && ( val <= ALWAYS_PREF ) ) {
 					pref_type = static_cast< EPlayerPrefType >( val );
 				}
-			} else if ( !strcasecmp( field, "SELFPRESERVATION" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "SELFPRESERVATION" ) ) {
 				SAFE_STOD( self_preservation, value );
-			} else if ( !strcasecmp( field, "TANK_BITMAP" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TANK_BITMAP" ) ) {
 				SAFE_STOI( tank_bitmap, value );
-			} else if ( !strcasecmp( field, "TEAM" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TEAM" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= 0 ) && ( val <= TEAM_JEDI ) ) {
 					team = static_cast< ETeamTypes >( val );
 				}
-			} else if ( !strcasecmp( field, "TYPE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 
@@ -2210,7 +2190,7 @@ bool CPlayer::load_from_file( FILE* file ) {
 					type = HUMAN_PLAYER;
 				}
 
-			} else if ( !strcasecmp( field, "TYPESAVED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPESAVED" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val <= LAST_PLAYER_TYPE ) ) {
@@ -2219,7 +2199,7 @@ bool CPlayer::load_from_file( FILE* file ) {
 						type = type_saved;
 					}
 				}
-			} else if ( !strcasecmp( field, "VENGEANCETHRESHOLD" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "VENGEANCETHRESHOLD" ) ) {
 				SAFE_STOD( vengeance_threshold, value );
 				// fix old configs
 				if ( vengeance_threshold < 0.05 ) {
@@ -2229,7 +2209,7 @@ bool CPlayer::load_from_file( FILE* file ) {
 				if ( vengeance_threshold > 0.95 ) {
 					vengeance_threshold = 0.95;
 				}
-			} else if ( !strcasecmp( field, "VENGEFUL" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "VENGEFUL" ) ) {
 				SAFE_STOI( vengeful, value );
 				// fix old configs
 				if ( vengeful < 1 ) {
@@ -2238,9 +2218,9 @@ bool CPlayer::load_from_file( FILE* file ) {
 				if ( vengeful > 100 ) {
 					vengeful = 100;
 				}
-			} else if ( !strcasecmp( field, "WON" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "WON" ) ) {
 				SAFE_STOUL( won, value );
-			} else if ( !strcasecmp( field, "WEAPONPREFERENCES" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "WEAPONPREFERENCES" ) ) {
 				int32_t            wp_index = -1;
 				int32_t            wp_value = -1;
 				std::istringstream iss( value );
@@ -2273,10 +2253,10 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 		return;
 	}
 
-	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char* result                       = nullptr;
+	string line;
+	string field;
+	string value;
+	bool  result                       = false;
 	bool  done                         = false;
 	bool  has_pref_loaded              = false;
 
@@ -2285,67 +2265,47 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 
 	do {
 		// read a line
-		memset( line, '\0', MAX_CONFIG_LINE );
-		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
+		if ( ( result = read_config_line( file, line ) ) ) {
 
 			// if we hit end of the record, stop
-			if ( !strncmp( line, "***", 3 ) ) {
+			if ( !strncmp( line.c_str(), "***", 3 ) ) {
 				done = true;
 				continue; // This exits the loop as well
 			}
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
-			// find equal sign
-			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-				equal_position++;
-			}
-
-			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) {
+			// separate field from value
+			if ( !split_config_field( line, field, value ) ) {
 				continue; // Go to next line
 			}
 
-			// separate field from value
-			memset( field, '\0', MAX_CONFIG_LINE );
-			memset( value, '\0', MAX_CONFIG_LINE );
-			strncpy( field, line, equal_position );
-			strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
-
 			// check which field we have and process value
-			if ( !strcasecmp( field, "DEFENSIVE" ) ) {
+			if ( !strcasecmp( field.c_str(), "DEFENSIVE" ) ) {
 				SAFE_STOD( defensive, value );
-			} else if ( !strcasecmp( field, "PAINSENSITIVITY" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PAINSENSITIVITY" ) ) {
 				SAFE_STOD( pain_sensitivity, value );
-			} else if ( !strcasecmp( field, "KILLED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "KILLED" ) ) {
 				SAFE_STOI( killed, value );
-			} else if ( !strcasecmp( field, "KILLS" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "KILLS" ) ) {
 				SAFE_STOI( kills, value );
-			} else if ( !strcasecmp( field, "MONEY" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "MONEY" ) ) {
 				SAFE_STOI( money, value );
-			} else if ( !strcasecmp( field, "SCORE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "SCORE" ) ) {
 				SAFE_STOI( score, value );
-			} else if ( !strcasecmp( field, "SELFPRESERVATION" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "SELFPRESERVATION" ) ) {
 				SAFE_STOD( self_preservation, value );
-			} else if ( !strcasecmp( field, "TYPE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val < LAST_PLAYER_TYPE ) ) {
 					type = static_cast< EPlayerType >( val );
 				}
-			} else if ( !strcasecmp( field, "TYPESAVED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPESAVED" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val < LAST_PLAYER_TYPE ) ) {
 					type_saved = static_cast< EPlayerType >( val );
 				}
-			} else if ( !strcasecmp( field, "VENGEANCETHRESHOLD" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "VENGEANCETHRESHOLD" ) ) {
 				SAFE_STOD( vengeance_threshold, value );
 				// fix old configs
 				if ( vengeance_threshold < 0.05 ) {
@@ -2355,7 +2315,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				if ( vengeance_threshold > 0.95 ) {
 					vengeance_threshold = 0.95;
 				}
-			} else if ( !strcasecmp( field, "VENGEFUL" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "VENGEFUL" ) ) {
 				SAFE_STOI( vengeful, value );
 				// fix old configs
 				if ( vengeful < 1 ) {
@@ -2367,7 +2327,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Preferences - saved if "PERPLAY_PREF" - type player.
-			else if ( !strcasecmp( field, "WEAPONPREFERENCES" ) ) {
+			else if ( !strcasecmp( field.c_str(), "WEAPONPREFERENCES" ) ) {
 				int32_t            prf_idx = -1;
 				int32_t            prf_val = -1;
 				std::istringstream iss( value );
@@ -2423,7 +2383,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Inventory of the weapons
-			else if ( !strcasecmp( field, "CWeapon" ) ) {
+			else if ( !strcasecmp( field.c_str(), "CWeapon" ) ) {
 				int32_t            weap_idx = -1;
 				int32_t            weap_val = -1;
 				std::istringstream iss( value );
@@ -2446,7 +2406,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Inventory of the items
-			else if ( !strcasecmp( field, "CItem" ) ) {
+			else if ( !strcasecmp( field.c_str(), "CItem" ) ) {
 				int32_t            item_idx = -1;
 				int32_t            item_val = -1;
 				std::istringstream iss( value );
@@ -2461,7 +2421,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Opponents Memory
-			else if ( !strcasecmp( field, "OPPCOUNT" ) ) {
+			else if ( !strcasecmp( field.c_str(), "OPPCOUNT" ) ) {
 				int32_t safed_count = 0;
 				SAFE_STOI( safed_count, value );
 
@@ -2486,7 +2446,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 					opp_count = 0;
 				}
 			} // end of oppcount handling
-			else if ( !strcasecmp( field, "OPPMEM_INDX" ) ) {
+			else if ( !strcasecmp( field.c_str(), "OPPMEM_INDX" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
@@ -2495,7 +2455,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 					opponents[ opp_idx ].index    = opp_val;
 					opponents[ opp_idx ].opponent = env.all_players[ opp_val ];
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_DDEA" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_DDEA" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
@@ -2503,7 +2463,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].damage_from = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_DDON" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_DDON" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
@@ -2511,7 +2471,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].damage_to = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_FEAR" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_FEAR" ) ) {
 				int32_t            opp_idx = -1;
 				double             opp_val = 0.;
 				std::istringstream iss( value );
@@ -2519,7 +2479,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].fear = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_KIME" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_KIME" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
@@ -2527,7 +2487,7 @@ void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].killed_me = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_KITH" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_KITH" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );

@@ -2,16 +2,27 @@
 #define ATANKS_FILES_H_INCLUDED 1
 
 
-// Maximum numbers supported in configuration files
-// @todo : make this variable, hard-coded maximum numbers are very 90s.
-#define MAX_CONFIG_LINE 128
-
-
 #include "debug.h"
 #include "environment.h"
 #include "globaldata.h"
 #include "text.h"
 #include "wrap_dirent.h"
+
+
+/// @brief Read one full line from a config/savegame file.
+/// @details Grows past any length instead of splitting like fgets() into a fixed buffer did.
+/// Trailing newline characters are stripped like the old parsing did.
+/// @param file Open file to read from.
+/// @param line Receives the line without its newline.
+/// @return false on end of file (nothing read), true otherwise.
+bool read_config_line( FILE* file, string& line );
+
+/// @brief Split a config line into field and value at the first '=' (search starts at index 1).
+/// @param line Line as read by read_config_line().
+/// @param field Receives the part before '='.
+/// @param value Receives the part after '='.
+/// @return false if there is no '=' at position >= 1, true otherwise.
+bool split_config_field( const string& line, string& field, string& value );
 
 
 bool save_game();

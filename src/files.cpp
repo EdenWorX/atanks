@@ -99,6 +99,56 @@ bool save_game() {
 }
 
 /*
+This function reads one full line from a config/savegame file.
+Unlike fgets() into a fixed buffer, it grows past any length, so long lines
+are no longer split into broken pieces. Trailing newlines are stripped.
+Returns false on end of file (nothing read), true otherwise.
+-- EdenWorX
+*/
+bool read_config_line( FILE* file, string& line ) {
+	line.clear();
+
+	char chunk[ 256 ] = { 0 };
+	bool got_data     = false;
+
+	while ( fgets( chunk, sizeof( chunk ), file ) ) {
+		got_data = true;
+		line.append( chunk );
+		if ( '\n' == line.back() ) {
+			break; // full line read
+		}
+	}
+
+	if ( !got_data ) {
+		return false;
+	}
+
+	// strip newline characters like the old parsing did
+	while ( !line.empty() && ( '\n' == line.back() ) ) {
+		line.pop_back();
+	}
+
+	return true;
+}
+
+/*
+This function splits a config line into field and value at the first '=',
+searching from index 1 like the old parsing did.
+Returns false if there is no '=' at position >= 1, true otherwise.
+-- EdenWorX
+*/
+bool split_config_field( const string& line, string& field, string& value ) {
+	size_t const equal_position = line.find( '=', 1 );
+	if ( string::npos == equal_position ) {
+		return false;
+	}
+
+	field = line.substr( 0, equal_position );
+	value = line.substr( equal_position + 1 );
+	return true;
+}
+
+/*
 This function attempts to load a saved
 game.
 The function returns true on success and
@@ -106,15 +156,15 @@ false if an error occurs.
 -- Jesse
 */
 bool load_game() {
-	char    line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char    field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char    value[ MAX_CONFIG_LINE + 1 ] = { 0 };
+	string  line;
+	string  field;
+	string  value;
 	int32_t player_count                 = 0;
 	int32_t line_num                     = 0;
 	int32_t player_idx                   = -1;
 	bool    done                         = false;
 	int32_t file_version                 = 0;
-	char*   result;
+	bool    result;
 
 	// Be sure that numbers are understood right:
 	char const* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
@@ -134,29 +184,21 @@ bool load_game() {
 	ESaveGameStage stage = SGS_NONE;
 	do {
 		// read a line
-		memset( line, 0, MAX_CONFIG_LINE );
-		if ( ( result = fgets( line, MAX_CONFIG_LINE, game_file ) ) ) {
+		if ( ( result = read_config_line( game_file, line ) ) ) {
 			++line_num;
 
 			// if we hit end of the file, stop
-			if ( !strncmp( line, "***EOF***", 9 ) ) {
+			if ( !strncmp( line.c_str(), "***EOF***", 9 ) ) {
 				done = true;
 				continue; // This exits the loop as well
 			}
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
 			// check to see if we found a new stage
-			if ( !strcasecmp( line, "GLOBAL" ) ) {
+			if ( !strcasecmp( line.c_str(), "GLOBAL" ) ) {
 				stage = SGS_GLOBAL;
-			} else if ( !strcasecmp( line, "CEnvironment" ) ) {
+			} else if ( !strcasecmp( line.c_str(), "CEnvironment" ) ) {
 				stage = SGS_ENVIRONMENT;
-			} else if ( !strcasecmp( line, "PLAYERS" ) ) {
+			} else if ( !strcasecmp( line.c_str(), "PLAYERS" ) ) {
 				// Here the file version must be known, or it is not set.
 				// Inform the user if an upgrade is needed
 				if ( game_version > file_version ) {
@@ -169,39 +211,25 @@ bool load_game() {
 				}
 
 				stage = SGS_PLAYERS;
-			} else if ( !strcasecmp( line, "VERSION" ) ) {
+			} else if ( !strcasecmp( line.c_str(), "VERSION" ) ) {
 				stage = SGS_VERSION;
 			} else {
-				// Not a new stage, keep loading.
-
-				// find equal sign
-				size_t equal_position = 1;
-				while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-					equal_position++;
-				}
-
-				// make sure the equal sign position is valid
-				if ( line[ equal_position ] != '=' ) {
+				// Not a new stage, keep loading: separate field from value.
+				if ( !split_config_field( line, field, value ) ) {
 					continue; // Go to next line
 				}
 
-				// separate field from value
-				memset( field, '\0', MAX_CONFIG_LINE );
-				memset( value, '\0', MAX_CONFIG_LINE );
-				strncpy( field, line, equal_position );
-				strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
-
 				switch ( stage ) {
 					case SGS_ENVIRONMENT:
-						if ( !strcasecmp( field, "CAMPAIGNMODE" ) ) {
+						if ( !strcasecmp( field.c_str(), "CAMPAIGNMODE" ) ) {
 							int32_t cm = 0;
 							SAFE_STOI( cm, value );
 							env.campaign_mode = 0 != cm;
-						} else if ( !strcasecmp( field, "CAMPAIGNROUNDS" ) ) {
+						} else if ( !strcasecmp( field.c_str(), "CAMPAIGNROUNDS" ) ) {
 							SAFE_STOD( env.campaign_rounds, value );
-						} else if ( !strcasecmp( field, "ROUNDS" ) ) {
+						} else if ( !strcasecmp( field.c_str(), "ROUNDS" ) ) {
 							SAFE_STOUL( env.rounds, value );
-						} else if ( !strcasecmp( field, "NEXTCAMPROUND" ) ) {
+						} else if ( !strcasecmp( field.c_str(), "NEXTCAMPROUND" ) ) {
 							SAFE_STOD( env.next_campaign_round, value );
 						} else {
 							cerr << save_path << ":" << line_num << " : Ignored line\n";
@@ -211,21 +239,21 @@ bool load_game() {
 
 						break;
 					case SGS_GLOBAL:
-						if ( !strcasecmp( field, "CURRENTROUND" ) ) {
+						if ( !strcasecmp( field.c_str(), "CURRENTROUND" ) ) {
 							SAFE_STOUL( global.current_round, value );
 						}
 
 						// The following are kept for backwards compatibility:
 
-						else if ( !strcasecmp( field, "NEXTCAMPROUND" ) ) {
+						else if ( !strcasecmp( field.c_str(), "NEXTCAMPROUND" ) ) {
 							SAFE_STOD( env.next_campaign_round, value );
-						} else if ( !strcasecmp( field, "CAMPAIGNMODE" ) ) {
+						} else if ( !strcasecmp( field.c_str(), "CAMPAIGNMODE" ) ) {
 							int32_t cm = 0;
 							SAFE_STOI( cm, value );
 							env.campaign_mode = 0 != cm;
-						} else if ( !strcasecmp( field, "ROUNDS" ) ) {
+						} else if ( !strcasecmp( field.c_str(), "ROUNDS" ) ) {
 							SAFE_STOUL( env.rounds, value );
-						} else if ( !strcasecmp( field, "SCOREBOARD" ) ) {
+						} else if ( !strcasecmp( field.c_str(), "SCOREBOARD" ) ) {
 							int32_t enabled = 1;
 							SAFE_STOI( enabled, value );
 							global.show_score_board = 0 != enabled;
@@ -237,7 +265,7 @@ bool load_game() {
 
 						break;
 					case SGS_PLAYERS:
-						if ( !strcasecmp( field, "PLAYERNUMBER" ) ) {
+						if ( !strcasecmp( field.c_str(), "PLAYERNUMBER" ) ) {
 							SAFE_STOI( player_idx, value );
 							if ( ( player_idx > -1 ) && ( player_idx < env.num_permanent_players )
 							     && ( player_count < MAXPLAYERS ) ) {
@@ -259,7 +287,7 @@ bool load_game() {
 
 						break;
 					case SGS_VERSION:
-						if ( !strcasecmp( field, "FILE_VERSION" ) ) {
+						if ( !strcasecmp( field.c_str(), "FILE_VERSION" ) ) {
 							SAFE_STOI( file_version, value );
 						} else {
 							cerr << save_path << ":" << line_num << " : Ignored line\n";

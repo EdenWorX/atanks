@@ -612,73 +612,53 @@ bool CGlobalData::is_close_btn_pressed() {
  * before the values were moved to CEnvironment
  **/
 void CGlobalData::load_from_file( FILE* file ) {
-	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char* result                       = nullptr;
+	string line;
+	string field;
+	string value;
+	bool   result = false;
 
 	setlocale( LC_NUMERIC, "C" );
 
 	// read until we hit the line "*GLOBAL*" or "***" or EOF
 	do {
-		result = fgets( line, MAX_CONFIG_LINE, file );
-		if ( !result || !strncmp( line, "***", 3 ) ) {
+		result = read_config_line( file, line );
+		if ( !result || !strncmp( line.c_str(), "***", 3 ) ) {
 			// eof OR end of record
 			return;
 		}
-	} while ( strncmp( line, "*GLOBAL*", 8 ) != 0 );
+	} while ( strncmp( line.c_str(), "*GLOBAL*", 8 ) != 0 );
 
 	bool is_done = false;
 
 	while ( result && !is_done ) {
 		// read a line
-		memset( line, '\0', MAX_CONFIG_LINE );
-		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
+		if ( ( result = read_config_line( file, line ) ) ) {
 
 			// if we hit end of the record, stop
-			if ( !strncmp( line, "***", 3 ) ) {
+			if ( !strncmp( line.c_str(), "***", 3 ) ) {
 				return;
 			}
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
-			// find equal sign
-			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-				equal_position++;
-			}
-
-			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) {
+			// separate field from value
+			if ( !split_config_field( line, field, value ) ) {
 				continue; // Go to next line
 			}
-
-			// seperate field from value
-			memset( field, '\0', MAX_CONFIG_LINE );
-			memset( value, '\0', MAX_CONFIG_LINE );
-			strncpy( field, line, equal_position );
-			strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
 
 
 			// Values that were moved to CEnvironment:
 			// They are loaded, for compatibility, but the next
 			// save will put them into the correct section anyway.
 			// So these can eventually be removed.
-			if ( !strcasecmp( field, "acceleratedai" ) ) {
+			if ( !strcasecmp( field.c_str(), "acceleratedai" ) ) {
 				SAFE_STOI( env.skip_computer_play, value );
 				if ( env.skip_computer_play > SKIP_HUMANS_DEAD ) {
 					env.skip_computer_play = SKIP_HUMANS_DEAD;
 				}
-			} else if ( !strcasecmp( field, "checkupdates" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "checkupdates" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.check_for_updates = val > 0;
-			} else if ( !strcasecmp( field, "colourtheme" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "colourtheme" ) ) {
 				SAFE_STOI( env.colour_theme, value );
 				if ( env.colour_theme < CT_REGULAR ) {
 					env.colour_theme = CT_REGULAR;
@@ -686,89 +666,89 @@ void CGlobalData::load_from_file( FILE* file ) {
 				if ( env.colour_theme > CT_CRISPY ) {
 					env.colour_theme = CT_CRISPY;
 				}
-			} else if ( !strcasecmp( field, "debrislevel" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "debrislevel" ) ) {
 				SAFE_STOI( env.debris_level, value );
-			} else if ( !strcasecmp( field, "detailedland" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "detailedland" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.detailed_landscape = val > 0;
-			} else if ( !strcasecmp( field, "detailedsky" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "detailedsky" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.detailed_sky = val > 0;
-			} else if ( !strcasecmp( field, "dither" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "dither" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.dither_gradients = val > 0;
-			} else if ( !strcasecmp( field, "dividemoney" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "dividemoney" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.divide_money = val > 0;
-			} else if ( !strcasecmp( field, "enablesound" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "enablesound" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.sound_enabled = val > 0;
-			} else if ( !strcasecmp( field, "frames" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "frames" ) ) {
 				int32_t new_fps = 0;
 				SAFE_STOI( new_fps, value );
 				env.set_fps( new_fps );
-			} else if ( !strcasecmp( field, "fullscreen" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "fullscreen" ) ) {
 				SAFE_STOI( env.full_screen, value );
-			} else if ( !strcasecmp( field, "interest" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "interest" ) ) {
 				SAFE_STOD( env.interest, value );
-			} else if ( !strcasecmp( field, "language" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "language" ) ) {
 				uint32_t stored_lang = 0;
 				SAFE_STOUL( stored_lang, value );
 				env.language = static_cast< ELanguages >( stored_lang );
-			} else if ( !strcasecmp( field, "listenport" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "listenport" ) ) {
 				SAFE_STOI( env.network_port, value );
-			} else if ( !strcasecmp( field, "maxfiretime" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "maxfiretime" ) ) {
 				SAFE_STOI( env.max_fire_time, value );
-			} else if ( !strcasecmp( field, "networking" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "networking" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.network_enabled = val > 0;
-			} else if ( !strcasecmp( field, "numpermanentplayers" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "numpermanentplayers" ) ) {
 				SAFE_STOI( env.num_permanent_players, value );
-			} else if ( !strcasecmp( field, "OSMOUSE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OSMOUSE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.os_mouse = val > 0;
-			} else if ( !strcasecmp( field, "playmusic" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "playmusic" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				env.play_music = val > 0;
-			} else if ( !strcasecmp( field, "rounds" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "rounds" ) ) {
 				SAFE_STOUL( env.rounds, value );
-			} else if ( !strcasecmp( field, "screenwidth" ) && !env.temp_screen_width ) {
+			} else if ( !strcasecmp( field.c_str(), "screenwidth" ) && !env.temp_screen_width ) {
 				SAFE_STOI( env.screen_width, value );
 				env.half_width        = env.screen_width / 2;
 				env.temp_screen_width = env.screen_width;
-			} else if ( !strcasecmp( field, "screenheight" ) && !env.temp_screen_height ) {
+			} else if ( !strcasecmp( field.c_str(), "screenheight" ) && !env.temp_screen_height ) {
 				SAFE_STOI( env.screen_height, value );
 				env.half_height        = env.screen_height / 2;
 				env.temp_screen_height = env.screen_height;
-			} else if ( !strcasecmp( field, "scorehitunit" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scorehitunit" ) ) {
 				SAFE_STOI( env.scoreHitUnit, value );
-			} else if ( !strcasecmp( field, "scoreselfhit" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreselfhit" ) ) {
 				SAFE_STOI( env.scoreSelfHit, value );
-			} else if ( !strcasecmp( field, "scoreroundwinbonus" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreroundwinbonus" ) ) {
 				SAFE_STOI( env.scoreRoundWinBonus, value );
-			} else if ( !strcasecmp( field, "scoreteamhit" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreteamhit" ) ) {
 				SAFE_STOI( env.scoreTeamHit, value );
-			} else if ( !strcasecmp( field, "scoreunitdestroybonus" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreunitdestroybonus" ) ) {
 				SAFE_STOI( env.scoreUnitDestroyBonus, value );
-			} else if ( !strcasecmp( field, "scoreunitselfdestroy" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreunitselfdestroy" ) ) {
 				SAFE_STOI( env.scoreUnitSelfDestroy, value );
-			} else if ( !strcasecmp( field, "sell_percent" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "sell_percent" ) ) {
 				SAFE_STOD( env.sell_percent, value );
-			} else if ( !strcasecmp( field, "sounddriver" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "sounddriver" ) ) {
 				SAFE_STOI( env.sound_driver, value );
-			} else if ( !strcasecmp( field, "start_money" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "start_money" ) ) {
 				SAFE_STOI( env.start_money, value );
-			} else if ( !strcasecmp( field, "turn_type" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "turn_type" ) ) {
 				SAFE_STOI( env.turn_type, value );
-			} else if ( !strcasecmp( field, "violentdeath" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "violentdeath" ) ) {
 				SAFE_STOI( env.violent_death, value );
 			}
 		} // end of read a line properly
