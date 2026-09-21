@@ -16,9 +16,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iterator>
-#include <sstream>
-#include <vector>
+#include <toml++/toml.hpp>
 
 
 // They are filled here, declaring them here prevents the linker
@@ -530,263 +528,256 @@ void flush_inputs() {
 }
 
 // This file loads weapons, naturals and items
+/// File-static TOML arsenal helpers (WP PF-1.17.3). Only used by load_weapons_text() below.
+
+/// @brief Read a required integer key; complain with file/index context and fail otherwise.
+static bool toml_require_int( toml::table const& record,
+                              char const*        key,
+                              int32_t&           target,
+                              string const&      file,
+                              int32_t            idx ) {
+	auto const value = record[ key ].value< int64_t >();
+	if ( !value || ( *value < INT32_MIN ) || ( *value > INT32_MAX ) ) {
+		cerr << file << ": record " << idx << " misses 32-bit integer key \"" << key << "\"" << endl;
+		return false;
+	}
+	target = static_cast< int32_t >( *value );
+	return true;
+}
+
+/// @brief Read a required float key (integer TOML values accepted, per spec); complain and fail otherwise.
+static bool toml_require_float( toml::table const& record,
+                                char const*        key,
+                                double&            target,
+                                string const&      file,
+                                int32_t            idx ) {
+	if ( auto const value = record[ key ].value< double >() ) {
+		target = *value;
+		return true;
+	}
+	if ( auto const ivalue = record[ key ].value< int64_t >() ) {
+		target = static_cast< double >( *ivalue );
+		return true;
+	}
+	cerr << file << ": record " << idx << " misses numeric key \"" << key << "\"" << endl;
+	return false;
+}
+
+/// @brief Read a required string key; complain and fail otherwise.
+static bool toml_require_string( toml::table const& record,
+                                 char const*        key,
+                                 string&            target,
+                                 string const&      file,
+                                 int32_t            idx ) {
+	if ( auto const value = record[ key ].value< string >() ) {
+		target = *value;
+		return true;
+	}
+	cerr << file << ": record " << idx << " misses string key \"" << key << "\"" << endl;
+	return false;
+}
+
+/// @brief Fill one weapon/natural record (both are CWeapon); all keys required per spec.
+static bool fill_weapon_record( toml::table const& record, CWeapon& dest, string const& file, int32_t idx ) {
+	string name, desc;
+	if ( !toml_require_string( record, "name", name, file, idx ) ) {
+		return false;
+	}
+	if ( !toml_require_string( record, "desc", desc, file, idx ) ) {
+		return false;
+	}
+	dest.set_name( name.c_str() );
+	dest.set_desc( desc.c_str() );
+	return toml_require_int( record, "cost", dest.cost, file, idx )
+	    && toml_require_int( record, "amt", dest.amt, file, idx )
+	    && toml_require_float( record, "mass", dest.mass, file, idx )
+	    && toml_require_float( record, "drag", dest.drag, file, idx )
+	    && toml_require_int( record, "radius", dest.radius, file, idx )
+	    && toml_require_int( record, "sound", dest.sound, file, idx )
+	    && toml_require_int( record, "etime", dest.etime, file, idx )
+	    && toml_require_int( record, "damage", dest.damage, file, idx )
+	    && toml_require_int( record, "picpoint", dest.picpoint, file, idx )
+	    && toml_require_int( record, "spread", dest.spread, file, idx )
+	    && toml_require_int( record, "delay", dest.delay, file, idx )
+	    && toml_require_int( record, "noimpact", dest.noimpact, file, idx )
+	    && toml_require_int( record, "tech_level", dest.tech_level, file, idx )
+	    && toml_require_int( record, "warhead", dest.warhead, file, idx )
+	    && toml_require_int( record, "num_submunitions", dest.numSubmunitions, file, idx )
+	    && toml_require_int( record, "submunition", dest.submunition, file, idx )
+	    && toml_require_float( record, "impart_velocity", dest.impartVelocity, file, idx )
+	    && toml_require_int( record, "divergence", dest.divergence, file, idx )
+	    && toml_require_float( record, "spread_variation", dest.spreadVariation, file, idx )
+	    && toml_require_float( record, "launch_speed", dest.launchSpeed, file, idx )
+	    && toml_require_float( record, "speed_variation", dest.speedVariation, file, idx )
+	    && toml_require_int( record, "countdown", dest.countdown, file, idx )
+	    && toml_require_float( record, "count_variation", dest.countVariation, file, idx );
+}
+
+/// @brief Fill one item record; the vals array holds 0-6 effect values per spec.
+static bool fill_item_record( toml::table const& record, CItem& dest, string const& file, int32_t idx ) {
+	string name, desc;
+	if ( !toml_require_string( record, "name", name, file, idx ) ) {
+		return false;
+	}
+	if ( !toml_require_string( record, "desc", desc, file, idx ) ) {
+		return false;
+	}
+	dest.set_name( name.c_str() );
+	dest.set_desc( desc.c_str() );
+	if ( !toml_require_int( record, "cost", dest.cost, file, idx )
+	     || !toml_require_int( record, "amt", dest.amt, file, idx )
+	     || !toml_require_int( record, "selectable", dest.selectable, file, idx )
+	     || !toml_require_int( record, "tech_level", dest.tech_level, file, idx )
+	     || !toml_require_int( record, "sound", dest.sound, file, idx ) ) {
+		return false;
+	}
+	toml::array const* const vals = record[ "vals" ].as_array();
+	if ( ( nullptr == vals ) || ( vals->size() > 6 ) ) {
+		cerr << file << ": record " << idx << " misses a vals array of 0-6 numbers" << endl;
+		return false;
+	}
+	for ( size_t i = 0; i < vals->size(); ++i ) {
+		toml::node const* const element = &( *vals )[ i ];
+		if ( auto const value = element->value< double >() ) {
+			dest.vals[ i ] = *value;
+		} else if ( auto const ivalue = element->value< int64_t >() ) {
+			dest.vals[ i ] = static_cast< double >( *ivalue );
+		} else {
+			cerr << file << ": record " << idx << " vals[" << i << "] is no number" << endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+/// @brief Overwrite display strings from one translation array by index; short arrays keep base strings.
+template< typename T >
+static bool apply_display_strings( toml::table const& root,
+                                   char const*        array_key,
+                                   T*                 catalog,
+                                   int32_t            count,
+                                   string const&      file ) {
+	toml::node const* const array_node = root[ array_key ].node();
+	if ( nullptr == array_node ) {
+		return true; // no translations of this kind
+	}
+	toml::array const* const arr = array_node->as_array();
+	if ( nullptr == arr ) {
+		cerr << file << ": \"" << array_key << "\" is no array" << endl;
+		return false;
+	}
+	for ( int32_t i = 0; ( i < count ) && ( i < static_cast< int32_t >( arr->size() ) ); ++i ) {
+		toml::table const* const entry = ( *arr )[ static_cast< size_t >( i ) ].as_table();
+		if ( nullptr == entry ) {
+			cerr << file << ": " << array_key << " entry " << i << " is no table" << endl;
+			return false;
+		}
+		string name, desc;
+		if ( !toml_require_string( *entry, "name", name, file, i )
+		     || !toml_require_string( *entry, "desc", desc, file, i ) ) {
+			return false;
+		}
+		catalog[ i ].set_name( name.c_str() );
+		catalog[ i ].set_desc( desc.c_str() );
+	}
+	return true;
+}
+
+/// @brief Parse one TOML file; complain with its path and fail otherwise.
+static bool parse_toml_file( string const& path, toml::table& table ) {
+	try {
+		table = toml::parse_file( path );
+	} catch ( std::exception const& err ) {
+		cerr << path << ": " << err.what() << endl;
+		return false;
+	}
+	return true;
+}
+
+/// @brief Fill one record, dispatching to the weapon or item filler by catalog type.
+static bool fill_record( toml::table const& record, CWeapon& dest, string const& file, int32_t idx ) {
+	return fill_weapon_record( record, dest, file, idx );
+}
+
+/// @brief Fill one record, dispatching to the weapon or item filler by catalog type.
+static bool fill_record( toml::table const& record, CItem& dest, string const& file, int32_t idx ) {
+	return fill_item_record( record, dest, file, idx );
+}
+
+/// @brief Load one base file array into its catalog; counts are strict per spec.
+template< typename T >
+static bool load_base_array( string const& path, char const* array_key, T* catalog, int32_t count ) {
+	toml::table table;
+	if ( !parse_toml_file( path, table ) ) {
+		return false;
+	}
+	toml::node const* const array_node = table[ array_key ].node();
+	toml::array const*      arr        = ( nullptr == array_node ) ? nullptr : array_node->as_array();
+	if ( ( nullptr == arr ) || ( static_cast< int32_t >( arr->size() ) != count ) ) {
+		cerr << path << ": needs exactly " << count << " \"" << array_key << "\" records" << endl;
+		return false;
+	}
+	for ( int32_t i = 0; i < count; ++i ) {
+		toml::table const* const entry = ( *arr )[ static_cast< size_t >( i ) ].as_table();
+		if ( nullptr == entry ) {
+			cerr << path << ": " << array_key << " entry " << i << " is no table" << endl;
+			return false;
+		}
+		if ( !fill_record( *entry, catalog[ i ], path, i ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // from a text file
 // Returns true on success and false on failure
 bool load_weapons_text() {
-	// Be sure that numbers are understood right:
-	char const* cur_lc_numeric = setlocale( LC_NUMERIC, "C" );
-	string      weap_file{ env.data_dir };
-
-	// get path name
-	if ( env.language == EL_ENGLISH ) {
-		weap_file += "/text/weapons.txt";
-	} else if ( env.language == EL_PORTUGUESE ) {
-		weap_file += "/text/weapons.pt_BR.txt";
-	} else if ( env.language == EL_FRENCH ) {
-		weap_file += "/text/weapons_fr.txt";
-	} else if ( env.language == EL_GERMAN ) {
-		weap_file += "/text/weapons_de.txt";
-	} else if ( env.language == EL_SLOVAK ) {
-		weap_file += "/text/weapons_sk.txt";
-	} else if ( env.language == EL_RUSSIAN ) {
-		weap_file += "/text/weapons_ru.txt";
-	} else if ( env.language == EL_SPANISH ) {
-		weap_file += "/text/weapons_ES.txt";
-	} else if ( env.language == EL_ITALIAN ) {
-		weap_file += "/text/weapons_it.txt";
-	}
-
-	// open file
-	FILE* wfile = fopen( weap_file.c_str(), "r" );
-
-	if ( !wfile ) {
-		printf( "Unable to open weapons file. (%s)\n", weap_file.c_str() );
+	// Base files first (numeric stats plus English display strings).
+	if ( !load_base_array( env.data_dir + "/text/weapons.toml", "weapon", weapon, WEAPONS )
+	     || !load_base_array( env.data_dir + "/text/naturals.toml", "natural", naturals, NATURALS )
+	     || !load_base_array( env.data_dir + "/text/items.toml", "item", item, ITEMS ) ) {
 		return false;
 	}
 
-	// read line
-	char       line[ 512 ]   = { 0 };
-	char*      status        = fgets( line, 512, wfile );
-	EFileStage file_stage    = FS_WEAPONS; // weapons, naturals, items
-	EDataStage data_stage    = DS_NAME;    // name, description, data
-	int32_t    item_count    = 0;
-	int32_t    weapon_count  = 0;
-	int32_t    natural_count = 0;
-
-	while ( status ) {
-		// clear end of line
-		if ( strchr( line, '\n' ) ) {
-			strchr( line, '\n' )[ 0 ] = '\0';
+	// A second pass overwrites only display strings for localization,
+	// mirroring the legacy English-preload protocol in load_game_files().
+	if ( EL_ENGLISH != env.language ) {
+		string trans_file{ env.data_dir };
+		if ( EL_PORTUGUESE == env.language ) {
+			trans_file += "/text/weapons.pt_BR.toml";
+		} else if ( EL_FRENCH == env.language ) {
+			trans_file += "/text/weapons_fr.toml";
+		} else if ( EL_GERMAN == env.language ) {
+			trans_file += "/text/weapons_de.toml";
+		} else if ( EL_SLOVAK == env.language ) {
+			trans_file += "/text/weapons_sk.toml";
+		} else if ( EL_RUSSIAN == env.language ) {
+			trans_file += "/text/weapons_ru.toml";
+		} else if ( EL_SPANISH == env.language ) {
+			trans_file += "/text/weapons_ES.toml";
+		} else if ( EL_ITALIAN == env.language ) {
+			trans_file += "/text/weapons_it.toml";
+		} else {
+			return true; // unknown language: keep English strings
 		}
-		if ( strchr( line, '\r' ) ) {
-			strchr( line, '\r' )[ 0 ] = '\0';
+		toml::table translation;
+		if ( !parse_toml_file( trans_file, translation ) ) {
+			return false;
 		}
-
-		// skip # and empty lines
-		if ( ( line[ 0 ] != '#' ) && ( strlen( line ) > 2 ) ) {
-
-			// check for header
-			if ( !strcasecmp( line, "*WEAPONS*" ) ) {
-				file_stage = FS_WEAPONS;
-				data_stage = DS_NAME;
-			} else if ( !strcasecmp( line, "*NATURALS*" ) ) {
-				file_stage = FS_NATURALS;
-				data_stage = DS_NAME;
-			} else if ( !strcasecmp( line, "*ITEMS*" ) ) {
-				file_stage = FS_ITEMS;
-				data_stage = DS_NAME;
-			}
-
-			// not a special line, let's read some data
-			else {
-				// =============
-				// == Weapons ==
-				// =============
-				if ( ( FS_WEAPONS == file_stage ) && ( weapon_count < WEAPONS ) ) {
-					if ( DS_NAME == data_stage ) {
-						weapon[ weapon_count ].set_name( line );
-					} else if ( DS_DESC == data_stage ) {
-						weapon[ weapon_count ].set_desc( line );
-					} else if ( DS_DATA == data_stage ) {
-						std::istringstream    iss( line );
-						std::vector< string > values(
-							std::istream_iterator< string >{ iss },
-							std::istream_iterator< string >()
-						);
-
-						if ( values.size() >= 22 ) { // assuming there are 22 elements to parse
-							auto value = values.begin();
-							SAFE_STOI( weapon[ weapon_count ].cost, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].amt, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].mass, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].drag, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].radius, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].sound, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].etime, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].damage, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].picpoint, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].spread, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].delay, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].noimpact, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].tech_level, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].warhead, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].numSubmunitions, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].submunition, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].impartVelocity, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].divergence, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].spreadVariation, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].launchSpeed, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].speedVariation, *value++ );
-							SAFE_STOI( weapon[ weapon_count ].countdown, *value++ );
-							SAFE_STOD( weapon[ weapon_count ].countVariation, *value++ );
-						} else {
-							cerr << "Weapon " << weapon_count << " \""
-							     << weapon[ weapon_count ].get_name() << " has only "
-							     << values.size() << "entries but needs 22!" << endl;
-						}
-					}
-
-					// Advance data stage
-					++data_stage;
-					if ( ( DS_NAME == data_stage ) // flipped
-					     || ( ( DS_DATA == data_stage ) && ( EL_ENGLISH != env.language ) ) ) {
-						data_stage = DS_NAME;
-						weapon_count++;
-					}
-				} // end of a weapon section
-
-				// ==============
-				// == Naturals ==
-				// ==============
-				else if ( ( FS_NATURALS == file_stage ) && ( natural_count < NATURALS ) ) {
-					if ( DS_NAME == data_stage ) {
-						naturals[ natural_count ].set_name( line );
-					} else if ( DS_DESC == data_stage ) {
-						naturals[ natural_count ].set_desc( line );
-					} else if ( DS_DATA == data_stage ) {
-						std::istringstream    iss( line );
-						std::vector< string > values(
-							std::istream_iterator< string >{ iss },
-							std::istream_iterator< string >()
-						);
-
-						if ( values.size() >= 23 ) { // assuming there are 23 elements to parse
-							auto value = values.begin();
-							SAFE_STOI( naturals[ natural_count ].cost, *value++ );
-							SAFE_STOI( naturals[ natural_count ].amt, *value++ );
-							SAFE_STOD( naturals[ natural_count ].mass, *value++ );
-							SAFE_STOD( naturals[ natural_count ].drag, *value++ );
-							SAFE_STOI( naturals[ natural_count ].radius, *value++ );
-							SAFE_STOI( naturals[ natural_count ].sound, *value++ );
-							SAFE_STOI( naturals[ natural_count ].etime, *value++ );
-							SAFE_STOI( naturals[ natural_count ].damage, *value++ );
-							SAFE_STOI( naturals[ natural_count ].picpoint, *value++ );
-							SAFE_STOI( naturals[ natural_count ].spread, *value++ );
-							SAFE_STOI( naturals[ natural_count ].delay, *value++ );
-							SAFE_STOI( naturals[ natural_count ].noimpact, *value++ );
-							SAFE_STOI( naturals[ natural_count ].tech_level, *value++ );
-							SAFE_STOI( naturals[ natural_count ].warhead, *value++ );
-							SAFE_STOI( naturals[ natural_count ].numSubmunitions, *value++ );
-							SAFE_STOI( naturals[ natural_count ].submunition, *value++ );
-							SAFE_STOD( naturals[ natural_count ].impartVelocity, *value++ );
-							SAFE_STOI( naturals[ natural_count ].divergence, *value++ );
-							SAFE_STOD( naturals[ natural_count ].spreadVariation, *value++ );
-							SAFE_STOD( naturals[ natural_count ].launchSpeed, *value++ );
-							SAFE_STOD( naturals[ natural_count ].speedVariation, *value++ );
-							SAFE_STOI( naturals[ natural_count ].countdown, *value++ );
-							SAFE_STOD( naturals[ natural_count ].countVariation, *value++ );
-						} else {
-							cerr << "Natural " << natural_count << " \""
-							     << naturals[ natural_count ].get_name() << " has only "
-							     << values.size() << "entries but needs 23!" << endl;
-						}
-					}
-
-					// Advance data stage
-					++data_stage;
-					if ( ( DS_NAME == data_stage ) // flipped
-					     || ( ( DS_DATA == data_stage ) && ( EL_ENGLISH != env.language ) ) ) {
-						data_stage = DS_NAME;
-						natural_count++;
-					}
-
-				} // end of naturals
-
-				// ==============
-				// == Items ==
-				// ==============
-				else if ( ( FS_ITEMS == file_stage ) && ( item_count < ITEMS ) ) {
-					if ( DS_NAME == data_stage ) {
-						item[ item_count ].set_name( line );
-					} else if ( DS_DESC == data_stage ) {
-						item[ item_count ].set_desc( line );
-					} else if ( DS_DATA == data_stage ) {
-						std::istringstream    iss( line );
-						std::vector< string > values(
-							std::istream_iterator< string >{ iss },
-							std::istream_iterator< string >()
-						);
-
-						if ( values.size() >= 5 ) { // teleporters and the fan have 5
-							auto value = values.begin();
-							SAFE_STOI( item[ item_count ].cost, *value++ );
-							SAFE_STOI( item[ item_count ].amt, *value++ );
-							SAFE_STOI( item[ item_count ].selectable, *value++ );
-							SAFE_STOI( item[ item_count ].tech_level, *value++ );
-							SAFE_STOI( item[ item_count ].sound, *value++ );
-							if ( values.size() >= 6 ) { // amps/armors have 6
-								SAFE_STOD( item[ item_count ].vals[ 0 ], *value++ );
-							}
-							if ( values.size() >= 7 ) { // vengeance, parachute and repair have 7
-								SAFE_STOD( item[ item_count ].vals[ 1 ], *value++ );
-							}
-							if ( values.size() >= 11 ) { // The rest has 11
-								SAFE_STOD( item[ item_count ].vals[ 2 ], *value++ );
-								SAFE_STOD( item[ item_count ].vals[ 3 ], *value++ );
-								SAFE_STOD( item[ item_count ].vals[ 4 ], *value++ );
-								SAFE_STOD( item[ item_count ].vals[ 5 ], *value++ );
-							} else if ( values.size() > 7 ) {
-								cerr << "Item " << item_count << " \""
-								     << item[ item_count ].get_name() << " has only "
-								     << values.size() << " entries but needs 11 if more than 7!"
-								     << endl;
-							}
-						} else {
-							cerr << "Item " << item_count << " \"" << item[ item_count ].get_name()
-							     << " has only " << values.size() << "entries but needs at least 5!"
-							     << endl;
-						}
-					}
-
-					// Advance data stage
-					++data_stage;
-					if ( ( DS_NAME == data_stage ) // flipped
-					     || ( ( DS_DATA == data_stage ) && ( EL_ENGLISH != env.language ) ) ) {
-						data_stage = DS_NAME;
-						item_count++;
-					}
-				} // end of items
-			}         // end of reading data from a valid line
-		}                 // end of valid line
-
-		// read in data
-		status = fgets( line, 512, wfile );
-	} // end while(status)
-
-
-	// close file
-	fclose( wfile );
-
-
-	// Revert locale settings
-	if ( cur_lc_numeric ) {
-		setlocale( LC_NUMERIC, cur_lc_numeric );
-	} else {
-		setlocale( LC_NUMERIC, "" );
+		if ( !apply_display_strings( translation, "weapon", weapon, WEAPONS, trans_file )
+		     || !apply_display_strings( translation, "natural", naturals, NATURALS, trans_file )
+		     || !apply_display_strings( translation, "item", item, ITEMS, trans_file ) ) {
+			return false;
+		}
 	}
 
 	return true;
 }
+
+
+
+
 
 /*
 Filter out files that do not have .sav in the name.

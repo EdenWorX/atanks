@@ -234,6 +234,11 @@ if ( NOT ATANK_TOMLPLUSPLUS_WORKS )
 	message( FATAL_ERROR "tomlplusplus headers unusable: remove the broken local install, or provide network for FetchContent" )
 endif ()
 
+# The TOML arsenal parser (WP PF-1.17.3) lives in src/files.cpp only.
+if ( ATANK_HAVE_TOMLPLUSPLUS )
+	target_link_libraries( atanks PRIVATE ${ATANK_TOMLPLUSPLUS_TARGET} )
+endif ()
+
 # Install rules mirroring the Makefile install target. (Distribution, doc, and
 # analysis targets arrive in WP PF-1.9.4 and WP PF-1.12.)
 

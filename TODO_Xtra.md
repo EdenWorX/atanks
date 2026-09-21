@@ -7,6 +7,11 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
 
 ## Important Issues
 
+- [ ] **High**: segfault when game-data loading fails: if arsenal loading returns false, `main` prints the error but then
+  crashes with SIGSEGV in `CEnvironment::destroy()` → `destroy_bitmap()` during `exit()` cleanup of partially loaded
+  bitmaps (backtrace verified 2026-09-21). Reproduces identically with the legacy positional loader on a missing
+  `weapons.txt`, so pre-existing and unrelated to the TOML migration; needs a guard (skip destroy of unloaded assets
+  or clean `EXIT_FAILURE` before teardown). Found while validating `PF-1.17.3.4` with a deliberately broken file.
 - [ ] **High**: `make test*` broken environment-wide since 2026-09-21: the system CppUTest 4.0 install (headers, libs,
   `.pc`) vanished, so tiers 1-2 miss, and the pinned `v4.0` FetchContent fallback fails because that release declares
   `cmake_minimum_required` below the installed CMake 4.3 floor. Not caused by repo changes (the `atanks` binary still

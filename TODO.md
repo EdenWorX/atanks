@@ -582,6 +582,8 @@ quantities/prices, fired shots). Split into Action Items below; each fits one fo
 - [ ] **PF-1.17.3.4**: Reimplement `load_weapons_text()` on toml++ (strict base counts, lenient translations, typed reads;
   needs Action Items `PF-1.17.3.1`–`PF-1.17.3.3`). Verify parsed stats identical to legacy output for all records and
   translations, plus green builds and unit tests.
+  Status 2026-09-21: implemented in `src/files.cpp`; machine validation green (builds, `make doc`, English/French
+  startup loads, broken file cleanly rejected); in-game validation (buy screen, fired shots) pending with the user.
 - [ ] **PF-1.17.3.5**: Adapt shop/AI/firing consumers if needed, validate in-game (buy-screen quantities/prices, fired
   shots of every class), then remove the legacy `.txt` files and update install lists and docs.
 
