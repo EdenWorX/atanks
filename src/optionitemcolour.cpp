@@ -4,20 +4,20 @@
  *
  * The target is the color instance to handle.
  *
- * @param[in,out] player_ Pointer to the PLAYER instance to handle.
+ * @param[in,out] player_ Pointer to the CPlayer instance to handle.
  * @param[in,out] action_ Pointer to the action function handling the button click.
  * @param[in] title_ The title of the option to display.
- * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+ * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
  * @param[in] top_ Top position of the display area.
  * @param[in] left_ Left position of the display area.
  * @param[in] width_ Width of the display area.
  * @param[in] height_ Height of the display area.
  * @param[in] padding_ Padding of the title and buttons to the display area.
  **/
-OptionItemColour::OptionItemColour(
+COptionItemColour::COptionItemColour(
 	int32_t*    color_,
 	char const* title_,
-	int32_t     titleIdx_,
+	int32_t     title_idx_,
 	int32_t     top_,
 	int32_t     left_,
 	int32_t     width_,
@@ -25,10 +25,10 @@ OptionItemColour::OptionItemColour(
 	int32_t     padding_,
 	int32_t     show_size_
 )
-	: OptionItemBase(
+	: COptionItemBase(
 		ET_COLOR,
 		title_,
-		titleIdx_,
+		title_idx_,
 		nullptr,
 		color_ ? *color_ : WHITE, // WHITE to indicate an error.
 		TC_NONE,
@@ -78,7 +78,7 @@ OptionItemColour::OptionItemColour(
 }
 
 /// @brief default dtor only setting nullptr values. No further action needed.
-OptionItemColour::~OptionItemColour() {
+COptionItemColour::~COptionItemColour() {
 	destroy_bitmap( tgt_bitmap );
 	tgt_bitmap = nullptr;
 	tgt_color  = nullptr;
@@ -94,7 +94,7 @@ OptionItemColour::~OptionItemColour() {
  * @param[in] x The x coordinate of the pixel to pick the colour from.
  * @param[in] y The y coordinate of the pixel to pick the colour from.
  */
-int32_t OptionItemColour::activate( int32_t, int32_t x, int32_t y, int32_t ) {
+int32_t COptionItemColour::activate( int32_t, int32_t x, int32_t y, int32_t ) {
 	int32_t pick_x = x - left;
 	int32_t pick_y = y - top;
 	if ( ( pick_x >= 1 ) && ( pick_y >= 1 ) && ( pick_x <= ( width - 1 ) ) && ( pick_y <= ( height - 1 ) ) ) {
@@ -111,10 +111,10 @@ int32_t OptionItemColour::activate( int32_t, int32_t x, int32_t y, int32_t ) {
 		*tgt_color = getpixel( tgt_bitmap, pick_x, pick_y );
 
 		// Draw helper cross:
-		displayCross();
+		display_cross();
 
 		// Redraw decoration:
-		this->displayDeco( *tgt_color );
+		this->display_deco( *tgt_color );
 	} else {
 		// No cross
 		act_x = 0;
@@ -125,12 +125,12 @@ int32_t OptionItemColour::activate( int32_t, int32_t x, int32_t y, int32_t ) {
 }
 
 /// @brief returns always true
-bool OptionItemColour::canGoDown() {
+bool COptionItemColour::canGoDown() {
 	return true;
 }
 
 /// @brief returns always true
-bool OptionItemColour::canGoUp() {
+bool COptionItemColour::canGoUp() {
 	return true;
 }
 
@@ -142,7 +142,7 @@ bool OptionItemColour::canGoUp() {
  *
  * @param[in] show_full decorations are drawn if this is set to true
  */
-void OptionItemColour::display( bool show_full ) {
+void COptionItemColour::display( bool show_full ) {
 	if ( !drawn ) {
 
 		// Here is the chooser, the display box is "deco"
@@ -150,18 +150,18 @@ void OptionItemColour::display( bool show_full ) {
 		rect( global.canvas, left, top, left + width, top + height, BLACK );
 
 		// Draw helper cross
-		displayCross();
+		display_cross();
 
 		drawn = true;
 	}
 
 	if ( show_full ) {
-		this->displayDeco( *tgt_color );
+		this->display_deco( *tgt_color );
 	}
 }
 
 /// @brief Draw the selector cross
-void OptionItemColour::displayCross() {
+void COptionItemColour::display_cross() {
 	if ( ( act_x > 0 ) && ( act_y > 0 ) ) {
 		// To make the color picking easier, draw a cross
 		// to show where the user clicked in
@@ -206,6 +206,6 @@ void OptionItemColour::displayCross() {
 }
 
 /// @brief return true, the action function must be able to return an exit code.
-bool OptionItemColour::isExitButton() {
+bool COptionItemColour::isExitButton() {
 	return true;
 }

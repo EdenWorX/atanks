@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,36 +23,42 @@
 #include "globaltypes.h"
 #include "virtobj.h"
 
-class TELEPORT final : public VIRTUAL_OBJECT {
+/** @class CTeleport
+ * @brief Teleport transit effect.
+ **/
+class CTeleport final : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
-	// Source constructor
-	explicit TELEPORT(
-		VIRTUAL_OBJECT* targetObj,
-		int32_t         destinationX,
-		int32_t         destinationY,
-		int32_t         objRadius,
+	/// Create the source end.
+	explicit CTeleport(
+		CVirtualObject* target_obj,
+		int32_t         destination_x,
+		int32_t         destination_y,
+		int32_t         obj_radius,
 		int32_t         duration,
 		int32_t         type
 	);
 
-	TELEPORT(
-		VIRTUAL_OBJECT* targetObj,
-		int32_t         destinationX,
-		int32_t         destinationY,
-		double          objRadius,
+	/// Delegate with a rounded radius.
+	CTeleport(
+		CVirtualObject* target_obj,
+		int32_t         destination_x,
+		int32_t         destination_y,
+		double          obj_radius,
 		int32_t         duration,
 		int32_t         type
 	)
-		: TELEPORT( targetObj, destinationX, destinationY, ROUND( objRadius ), duration, type ) {}
+		: CTeleport( target_obj, destination_x, destination_y, ROUND( obj_radius ), duration, type ) {}
 
-	TELEPORT( VIRTUAL_OBJECT* targetObj, double destinationX, double destinationY, double objRadius, int32_t duration, int32_t type )
-		: TELEPORT( targetObj, ROUND( destinationX ), ROUND( destinationY ), ROUND( objRadius ), duration, type ) {}
+	/// Delegate with rounded coordinates.
+	CTeleport( CVirtualObject* target_obj, double destination_x, double destination_y, double obj_radius, int32_t duration, int32_t type )
+		: CTeleport( target_obj, ROUND( destination_x ), ROUND( destination_y ), ROUND( obj_radius ), duration, type ) {}
 
-	~TELEPORT() final;
+	/// Destroy a teleport.
+	~CTeleport() final;
 
 
 	/* ----------------------
@@ -60,10 +66,11 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
+	void   applyPhysics() final; ///< Advance physics.
+	void   draw() final;         ///< Render the teleport.
 
-	eClass getClass() final { return CLASS_TELEPORT; }
+	/// Return the object class.
+	EClass get_class() final { return CLASS_TELEPORT; }
 
 
 private:
@@ -73,7 +80,7 @@ private:
 	 */
 
 	// Target constructor
-	TELEPORT( TELEPORT* remoteEnd, int32_t destX, int32_t destY );
+	CTeleport( CTeleport* remote_end, int32_t dest_x, int32_t dest_y );
 
 
 	/* -----------------------
@@ -82,10 +89,10 @@ private:
 	 */
 
 	int32_t         clock      = 0;
-	VIRTUAL_OBJECT* object     = nullptr;
+	CVirtualObject* object     = nullptr;
 	int32_t         radius     = 0;
-	TELEPORT*       remote     = nullptr;
-	int32_t         startClock = 0;
+	CTeleport*       remote     = nullptr;
+	int32_t         start_clock = 0;
 };
 
 #endif // TELEPORT_DEFINE

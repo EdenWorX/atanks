@@ -8,7 +8,7 @@
 int32_t MAX_VOLUME_FACTOR = 5;
 
 // General helper that unifies the playing
-static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq );
+static void play_sound( ESounds sound, int32_t x, int32_t vol, int32_t freq );
 
 /** @brief play a weapon or item fire sample according to @a type, panned using @a x.
  *
@@ -33,7 +33,7 @@ void play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 	}
 
 	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) {
-		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+		play_sound( static_cast< ESounds >( sndNum ), x, vol, freq );
 	}
 }
 
@@ -79,14 +79,14 @@ void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) 
 	}
 
 	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT ) ) {
-		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+		play_sound( static_cast< ESounds >( sndNum ), x, vol, freq );
 	}
 }
 
 /** @brief plays the currently set background music modified by set volume factor
  **/
 void play_music() {
-	if ( env.loadBackgroundMusic() ) {
+	if ( env.load_background_music() ) {
 		play_sound( SND_BG_MUSIC, 128, 255, 1000 );
 	}
 }
@@ -134,7 +134,7 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
 
 	if ( ( sndNum > -1 ) && ( sndNum < SND_COUNT )
 	     && ( ( SND_NATU_DIRT_FALL != sndNum ) || ( global.used_voices < ( env.voices - 8 ) ) ) ) {
-		play_sound( static_cast< eSounds >( sndNum ), x, vol, freq );
+		play_sound( static_cast< ESounds >( sndNum ), x, vol, freq );
 	}
 }
 
@@ -143,14 +143,14 @@ void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t freq ) {
  * @param[in] sound The sound to play.
  **/
 
-void play_interface_sound( eSounds sound ) {
+void play_interface_sound( ESounds sound ) {
 	if ( SND_INTE_BUTTON_CLICK == sound ) {
-		play_sound( sound, env.halfWidth, 128, 1000 );
+		play_sound( sound, env.half_width, 128, 1000 );
 	}
 }
 
 // Global helpers implementation
-static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq ) {
+static void play_sound( ESounds sound, int32_t x, int32_t vol, int32_t freq ) {
 	if ( global.used_voices < env.voices ) {
 		int32_t xVol = ( vol * env.volume_factor ) / MAX_VOLUME_FACTOR;
 
@@ -159,8 +159,8 @@ static void play_sound( eSounds sound, int32_t x, int32_t vol, int32_t freq ) {
 				env.sounds[ sound ],
 				xVol,
 				x <= 0                 ? 31
-				: x >= env.screenWidth ? 192
-						       : 31 + ( x * 191 / env.screenWidth ),
+				: x >= env.screen_width ? 192
+						       : 31 + ( x * 191 / env.screen_width ),
 				freq,
 				false
 			);

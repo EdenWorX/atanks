@@ -1,5 +1,13 @@
-#ifndef ATANKS_SRC_CLIENT_H_INCLUDED
-#define ATANKS_SRC_CLIENT_H_INCLUDED 1
+#ifndef ATANKS_CLIENT_H_INCLUDED
+#define ATANKS_CLIENT_H_INCLUDED 1
+
+// Build configuration (CMake only): the NETWORK macro lives in the generated
+// config.h, which must be visible before the first #ifdef NETWORK below
+// regardless of include order. Non-CMake builds keep passing -DNETWORK= on
+// the compiler command line, so this include stays conditional.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
 
 #ifdef NETWORK
 
@@ -37,31 +45,31 @@
 
 #include <cstdint>
 
-#ifndef ATANKS_SRC_PLAYER_H_INCLUDED
-struct PLAYER;
-#endif // ATANKS_SRC_PLAYER_H_INCLUDED
+#ifndef ATANKS_PLAYER_H_INCLUDED
+struct CPlayer;
+#endif // ATANKS_PLAYER_H_INCLUDED
 
 // This function takes some data from the server
 // and tries to figure out what to do with it.
 // The game stage is returned.
-bool Parse_Client_Data( char *buffer );
+bool parse_client_data( char *buffer );
 
 
 // Draws a background
-void Create_Sky();
+void create_sky();
 
 // Sends fire command to the server
 // Message must be in format "FIRE item angle power"
-bool Client_Fire( PLAYER *my_player, int my_socket );
-bool Client_Power( PLAYER *my_player, int more_or_less );
-bool Client_Angle( PLAYER *my_player, int left_or_right );
-bool Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back );
+bool client_fire( CPlayer *my_player, int my_socket );
+bool client_power( CPlayer *my_player, int more_or_less );
+bool client_angle( CPlayer *my_player, int left_or_right );
+bool client_cycle_weapon( CPlayer *my_player, int forward_or_back );
 
 // Take an error code and return a string with readable info.
 // The returning string should NOT be freed after use.
 // Note: This is nowhere used. ( REMOVEME ??? )
-char const *Explain_Error( int32_t error_code );
+char const *explain_error( int32_t error_code );
 
 int         Game_Client( int socket_number );
 
-#endif // ATANKS_SRC_CLIENT_H_INCLUDED
+#endif // ATANKS_CLIENT_H_INCLUDED

@@ -2,39 +2,42 @@
 
 #include "random.h"
 
-FLOATTEXT::FLOATTEXT(
+CFloatText::CFloatText(
 	char const* text_,
 	double      xpos,
 	double      ypos,
 	double      xv_,
 	double      yv_,
 	int32_t     color_,
-	alignType   alignment,
-	eTextSway   sway_type,
+	EAlignType   alignment,
+	ETextSway   sway_type,
 	int32_t     max_age,
 	bool        is_fixed_
 )
-	: VIRTUAL_OBJECT()
+	: CVirtualObject()
 	, color( color_ )
 	, is_fixed( is_fixed_ )
 	, is_pushed( !is_fixed )
 	, pos_x( ROUND( xpos ) )
 	, pos_y( ROUND( ypos ) ) {
 	int32_t sky_col = TURQUOISE;
-	if ( ( pos_x > -1 ) && ( pos_y > MENUHEIGHT ) && ( pos_x < env.screenWidth ) && ( pos_y < env.screenWidth ) ) {
+	if ( ( pos_x > -1 ) && ( pos_y > MENUHEIGHT ) && ( pos_x < env.screen_width ) && ( pos_y < env.screen_width ) ) {
 		sky_col = getpixel( env.sky, pos_x, pos_y - MENUHEIGHT );
 	}
 
-	halfColor = GetShadeColor( color, true, sky_col );
+	half_color = get_shade_color( color, true, sky_col );
 	align     = alignment;
-	maxAge    = max_age;
+
+	// Scale the fixed frame-count lifetime to the frame rate (60 FPS baseline).
+	// Negative values are sentinels for an unlimited lifetime and stay untouched.
+	this->max_age = ( max_age < 0 ) ? max_age : ROUND( max_age * env.frame_count_mod );
 
 	if ( text_ ) {
 		set_text( text_ );
 	}
 
 	// The font and thus its height is fixed:
-	dim_cur.h = env.fontHeight + ( env.fontHeight % 2 );
+	dim_cur.h = env.font_height + ( env.font_height % 2 );
 
 	x         = pos_x;
 	y         = pos_y;
@@ -43,12 +46,12 @@ FLOATTEXT::FLOATTEXT(
 	set_sway_type( sway_type );
 	set_speed( xv_, yv_ );
 
-	// Add to the chain:
-	global.addObject( this );
+	// add to the chain:
+	global.add_object( this );
 }
 
-FLOATTEXT::~FLOATTEXT() {
-	requireUpdate();
+CFloatText::~CFloatText() {
+	require_update();
 	this->update();
 
 	// Only do the final update if the dimensions have been set
@@ -61,16 +64,16 @@ FLOATTEXT::~FLOATTEXT() {
 		int32_t top    = LEFT == align  ? dim_cur.y
 		               : RIGHT == align ? dim_cur.y - dim_cur.h
 		                                : dim_cur.y - ( dim_cur.h / 2 );
-		int32_t right  = std::min( env.screenWidth, left + dim_cur.w + 1 );
-		int32_t bottom = std::min( env.screenHeight, top + dim_cur.h + 1 );
+		int32_t right  = std::min( env.screen_width, left + dim_cur.w + 1 );
+		int32_t bottom = std::min( env.screen_height, top + dim_cur.h + 1 );
 
 		global.make_bgupdate( left, top, right - left, bottom - top );
 
 		// Update previous position
 		left   = LEFT == align ? dim_old.x : RIGHT == align ? dim_old.x - dim_old.w : dim_old.x - ( dim_old.w / 2 );
 		top    = LEFT == align ? dim_old.y : RIGHT == align ? dim_old.y - dim_old.h : dim_old.y - ( dim_old.h / 2 );
-		right  = std::min( env.screenWidth, left + dim_old.w + 1 );
-		bottom = std::min( env.screenHeight, top + dim_old.h + 1 );
+		right  = std::min( env.screen_width, left + dim_old.w + 1 );
+		bottom = std::min( env.screen_height, top + dim_old.h + 1 );
 
 		if ( ( right > left ) && ( bottom > top ) ) {
 			global.make_bgupdate( left, top, right - left, bottom - top );
@@ -84,14 +87,18 @@ FLOATTEXT::~FLOATTEXT() {
 	}
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
-void FLOATTEXT::applyPhysics() {
+void CFloatText::applyPhysics() {
 	// Opt out early if there is no text to be drawn.
 	if ( ( nullptr == text ) || ( dim_cur.w < 1 ) ) {
 		return;
 	}
+
+	// Frame-rate independent movement: the fixed per-frame velocities below
+	// are tuned for 60 FPS, so scale each step to the actual frame rate.
+	double const step = 1. / env.frame_count_mod;
 
 	if ( TS_HORIZONTAL == sway ) {
 		double x_dist = pos_x - x;
@@ -118,26 +125,26 @@ void FLOATTEXT::applyPhysics() {
 			yv = -1. * rel_yv;
 		}
 	}
-	pos_x     += xv;
-	pos_y     += yv;
+	pos_x     += xv * step;
+	pos_y     += yv * step;
 
 	dim_cur.x  = ROUND( pos_x );
 	dim_cur.y  = ROUND( pos_y );
 
-	requireUpdate();
+	require_update();
 
-	if ( ( maxAge != -1 ) && ( ++age > maxAge ) ) {
+	if ( ( max_age != -1 ) && ( ++age > max_age ) ) {
 		destroy = true;
 	}
 }
 
-void FLOATTEXT::check_pos( bool is_new ) {
+void CFloatText::check_pos( bool is_new ) {
 	if ( is_fixed ) {
 		is_pushed = false; // Do nothing.
 	} else {
-		FLOATTEXT* curr          = nullptr;
+		CFloatText* curr          = nullptr;
 		bool       curr_is_older = true; // We start with head, which is the oldest.
-		global.getHeadOfClass( CLASS_FLOATTEXT, &curr );
+		global.get_head_of_class( CLASS_FLOATTEXT, &curr );
 
 
 		is_pushed = false;
@@ -155,7 +162,7 @@ void FLOATTEXT::check_pos( bool is_new ) {
 					curr->push_down( this->overlaps_by( curr ), false );
 				}
 			} // End of having another text
-			curr->getNext( &curr );
+			curr->get_next( &curr );
 		}
 	} // End of not fixed text
 }
@@ -164,7 +171,7 @@ void FLOATTEXT::check_pos( bool is_new ) {
 #define SAFE_MAKECOL( r_, g_, b_ ) \
 	makecol( r_ < 0 ? 0 : r_ > 255 ? 255 : r_, g_ < 0 ? 0 : g_ > 255 ? 255 : g_, b_ < 0 ? 0 : b_ > 255 ? 255 : b_ )
 
-void FLOATTEXT::draw() {
+void CFloatText::draw() {
 	// Opt out early if there is no text to be drawn.
 	if ( ( nullptr == text ) || !dim_cur.w ) {
 		return;
@@ -189,16 +196,16 @@ void FLOATTEXT::draw() {
 
 	double  shadeFade = 0.75;
 	int32_t frontCol  = color;
-	int32_t shadeCol  = halfColor;
+	int32_t shadeCol  = half_color;
 
 	// If either shadowed or fading text is enabled, a background
 	// average colour is needed.
-	if ( ( env.shadowedText || env.fadingText ) && !global.skippingComputerPlay ) {
+	if ( ( env.shadowed_text || env.fading_text ) && !global.skipping_computer_play ) {
 		int32_t backCol = global.get_avg_bgcolor( left, top, left + dim_cur.w, top + dim_cur.h, xv, yv );
 
 		// If fading text is activated, the front colour must be calculated as well
-		if ( env.fadingText && ( maxAge > 0 ) && ( age >= ( maxAge / 2 ) ) ) {
-			double calcMax    = maxAge / 2.;
+		if ( env.fading_text && ( max_age > 0 ) && ( age >= ( max_age / 2 ) ) ) {
+			double calcMax    = max_age / 2.;
 			double calcAge    = age - calcMax;
 			double frontFade  = 1.0 - ( calcAge / calcMax );
 
@@ -223,7 +230,7 @@ void FLOATTEXT::draw() {
 		} // end of calculating fading values
 
 		// The now current values must be applied to the shadow colour if needed
-		if ( env.shadowedText ) {
+		if ( env.shadowed_text ) {
 			double backFade = 1.0 - shadeFade;
 
 			if ( backFade < 0. ) {
@@ -239,15 +246,15 @@ void FLOATTEXT::draw() {
 	}         // End of fading / shadow preparations
 
 	// Eventually print out the text:
-	if ( env.shadowedText && !global.skippingComputerPlay ) {
+	if ( env.shadowed_text && !global.skipping_computer_play ) {
 		textout_ex( global.canvas, font, text, left + 1, top + 1, shadeCol, -1 );
 	}
 	textout_ex( global.canvas, font, text, left, top, frontCol, -1 );
 }
 
-void FLOATTEXT::newRound() {
-	if ( maxAge > 0 ) {
-		age = maxAge + 1;
+void CFloatText::new_round() {
+	if ( max_age > 0 ) {
+		age = max_age + 1;
 	}
 }
 
@@ -258,7 +265,7 @@ void FLOATTEXT::newRound() {
  *
  * Note: If either is fixed, the method always returns 0.
  **/
-int32_t FLOATTEXT::overlaps_by( const FLOATTEXT* other ) {
+int32_t CFloatText::overlaps_by( const CFloatText* other ) {
 	if ( other && ( other != this ) ) {
 
 		// return at once if either is fixed.
@@ -292,7 +299,7 @@ int32_t FLOATTEXT::overlaps_by( const FLOATTEXT* other ) {
 }
 
 /// @brief push down this text by ydiff pixels
-void FLOATTEXT::push_down( int32_t ydiff, bool is_new ) {
+void CFloatText::push_down( int32_t ydiff, bool is_new ) {
 	if ( ydiff && !is_fixed ) {
 
 		// new(er) texts can be pushed by up to 3, older texts
@@ -322,7 +329,7 @@ void FLOATTEXT::push_down( int32_t ydiff, bool is_new ) {
 }
 
 // Reset movement to begin neutrally if the text is swaying
-void FLOATTEXT::reset_sway() {
+void CFloatText::reset_sway() {
 	xv    = 0.;
 	yv    = 0.;
 	pos_x = x;
@@ -338,7 +345,7 @@ void FLOATTEXT::reset_sway() {
 	dim_cur.y = ROUND( pos_y );
 }
 
-void FLOATTEXT::set_color( int32_t color_ ) {
+void CFloatText::set_color( int32_t color_ ) {
 	if ( color != color_ ) {
 		color = color_;
 	}
@@ -347,14 +354,14 @@ void FLOATTEXT::set_color( int32_t color_ ) {
 	int32_t top     = LEFT == align ? dim_cur.y + ( dim_cur.h / 2 ) : dim_cur.y - ( dim_cur.h / 2 );
 
 	int32_t sky_col = TURQUOISE;
-	if ( ( left > -1 ) && ( top > MENUHEIGHT ) && ( left < env.screenWidth ) && ( top < env.screenWidth ) ) {
+	if ( ( left > -1 ) && ( top > MENUHEIGHT ) && ( left < env.screen_width ) && ( top < env.screen_width ) ) {
 		sky_col = getpixel( env.sky, left, top - MENUHEIGHT );
 	}
 
-	halfColor = GetShadeColor( color, true, sky_col );
+	half_color = get_shade_color( color, true, sky_col );
 }
 
-void FLOATTEXT::set_pos( int32_t xpos, int32_t ypos ) {
+void CFloatText::set_pos( int32_t xpos, int32_t ypos ) {
 	if ( ( xpos != x ) || ( ypos != y ) ) {
 		x = xpos;
 		y = ypos;
@@ -362,7 +369,7 @@ void FLOATTEXT::set_pos( int32_t xpos, int32_t ypos ) {
 	}
 }
 
-void FLOATTEXT::set_speed( double xv_, double yv_ ) {
+void CFloatText::set_speed( double xv_, double yv_ ) {
 	reset_sway();
 
 	if ( TS_HORIZONTAL != sway ) {
@@ -386,14 +393,14 @@ void FLOATTEXT::set_speed( double xv_, double yv_ ) {
 	}
 }
 
-void FLOATTEXT::set_sway_type( eTextSway sway_type ) {
+void CFloatText::set_sway_type( ETextSway sway_type ) {
 	if ( sway_type != sway ) {
 		sway = sway_type;
 		reset_sway();
 	}
 }
 
-void FLOATTEXT::set_text( char const* text_ ) {
+void CFloatText::set_text( char const* text_ ) {
 	if ( text && text_ && !strcmp( text, text_ ) ) {
 		return;
 	}
@@ -433,7 +440,7 @@ void FLOATTEXT::set_text( char const* text_ ) {
 ///            would be too dark to make a difference.
 /// @param[in] bg_colour If not PINK, the background colour is taken into account
 ///            and the result darkened or lightened more according to @a do_lighten
-int32_t GetShadeColor( int32_t colour, bool do_lighten, int32_t bg_colour ) {
+int32_t get_shade_color( int32_t colour, bool do_lighten, int32_t bg_colour ) {
 	int32_t r = getr( colour ), g = getg( colour ), b = getb( colour );
 	float   h, s, v;
 

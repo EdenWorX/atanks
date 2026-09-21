@@ -14,10 +14,10 @@
 
 
 /// ==== helper functions ====
-static int32_t calcPotentialDmg( int32_t weapNum );
+static int32_t calc_potential_dmg( int32_t weap_num );
 static void    divide_team_money();
-static void    do_ai_shopping( PLAYER* pl, int32_t maxBoost, int32_t maxScore );
-static void    draw_shop( PLAYER* pl );
+static void    do_ai_shopping( CPlayer* pl, int32_t max_boost, int32_t max_score );
+static void    draw_shop( CPlayer* pl );
 
 /// ==== External functions used ====
 void draw_simple_bg( bool drawImage );
@@ -32,7 +32,7 @@ private:
 	void do_buy_sell( int32_t pl );
 	void do_human_shopping( int32_t pl );
 	void draw_shop_update( int32_t pl );
-	void draw_weapon_list( PLAYER* pl );
+	void draw_weapon_list( CPlayer* pl );
 	void finish( int32_t pl );
 	void give_interests();
 	void handle_move_up_down();
@@ -44,7 +44,7 @@ private:
 
 
 	/* ======== Members ======== */
-	BOX           info_area{ 20, 60, 300, 400 };
+	sBox           info_area{ 20, 60, 300, 400 };
 	int32_t       btps{ 0 };
 	string        info_text{ " " };
 	bool          done{ false };
@@ -57,9 +57,9 @@ private:
 	int32_t       lastMouse_b{ 0 };
 	int32_t       lastMouse_x{ 0 };
 	int32_t       lastMouse_y{ 0 };
-	LevelCreator* lvl_creator{ nullptr };
-	int32_t       maxBoost{ 0 };
-	int32_t       maxScore{ 0 };
+	CLevelCreator* lvl_creator{ nullptr };
+	int32_t       max_boost{ 0 };
+	int32_t       max_score{ 0 };
 	int32_t       money{ 0 };
 	bool          need_draw{ false };
 	bool          performed_save_game{ false };
@@ -69,24 +69,24 @@ private:
 
 
 public:
-	explicit Shop( LevelCreator* lvl_creator_ ) : lvl_creator( lvl_creator_ ) {}
+	explicit Shop( CLevelCreator* lvl_creator_ ) : lvl_creator( lvl_creator_ ) {}
 
 	~Shop() = default;
 
 	void operator() () {
 		init();
 
-		for ( int32_t pl = 0; ( pl < env.numGamePlayers ) && !global.isCloseBtnPressed(); pl++ ) {
+		for ( int32_t pl = 0; ( pl < env.num_game_players ) && !global.is_close_btn_pressed(); pl++ ) {
 			if ( HUMAN_PLAYER != env.players[ pl ]->type ) {
 				// computer players have their own function for their shopping
-				do_ai_shopping( env.players[ pl ], maxBoost, maxScore );
+				do_ai_shopping( env.players[ pl ], max_boost, max_score );
 			} else {
 				// Be sure no input from previous human players or from pressing
 				// the "Play" button on the player selection screen carry over:
 				flush_inputs();
 
 				// First time drawing
-				if ( !global.isCloseBtnPressed() ) {
+				if ( !global.is_close_btn_pressed() ) {
 					draw_shop( env.players[ pl ] );
 				}
 
@@ -109,11 +109,11 @@ public:
 /// ==== Shop single responsibility methods ====
 
 void Shop::check_mouse_buttons() {
-	int32_t scrollArrowPos = env.screenWidth - STUFF_BAR_WIDTH - 30;
+	int32_t scrollArrowPos = env.screen_width - STUFF_BAR_WIDTH - 30;
 	if ( ( mouse_x >= scrollArrowPos ) && ( mouse_x < ( scrollArrowPos + 24 ) ) ) {
 
 		// Fast up
-		if ( ( mouse_y >= ( env.halfHeight - 50 ) ) && ( mouse_y < ( env.halfHeight - 25 ) )
+		if ( ( mouse_y >= ( env.half_height - 50 ) ) && ( mouse_y < ( env.half_height - 25 ) )
 		     && ( item_scrolled_to > 1 ) ) {
 			item_scrolled_to -= btps / 2;
 			if ( item_scrolled_to < 1 ) {
@@ -123,24 +123,24 @@ void Shop::check_mouse_buttons() {
 		}
 
 		// Up one item
-		if ( ( mouse_y >= ( env.halfHeight - 24 ) ) && ( mouse_y < env.halfHeight ) && ( item_scrolled_to > 1 ) ) {
+		if ( ( mouse_y >= ( env.half_height - 24 ) ) && ( mouse_y < env.half_height ) && ( item_scrolled_to > 1 ) ) {
 			--item_scrolled_to;
 			need_draw = true;
 		}
 
 		// Down one item
-		if ( ( mouse_y >= ( env.halfHeight + 1 ) ) && ( mouse_y < ( env.halfHeight + 25 ) )
-		     && ( item_scrolled_to < ( env.numAvailable - btps ) ) ) {
+		if ( ( mouse_y >= ( env.half_height + 1 ) ) && ( mouse_y < ( env.half_height + 25 ) )
+		     && ( item_scrolled_to < ( env.num_available - btps ) ) ) {
 			++item_scrolled_to;
 			need_draw = true;
 		}
 
 		// Fast down
-		if ( ( mouse_y >= ( env.halfHeight + 25 ) ) && ( mouse_y < ( env.halfHeight + 50 ) )
-		     && ( item_scrolled_to < ( env.numAvailable ) ) ) {
+		if ( ( mouse_y >= ( env.half_height + 25 ) ) && ( mouse_y < ( env.half_height + 50 ) )
+		     && ( item_scrolled_to < ( env.num_available ) ) ) {
 			item_scrolled_to += btps / 2;
-			if ( item_scrolled_to >= env.numAvailable - btps ) {
-				item_scrolled_to = env.numAvailable - btps;
+			if ( item_scrolled_to >= env.num_available - btps ) {
+				item_scrolled_to = env.num_available - btps;
 			}
 			need_draw = true;
 		}
@@ -154,9 +154,9 @@ void Shop::check_mouse_buttons() {
 
 void Shop::check_mouse_position() {
 	// Ensure the description shows what is selected
-	int32_t hoverOver_new = env.availableItems[ item_index ];
+	int32_t hoverOver_new = env.available_items[ item_index ];
 
-	if ( ( mouse_x >= ( env.screenWidth - STUFF_BAR_WIDTH ) ) && ( mouse_x < env.screenWidth ) ) {
+	if ( ( mouse_x >= ( env.screen_width - STUFF_BAR_WIDTH ) ) && ( mouse_x < env.screen_width ) ) {
 		bool    isOver = false;
 		int32_t zzz    = item_scrolled_to;
 
@@ -168,8 +168,8 @@ void Shop::check_mouse_position() {
 			}
 		}
 
-		if ( isOver && ( hoverOver != env.availableItems[ zzz ] ) ) {
-			hoverOver_new = env.availableItems[ zzz ];
+		if ( isOver && ( hoverOver != env.available_items[ zzz ] ) ) {
+			hoverOver_new = env.available_items[ zzz ];
 			item_index    = zzz;
 			need_draw     = true;
 		}
@@ -179,20 +179,20 @@ void Shop::check_mouse_position() {
 	if ( hoverOver != hoverOver_new ) {
 		if ( hoverOver_new > -1 ) {
 			if ( hoverOver_new < WEAPONS ) {
-				WEAPON* weap = &weapon[ hoverOver_new ];
+				CWeapon* weap = &weapon[ hoverOver_new ];
 				info_text.assign( "Radius: " ).append( std::to_string( weap->radius ) );
 				info_text.append( "\nYield : " )
-					.append( std::to_string( calcPotentialDmg( hoverOver_new ) * weap->spread ) );
-				info_text.append( "\n\n" ).append( weap->getDesc() );
+					.append( std::to_string( calc_potential_dmg( hoverOver_new ) * weap->spread ) );
+				info_text.append( "\n\n" ).append( weap->get_desc() );
 			} else {
 				int32_t itemNum = hoverOver_new - WEAPONS;
-				ITEM*   it      = &item[ itemNum ];
+				CItem*   it      = &item[ itemNum ];
 				if ( ( itemNum >= ITEM_VENGEANCE ) && ( itemNum <= ITEM_FATAL_FURY ) ) {
-					double potDmg = calcPotentialDmg( ROUND( it->vals[ 0 ] ) ) * it->vals[ 1 ];
+					double potDmg = calc_potential_dmg( ROUND( it->vals[ 0 ] ) ) * it->vals[ 1 ];
 					info_text.assign( "Potential Damage: " ).append( std::to_string( ROUND( potDmg ) ) );
-					info_text.append( "\n\n" ).append( it->getDesc() );
+					info_text.append( "\n\n" ).append( it->get_desc() );
 				} else {
-					info_text.assign( it->getDesc() );
+					info_text.assign( it->get_desc() );
 				}
 			}
 		} else {
@@ -208,8 +208,8 @@ void Shop::check_mouse_position() {
 void Shop::check_mouse_wheel() {
 	int32_t wheel_curr = mouse_z;
 	if ( wheel_curr < wheel_pos ) {
-		if ( ++item_scrolled_to >= ( env.numAvailable - btps ) ) {
-			item_scrolled_to = env.numAvailable - btps;
+		if ( ++item_scrolled_to >= ( env.num_available - btps ) ) {
+			item_scrolled_to = env.num_available - btps;
 		}
 		if ( item_scrolled_to > item_index ) {
 			item_index = item_scrolled_to;
@@ -251,16 +251,16 @@ void Shop::do_buy_sell( int32_t pl ) {
 				money                    += cost;
 				trolley[ selected_item ] -= amt;
 				need_draw                 = true;
-			} else if ( env.sellpercent > 0.01 ) {
-				money                    += ROUND( cost * env.sellpercent );
+			} else if ( env.sell_percent > 0.01 ) {
+				money                    += ROUND( cost * env.sell_percent );
 				trolley[ selected_item ] -= amt;
 				need_draw                 = true;
 			}
 		}
 	} else if ( ( money >= cost ) && ( ( inInv + trolley[ selected_item ] ) < ( MAX_ITEMS_IN_STOCK - amt ) ) ) {
 		if ( trolley[ selected_item ] <= -amt ) {
-			if ( env.sellpercent > 0.01 ) {
-				money                    -= ROUND( cost * env.sellpercent );
+			if ( env.sell_percent > 0.01 ) {
+				money                    -= ROUND( cost * env.sell_percent );
 				trolley[ selected_item ] += amt;
 				need_draw                 = true;
 			}
@@ -276,11 +276,11 @@ void Shop::do_buy_sell( int32_t pl ) {
 }
 
 void Shop::do_human_shopping( int32_t pl ) {
-	env.mouseclock = 0;
+	env.mouse_clock = 0;
 
 	while ( !done ) {
 		while ( !done && !need_draw ) {
-			if ( global.isCloseBtnPressed() ) {
+			if ( global.is_close_btn_pressed() ) {
 				lvl_creator->die_now();
 				done = true;
 				continue;
@@ -289,7 +289,7 @@ void Shop::do_human_shopping( int32_t pl ) {
 			if ( ( lastMouse_x != mouse_x ) || ( lastMouse_y != mouse_y ) ) {
 				lastMouse_x = mouse_x;
 				lastMouse_y = mouse_y;
-				if ( !env.osMouse ) {
+				if ( !env.os_mouse ) {
 					need_draw = true;
 				}
 			}
@@ -298,11 +298,11 @@ void Shop::do_human_shopping( int32_t pl ) {
 			// Check the mouse button
 			if ( !lb_pressed && ( mouse_b & 1 ) ) {
 				// Check close shop button:
-				if ( ( mouse_x >= ( env.halfWidth - 100 ) ) && ( mouse_x < ( env.halfWidth + 100 ) )
-				     && ( mouse_y >= ( env.screenHeight - 50 ) ) && ( mouse_y < ( env.screenHeight - 25 ) ) ) {
+				if ( ( mouse_x >= ( env.half_width - 100 ) ) && ( mouse_x < ( env.half_width + 100 ) )
+				     && ( mouse_y >= ( env.screen_height - 50 ) ) && ( mouse_y < ( env.screen_height - 25 ) ) ) {
 					done = true;
 				}
-				env.mouseclock = 0;
+				env.mouse_clock = 0;
 			}
 			lb_pressed = ( mouse_b & 1 ) != 0;
 
@@ -322,15 +322,15 @@ void Shop::do_human_shopping( int32_t pl ) {
 
 			// check for adding or removing rounds
 			else if ( ( K == KEY_PLUS_PAD ) || ( K == KEY_EQUALS ) ) {
-				if ( ( env.rounds < MAX_ROUNDS ) && ( !env.mouseclock ) ) {
+				if ( ( env.rounds < MAX_ROUNDS ) && ( !env.mouse_clock ) ) {
 					env.rounds++;
-					global.currentround++;
+					global.current_round++;
 					need_draw = true;
 				}
 			} else if ( ( K == KEY_MINUS_PAD ) || ( K == KEY_MINUS ) ) {
-				if ( ( env.rounds > 1 ) && ( global.currentround > 1 ) && ( !env.mouseclock ) ) {
+				if ( ( env.rounds > 1 ) && ( global.current_round > 1 ) && ( !env.mouse_clock ) ) {
 					env.rounds--;
-					global.currentround--;
+					global.current_round--;
 					need_draw = true;
 				}
 			}
@@ -357,14 +357,14 @@ void Shop::do_human_shopping( int32_t pl ) {
 			check_mouse_position();
 
 			// Check mouse buttons against scrolling, buying and selling.
-			if ( ( mouse_b & 1 ) && !env.mouseclock ) {
+			if ( ( mouse_b & 1 ) && !env.mouse_clock ) {
 				check_mouse_buttons();
 			}
 
 			// Check mouse buttons for clicks
-			if ( ( ( mouse_b & 1 ) || ( mouse_b & 2 ) ) && ( mouse_x >= ( env.screenWidth - STUFF_BAR_WIDTH ) )
-			     && ( mouse_x < env.screenWidth ) ) {
-				selected_item = env.availableItems[ item_index ];
+			if ( ( ( mouse_b & 1 ) || ( mouse_b & 2 ) ) && ( mouse_x >= ( env.screen_width - STUFF_BAR_WIDTH ) )
+			     && ( mouse_x < env.screen_width ) ) {
+				selected_item = env.available_items[ item_index ];
 			}
 
 			// Only do the buying / selling when the mouse button is
@@ -373,9 +373,9 @@ void Shop::do_human_shopping( int32_t pl ) {
 				do_buy_sell( pl );
 				selected_item = -1;
 			} // end of mouse buttons released with item selected
-			env.mouseclock++;
-			if ( env.mouseclock > 5 ) {
-				env.mouseclock = 0;
+			env.mouse_clock++;
+			if ( env.mouse_clock > 5 ) {
+				env.mouse_clock = 0;
 			}
 			lastMouse_b = mouse_b;
 
@@ -386,7 +386,7 @@ void Shop::do_human_shopping( int32_t pl ) {
 		} // end of input handling loop
 
 		// If the close button was pressed, the creator thread must end ASAP and we have to get out of here.
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			lvl_creator->die_now();
 			done = true;
 			continue;
@@ -399,13 +399,13 @@ void Shop::do_human_shopping( int32_t pl ) {
 	}         // end of player shopping loop
 }
 
-void Shop::draw_weapon_list( PLAYER* pl ) {
+void Shop::draw_weapon_list( CPlayer* pl ) {
 	// Some pre-calculations and settings.
-	int32_t        startX         = env.screenWidth - STUFF_BAR_WIDTH;
+	int32_t        start_x         = env.screen_width - STUFF_BAR_WIDTH;
 	int32_t        halfBar        = STUFF_BAR_HEIGHT / 2;
 	static int32_t qtyTxtLen      = 0;
-	BITMAP*        imgReleased    = env.gfxData.stuff_bar[ 0 ];
-	BITMAP*        imgPressed     = env.gfxData.stuff_bar[ 1 ];
+	BITMAP*        imgReleased    = env.gfx_data.stuff_bar[ 0 ];
+	BITMAP*        imgPressed     = env.gfx_data.stuff_bar[ 1 ];
 	int32_t        col_add        = YELLOW;               // Bought items
 	int32_t        col_sub        = makecol( 176, 0, 0 ); // Sold items
 	static char    buf_cost[ 50 ] = { 0 };
@@ -419,27 +419,27 @@ void Shop::draw_weapon_list( PLAYER* pl ) {
 		qtyTxtLen = text_length( font, "Qty. in inventory: ddd" );
 	}
 
-	// Erase top gap:
+	// erase top gap:
 	if ( full_redraw ) {
-		global.lockLand();
+		global.lock_land();
 		rectfill(
 			global.canvas,
-			startX,
+			start_x,
 			STUFF_BAR_HEIGHT - 5,
-			startX + env.gfxData.stuff_icon_base->w,
+			start_x + env.gfx_data.stuff_icon_base->w,
 			STUFF_BAR_HEIGHT,
 			makecol( 8, 110, 24 )
 		);
-		global.unlockLand();
-		global.make_update( startX, STUFF_BAR_HEIGHT - 5, env.gfxData.stuff_icon_base->w, 5 );
+		global.unlock_land();
+		global.make_update( start_x, STUFF_BAR_HEIGHT - 5, env.gfx_data.stuff_icon_base->w, 5 );
 	}
 
 	// go through all items and draw them on the screen with
 	// the amount of items in the trolley
-	for ( int32_t slot = 1; ( slot <= btps ) && !global.isCloseBtnPressed(); ++slot ) {
+	for ( int32_t slot = 1; ( slot <= btps ) && !global.is_close_btn_pressed(); ++slot ) {
 		int32_t     itemIdx = slot + item_scrolled_to - 1;
-		int32_t     itemNum = env.availableItems[ itemIdx ];
-		int32_t     startY  = slot * STUFF_BAR_HEIGHT;
+		int32_t     itemNum = env.available_items[ itemIdx ];
+		int32_t     start_y  = slot * STUFF_BAR_HEIGHT;
 		char const* name    = nullptr;
 		int32_t     amt     = 0;
 		int32_t     d_div   = 1;
@@ -451,52 +451,52 @@ void Shop::draw_weapon_list( PLAYER* pl ) {
 
 		// Get text values:
 		if ( itemNum < WEAPONS ) {
-			d_div = weapon[ itemNum ].getDelayDiv();
-			name  = weapon[ itemNum ].getName();
+			d_div = weapon[ itemNum ].get_delay_div();
+			name  = weapon[ itemNum ].get_name();
 			amt   = pl->nm[ itemNum ] / d_div;
-			snprintf( buf_cost, 49, "$%s", Add_Comma( weapon[ itemNum ].cost ) );
+			snprintf( buf_cost, 49, "$%s", add_comma( weapon[ itemNum ].cost ) );
 			snprintf( buf_amt, 49, "for %d", weapon[ itemNum ].amt / d_div );
 		} else {
-			name = item[ itemNum - WEAPONS ].getName();
+			name = item[ itemNum - WEAPONS ].get_name();
 			amt  = pl->ni[ itemNum - WEAPONS ];
-			snprintf( buf_cost, 49, "$%s", Add_Comma( item[ itemNum - WEAPONS ].cost ) );
+			snprintf( buf_cost, 49, "$%s", add_comma( item[ itemNum - WEAPONS ].cost ) );
 			snprintf( buf_amt, 49, "for %d", item[ itemNum - WEAPONS ].amt );
 		}
 
 		// If the close button was pressed, the creator thread must end ASAP and we have to get out of here.
-		if ( global.isCloseBtnPressed() ) {
+		if ( global.is_close_btn_pressed() ) {
 			lvl_creator->die_now();
 			done = true;
 			continue;
 		}
 
-		global.lockLand();
+		global.lock_land();
 
 		// Draw the background sprites
-		draw_sprite( global.canvas, ( hoverOver == itemNum ) ? imgPressed : imgReleased, startX, startY );
-		draw_sprite( global.canvas, env.gfxData.stuff_icon_base, startX, startY );
-		draw_sprite( global.canvas, env.stock[ itemNum ], startX, startY - 5 );
-		global.make_update( startX, startY, STUFF_BAR_WIDTH, STUFF_BAR_HEIGHT + 5 );
+		draw_sprite( global.canvas, ( hoverOver == itemNum ) ? imgPressed : imgReleased, start_x, start_y );
+		draw_sprite( global.canvas, env.gfx_data.stuff_icon_base, start_x, start_y );
+		draw_sprite( global.canvas, env.stock[ itemNum ], start_x, start_y - 5 );
+		global.make_update( start_x, start_y, STUFF_BAR_WIDTH, STUFF_BAR_HEIGHT + 5 );
 
 		// Draw the text:
-		textout_ex( global.canvas, font, name, startX + 45, startY - 1, BLACK, -1 );
+		textout_ex( global.canvas, font, name, start_x + 45, start_y - 1, BLACK, -1 );
 		textprintf_ex(
 			global.canvas,
 			font,
-			startX + 45,
-			startY + halfBar - 4,
+			start_x + 45,
+			start_y + halfBar - 4,
 			BLACK,
 			-1,
 			"%s: %d",
-			env.ingame->Get_Line( 40 ),
+			env.ingame->get_line( 40 ),
 			amt
 		);
 		if ( trolley[ itemNum ] ) {
 			textprintf_ex(
 				global.canvas,
 				font,
-				startX + 45 + qtyTxtLen,
-				startY + halfBar - 4,
+				start_x + 45 + qtyTxtLen,
+				start_y + halfBar - 4,
 				trolley[ itemNum ] > 0 ? col_add : col_sub,
 				-1,
 				"%+d",
@@ -507,8 +507,8 @@ void Shop::draw_weapon_list( PLAYER* pl ) {
 			global.canvas,
 			font,
 			buf_cost,
-			env.screenWidth - 45 - text_length( font, buf_cost ),
-			startY - 1,
+			env.screen_width - 45 - text_length( font, buf_cost ),
+			start_y - 1,
 			BLACK,
 			-1
 		);
@@ -516,17 +516,17 @@ void Shop::draw_weapon_list( PLAYER* pl ) {
 			global.canvas,
 			font,
 			buf_amt,
-			env.screenWidth - 45 - text_length( font, buf_amt ),
-			startY + halfBar - 4,
+			env.screen_width - 45 - text_length( font, buf_amt ),
+			start_y + halfBar - 4,
 			BLACK,
 			-1
 		);
-		global.unlockLand();
+		global.unlock_land();
 
 		// Break up if done:
 		// (This should not be triggered ever, as scroll is controlled by shop()
-		//  to never be more than env.numAvailable-btps.)
-		if ( ( itemIdx >= ( env.numAvailable - 1 ) ) && ( slot < btps ) ) {
+		//  to never be more than env.num_available-btps.)
+		if ( ( itemIdx >= ( env.num_available - 1 ) ) && ( slot < btps ) ) {
 			slot = btps + 1;
 		}
 	}
@@ -541,42 +541,42 @@ void Shop::draw_shop_update( int32_t pl ) {
 	// No hardware mouse while drawing
 	SHOW_MOUSE( nullptr )
 
-	global.make_update( env.halfWidth - 200, 0, env.gfxData.stuff_bar[ 0 ]->w, env.gfxData.stuff_bar[ 0 ]->h );
+	global.make_update( env.half_width - 200, 0, env.gfx_data.stuff_bar[ 0 ]->w, env.gfx_data.stuff_bar[ 0 ]->h );
 
-	draw_sprite( global.canvas, env.gfxData.stuff_bar[ 0 ], env.halfWidth - 200, 0 );
+	draw_sprite( global.canvas, env.gfx_data.stuff_bar[ 0 ], env.half_width - 200, 0 );
 	textprintf_ex(
 		global.canvas,
 		font,
-		env.halfWidth - 190,
+		env.half_width - 190,
 		0,
 		BLACK,
 		-1,
 		"%s %d: %s",
-		env.ingame->Get_Line( 10 ),
+		env.ingame->get_line( 10 ),
 		pl + 1,
-		env.players[ pl ]->getName()
+		env.players[ pl ]->get_name()
 	);
 	textprintf_ex(
 		global.canvas,
 		font,
-		env.halfWidth - 190,
+		env.half_width - 190,
 		14,
 		BLACK,
 		-1,
 		"%s: $%s",
-		env.ingame->Get_Line( 11 ),
-		Add_Comma( money )
+		env.ingame->get_line( 11 ),
+		add_comma( money )
 	);
 
 	txtbuf.str( "" );
-	txtbuf << env.ingame->Get_Line( 12 ) << ": " << env.rounds - global.currentround << "/" << env.rounds;
+	txtbuf << env.ingame->get_line( 12 ) << ": " << env.rounds - global.current_round << "/" << env.rounds;
 	int txtlen = text_length( font, txtbuf.str().c_str() );
-	textout_ex( global.canvas, font, txtbuf.str().c_str(), env.halfWidth + 180 - txtlen, 0, BLACK, -1 );
+	textout_ex( global.canvas, font, txtbuf.str().c_str(), env.half_width + 180 - txtlen, 0, BLACK, -1 );
 
 	txtbuf.str( "" );
-	txtbuf << env.ingame->Get_Line( 13 ) << ": " << env.players[ pl ]->score;
+	txtbuf << env.ingame->get_line( 13 ) << ": " << env.players[ pl ]->score;
 	txtlen = text_length( font, txtbuf.str().c_str() );
-	textout_ex( global.canvas, font, txtbuf.str().c_str(), env.halfWidth + 160 - txtlen, 14, BLACK, -1 );
+	textout_ex( global.canvas, font, txtbuf.str().c_str(), env.half_width + 160 - txtlen, 14, BLACK, -1 );
 
 	draw_weapon_list( env.players[ pl ] );
 
@@ -600,19 +600,19 @@ void Shop::finish( int32_t pl ) {
 }
 
 void Shop::give_interests() {
-	for ( int32_t z = 0; ( z < env.numGamePlayers ) && !global.isCloseBtnPressed(); z++ ) {
+	for ( int32_t z = 0; ( z < env.num_game_players ) && !global.is_close_btn_pressed(); z++ ) {
 		money            = env.players[ z ]->money;
 		int32_t intLevel = 0;
 		double  intSum   = 0.; // The summed-up interest
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "======================================================", 0 )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "======================================================", 0 )
 		DEBUG_LOG_FIN(
-			env.players[ z ]->getName(),
+			env.players[ z ]->get_name(),
 			"%2d.: %s enters the bank to get interest:",
 			( z + 1 ),
-			env.players[ z ]->getName()
+			env.players[ z ]->get_name()
 		)
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Starting Account: %10d", env.players[ z ]->money )
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "------------------------------------------------------", 0 )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Starting Account: %10d", env.players[ z ]->money )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "------------------------------------------------------", 0 )
 		while ( money && ( intLevel++ < 5 ) ) {
 			// Enter next level
 			double intPerc  = ( env.interest - 1.0 ) / intLevel;
@@ -629,26 +629,26 @@ void Shop::give_interests() {
 			money  -= ROUND( interest / intPerc );
 
 			DEBUG_LOG_FIN(
-				env.players[ z ]->getName(),
+				env.players[ z ]->get_name(),
 				"     Level %1d:  %8d credits are rated,",
 				intLevel,
 				static_cast< int32_t >( interest / intPerc )
 			)
-			DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Interest: %8d credits. (%5.2f%%)", interest, intPerc * 100. )
+			DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Interest: %8d credits. (%5.2f%%)", interest, intPerc * 100. )
 
 			// To get rid of (possible) rounding errors, add a security check:
 			if ( ( money < ( 4 * intLevel ) ) || ( interest < 1 ) ) {
 				money = 0; // With less there won't be any more interest anyway!
 			}
 
-			DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Unrated : %8d credits left.", money )
+			DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Unrated : %8d credits left.", money )
 		}
 
 		// Now give them their money:
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Sum:      %8d credits.", ROUND( intSum ) )
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "------------------------------------------------------", 0 )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Sum:      %8d credits.", ROUND( intSum ) )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "------------------------------------------------------", 0 )
 		env.players[ z ]->money += ROUND( intSum );
-		DEBUG_LOG_FIN( env.players[ z ]->getName(), "     Final Account   : %10d", env.players[ z ]->money )
+		DEBUG_LOG_FIN( env.players[ z ]->get_name(), "     Final Account   : %10d", env.players[ z ]->money )
 	} // End of looping players
 }
 
@@ -682,17 +682,17 @@ void Shop::handle_move_up_down() {
 
 	// Move down the list
 	else if ( ( K == KEY_DOWN ) || ( K == KEY_S ) ) {
-		if ( item_index < ( env.numAvailable - 1 ) ) {
+		if ( item_index < ( env.num_available - 1 ) ) {
 			item_index++;
 		}
 		if ( ( item_index - item_scrolled_to ) >= btps ) {
 			item_scrolled_to = item_index - ( btps - 1 );
 		}
 		need_draw = true;
-	} else if ( ( ( K == KEY_PGDN ) || ( K == KEY_F ) ) && ( item_scrolled_to <= ( env.numAvailable - btps ) ) ) {
+	} else if ( ( ( K == KEY_PGDN ) || ( K == KEY_F ) ) && ( item_scrolled_to <= ( env.num_available - btps ) ) ) {
 		item_index += btps;
-		if ( item_index > env.numAvailable - 1 ) {
-			item_index = env.numAvailable - 1;
+		if ( item_index > env.num_available - 1 ) {
+			item_index = env.num_available - 1;
 		}
 		if ( ( item_index - item_scrolled_to ) >= btps ) {
 			item_scrolled_to = item_index - ( btps - 1 );
@@ -710,7 +710,7 @@ void Shop::handle_move_up_down() {
 
 void Shop::init() {
 	// If the close button was pressed, the creator thread must end ASAP and we have to get out of here.
-	if ( global.isCloseBtnPressed() ) {
+	if ( global.is_close_btn_pressed() ) {
 		lvl_creator->die_now();
 		done = true;
 		return;
@@ -719,14 +719,14 @@ void Shop::init() {
 	draw_shop( nullptr );
 
 	// Determine btps:
-	btps = ROUNDu( ( env.screenHeight - SHOP_BAR_HEIGHT ) / STUFF_BAR_HEIGHT );
+	btps = ROUNDu( ( env.screen_height - SHOP_BAR_HEIGHT ) / STUFF_BAR_HEIGHT );
 
 	// Init global for drawing the shop:
 	global.do_updates();
-	global.stopwindow = true;
+	global.stop_window = true;
 
 	// before we do anything else, put a cap on money
-	for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
+	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		if ( env.players[ z ]->money > 1000000000 ) {
 			env.players[ z ]->money = 1000000000;
 		}
@@ -736,9 +736,9 @@ void Shop::init() {
 	}
 
 
-	if ( env.isGameLoaded ) {
+	if ( env.is_game_loaded ) {
 		// after the first shopping loop the game isn't fresh any more
-		env.isGameLoaded = false;
+		env.is_game_loaded = false;
 	} else {
 		// Money dividing within the non-neutral teams only happens if no game
 		// was loaded. Game saving is done after that rounds money dividing.
@@ -747,31 +747,31 @@ void Shop::init() {
 
 
 	// Determine maximum boost value and score
-	for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
-		int32_t boostValue = env.players[ z ]->getBoostValue();
-		if ( boostValue > maxBoost ) {
-			maxBoost = boostValue;
+	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
+		int32_t boostValue = env.players[ z ]->get_boost_value();
+		if ( boostValue > max_boost ) {
+			max_boost = boostValue;
 		}
-		if ( env.players[ z ]->score > maxScore ) {
-			maxScore = env.players[ z ]->score;
+		if ( env.players[ z ]->score > max_score ) {
+			max_score = env.players[ z ]->score;
 		}
 	}
 
 	// If this is demo mode, raise the max boost level, as there
 	// are no human players to define a maximum value
 	if ( global.demo_mode ) {
-		maxBoost += static_cast< int32_t >( env.rounds - global.currentround );
+		max_boost += static_cast< int32_t >( env.rounds - global.current_round );
 	}
 }
 
 void Shop::perform_save_game() {
-	if ( !performed_save_game && Save_Game() ) {
+	if ( !performed_save_game && save_game() ) {
 		performed_save_game = true;
 	}
 	if ( performed_save_game ) {
-		info_text.assign( env.ingame->Get_Line( 17 ) ).append( "\"" ).append( env.game_name ).append( "\"" );
+		info_text.assign( env.ingame->get_line( 17 ) ).append( "\"" ).append( env.game_name ).append( "\"" );
 	} else {
-		info_text.assign( env.ingame->Get_Line( 41 ) );
+		info_text.assign( env.ingame->get_line( 41 ) );
 	}
 	draw_text_in_box( &info_area, info_text.c_str(), true );
 	need_draw = true;
@@ -779,7 +779,7 @@ void Shop::perform_save_game() {
 
 void Shop::put_into_trolley( int32_t pl ) {
 	int32_t cost, amt, inInv;
-	selected_item = env.availableItems[ item_index ];
+	selected_item = env.available_items[ item_index ];
 	if ( selected_item >= WEAPONS ) {
 		cost  = item[ selected_item - WEAPONS ].cost;
 		amt   = item[ selected_item - WEAPONS ].amt;
@@ -797,8 +797,8 @@ void Shop::put_into_trolley( int32_t pl ) {
 
 	if ( ( money >= cost ) && ( ( inInv + trolley[ selected_item ] ) < ( MAX_ITEMS_IN_STOCK - amt ) ) ) {
 		if ( trolley[ selected_item ] <= -amt ) {
-			if ( env.sellpercent > 0.01 ) {
-				money                    -= ROUND( cost * env.sellpercent );
+			if ( env.sell_percent > 0.01 ) {
+				money                    -= ROUND( cost * env.sell_percent );
 				trolley[ selected_item ] += amt;
 				need_draw                 = true;
 			}
@@ -835,7 +835,7 @@ void Shop::reset( int32_t pl ) {
 
 void Shop::take_out_of_trolley( int32_t pl ) {
 	int32_t cost, amt, inInv;
-	selected_item = env.availableItems[ item_index ];
+	selected_item = env.available_items[ item_index ];
 	if ( selected_item >= WEAPONS ) {
 		cost  = item[ selected_item - WEAPONS ].cost;
 		amt   = item[ selected_item - WEAPONS ].amt;
@@ -857,8 +857,8 @@ void Shop::take_out_of_trolley( int32_t pl ) {
 			trolley[ selected_item ] -= amt;
 			need_draw                 = true;
 		} else {
-			if ( env.sellpercent > 0.01 ) {
-				money                    += ROUND( cost * env.sellpercent );
+			if ( env.sell_percent > 0.01 ) {
+				money                    += ROUND( cost * env.sell_percent );
 				trolley[ selected_item ] -= amt;
 				need_draw                 = true;
 			}
@@ -868,18 +868,18 @@ void Shop::take_out_of_trolley( int32_t pl ) {
 }
 
 /// ==== The Shop (tm) ====
-bool shop( LevelCreator* lvl_creator ) {
+bool shop( CLevelCreator* lvl_creator ) {
 	Shop new_shop( lvl_creator );
 	new_shop();
 
 
 	// If the close button was pressed, the creator thread must end ASAP so we can get out of here.
-	if ( global.isCloseBtnPressed() ) {
+	if ( global.is_close_btn_pressed() ) {
 		lvl_creator->die_now();
 	}
 
 
-	// The LevelCreator, if not finished, can work alone, now:
+	// The CLevelCreator, if not finished, can work alone, now:
 	if ( !lvl_creator->is_finished() ) {
 		lvl_creator->work_alone();
 	}
@@ -902,14 +902,14 @@ bool shop( LevelCreator* lvl_creator ) {
 	}
 
 
-	return !global.isCloseBtnPressed();
+	return !global.is_close_btn_pressed();
 }
 
 /*
  *  Calculate the potential damage for a given weapon.
  */
-static int32_t calcPotentialDmg( int32_t weapNum ) {
-	WEAPON* weap = &weapon[ weapNum ];
+static int32_t calc_potential_dmg( int32_t weap_num ) {
+	CWeapon* weap = &weapon[ weap_num ];
 
 	if ( ( weap->submunition >= 0 ) && ( weap->numSubmunitions > 0 ) ) {
 		return weapon[ weap->submunition ].damage * weap->numSubmunitions;
@@ -930,7 +930,7 @@ static void divide_team_money() {
 	int32_t sithCount = 0;
 	int32_t teamFee   = 0;
 
-	for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
+	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		// Sum up team money:
 		if ( env.players[ z ]->team == TEAM_JEDI ) {
 			teamFee = ROUND( env.players[ z ]->money / 4. );
@@ -958,7 +958,7 @@ static void divide_team_money() {
 		DEBUG_LOG_FIN( "Overview", "The Jedi summed up a pool of %13d credits!", jediMoney )
 		jediMoney = ROUND( jediMoney * .9 / jediCount );
 		DEBUG_LOG_FIN( "Overview", "Every Jedi will receive %10d credits out of the pool!", jediMoney )
-		for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
+		for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 			if ( TEAM_JEDI == env.players[ z ]->team ) {
 				teamFee = ROUND( env.players[ z ]->money / 4. );
 				if ( teamFee > MAX_TEAM_AMOUNT ) {
@@ -974,7 +974,7 @@ static void divide_team_money() {
 		DEBUG_LOG_FIN( "Overview", "The Sith summed up a pool of %13d credits!", sithMoney )
 		sithMoney = ROUND( sithMoney * .9 / sithCount );
 		DEBUG_LOG_FIN( "Overview", "Every Sith will receive %10d credits out of the pool!", sithMoney )
-		for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
+		for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 			if ( TEAM_SITH == env.players[ z ]->team ) {
 				teamFee = ROUND( env.players[ z ]->money / 4. );
 				if ( teamFee > MAX_TEAM_AMOUNT ) {
@@ -988,36 +988,36 @@ static void divide_team_money() {
 }
 
 /// @brief dedicated function for AI shopping.
-void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
+void do_ai_shopping( CPlayer* player, int32_t max_boost, int32_t max_score ) {
 	// Print player info and inventory
 #ifdef ATANKS_DEBUG_FINANCE
-	DEBUG_LOG_FIN( player->getName(), "Starting to buy: (Defensiveness: %4.2lf)", player->defensive )
+	DEBUG_LOG_FIN( player->get_name(), "Starting to buy: (Defensiveness: %4.2lf)", player->defensive )
 
 
-	DEBUG_LOG_FIN( player->getName(), " --- Inventory --- ", 0 )
-	DEBUG_LOG_FIN( player->getName(), "-------------------", 0 )
+	DEBUG_LOG_FIN( player->get_name(), " --- Inventory --- ", 0 )
+	DEBUG_LOG_FIN( player->get_name(), "-------------------", 0 )
 	for ( int32_t i = 1; i < WEAPONS; ++i ) {
 		if ( player->nm[ i ] ) {
 			DEBUG_LOG_FIN(
-				player->getName(),
+				player->get_name(),
 				"% 4d x %s",
-				player->nm[ i ] / weapon[ i ].getDelayDiv(),
-				weapon[ i ].getName()
+				player->nm[ i ] / weapon[ i ].get_delay_div(),
+				weapon[ i ].get_name()
 			)
 		}
 	}
-	DEBUG_LOG_FIN( player->getName(), " - - - - - - - - - ", 0 )
+	DEBUG_LOG_FIN( player->get_name(), " - - - - - - - - - ", 0 )
 	for ( int32_t i = 1; i < ITEMS; ++i ) {
 		if ( player->ni[ i ] ) {
-			DEBUG_LOG_FIN( player->getName(), "% 4d x %s", player->ni[ i ], item[ i ].getName() )
+			DEBUG_LOG_FIN( player->get_name(), "% 4d x %s", player->ni[ i ], item[ i ].get_name() )
 		}
 	}
-	DEBUG_LOG_FIN( player->getName(), "-------------------", 0 )
+	DEBUG_LOG_FIN( player->get_name(), "-------------------", 0 )
 
 	int32_t oldMoneyToSave = -1; // So the same message isn't repeated over and over again.
 #endif                               // ATANKS_DEBUG_FINANCE
 
-	player->updatePreferences( maxBoost, maxScore );
+	player->update_preferences( max_boost, max_score );
 
 	// money saving will be made possible when:
 	// 1. It's not the first three rounds
@@ -1038,15 +1038,15 @@ void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
 		int32_t moneyToSave = 0; // How much money will the player save?
 
 		// The AI does not save up money in the first three or last five rounds
-		if ( ( global.currentround > 5 ) && ( ( env.rounds - global.currentround ) > 3 ) ) {
-			moneyToSave = player->getMoneyToSave( !buy_count );
+		if ( ( global.current_round > 5 ) && ( ( env.rounds - global.current_round ) > 3 ) ) {
+			moneyToSave = player->get_money_to_save( !buy_count );
 #ifdef ATANKS_DEBUG_FINANCE
 			if ( oldMoneyToSave != moneyToSave ) {
-				DEBUG_LOG_FIN( player->getName(), "Maximum Money to save: %d (I have %d)", moneyToSave, player->money )
+				DEBUG_LOG_FIN( player->get_name(), "Maximum Money to save: %d (I have %d)", moneyToSave, player->money )
 				oldMoneyToSave = moneyToSave;
 			}
 		} else {
-			DEBUG_LOG_FIN( player->getName(), "No money to save this round!", 0 );
+			DEBUG_LOG_FIN( player->get_name(), "No money to save this round!", 0 );
 		}
 #else
 		}
@@ -1058,24 +1058,24 @@ void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
 		for ( int32_t i = 1; i < WEAPONS; ++i ) {
 			// start from 1, as 0 is the small missile
 			if ( weapon[ i ].damage > 0 ) {
-				numDmgWeaps += player->nm[ i ] / weapon[ i ].getDelayDiv();
+				numDmgWeaps += player->nm[ i ] / weapon[ i ].get_delay_div();
 			}
 		}
 
 		// Try to choose something to buy if enough money is there or either
 		// the number of parachutes or damage dealing weapons is too low.
-		if ( ( player->money > moneyToSave ) || ( ( numPara < ai_level ) && ( env.landSlideType > SLIDE_NONE ) )
+		if ( ( player->money > moneyToSave ) || ( ( numPara < ai_level ) && ( env.landslide_type > SLIDE_NONE ) )
 		     || ( numDmgWeaps < ( ai_level * 2 ) ) ) {
-			pressed = player->chooseItemToBuy( maxBoost, last_buy_idx );
+			pressed = player->choose_item_to_buy( max_boost, last_buy_idx );
 		} else {
 			pressed = -1; // Forced to end.
 		}
 
 		DEBUG_LOG_FIN(
-			player->getName(),
+			player->get_name(),
 			"I have %s%s%s%d credits left%s",
 			pressed > -1 ? "bought: " : "finished, with ",
-			pressed > -1 ? pressed < WEAPONS ? weapon[ pressed ].getName() : item[ pressed - WEAPONS ].getName() : "",
+			pressed > -1 ? pressed < WEAPONS ? weapon[ pressed ].get_name() : item[ pressed - WEAPONS ].get_name() : "",
 			pressed < 0 ? " " : " (",
 			player->money,
 			pressed < 0 ? "" : ")"
@@ -1083,30 +1083,30 @@ void do_ai_shopping( PLAYER* player, int32_t maxBoost, int32_t maxScore ) {
 		buy_count++;
 	} while ( ( pressed != -1 ) && ( buy_count < 1000 ) );
 
-	DEBUG_LOG_FIN( player->getName(), "============================================", 0 )
+	DEBUG_LOG_FIN( player->get_name(), "============================================", 0 )
 }
 
-static void draw_shop( PLAYER* pl ) {
-	global.make_update( 0, 0, env.screenWidth, env.screenHeight );
-	global.lockLand();
+static void draw_shop( CPlayer* pl ) {
+	global.make_update( 0, 0, env.screen_width, env.screen_height );
+	global.lock_land();
 	SHOW_MOUSE( nullptr )
 	draw_simple_bg( false );
 
 	if ( pl ) {
-		draw_sprite( global.canvas, env.misc[ DONE_IMAGE ], env.halfWidth - 100, env.screenHeight - 50 );
+		draw_sprite( global.canvas, env.misc[ DONE_IMAGE ], env.half_width - 100, env.screen_height - 50 );
 		draw_sprite(
 			global.canvas,
 			env.misc[ FAST_UP_ARROW_IMAGE ],
-			env.screenWidth - STUFF_BAR_WIDTH - 30,
-			env.halfHeight - 50
+			env.screen_width - STUFF_BAR_WIDTH - 30,
+			env.half_height - 50
 		);
-		draw_sprite( global.canvas, env.misc[ UP_ARROW_IMAGE ], env.screenWidth - STUFF_BAR_WIDTH - 30, env.halfHeight - 25 );
-		draw_sprite( global.canvas, env.misc[ DOWN_ARROW_IMAGE ], env.screenWidth - STUFF_BAR_WIDTH - 30, env.halfHeight );
+		draw_sprite( global.canvas, env.misc[ UP_ARROW_IMAGE ], env.screen_width - STUFF_BAR_WIDTH - 30, env.half_height - 25 );
+		draw_sprite( global.canvas, env.misc[ DOWN_ARROW_IMAGE ], env.screen_width - STUFF_BAR_WIDTH - 30, env.half_height );
 		draw_sprite(
 			global.canvas,
 			env.misc[ FAST_DOWN_ARROW_IMAGE ],
-			env.screenWidth - STUFF_BAR_WIDTH - 30,
-			env.halfHeight + 25
+			env.screen_width - STUFF_BAR_WIDTH - 30,
+			env.half_height + 25
 		);
 	}
 
@@ -1114,10 +1114,10 @@ static void draw_shop( PLAYER* pl ) {
 	global.current_drawing_mode = DRAW_MODE_TRANS;
 
 	if ( pl ) {
-		double  left  = env.halfWidth - 200; // short cut
-		int32_t right = env.screenWidth - 1; // another short cut.
+		double  left  = env.half_width - 200; // short cut
+		int32_t right = env.screen_width - 1; // another short cut.
 
-		for ( int32_t z = 0; z < env.halfWidth - 200; z++ ) {
+		for ( int32_t z = 0; z < env.half_width - 200; z++ ) {
 			set_trans_blender( 0, 0, 0, ROUNDu( static_cast< double >( z ) / left * 240 ) + 15 );
 			vline( global.canvas, z, 0, SHOP_BAR_HEIGHT, pl->color );
 			vline( global.canvas, right - z, 0, SHOP_BAR_HEIGHT, pl->color );
@@ -1128,18 +1128,18 @@ static void draw_shop( PLAYER* pl ) {
 	global.current_drawing_mode = DRAW_MODE_SOLID;
 
 	if ( pl ) {
-		textout_ex( global.canvas, font, env.ingame->Get_Line( 14 ), 20, 420, WHITE, -1 );
-		textout_ex( global.canvas, font, env.ingame->Get_Line( 15 ), 20, 450, WHITE, -1 );
-		textout_ex( global.canvas, font, env.ingame->Get_Line( 16 ), 20, 465, WHITE, -1 );
+		textout_ex( global.canvas, font, env.ingame->get_line( 14 ), 20, 420, WHITE, -1 );
+		textout_ex( global.canvas, font, env.ingame->get_line( 15 ), 20, 450, WHITE, -1 );
+		textout_ex( global.canvas, font, env.ingame->get_line( 16 ), 20, 465, WHITE, -1 );
 	}
 
-	global.unlockLand();
+	global.unlock_land();
 	fi = 1;
 }
 
 void draw_simple_bg( bool drawImage ) {
-	if ( !env.drawBackground ) {
-		rectfill( global.canvas, 0, 0, env.screenWidth - 1, env.screenHeight - 1, BLACK );
+	if ( !env.draw_background ) {
+		rectfill( global.canvas, 0, 0, env.screen_width - 1, env.screen_height - 1, BLACK );
 	} else if ( drawImage && env.misc[ 17 ] ) {
 		stretch_blit(
 			env.misc[ 17 ],
@@ -1150,17 +1150,17 @@ void draw_simple_bg( bool drawImage ) {
 			env.misc[ 17 ]->h,
 			0,
 			0,
-			env.screenWidth,
-			env.screenHeight
+			env.screen_width,
+			env.screen_height
 		);
 	} else {
-		rectfill( global.canvas, 0, 0, env.screenWidth - 1, env.screenHeight - 1, DARK_GREEN );
+		rectfill( global.canvas, 0, 0, env.screen_width - 1, env.screen_height - 1, DARK_GREEN );
 	}
 }
 
 /** @brief Executes a fast and simple transition from global.canvas to the screen.
  **/
-void quickChange( bool clearerror ) {
+void quick_change( bool clearerror ) {
 	if ( errorMessage ) {
 		textout_ex( global.canvas, font, errorMessage, errorX, errorY, makecol( 255, 0, 0 ), -1 );
 		if ( clearerror ) {
@@ -1168,5 +1168,5 @@ void quickChange( bool clearerror ) {
 		}
 	}
 
-	blit( global.canvas, screen, 0, 0, 0, 0, env.screenWidth, env.screenHeight );
+	blit( global.canvas, screen, 0, 0, 0, 0, env.screen_width, env.screen_height );
 }

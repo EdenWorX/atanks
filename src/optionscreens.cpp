@@ -2,45 +2,46 @@
 
 #include "files.h"
 #include "player.h"
+#include "random.h"
 
 // Helper functions to build the sub menus for the options screen
 static void
-	build_Physics( Menu &mPhysics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
+	build_Physics( CMenu &mPhysics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
 static void
-	build_Weather( Menu &mWeather, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
+	build_Weather( CMenu &mWeather, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
 static void
-	build_Graphics( Menu &mGraphics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
+	build_Graphics( CMenu &mGraphics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
 static void
-	build_Money( Menu &mMoney, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
+	build_Money( CMenu &mMoney, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
 static void
-	build_Network( Menu &mNetwork, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
+	build_Network( CMenu &mNetwork, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
 static void
-	build_Sound( Menu &mSound, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
+	build_Sound( CMenu &mSound, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY );
 
 // Helper action function to do direct language changes
 #define LANG_SWITCH_TRIGGER 0x0BadCafe
-int32_t switch_language( eLanguages *lang, int32_t val );
+int32_t switch_language( ELanguages *lang, int32_t val );
 
-/** @brief draw the Menu Background
+/** @brief draw the CMenu Background
  *
  * Draws a 600x400 centred box, fills it with some random lines or circles.
  * Someday, we should make this more generic; have it take the box dimensions
  * as an input parameter.
  **/
-void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
+void    draw_menu_background( EBackgroundTypes backType, int32_t tOffset, int32_t numItems ) {
         rectfill(
                 global.canvas,
-                env.halfWidth - 300,
-                env.menuBeginY, // 100,
-                env.halfWidth + 300,
-                env.menuEndY,   // env.screenHeight - 100,
+                env.half_width - 300,
+                env.menu_begin_y, // 100,
+                env.half_width + 300,
+                env.menu_end_y,   // env.screen_height - 100,
                 makecol( 0, 79, 0 )
         );
         rect( global.canvas,
-              env.halfWidth - 300,
-              env.menuBeginY, // 100,
-              env.halfWidth + 300,
-              env.menuEndY,   // env.screenHeight - 100,
+              env.half_width - 300,
+              env.menu_begin_y, // 100,
+              env.half_width + 300,
+              env.menu_end_y,   // env.screen_height - 100,
               makecol( 128, 255, 128 ) );
 
         if ( BACKGROUND_BLANK == backType ) return;
@@ -51,18 +52,18 @@ void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t 
 
         for ( int32_t tCount = 0; tCount < numItems; tCount++ ) {
                 auto radius = static_cast< int32_t >(
-                        ( perlin1DPoint( 1.0, 5, ( tOffset * 0.0333 ) + tCount + 423346, 0.5, 8 ) + 1.1 ) * 20
+                        ( perlin_1d_point( 1.0, 5, ( tOffset * 0.0333 ) + tCount + 423346, 0.5, 8 ) + 1.1 ) * 20
                 ); // [0.1;2.1]
                 int32_t xpos =
-                        env.halfWidth
+                        env.half_width
                         + static_cast< int32_t >(
-                                perlin1DPoint( 1.0, 3, ( tOffset * 0.0166 ) + tCount + 232662, 0.3, 3 ) * ( 299 - radius )
+                                perlin_1d_point( 1.0, 3, ( tOffset * 0.0166 ) + tCount + 232662, 0.3, 3 ) * ( 299 - radius )
                         );
                 int32_t ypos =
-                        env.halfHeight
+                        env.half_height
                         + static_cast< int32_t >(
-                                perlin1DPoint( 1.0, 2, ( tOffset * 0.0175 ) + tCount + 42397, 0.3, 3 )
-                                * ( env.halfHeight - env.menuBeginY - radius - 1 )
+                                perlin_1d_point( 1.0, 2, ( tOffset * 0.0175 ) + tCount + 42397, 0.3, 3 )
+                                * ( env.half_height - env.menu_begin_y - radius - 1 )
                         );
                 switch ( backType ) {
                         case BACKGROUND_CIRCLE:
@@ -72,9 +73,9 @@ void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t 
                                 rectfill(
                                         global.canvas,
                                         xpos - radius / 2,
-                                        env.menuBeginY + 1,
+                                        env.menu_begin_y + 1,
                                         xpos + radius / 2,
-                                        env.menuEndY - 1,
+                                        env.menu_end_y - 1,
                                         LIME_GREEN
                                 );
                                 break;
@@ -91,54 +92,128 @@ void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t 
         global.current_drawing_mode = DRAW_MODE_SOLID;
 }
 
+/// @brief Force the creation of one human player through the player editor.
+///
+/// Loops until the user confirms a newly created human player. AI-only
+/// selections are rejected, cancelling without a player repeats the editor.
+void create_human_player() {
+	CPlayer* tempPlayer        = nullptr;
+	int32_t tempRes           = PE_BACK; // EPlayerEdit, player_types.h
+	char    noHumanMsg[ 200 ] = { 0 };
+
+	while ( !( tempRes & PE_CONFIRM_NEW ) ) {
+		tempRes = new_player( &tempPlayer, 0 );
+
+		if ( tempPlayer ) {
+			// Error case 1: The created player is an AI player
+			if ( HUMAN_PLAYER != tempPlayer->type ) {
+				snprintf( noHumanMsg, 199, "The player \"%s\" is no human player!", tempPlayer->get_name() );
+				errorMessage = noHumanMsg;
+				errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+				errorY       = env.menu_begin_y + 15;
+				tempPlayer   = nullptr; // It is saved already
+				tempRes      = PE_BACK;
+			}
+		} else {
+			// error case 2: No player was created at all
+			strncpy( noHumanMsg, "Please create at least one human player!", 199 );
+			errorMessage = noHumanMsg;
+			errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+			errorY       = env.menu_begin_y + 15;
+			tempRes      = PE_BACK;
+		}
+	} // End of force-creating a human player
+}
+
+/// @brief Create the default AI player set.
+void create_ai_players() {
+	// Default AI player names
+	char const* const defaultNames[] = {
+		"Caesar", "Alex", "Hatshepsut", "Patton", "Napoleon", "Attila", "Catherine", "Hannibal", "Stalin", "Mao"
+	};
+
+	for ( auto defaultName : defaultNames ) {
+		CPlayer* tempPlayer = env.create_new_player( defaultName );
+		tempPlayer->type = static_cast< EPlayerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
+		tempPlayer->generate_preferences();
+	}
+}
+
+/// @brief Ensure a usable roster: force one human player if none exists,
+///
+/// plus the default AI set when the roster is completely empty. Called when
+/// entering the PLAY and PLAYERS screens.
+static void ensure_roster_players() {
+	bool roster_was_empty = !env.num_permanent_players;
+	bool has_human       = false;
+
+	for ( int32_t num = 0; num < env.num_permanent_players; ++num ) {
+		if ( HUMAN_PLAYER == env.all_players[ num ]->type ) {
+			has_human = true;
+		}
+	}
+
+	if ( !has_human ) {
+		create_human_player();
+	}
+
+	if ( roster_was_empty ) {
+		create_ai_players();
+	}
+}
+
 /// @brief Show a screen listing all players allowing to create new and edit existing ones.
-void editPlayers() {
+void edit_players() {
 	/// @todo : Currently the width is fixed on 600. This should be made
 	/// more dynamic like the height. Although the height is fixed, too...
 	/// However, there is much to do to get an adaptable and good looking menu...
 
 	int32_t optionsRetVal = 0;
 	int32_t menuMid       = 300;
-	int32_t itemHeight    = env.fontHeight + 2;
+	int32_t itemHeight    = env.font_height + 2;
 	int32_t itemPadding   = 2;
 	int32_t itemY         = ( itemHeight + itemPadding ) * 2;
 	int32_t btnHeight     = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight    = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight    = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t plListHeight =
 		menuHeight - itemY                             // Top area reserved for the title
 		- btnHeight - itemPadding - 2;                 // Bottom area reserved for buttons
+
+	// PLAYERS needs a human player (plus the AI set on an empty roster)
+	ensure_roster_players();
+
 	// "Select Players"
-	Menu    menu( MC_PLAYERS, env.halfWidth - menuMid, env.menuBeginY );
+	CMenu    menu( MC_PLAYERS, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Create New"
-	PLAYER *player_new  = nullptr;
-	int32_t first_idx   = menu.addMenu( &player_new, new_player, 1, menuMid - 53, itemY, 100, itemHeight, itemPadding );
+	CPlayer *player_new  = nullptr;
+	int32_t first_idx   = menu.add_menu( &player_new, new_player, 1, menuMid - 53, itemY, 100, itemHeight, itemPadding );
 	itemY              += itemHeight + itemPadding;
 
-	// Add one entry per player
-	// One Menu per player:
-	// Add one edit option per player
+	// add one entry per player
+	// One CMenu per player:
+	// add one edit option per player
 	int32_t last_idx    = first_idx;
 	int32_t max_width   = 100;
 	plListHeight       -= itemY; // this is left.
 
 	// First loop to determine maximum name width
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ ) {
-		int32_t xLen = text_length( font, env.allPlayers[ num ]->getName() );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ ) {
+		int32_t xLen = text_length( font, env.all_players[ num ]->get_name() );
 		if ( xLen > max_width ) max_width = xLen;
 	}
 
 	// Now really add them
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ )
-		last_idx = menu.addMenu( &env.allPlayers[ num ], edit_player, -1, 0, 0, max_width + 15, itemHeight, itemPadding );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ )
+		last_idx = menu.add_menu( &env.all_players[ num ], edit_player, -1, 0, 0, max_width + 15, itemHeight, itemPadding );
 	// last_idx is one too high now
 	last_idx--;
 
 	// Distribute the player list:
 	menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, false );
 
-	// Add "back" button
-	menu.addButton(
+	// add "back" button
+	menu.add_button(
 		2,
 		nullptr,
 		KEY_ESC,
@@ -153,7 +228,7 @@ void editPlayers() {
 		2
 	);
 
-	while ( ( KEY_ESC != optionsRetVal ) && !global.isCloseBtnPressed() ) {
+	while ( ( KEY_ESC != optionsRetVal ) && !global.is_close_btn_pressed() ) {
 		optionsRetVal = menu();
 
 		// Was an edit confirmed?
@@ -166,18 +241,20 @@ void editPlayers() {
 			--last_idx;
 
 			// The player has to be deleted, too:
-			PLAYER *to_delete = env.allPlayers[ num ];
-			env.deletePermPlayer( to_delete );
+			CPlayer *to_delete = env.all_players[ num ];
+			env.delete_perm_player( to_delete );
 
-			// redistribute the remaining:
-			menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, true );
+			// redistribute the remaining (if there are any left):
+			if ( last_idx >= first_idx ) {
+				menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, true );
+			}
 
 			optionsRetVal = 0;
 		} else if ( PE_CONFIRM_NEW & optionsRetVal ) {
 			if ( player_new ) {
-				// Add a menu entry for the new player:
-				menu.addMenu(
-					&env.allPlayers[ env.numPermanentPlayers - 1 ],
+				// add a menu entry for the new player:
+				menu.add_menu(
+					&env.all_players[ env.num_permanent_players - 1 ],
 					edit_player,
 					-1,
 					0,
@@ -198,7 +275,7 @@ void editPlayers() {
 }
 
 /// @brief The main options menu
-void optionsMenu() {
+void options_menu() {
 	/// @todo : Currently the width is fixed on 600. This should be made
 	/// more dynamic like the height. Although the height is fixed, too...
 	/// However, there is much to do to get an adaptable and good looking menu...
@@ -206,23 +283,23 @@ void optionsMenu() {
 	int32_t optionsRetCode = 0;
 	int32_t menuMid        = 300;
 	int32_t itemWidth      = 210;
-	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemHeight     = env.font_height + 2;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 3;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
-	int32_t menuLeft       = env.halfWidth - menuMid;
-	int32_t menuTop        = env.menuBeginY;
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
+	int32_t menuLeft       = env.half_width - menuMid;
+	int32_t menuTop        = env.menu_begin_y;
 	int32_t idx            = 1;
 
-	Menu    mMain( MC_MAIN, menuLeft, menuTop );
-	Menu    mPhysics( MC_PHYSICS, menuLeft, menuTop );
-	Menu    mWeather( MC_WEATHER, menuLeft, menuTop );
-	Menu    mGraphics( MC_GRAPHICS, menuLeft, menuTop );
-	Menu    mMoney( MC_FINANCE, menuLeft, menuTop );
-	Menu    mNetwork( MC_NETWORK, menuLeft, menuTop );
-	Menu    mSound( MC_SOUND, menuLeft, menuTop );
+	CMenu    mMain( MC_MAIN, menuLeft, menuTop );
+	CMenu    mPhysics( MC_PHYSICS, menuLeft, menuTop );
+	CMenu    mWeather( MC_WEATHER, menuLeft, menuTop );
+	CMenu    mGraphics( MC_GRAPHICS, menuLeft, menuTop );
+	CMenu    mMoney( MC_FINANCE, menuLeft, menuTop );
+	CMenu    mNetwork( MC_NETWORK, menuLeft, menuTop );
+	CMenu    mSound( MC_SOUND, menuLeft, menuTop );
 
 	// As the sub menus must be attached to the main options menu,
 	// they have to be build first, before the main menu can be built.
@@ -236,8 +313,8 @@ void optionsMenu() {
 	// Now the main options screen can be built:
 
 	// "Reset All"
-	Menu mReset( MC_RESET, menuLeft, menuTop );
-	mReset.addButton(
+	CMenu mReset( MC_RESET, menuLeft, menuTop );
+	mReset.add_button(
 		1,
 		nullptr,
 		RO_RESET,
@@ -251,7 +328,7 @@ void optionsMenu() {
 		0,
 		itemPadding
 	);
-	mReset.addButton(
+	mReset.add_button(
 		2,
 		nullptr,
 		RO_BACK,
@@ -267,44 +344,44 @@ void optionsMenu() {
 	);
 
 	// "Reset options"
-	mMain.addMenu( &mReset, idx++, RED, menuMid - ( env.misc[ 7 ]->w / 2 ), itemY, 150, itemFullHeight, itemPadding );
+	mMain.add_menu( &mReset, idx++, RED, menuMid - ( env.misc[ 7 ]->w / 2 ), itemY, 150, itemFullHeight, itemPadding );
 	itemY += btnHeight + itemPadding;
 
 	// "Physics"
-	mMain.addMenu( &mPhysics, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_menu( &mPhysics, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Weather"
-	mMain.addMenu( &mWeather, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_menu( &mWeather, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Graphics"
-	mMain.addMenu( &mGraphics, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_menu( &mGraphics, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Money"
-	mMain.addMenu( &mMoney, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_menu( &mMoney, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Network"
-	mMain.addMenu( &mNetwork, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_menu( &mNetwork, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Sound"
-	mMain.addMenu( &mSound, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_menu( &mSound, idx++, WHITE, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Weapon Tech Level"
-	mMain.addValue( &env.weapontechLevel, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_value( &env.weapontech_level, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Item Tech Level"
-	mMain.addValue( &env.itemtechLevel, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_value( &env.itemtech_level, idx++, WHITE, 0, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Landscape"
-	mMain.addValue(
-		&env.landType,
+	mMain.add_value(
+		&env.land_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -319,8 +396,8 @@ void optionsMenu() {
 	itemY += itemFullHeight;
 
 	// "Turn Order"
-	mMain.addValue(
-		&env.turntype,
+	mMain.add_value(
+		&env.turn_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -335,8 +412,8 @@ void optionsMenu() {
 	itemY += itemFullHeight;
 
 	// "Skip AI-only play"
-	mMain.addValue(
-		&env.skipComputerPlay,
+	mMain.add_value(
+		&env.skip_computer_play,
 		idx++,
 		nullptr,
 		WHITE,
@@ -351,11 +428,11 @@ void optionsMenu() {
 	itemY += itemFullHeight;
 
 	// "Show FPS"
-	mMain.addValue( &env.showFPS, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMain.add_value( &env.show_fps, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Language"
-	mMain.addValue(
+	mMain.add_value(
 		&env.language,
 		switch_language,
 		idx++,
@@ -371,7 +448,7 @@ void optionsMenu() {
 	);
 
 	// "Back"
-	mMain.addButton(
+	mMain.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -388,7 +465,7 @@ void optionsMenu() {
 
 	// Safe the current language, if a new one is selected,
 	// the text files must be reloaded.
-	eLanguages cur_lang = env.language;
+	ELanguages cur_lang = env.language;
 
 	while ( 0 == optionsRetCode ) {
 		int32_t old_fps = env.frames_per_second;
@@ -396,17 +473,17 @@ void optionsMenu() {
 		optionsRetCode  = mMain();
 
 		if ( RO_RESET == optionsRetCode ) {
-			env.Reset_Options();
+			env.reset_options();
 			optionsRetCode = 0;
 		} else if ( RO_BACK == optionsRetCode )
 			optionsRetCode = 0;
 		else if ( LANG_SWITCH_TRIGGER == optionsRetCode ) {
-			mMain.setLanguage( true );
+			mMain.set_language( true );
 			optionsRetCode = 0;
 		}
 
 		// If no exit code is set, redraw the menu:
-		if ( 0 == optionsRetCode ) mMain.redrawAll( true );
+		if ( 0 == optionsRetCode ) mMain.redraw_all( true );
 
 		// Update pre-calculated values if FPS has been changed:
 		if ( old_fps != env.frames_per_second ) env.set_fps( 0 ); // 0 triggers re-calculation only
@@ -415,12 +492,12 @@ void optionsMenu() {
 	// Did the language change?
 	if ( env.language != cur_lang ) {
 		env.load_text_files();
-		Load_Weapons_Text();
+		load_weapons_text();
 	}
 }
 
 /// @brief Show a screen that shows the preparations to create a new game.
-int32_t selectPlayers() {
+int32_t select_players() {
 	/// @todo : Currently the width is fixed on 600. This should be made
 	/// more dynamic like the height. Although the height is fixed, too...
 	/// However, there is much to do to get an adaptable and good looking menu...
@@ -428,12 +505,12 @@ int32_t selectPlayers() {
 	int32_t optionsRetVal  = 0;
 	int32_t menuMid        = 300;
 	int32_t itemWidth      = 120;
-	int32_t itemHeight     = env.fontHeight + 4;
+	int32_t itemHeight     = env.font_height + 4;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 2;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t plListHeight =
 		menuHeight - itemY                              // Top area reserved for the title
 		- btnHeight - itemPadding - 2;                  // Bottom area reserved for buttons
@@ -443,12 +520,21 @@ int32_t selectPlayers() {
 	dirent **saved_game_names;
 	char   **game_list = nullptr;
 
+	// PLAY needs a human player (plus the AI set on an empty roster)
+	ensure_roster_players();
+
+	// Without permanent players there is nothing to select; new players
+	// must be created via the PLAYERS screen first.
+	if ( !env.num_permanent_players ) {
+		return MRC_Esc_Menu;
+	}
+
 	// Use new menu system:
 	// "Select Players"
-	Menu     menu( MC_PLAY, env.halfWidth - menuMid, env.menuBeginY );
+	CMenu     menu( MC_PLAY, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Rounds"
-	menu.addValue(
+	menu.add_value(
 		&env.rounds,
 		idx++,
 		BLACK,
@@ -467,7 +553,7 @@ int32_t selectPlayers() {
 	// "New Game Name"
 	char new_game_name[ GAMENAMELEN + 1 ]  = { 0x0 };
 	strncpy( new_game_name, "New Game", GAMENAMELEN );
-	menu.addText(
+	menu.add_text(
 		new_game_name,
 		idx++,
 		GAMENAMELEN,
@@ -485,7 +571,7 @@ int32_t selectPlayers() {
 	env.game_name.clear();
 
 	// find saved games
-	saved_game_names = Find_Saved_Games( number_saved_games );
+	saved_game_names = find_saved_games( number_saved_games );
 
 	if ( ( saved_game_names ) && ( number_saved_games ) ) {
 
@@ -529,7 +615,7 @@ int32_t selectPlayers() {
 		// set up menu for selecting saved games
 		// "or Load Game"
 		env.saved_gameindex = 0;
-		menu.addValue(
+		menu.add_value(
 			&env.saved_gameindex,
 			idx++,
 			env.saved_game_list,
@@ -545,7 +631,7 @@ int32_t selectPlayers() {
 		itemY += itemFullHeight + 4; // Next two options need more height
 
 		// "Load Game"
-		menu.addToggle( &env.loadGame, idx++, WHITE, menuMid - 125, itemY, 100, itemHeight + 5, itemPadding );
+		menu.add_toggle( &env.load_game, idx++, WHITE, menuMid - 125, itemY, 100, itemHeight + 5, itemPadding );
 		// itemY stays, "Campaign" is on the same row.
 	} // End of having saved games
 
@@ -558,33 +644,35 @@ int32_t selectPlayers() {
 	// "Campaign"
 	// Note: And save the result, it is the first player index
 	int32_t first_idx =
-		menu.addToggle( &env.campaign_mode, idx++, WHITE, menuMid + 25, itemY, 100, itemHeight + 5, itemPadding );
+		menu.add_toggle( &env.campaign_mode, idx++, WHITE, menuMid + 25, itemY, 100, itemHeight + 5, itemPadding );
 	itemY             += itemFullHeight + 7; // ET_TOGGLE needs more height
 
-	// Add one entry per player
+	// add one entry per player
 	int32_t last_idx   = first_idx;
 	int32_t max_width  = 100;
 	plListHeight      -= itemY; // this is left.
 
 	// First loop to determine maximum name width
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ ) {
-		int32_t xLen = text_length( font, env.allPlayers[ num ]->getName() ) + ( 2 * itemPadding );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ ) {
+		int32_t xLen = text_length( font, env.all_players[ num ]->get_name() ) + ( 2 * itemPadding );
 		if ( xLen > max_width ) max_width = xLen;
 	}
 
 	// Now really add them
-	for ( int32_t num = 0; num < env.numPermanentPlayers; num++ )
-		last_idx = menu.addToggle( &env.allPlayers[ num ], 0, 0, max_width + 21, itemHeight, itemPadding );
+	for ( int32_t num = 0; num < env.num_permanent_players; num++ )
+		last_idx = menu.add_toggle( &env.all_players[ num ], 0, 0, max_width + 21, itemHeight, itemPadding );
 
 	// last_idx is one too high now.
 	last_idx--;
 
 
-	// Distribute the player list:
-	menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, false );
+	// Distribute the player list (if there is one; see the roster check above):
+	if ( last_idx >= first_idx ) {
+		menu.distribute( first_idx, last_idx, menuMid * 2, plListHeight, itemY, false );
+	}
 
 	// The "Okay" and "Back" buttons have their own texts to be translated
-	menu.addButton(
+	menu.add_button(
 		idx + 1,
 		nullptr,
 		KEY_ESC,
@@ -598,7 +686,7 @@ int32_t selectPlayers() {
 		0,
 		2
 	);
-	menu.addButton(
+	menu.add_button(
 		idx,
 		nullptr,
 		KEY_ENTER,
@@ -621,7 +709,7 @@ int32_t selectPlayers() {
 	do {
 		optionsRetVal = menu();
 
-		if ( env.loadGame ) {
+		if ( env.load_game ) {
 			if ( env.saved_game_list && ( env.saved_gameindex < env.saved_game_list_size )
 			     && env.saved_game_list[ env.saved_gameindex ][ 0 ] ) {
 
@@ -630,25 +718,25 @@ int32_t selectPlayers() {
 		}
 
 		if ( optionsRetVal == KEY_ENTER ) {
-			if ( env.loadGame ) {
+			if ( env.load_game ) {
 				// A set game shall be loaded
-				if ( Check_For_Saved_Game() )
+				if ( check_for_saved_game() )
 					optionsRetVal = MRC_Load_Game;
 				else {
 					optionsRetVal = 0;
-					errorMessage  = env.ingame->Get_Line( 39 );
-					errorX        = env.halfWidth - text_length( font, errorMessage ) / 2;
-					errorY        = env.menuBeginY + itemFullHeight;
+					errorMessage  = env.ingame->get_line( 39 );
+					errorX        = env.half_width - text_length( font, errorMessage ) / 2;
+					errorY        = env.menu_begin_y + itemFullHeight;
 				}
 			} else {
 				// Start a new game
 				int32_t playerCount = 0;
-				env.numGamePlayers  = 0;
+				env.num_game_players  = 0;
 
-				// Add selected players to the game:
-				for ( int z = 0; z < env.numPermanentPlayers; z++ ) {
-					if ( env.allPlayers[ z ]->selected ) {
-						env.addGamePlayer( env.allPlayers[ z ] );
+				// add selected players to the game:
+				for ( int z = 0; z < env.num_permanent_players; z++ ) {
+					if ( env.all_players[ z ]->selected ) {
+						env.add_game_player( env.all_players[ z ] );
 						playerCount++;
 					}
 				}
@@ -656,12 +744,12 @@ int32_t selectPlayers() {
 				// Check selected players
 				if ( ( playerCount < 2 ) || ( playerCount > MAXPLAYERS ) ) {
 					if ( playerCount < 2 )
-						errorMessage = env.ingame->Get_Line( 8 );
+						errorMessage = env.ingame->get_line( 8 );
 					else if ( playerCount > MAXPLAYERS )
-						errorMessage = env.ingame->Get_Line( 9 );
+						errorMessage = env.ingame->get_line( 9 );
 
-					errorX        = env.halfWidth - text_length( font, errorMessage ) / 2;
-					errorY        = env.menuBeginY + itemFullHeight;
+					errorX        = env.half_width - text_length( font, errorMessage ) / 2;
+					errorY        = env.menu_begin_y + itemFullHeight;
 					optionsRetVal = 0;
 				} else
 					optionsRetVal = MRC_Play_Game;
@@ -671,9 +759,9 @@ int32_t selectPlayers() {
 			  // zero means an error occured.
 		// keep running the loop until ESC is pressed or a non-zero value appears
 	} while ( ( KEY_ESC != optionsRetVal ) && ( MRC_Play_Game != optionsRetVal ) && ( MRC_Load_Game != optionsRetVal )
-	          && !global.isCloseBtnPressed() );
+	          && !global.is_close_btn_pressed() );
 
-	if ( ( KEY_ESC == optionsRetVal ) || global.isCloseBtnPressed() ) optionsRetVal = MRC_Esc_Menu;
+	if ( ( KEY_ESC == optionsRetVal ) || global.is_close_btn_pressed() ) optionsRetVal = MRC_Esc_Menu;
 
 	if ( saved_game_names ) {
 		for ( uint32_t i = 0; i < number_saved_games; ++i ) {
@@ -692,7 +780,7 @@ int32_t selectPlayers() {
 
 	if ( env.game_name.empty() ) {
 		env.game_name.assign( new_game_name );
-		env.loadGame = false;
+		env.load_game = false;
 	}
 
 	return optionsRetVal;
@@ -700,10 +788,10 @@ int32_t selectPlayers() {
 
 // Helper functions to build the sub menus for the options screen
 static void
-	build_Physics( Menu &mPhysics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
+	build_Physics( CMenu &mPhysics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mPhysics.count() ) && "ERROR: mPhysics already built?" );
@@ -711,16 +799,16 @@ static void
 	if ( mPhysics.count() ) return; // Don't build twice!
 
 	// "Gravity"
-	mPhysics.addValue( &env.gravity, idx++, WHITE, .025, .325, .025, "%5.3f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.add_value( &env.gravity, idx++, WHITE, .025, .325, .025, "%5.3f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Viscosity",
-	mPhysics.addValue( &env.viscosity, idx++, WHITE, .25, 2., .25, "%3.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.add_value( &env.viscosity, idx++, WHITE, .25, 2., .25, "%3.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Land Slide"
-	mPhysics.addValue(
-		&env.landSlideType,
+	mPhysics.add_value(
+		&env.landslide_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -735,13 +823,13 @@ static void
 	itemY += itemFullHeight;
 
 	// "Land Slide Delay",
-	mPhysics.addValue( &env.landSlideDelay, idx++, WHITE, 1, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.add_value( &env.landslide_delay, idx++, WHITE, 1, 5, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 
 	// "Wall Type"
-	mPhysics.addValue(
-		&env.wallType,
+	mPhysics.add_value(
+		&env.wall_type,
 		idx++,
 		nullptr,
 		WHITE,
@@ -757,8 +845,8 @@ static void
 
 
 	// "Boxed Mode",
-	mPhysics.addValue(
-		&env.boxedMode,
+	mPhysics.add_value(
+		&env.boxed_mode,
 		idx++,
 		nullptr,
 		WHITE,
@@ -774,7 +862,7 @@ static void
 
 
 	// "Boxed Ceiling Wrapping",
-	mPhysics.addValue(
+	mPhysics.add_value(
 		&env.do_box_wrap,
 		idx++,
 		nullptr,
@@ -791,7 +879,7 @@ static void
 
 
 	// "Violent Death"
-	mPhysics.addValue(
+	mPhysics.add_value(
 		&env.violent_death,
 		idx++,
 		nullptr,
@@ -808,15 +896,15 @@ static void
 
 
 	// "Timed Shots"
-	mPhysics.addValue( &env.maxFireTime, idx++, WHITE, 0, 180, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.add_value( &env.max_fire_time, idx++, WHITE, 0, 180, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Volley Delay"
-	mPhysics.addValue( &env.volley_delay, idx++, WHITE, 5, 50, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mPhysics.add_value( &env.volley_delay, idx++, WHITE, 5, 50, 1, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Explosion Debris"
-	mPhysics.addValue(
+	mPhysics.add_value(
 		&env.debris_level,
 		idx++,
 		nullptr,
@@ -831,7 +919,7 @@ static void
 	);
 
 	// "Back" Button
-	mPhysics.addButton(
+	mPhysics.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -848,10 +936,10 @@ static void
 }
 
 static void
-	build_Weather( Menu &mWeather, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
+	build_Weather( CMenu &mWeather, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mWeather.count() ) && "ERROR: mWeather already built?" );
@@ -860,15 +948,15 @@ static void
 
 
 	// "Meteor Showers"
-	mWeather.addValue( &env.meteors, idx++, nullptr, WHITE, TC_METEOR, 3, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.add_value( &env.meteors, idx++, nullptr, WHITE, TC_METEOR, 3, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Lightning"
-	mWeather.addValue( &env.lightning, idx++, nullptr, WHITE, TC_LIGHTNING, 3, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.add_value( &env.lightning, idx++, nullptr, WHITE, TC_LIGHTNING, 3, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Falling Dirt"
-	mWeather.addValue(
+	mWeather.add_value(
 		&env.falling_dirt_balls,
 		idx++,
 		nullptr,
@@ -884,7 +972,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Laser Satellite"
-	mWeather.addValue(
+	mWeather.add_value(
 		&env.satellite,
 		idx++,
 		nullptr,
@@ -900,20 +988,20 @@ static void
 	itemY += itemFullHeight;
 
 	// "Fog"
-	mWeather.addValue( &env.fog, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.add_value( &env.fog, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 
 	// "Max Wind Strength"
-	mWeather.addValue( &env.windstrength, idx++, WHITE, 0, 100, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.add_value( &env.wind_strength, idx++, WHITE, 0, 100, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 
 	// "Wind Variation"
-	mWeather.addValue( &env.windvariation, idx++, WHITE, 0, 100, 3, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mWeather.add_value( &env.wind_variation, idx++, WHITE, 0, 100, 3, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 
 	// "Back"
-	mWeather.addButton(
+	mWeather.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -930,10 +1018,10 @@ static void
 }
 
 static void
-	build_Graphics( Menu &mGraphics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
+	build_Graphics( CMenu &mGraphics, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mGraphics.count() ) && "ERROR: mGraphics already built?" );
@@ -941,12 +1029,12 @@ static void
 	if ( mGraphics.count() ) return; // Don't build twice!
 
 	// "Full Screen"
-	mGraphics.addValue( &env.full_screen, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.full_screen, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Dithering"
-	mGraphics.addValue(
-		&env.ditherGradients,
+	mGraphics.add_value(
+		&env.dither_gradients,
 		idx++,
 		nullptr,
 		WHITE,
@@ -961,8 +1049,8 @@ static void
 	itemY += itemFullHeight;
 
 	// "Detailed Land"
-	mGraphics.addValue(
-		&env.detailedLandscape,
+	mGraphics.add_value(
+		&env.detailed_landscape,
 		idx++,
 		nullptr,
 		WHITE,
@@ -977,24 +1065,24 @@ static void
 	itemY += itemFullHeight;
 
 	// "Detailed Sky"
-	mGraphics.addValue( &env.detailedSky, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.detailed_sky, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Fading Text"
-	mGraphics.addValue( &env.fadingText, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.fading_text, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Shadowed Text"
-	mGraphics.addValue( &env.shadowedText, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.shadowed_text, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Swaying Text"
-	mGraphics.addValue( &env.swayingText, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.swaying_text, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Colour Theme"
-	mGraphics.addValue(
-		&env.colourTheme,
+	mGraphics.add_value(
+		&env.colour_theme,
 		idx++,
 		nullptr,
 		WHITE,
@@ -1009,8 +1097,8 @@ static void
 	itemY += itemFullHeight;
 
 	// "Screen Width"
-	mGraphics.addValue(
-		&env.temp_screenWidth,
+	mGraphics.add_value(
+		&env.temp_screen_width,
 		idx++,
 		WHITE,
 		800,
@@ -1026,8 +1114,8 @@ static void
 	itemY += itemFullHeight;
 
 	// "Screen Height"
-	mGraphics.addValue(
-		&env.temp_screenHeight,
+	mGraphics.add_value(
+		&env.temp_screen_height,
 		idx++,
 		WHITE,
 		600,
@@ -1043,15 +1131,15 @@ static void
 	itemY += itemFullHeight;
 
 	// "Mouse Pointer"
-	mGraphics.addValue( &env.osMouse, idx++, nullptr, WHITE, TC_MOUSE, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.os_mouse, idx++, nullptr, WHITE, TC_MOUSE, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Game Speed"
-	mGraphics.addValue( &env.frames_per_second, idx++, WHITE, 30, 1000, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mGraphics.add_value( &env.frames_per_second, idx++, WHITE, 30, 1000, 5, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Custom Background"
-	mGraphics.addValue(
+	mGraphics.add_value(
 		&env.custom_background,
 		idx++,
 		nullptr,
@@ -1067,8 +1155,8 @@ static void
 	itemY += itemFullHeight;
 
 	// "Show AI Feedback"
-	mGraphics.addValue(
-		&env.showAIFeedback,
+	mGraphics.add_value(
+		&env.show_ai_feedback,
 		idx++,
 		nullptr,
 		WHITE,
@@ -1082,12 +1170,12 @@ static void
 	);
 	itemY += itemFullHeight;
 
-	// "Dynamic Menu Background"
-	mGraphics.addValue( &env.dynamicMenuBg, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	// "Dynamic CMenu Background"
+	mGraphics.add_value( &env.dynamic_menu_bg, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 
 
 	// "Back"
-	mGraphics.addButton(
+	mGraphics.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -1104,10 +1192,10 @@ static void
 }
 
 static void
-	build_Money( Menu &mMoney, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
+	build_Money( CMenu &mMoney, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mMoney.count() ) && "ERROR: mMoney already built?" );
@@ -1115,15 +1203,15 @@ static void
 	if ( mMoney.count() ) return; // Don't build twice!
 
 	// "Starting Money"
-	mMoney.addValue( &env.startmoney, idx++, WHITE, 0, 200000, 5000, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.start_money, idx++, WHITE, 0, 200000, 5000, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Interest Rate"
-	mMoney.addValue( &env.interest, idx++, WHITE, 1., 1.5, .05, "%3.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.interest, idx++, WHITE, 1., 1.5, .05, "%3.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Round Win Bonus"
-	mMoney.addValue(
+	mMoney.add_value(
 		&env.scoreRoundWinBonus,
 		idx++,
 		WHITE,
@@ -1140,19 +1228,19 @@ static void
 	itemY += itemFullHeight;
 
 	// "Damage Bounty"
-	mMoney.addValue( &env.scoreHitUnit, idx++, WHITE, 0, 500, 25, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.scoreHitUnit, idx++, WHITE, 0, 500, 25, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Self-Damage Penalty"
-	mMoney.addValue( &env.scoreSelfHit, idx++, WHITE, 0, 5000, 25, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.scoreSelfHit, idx++, WHITE, 0, 5000, 25, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Team-Damage Penalty"
-	mMoney.addValue( &env.scoreTeamHit, idx++, WHITE, 0, 5000, 10, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.scoreTeamHit, idx++, WHITE, 0, 5000, 10, "%d", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Tank Destruction Bonus"
-	mMoney.addValue(
+	mMoney.add_value(
 		&env.scoreUnitDestroyBonus,
 		idx++,
 		WHITE,
@@ -1169,7 +1257,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Tank Self-Destruction Penalty"
-	mMoney.addValue(
+	mMoney.add_value(
 		&env.scoreUnitSelfDestroy,
 		idx++,
 		WHITE,
@@ -1186,14 +1274,14 @@ static void
 	itemY += itemFullHeight;
 
 	// "Item Sell Multiplier"
-	mMoney.addValue( &env.sellpercent, idx++, WHITE, 0., 1., .1, "%2.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.sell_percent, idx++, WHITE, 0., 1., .1, "%2.2f", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Teams Share"
-	mMoney.addValue( &env.divide_money, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mMoney.add_value( &env.divide_money, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 
 	// "Back"
-	mMoney.addButton(
+	mMoney.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -1210,10 +1298,10 @@ static void
 }
 
 static void
-	build_Network( Menu &mNetwork, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
+	build_Network( CMenu &mNetwork, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mNetwork.count() ) && "ERROR: mNetwork already built?" );
@@ -1222,7 +1310,7 @@ static void
 
 
 	// "Check Updates"
-	mNetwork.addValue(
+	mNetwork.add_value(
 		&env.check_for_updates,
 		idx++,
 		nullptr,
@@ -1238,7 +1326,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Networking"
-	mNetwork.addValue(
+	mNetwork.add_value(
 		&env.network_enabled,
 		idx++,
 		nullptr,
@@ -1254,7 +1342,7 @@ static void
 	itemY += itemFullHeight;
 
 	// "Listen Port"
-	mNetwork.addValue(
+	mNetwork.add_value(
 		&env.network_port,
 		idx++,
 		WHITE,
@@ -1271,14 +1359,14 @@ static void
 	itemY += itemFullHeight;
 
 	// "Server Address"
-	mNetwork.addText( env.server_name, idx++, 127, WHITE, "%s", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mNetwork.add_text( env.server_name, idx++, 127, WHITE, "%s", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Server Port"
-	mNetwork.addText( env.server_port, idx++, 127, WHITE, "%s", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mNetwork.add_text( env.server_port, idx++, 127, WHITE, "%s", menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 
 	// "Back"
-	mNetwork.addButton(
+	mNetwork.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -1295,10 +1383,10 @@ static void
 }
 
 static void
-	build_Sound( Menu &mSound, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
+	build_Sound( CMenu &mSound, int32_t menuMid, int32_t itemWidth, int32_t itemHeight, int32_t itemPadding, int32_t itemY ) {
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 	int32_t idx            = 1;
 
 	assert( ( 0 == mSound.count() ) && "ERROR: mSound already built?" );
@@ -1306,11 +1394,11 @@ static void
 	if ( mSound.count() ) return; // Don't build twice!
 
 	// "All Sound"
-	mSound.addValue( &env.sound_enabled, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mSound.add_value( &env.sound_enabled, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Sound Driver"
-	mSound.addValue(
+	mSound.add_value(
 		&env.sound_driver,
 		idx++,
 		nullptr,
@@ -1326,11 +1414,11 @@ static void
 	itemY += itemFullHeight;
 
 	// "Music"
-	mSound.addValue( &env.play_music, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
+	mSound.add_value( &env.play_music, idx++, nullptr, WHITE, TC_OFFON, 1, menuMid - 50, itemY, itemWidth, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Volume Faktor"
-	mSound.addValue(
+	mSound.add_value(
 		&env.volume_factor,
 		idx++,
 		WHITE,
@@ -1346,7 +1434,7 @@ static void
 	);
 
 	// "Back"
-	mSound.addButton(
+	mSound.add_button(
 		idx,
 		nullptr,
 		KEY_ESC,
@@ -1364,9 +1452,9 @@ static void
 
 /// @brief Switch language helper function
 /// Note: The real use of this function is, that it generates a return
-///       code, so optionsMenu() can react on the language change. ;-)
-int32_t switch_language( eLanguages *lang, int32_t val ) {
-	eLanguages old_lang = *lang;
+///       code, so options_menu() can react on the language change. ;-)
+int32_t switch_language( ELanguages *lang, int32_t val ) {
+	ELanguages old_lang = *lang;
 
 	if ( val > 0 )
 		++( *lang );

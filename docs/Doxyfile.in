@@ -1,0 +1,30 @@
+# Doxyfile.in — Doxygen configuration for the Atomic Tanks public API reference.
+# Configured by CMakeLists.txt: @PROJECT_VERSION@ and paths are substituted at configure time, so the version cannot go stale.
+# Only public headers are fed in; all warnings land in the configured log file (kept in the build tree, out of the published
+# docs), and the `doc` build target fails when that log is non-empty (see cmake/doc-fail-on-warnings.cmake), so coverage gaps
+# stay visible.
+
+DOXYFILE_ENCODING    = UTF-8
+PROJECT_NAME         = "Atomic Tanks"
+PROJECT_NUMBER       = @PROJECT_VERSION@
+OUTPUT_DIRECTORY     = @DOXYGEN_OUTPUT_DIR@
+CREATE_SUBDIRS       = NO
+INPUT                = @PROJECT_SOURCE_DIR@/src
+INPUT_ENCODING       = UTF-8
+FILE_PATTERNS        = *.h
+RECURSIVE            = NO
+EXCLUDE              = @PROJECT_SOURCE_DIR@/src/extern
+EXCLUDE_PATTERNS     = */resource.h
+EXTRACT_ALL          = NO
+EXTRACT_PRIVATE      = NO
+EXTRACT_STATIC       = NO
+GENERATE_HTML        = YES
+GENERATE_LATEX       = NO
+GENERATE_MAN         = NO
+WARNINGS             = YES
+WARN_IF_UNDOCUMENTED = YES
+WARN_IF_DOC_ERROR    = YES
+WARN_NO_PARAMDOC     = NO
+WARN_AS_ERROR        = NO
+WARN_LOGFILE         = @DOXYGEN_WARN_LOG@
+QUIET                = NO

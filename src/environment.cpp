@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -30,18 +30,18 @@
 
 #include <cassert>
 
-ENVIRONMENT::ENVIRONMENT() {
+CEnvironment::CEnvironment() {
 	set_fps( 60 ); // rock solid default.
 
-	fontHeight = 10; // Initial value
+	font_height = 10; // Initial value
 
 	strncpy( server_name, "127.0.0.1", 127 );
 	strncpy( server_port, "25645", 127 );
 
 	// Reserve space for the players array:
-	// Note: The allPlayers array is dynamically (re-)allocated while loading
+	// Note: The all_players array is dynamically (re-)allocated while loading
 	//       stored players from the configuration.
-	if ( ( players = (PLAYER**)calloc( MAXPLAYERS, sizeof( PLAYER* ) ) ) == nullptr ) {
+	if ( ( players = (CPlayer**)calloc( MAXPLAYERS, sizeof( CPlayer* ) ) ) == nullptr ) {
 		perror( "environment.cpp: Failed allocating memory for players" );
 	}
 
@@ -56,33 +56,33 @@ ENVIRONMENT::ENVIRONMENT() {
 /** @brief default dtor
  * Cleanly remove created objects
  **/
-ENVIRONMENT::~ENVIRONMENT() {
+CEnvironment::~CEnvironment() {
 	this->destroy();
 }
 
 /// @brief add a player to the players[] array that will take part in the next game
-void ENVIRONMENT::addGamePlayer( PLAYER* player_ ) {
-	if ( player_ && ( numGamePlayers < MAXPLAYERS ) ) {
+void CEnvironment::add_game_player( CPlayer* player_ ) {
+	if ( player_ && ( num_game_players < MAXPLAYERS ) ) {
 
 		// Ensure the player isn't already there:
-		for ( int32_t i = 0; i < numGamePlayers; ++i ) {
+		for ( int32_t i = 0; i < num_game_players; ++i ) {
 			if ( player_ == players[ i ] ) {
 				return;
 			}
 		}
 
-		players[ numGamePlayers++ ] = player_;
+		players[ num_game_players++ ] = player_;
 
 		if ( HUMAN_PLAYER == player_->type ) {
-			numHumanPlayers++;
+			num_human_players++;
 		}
 	}
 }
 
 /// @brief create a new player or return nullptr if an error occurred
-PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
-	PLAYER** reallocatedPlayers = nullptr;
-	PLAYER*  player             = nullptr;
+CPlayer* CEnvironment::create_new_player( char const* player_name ) {
+	CPlayer** reallocatedPlayers = nullptr;
+	CPlayer*  player             = nullptr;
 
 	assert( player_name && "ERROR: player_name is nullptr!" );
 
@@ -90,33 +90,33 @@ PLAYER* ENVIRONMENT::createNewPlayer( char const* player_name ) {
 		return nullptr;
 	}
 
-	if ( getPlayerByName( player_name ) > -1 ) {
+	if ( get_player_by_name( player_name ) > -1 ) {
 		return nullptr;
 	}
 
-	reallocatedPlayers = (PLAYER**)realloc( allPlayers, sizeof( PLAYER* ) * ( numPermanentPlayers + 1 ) );
+	reallocatedPlayers = (CPlayer**)realloc( all_players, sizeof( CPlayer* ) * ( num_permanent_players + 1 ) );
 
 	if ( reallocatedPlayers ) {
-		allPlayers = reallocatedPlayers;
+		all_players = reallocatedPlayers;
 	} else {
-		perror( "environment.cpp: Failed allocating memory for reallocatedPlayers in ENVIRONMENT::createNewPlayer" );
+		perror( "environment.cpp: Failed allocating memory for reallocatedPlayers in CEnvironment::create_new_player" );
 	}
 
 	try {
-		player = new PLAYER();
+		player = new CPlayer();
 	} catch ( std::exception& e ) {
-		std::cerr << __func__ << " new PLAYER: " << e.what() << std::endl;
+		std::cerr << __func__ << " new CPlayer: " << e.what() << std::endl;
 	}
 
-	player->index = numPermanentPlayers;
-	player->setName( player_name );
-	allPlayers[ numPermanentPlayers++ ] = player;
+	player->index = num_permanent_players;
+	player->set_name( player_name );
+	all_players[ num_permanent_players++ ] = player;
 
 	return player;
 }
 
 /// @brief This function gives credits, score and money to the winner(s).
-void ENVIRONMENT::creditWinners( int32_t winner ) const {
+void CEnvironment::credit_winners( int32_t winner ) const {
 	if ( winner == WINNER_DRAW ) { // no winner
 		return;
 	}
@@ -124,7 +124,7 @@ void ENVIRONMENT::creditWinners( int32_t winner ) const {
 	int32_t team_members = 0;
 
 	if ( winner == WINNER_JEDI ) {
-		for ( int32_t i = 0; i < numGamePlayers; ++i ) {
+		for ( int32_t i = 0; i < num_game_players; ++i ) {
 			if ( TEAM_JEDI == players[ i ]->team ) {
 				players[ i ]->score++;
 				players[ i ]->won++;
@@ -132,7 +132,7 @@ void ENVIRONMENT::creditWinners( int32_t winner ) const {
 			}
 		}
 	} else if ( winner == WINNER_SITH ) {
-		for ( int32_t i = 0; i < numGamePlayers; ++i ) {
+		for ( int32_t i = 0; i < num_game_players; ++i ) {
 			if ( TEAM_SITH == players[ i ]->team ) {
 				players[ i ]->score++;
 				players[ i ]->won++;
@@ -148,7 +148,7 @@ void ENVIRONMENT::creditWinners( int32_t winner ) const {
 	// team gets their money too
 	if ( team_members ) {
 		int32_t team_bonus = scoreRoundWinBonus / team_members;
-		for ( int32_t i = 0; i < numGamePlayers; ++i ) {
+		for ( int32_t i = 0; i < num_game_players; ++i ) {
 			if ( ( ( winner == WINNER_JEDI ) && ( players[ i ]->team == TEAM_JEDI ) )
 			     || ( ( winner == WINNER_SITH ) && ( players[ i ]->team == TEAM_SITH ) ) ) {
 				players[ i ]->money += team_bonus;
@@ -157,26 +157,26 @@ void ENVIRONMENT::creditWinners( int32_t winner ) const {
 	}
 }
 
-void ENVIRONMENT::decreaseVolume() {
+void CEnvironment::decrease_volume() {
 	if ( volume_factor > 0 ) {
 		--volume_factor;
 	}
 }
 
 /// @brief Remove one of the players, then gone for good.
-void ENVIRONMENT::deletePermPlayer( PLAYER* player_ ) {
+void CEnvironment::delete_perm_player( CPlayer* player_ ) {
 	int32_t toCount = 0;
 
-	for ( int32_t fromCount = 0; fromCount < numPermanentPlayers; fromCount++ ) {
-		if ( allPlayers[ fromCount ] != player_ ) {
-			if ( allPlayers[ toCount ] != allPlayers[ fromCount ] ) {
-				allPlayers[ toCount ]        = allPlayers[ fromCount ];
-				allPlayers[ toCount ]->index = toCount;
+	for ( int32_t fromCount = 0; fromCount < num_permanent_players; fromCount++ ) {
+		if ( all_players[ fromCount ] != player_ ) {
+			if ( all_players[ toCount ] != all_players[ fromCount ] ) {
+				all_players[ toCount ]        = all_players[ fromCount ];
+				all_players[ toCount ]->index = toCount;
 			}
 			toCount++;
 		}
 	}
-	numPermanentPlayers--;
+	num_permanent_players--;
 
 	delete player_;
 }
@@ -185,7 +185,7 @@ void ENVIRONMENT::deletePermPlayer( PLAYER* player_ ) {
  *
  * Important: This MUST be called *before* allegro shuts down!
  **/
-void ENVIRONMENT::destroy() {
+void CEnvironment::destroy() {
 	if ( sky ) {
 		destroy_bitmap( sky );
 		sky = nullptr;
@@ -286,13 +286,13 @@ void ENVIRONMENT::destroy() {
 		tank = nullptr;
 	}
 
-	if ( tankgun ) {
+	if ( tank_gun ) {
 		int32_t index = 0;
-		while ( tankgun[ index ] ) {
-			destroy_bitmap( tankgun[ index++ ] );
+		while ( tank_gun[ index ] ) {
+			destroy_bitmap( tank_gun[ index++ ] );
 		}
-		free( tankgun );
-		tankgun = nullptr;
+		free( tank_gun );
+		tank_gun = nullptr;
 	}
 
 	if ( gloat ) {
@@ -332,15 +332,15 @@ void ENVIRONMENT::destroy() {
 		war_quotes = nullptr;
 	}
 
-	if ( allPlayers ) {
-		for ( int32_t i = 0; i < numPermanentPlayers; ++i ) {
-			if ( allPlayers[ i ] ) {
-				delete allPlayers[ i ];
+	if ( all_players ) {
+		for ( int32_t i = 0; i < num_permanent_players; ++i ) {
+			if ( all_players[ i ] ) {
+				delete all_players[ i ];
 			}
-			allPlayers[ i ] = nullptr;
+			all_players[ i ] = nullptr;
 		}
-		free( allPlayers );
-		allPlayers = nullptr;
+		free( all_players );
+		all_players = nullptr;
 	}
 
 	if ( players ) {
@@ -356,22 +356,22 @@ void ENVIRONMENT::destroy() {
 		main_font = nullptr;
 	}
 
-	gfxData.destroy();
+	gfx_data.destroy();
 }
 
-/// @brief Sets configDir to the path to the config directory used by atanks
-void ENVIRONMENT::find_config_dir() {
+/// @brief Sets config_dir to the path to the config directory used by atanks
+void CEnvironment::find_config_dir() {
 	// If no config dir was given on the command line, try to find a valid one
-	if ( !configDir[ 0 ] ) {
+	if ( !config_dir[ 0 ] ) {
 		// figure out file name
 		char* homedir  = getenv( HOME_DIR );
-		configDir      = homedir ? homedir : ".";
-		configDir     += "/.atanks";
+		config_dir      = homedir ? homedir : ".";
+		config_dir     += "/.atanks";
 
 		// copy the file over, if we did not yet
-		if ( !Copy_Config_File() ) {
+		if ( !copy_config_file() ) {
 			// If it did not work, look whether the directory already exists:
-			DIR* pDestDir = opendir( env.configDir.c_str() );
+			DIR* pDestDir = opendir( env.config_dir.c_str() );
 			if ( !pDestDir ) {
 				cerr << "ERROR: An error has occurred trying to set up"
 				     << " Atomic Tanks folders." << endl;
@@ -383,43 +383,43 @@ void ENVIRONMENT::find_config_dir() {
 	} // end of no config file on the command line
 }
 
-/// @brief Sets dataDir to the path 'unicode.dat' can be found in.
-bool ENVIRONMENT::find_data_dir() {
+/// @brief Sets data_dir to the path 'unicode.dat' can be found in.
+bool CEnvironment::find_data_dir() {
 
 	// If the datadir set by command line options, try that first
-	if ( !dataDir.empty() ) {
-		if ( !access( dataDir.c_str(), R_OK ) ) {
+	if ( !data_dir.empty() ) {
+		if ( !access( data_dir.c_str(), R_OK ) ) {
 			return true;
 		} else {
-			cerr << "ERROR: The given datadir \"" << dataDir << "\""
+			cerr << "ERROR: The given datadir \"" << data_dir << "\""
 			     << " is invalid!" << endl;
-			dataDir.clear();
+			data_dir.clear();
 		}
 	}
 
 	// Try the set directory from the build
 	if ( !access( DATA_DIR "/unicode.dat", R_OK ) ) {
-		dataDir.assign( DATA_DIR );
+		data_dir.assign( DATA_DIR );
 	} else {
 		// This was not successful, try the current directory if not tried, yet.
 
 		if ( ( 0 == strncmp( DATA_DIR, ".", 1 ) ) && ( 0 == strncmp( DATA_DIR, "./", 2 ) ) ) {
 			// Try again and reset if unsuccessful
 			if ( !access( "./unicode.dat", R_OK ) ) {
-				dataDir.assign( "." );
+				data_dir.assign( "." );
 			}
 		}
 	}
 
-	// If dataDir is set, now, this was a success.
-	return !dataDir.empty();
+	// If data_dir is set, now, this was a success.
+	return !data_dir.empty();
 }
 
-/// @brief Must be called before GLOBALDATA::first_init() is called!
-void ENVIRONMENT::first_init() {
+/// @brief Must be called before CGlobalData::first_init() is called!
+void CEnvironment::first_init() {
 	// Determine maximum number of updates before doing
 	// a full update:
-	max_screen_updates = ROUND( std::sqrt( ROUND( screenWidth / 8 ) * ROUND( screenHeight / 8 ) ) );
+	max_screen_updates = ROUND( std::sqrt( ROUND( screen_width / 8 ) * ROUND( screen_height / 8 ) ) );
 	/* This is:
 	 *  800 x  600 => sqrt(100 *  75) => sqrt( 7500) =  87
 	 * 1280 x 1024 => sqrt(160 *  28) => sqrt(20480) = 143
@@ -429,7 +429,7 @@ void ENVIRONMENT::first_init() {
 
 	// Get memory ...
 	if ( !sky ) {
-		sky = create_bitmap( screenWidth, screenHeight - MENUHEIGHT );
+		sky = create_bitmap( screen_width, screen_height - MENUHEIGHT );
 	}
 	if ( !sky ) {
 		cout << "Failed to create sky bitmap: " << allegro_error << endl;
@@ -438,28 +438,28 @@ void ENVIRONMENT::first_init() {
 
 	initialise();
 
-	menuBeginY = ( screenHeight - 400 ) / 2;
-	if ( menuBeginY < 0 ) {
-		menuBeginY = 0;
+	menu_begin_y = ( screen_height - 400 ) / 2;
+	if ( menu_begin_y < 0 ) {
+		menu_begin_y = 0;
 	}
-	menuEndY = screenHeight - menuBeginY;
+	menu_end_y = screen_height - menu_begin_y;
 
-	gfxData.first_init();
+	gfx_data.first_init();
 }
 
-/// @brief Fill availableItems array with everything buyable with current settings.
-void ENVIRONMENT::genItemsList() {
+/// @brief Fill available_items array with everything buyable with current settings.
+void CEnvironment::gen_items_list() {
 	int32_t slot = 0;
 	for ( int32_t i = 0; i < THINGS; ++i ) {
-		if ( isItemAvailable( i ) ) {
-			availableItems[ slot++ ] = i;
+		if ( is_item_available( i ) ) {
+			available_items[ slot++ ] = i;
 		}
 	}
-	numAvailable = slot;
+	num_available = slot;
 }
 
 /// @brief return the index of the player with @a player_name or -1 if not found
-int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) const {
+int32_t CEnvironment::get_player_by_name( char const* player_name ) const {
 	int32_t result = -1;
 
 	assert( player_name && "ERROR: player_name is nullptr!" );
@@ -468,8 +468,8 @@ int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) const {
 		return result;
 	}
 
-	for ( int32_t i = 0; ( -1 == result ) && ( i < numPermanentPlayers ); ++i ) {
-		if ( !strcmp( player_name, allPlayers[ i ]->getName() ) ) {
+	for ( int32_t i = 0; ( -1 == result ) && ( i < num_permanent_players ); ++i ) {
+		if ( !strcmp( player_name, all_players[ i ]->get_name() ) ) {
 			result = i;
 		}
 	}
@@ -477,22 +477,22 @@ int32_t ENVIRONMENT::getPlayerByName( char const* player_name ) const {
 	return result;
 }
 
-void ENVIRONMENT::increaseVolume() {
+void CEnvironment::increase_volume() {
 	if ( volume_factor < MAX_VOLUME_FACTOR ) {
 		++volume_factor;
 	}
 }
 
-int32_t ENVIRONMENT::ingamemenu() const {
+int32_t CEnvironment::in_game_menu() const {
 	int32_t     pressed   = -1;
 	bool        need_draw = true;
 	int32_t     btns[ INGAMEBUTTONS ];
 	bool        updatew[ INGAMEBUTTONS ];
 	char const* buttext[ INGAMEBUTTONS ] = {
-		ingame->Get_Line( 69 ),
-		ingame->Get_Line( 70 ),
-		ingame->Get_Line( 71 ),
-		ingame->Get_Line( 72 ),
+		ingame->get_line( 69 ),
+		ingame->get_line( 70 ),
+		ingame->get_line( 71 ),
+		ingame->get_line( 72 ),
 	};
 
 	// Set/calculate button size and positions
@@ -500,18 +500,18 @@ int32_t ENVIRONMENT::ingamemenu() const {
 	int32_t b_height = 20;
 	int32_t b_space  = 5;
 	int32_t b_half_w = b_width / 2;
-	int32_t b_left   = halfWidth - b_half_w;
-	int32_t b_right  = halfWidth + b_half_w - 1;
+	int32_t b_left   = half_width - b_half_w;
+	int32_t b_right  = half_width + b_half_w - 1;
 
 	int32_t d_width  = 200;
 	int32_t d_height = ( ( INGAMEBUTTONS + 2 ) * b_height ) + ( ( INGAMEBUTTONS + 1 ) * b_space );
 	int32_t d_half_w = d_width / 2;
 	int32_t d_half_h = d_height / 2;
 
-	int32_t d_left   = halfWidth - d_half_w;
-	int32_t d_right  = halfWidth + d_half_w - 1;
-	int32_t d_top    = halfHeight - d_half_h;
-	int32_t d_bottom = halfHeight + d_half_h - 1;
+	int32_t d_left   = half_width - d_half_w;
+	int32_t d_right  = half_width + d_half_w - 1;
+	int32_t d_top    = half_height - d_half_h;
+	int32_t d_bottom = half_height + d_half_h - 1;
 
 	// store last mouse coordinates for movement detection
 	int32_t lastMouse_x = 0;
@@ -548,7 +548,7 @@ int32_t ENVIRONMENT::ingamemenu() const {
 		}
 
 		// Check mouse movement
-		if ( !env.osMouse && ( ( lastMouse_x != mouse_x ) || ( lastMouse_y != mouse_y ) ) ) {
+		if ( !env.os_mouse && ( ( lastMouse_x != mouse_x ) || ( lastMouse_y != mouse_y ) ) ) {
 			lastMouse_x = mouse_x;
 			lastMouse_y = mouse_y;
 			need_draw   = true;
@@ -557,8 +557,8 @@ int32_t ENVIRONMENT::ingamemenu() const {
 		if ( mouse_b & 1 ) {
 			bool is_hit = false;
 			for ( int32_t i = 0; !is_hit && ( i < INGAMEBUTTONS ); ++i ) {
-				if ( ( mouse_x >= b_left ) && ( mouse_x < b_right ) && ( mouse_y >= ( btns[ i ] + halfHeight ) )
-				     && ( mouse_y < ( btns[ i ] + b_height + halfHeight ) ) ) {
+				if ( ( mouse_x >= b_left ) && ( mouse_x < b_right ) && ( mouse_y >= ( btns[ i ] + half_height ) )
+				     && ( mouse_y < ( btns[ i ] + b_height + half_height ) ) ) {
 
 					is_hit = true;
 
@@ -582,7 +582,7 @@ int32_t ENVIRONMENT::ingamemenu() const {
 		for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
 			if ( updatew[ i ] ) {
 				updatew[ i ] = false;
-				global.make_update( b_left, halfHeight + btns[ i ], b_width, b_height );
+				global.make_update( b_left, half_height + btns[ i ], b_width, b_height );
 			}
 		}
 
@@ -591,13 +591,13 @@ int32_t ENVIRONMENT::ingamemenu() const {
 			SHOW_MOUSE( nullptr )
 
 			for ( int32_t i = 0; i < INGAMEBUTTONS; ++i ) {
-				draw_sprite( global.canvas, misc[ ( pressed == i ) ? 8 : 7 ], b_left, halfHeight + btns[ i ] );
+				draw_sprite( global.canvas, misc[ ( pressed == i ) ? 8 : 7 ], b_left, half_height + btns[ i ] );
 				textout_centre_ex(
 					global.canvas,
 					font,
 					buttext[ i ],
-					halfWidth,
-					halfHeight + btns[ i ] + 1,
+					half_width,
+					half_height + btns[ i ] + 1,
 					WHITE,
 					-1
 				);
@@ -614,22 +614,22 @@ int32_t ENVIRONMENT::ingamemenu() const {
 	return pressed;
 }
 
-void ENVIRONMENT::initialise() {
+void CEnvironment::initialise() {
 	campaign_rounds = static_cast< double >( rounds ) / 5.;
 	if ( campaign_rounds < 1. ) {
 		campaign_rounds = 1.;
 	}
 
-	nextCampaignRound = static_cast< double >( rounds ) - campaign_rounds;
+	next_campaign_round = static_cast< double >( rounds ) - campaign_rounds;
 }
 
 /// @return true if the items tech level is not too high and if it is not a warhead.
-bool ENVIRONMENT::isItemAvailable( int32_t itemNum ) const {
+bool CEnvironment::is_item_available( int32_t itemNum ) const {
 	if ( itemNum < WEAPONS ) {
-		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].techLevel > weapontechLevel ) ) {
+		if ( ( weapon[ itemNum ].warhead ) || ( weapon[ itemNum ].tech_level > weapontech_level ) ) {
 			return false;
 		}
-	} else if ( item[ itemNum - WEAPONS ].techLevel > itemtechLevel ) {
+	} else if ( item[ itemNum - WEAPONS ].tech_level > itemtech_level ) {
 		return false;
 	}
 	return true;
@@ -641,161 +641,141 @@ file. The function returns true on success and false if
 any erors are encountered.
 -- Jesse
 */
-void ENVIRONMENT::load_from_file( FILE* file ) {
-	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char* result                       = nullptr;
-	bool  done                         = false;
-	bool  sound_bookmark               = sound_enabled; // To disable by command line
+void CEnvironment::load_from_file( FILE* file ) {
+	string line;
+	string field;
+	string value;
+	bool   result          = false;
+	bool   done            = false;
+	bool   sound_bookmark  = sound_enabled; // To disable by command line
 
 	// read until we hit line "*ENV*" or "***" or EOF
 	do {
-		result = fgets( line, MAX_CONFIG_LINE, file );
-		if ( !result || !strncmp( line, "***", 3 ) ) {
+		result = read_config_line( file, line );
+		if ( !result || !strncmp( line.c_str(), "***", 3 ) ) {
 			// eof or end of record
 			return;
-		} else if ( !strncmp( line, "*GLOBAL*", 8 ) ) {
+		} else if ( !strncmp( line.c_str(), "*GLOBAL*", 8 ) ) {
 			// Old style config/save file
 			rewind( file );
-			GLOBALDATA::load_from_file( file );
+			CGlobalData::load_from_file( file );
 		}
-	} while ( 0 != strncmp( line, "*ENV*", 5 ) );
+	} while ( 0 != strncmp( line.c_str(), "*ENV*", 5 ) );
 	// read until we hit new record
 
 	while ( ( result ) && ( !done ) ) {
 		// read a line
-		memset( line, 0, MAX_CONFIG_LINE );
-		result = fgets( line, MAX_CONFIG_LINE, file );
+		result = read_config_line( file, line );
 
 		// if we hit end of the record, stop
-		if ( 0 == strncmp( line, "***", 3 ) ) {
+		if ( 0 == strncmp( line.c_str(), "***", 3 ) ) {
 			done = true;
 		}
 
 		if ( result && !done ) {
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
-			// find equal sign
-			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-				equal_position++;
-			}
-
-			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) {
+			// separate field from value
+			if ( !split_config_field( line, field, value ) ) {
 				continue; // Go to next line
 			}
 
-			// seperate field from value
-			memset( field, '\0', MAX_CONFIG_LINE );
-			memset( value, '\0', MAX_CONFIG_LINE );
-			strncpy( field, line, equal_position );
-			strncpy( value, &( line[ equal_position + 1 ] ), 127 );
-
 			// check for fields and values
-			if ( !strcasecmp( field, "acceleratedai" ) ) {
-				SAFE_STOI( skipComputerPlay, value );
-				if ( skipComputerPlay > SKIP_HUMANS_DEAD ) {
-					skipComputerPlay = SKIP_HUMANS_DEAD;
+			if ( !strcasecmp( field.c_str(), "acceleratedai" ) ) {
+				SAFE_STOI( skip_computer_play, value );
+				if ( skip_computer_play > SKIP_HUMANS_DEAD ) {
+					skip_computer_play = SKIP_HUMANS_DEAD;
 				}
-			} else if ( !strcasecmp( field, "checkupdates" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "checkupdates" ) ) {
 				int32_t check = 0;
 				SAFE_STOI( check, value );
 				check_for_updates = check > 0;
-			} else if ( !strcasecmp( field, "colourtheme" ) ) {
-				SAFE_STOI( colourTheme, value );
-				if ( colourTheme < CT_REGULAR ) {
-					colourTheme = CT_REGULAR;
+			} else if ( !strcasecmp( field.c_str(), "colourtheme" ) ) {
+				SAFE_STOI( colour_theme, value );
+				if ( colour_theme < CT_REGULAR ) {
+					colour_theme = CT_REGULAR;
 				}
-				if ( colourTheme > CT_CRISPY ) {
-					colourTheme = CT_CRISPY;
+				if ( colour_theme > CT_CRISPY ) {
+					colour_theme = CT_CRISPY;
 				}
-			} else if ( !strcasecmp( field, "debrislevel" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "debrislevel" ) ) {
 				SAFE_STOI( debris_level, value );
-			} else if ( !strcasecmp( field, "detailedland" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "detailedland" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				detailedLandscape = val > 0;
-			} else if ( !strcasecmp( field, "detailedsky" ) ) {
+				detailed_landscape = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "detailedsky" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				detailedSky = val > 0;
-			} else if ( !strcasecmp( field, "dither" ) ) {
+				detailed_sky = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "dither" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				ditherGradients = val > 0;
-			} else if ( !strcasecmp( field, "dividemoney" ) ) {
+				dither_gradients = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "dividemoney" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				divide_money = val > 0;
-			} else if ( !strcasecmp( field, "doboxwrap" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "doboxwrap" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				do_box_wrap = val > 0;
-			} else if ( !strcasecmp( field, "dynamicmenubg" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "dynamicmenubg" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				dynamicMenuBg = val > 0;
-			} else if ( !strcasecmp( field, "frames" ) ) {
+				dynamic_menu_bg = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "frames" ) ) {
 				int32_t new_fps = 0;
 				SAFE_STOI( new_fps, value );
 				set_fps( new_fps );
-			} else if ( !strcasecmp( field, "fullscreen" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "fullscreen" ) ) {
 				SAFE_STOI( full_screen, value );
-			} else if ( !strcasecmp( field, "interest" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "interest" ) ) {
 				SAFE_STOD( interest, value );
-			} else if ( !strcasecmp( field, "language" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "language" ) ) {
 				uint32_t lang_val = 0;
 				SAFE_STOUL( lang_val, value );
-				language = static_cast< eLanguages >( lang_val );
-			} else if ( !strcasecmp( field, "maxfiretime" ) ) {
-				SAFE_STOI( maxFireTime, value );
-			} else if ( !strcasecmp( field, "networking" ) ) {
+				language = static_cast< ELanguages >( lang_val );
+			} else if ( !strcasecmp( field.c_str(), "maxfiretime" ) ) {
+				SAFE_STOI( max_fire_time, value );
+			} else if ( !strcasecmp( field.c_str(), "networking" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				network_enabled = val > 0;
-			} else if ( !strcasecmp( field, "networkport" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "networkport" ) ) {
 				SAFE_STOI( network_port, value );
-			} else if ( !strcasecmp( field, "numpermanentplayers" ) ) {
-				SAFE_STOI( numPermanentPlayers, value );
-			} else if ( !strcasecmp( field, "osmouse" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "numpermanentplayers" ) ) {
+				SAFE_STOI( num_permanent_players, value );
+			} else if ( !strcasecmp( field.c_str(), "osmouse" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				osMouse = val > 0;
-			} else if ( !strcasecmp( field, "playmusic" ) ) {
+				os_mouse = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "playmusic" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				play_music = val > 0;
-			} else if ( !strcasecmp( field, "rounds" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "rounds" ) ) {
 				SAFE_STOUL( rounds, value );
-			} else if ( !strcasecmp( field, "scoreboard" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreboard" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				global.showScoreBoard = val > 0;
-			} else if ( !strcasecmp( field, "scorehitunit" ) ) {
+				global.show_score_board = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "scorehitunit" ) ) {
 				SAFE_STOI( scoreHitUnit, value );
-			} else if ( !strcasecmp( field, "scoreroundwinbonus" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreroundwinbonus" ) ) {
 				SAFE_STOI( scoreRoundWinBonus, value );
-			} else if ( !strcasecmp( field, "scoreselfhit" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreselfhit" ) ) {
 				SAFE_STOI( scoreSelfHit, value );
-			} else if ( !strcasecmp( field, "scoreteamhit" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreteamhit" ) ) {
 				SAFE_STOI( scoreTeamHit, value );
-			} else if ( !strcasecmp( field, "scoreunitdestroybonus" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreunitdestroybonus" ) ) {
 				SAFE_STOI( scoreUnitDestroyBonus, value );
-			} else if ( !strcasecmp( field, "scoreunitselfdestroy" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "scoreunitselfdestroy" ) ) {
 				SAFE_STOI( scoreUnitSelfDestroy, value );
-			} else if ( !strcasecmp( field, "sellpercent" ) ) {
-				SAFE_STOD( sellpercent, value );
+			} else if ( !strcasecmp( field.c_str(), "sell_percent" ) ) {
+				SAFE_STOD( sell_percent, value );
 			}
 #ifdef NETWORK
-			else if ( !strcasecmp( field, "servername" ) ) {
+			else if ( !strcasecmp( field.c_str(), "servername" ) ) {
 				string s( value );
 				size_t start = s.find_first_of( '\'' ) + 1;
 				size_t end   = s.find_last_of( '\'' );
@@ -803,7 +783,7 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				if ( start < end ) {
 					strncpy( server_name, s.substr( start, end - start ).c_str(), 128 );
 				}
-			} else if ( !strcasecmp( field, "serverport" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "serverport" ) ) {
 				string s( value );
 				size_t start = s.find_first_of( '\'' ) + 1;
 				size_t end   = s.find_last_of( '\'' );
@@ -813,79 +793,79 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				}
 			}
 #endif // NETWORK
-			else if ( !strcasecmp( field, "showaifeedback" ) ) {
+			else if ( !strcasecmp( field.c_str(), "showaifeedback" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				showAIFeedback = val > 0;
-			} else if ( !strcasecmp( field, "showfps" ) ) {
+				show_ai_feedback = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "showfps" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				showFPS = val > 0;
-			} else if ( !strcasecmp( field, "soundenabled" ) ) {
+				show_fps = val > 0;
+			} else if ( !strcasecmp( field.c_str(), "soundenabled" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				sound_enabled = val > 0;
-			} else if ( !strcasecmp( field, "sounddriver" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "sounddriver" ) ) {
 				SAFE_STOI( sound_driver, value );
-			} else if ( !strcasecmp( field, "startmoney" ) ) {
-				SAFE_STOI( startmoney, value );
-			} else if ( !strcasecmp( field, "turntype" ) ) {
-				SAFE_STOI( turntype, value );
-			} else if ( !strcasecmp( field, "violentdeath" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "start_money" ) ) {
+				SAFE_STOI( start_money, value );
+			} else if ( !strcasecmp( field.c_str(), "turn_type" ) ) {
+				SAFE_STOI( turn_type, value );
+			} else if ( !strcasecmp( field.c_str(), "violentdeath" ) ) {
 				SAFE_STOI( violent_death, value );
-			} else if ( !strcasecmp( field, "windstrength" ) ) {
-				SAFE_STOI( windstrength, value );
-			} else if ( !strcasecmp( field, "windvariation" ) ) {
-				SAFE_STOI( windvariation, value );
-			} else if ( !strcasecmp( field, "viscosity" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "wind_strength" ) ) {
+				SAFE_STOI( wind_strength, value );
+			} else if ( !strcasecmp( field.c_str(), "wind_variation" ) ) {
+				SAFE_STOI( wind_variation, value );
+			} else if ( !strcasecmp( field.c_str(), "viscosity" ) ) {
 				SAFE_STOD( viscosity, value );
 				if ( viscosity < 0.25 ) {
 					viscosity = 0.5;
 				}
-			} else if ( !strcasecmp( field, "gravity" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "gravity" ) ) {
 				SAFE_STOD( gravity, value );
 				if ( gravity < 0.025 ) {
 					gravity = 0.15;
 				}
-				fall_vector = gravity * FPS_mod;
-			} else if ( !strcasecmp( field, "techlevel" ) ) {
-				SAFE_STOI( weapontechLevel, value );
-				itemtechLevel = weapontechLevel; // for backward compatibility
-			} else if ( !strcasecmp( field, "weapontechlevel" ) ) {
-				SAFE_STOI( weapontechLevel, value );
-			} else if ( !strcasecmp( field, "itemtechlevel" ) ) {
-				SAFE_STOI( itemtechLevel, value );
-			} else if ( !strcasecmp( field, "meteors" ) ) {
+				fall_vector = gravity * fps_mod / frame_count_mod;
+			} else if ( !strcasecmp( field.c_str(), "techlevel" ) ) {
+				SAFE_STOI( weapontech_level, value );
+				itemtech_level = weapontech_level; // for backward compatibility
+			} else if ( !strcasecmp( field.c_str(), "weapontechlevel" ) ) {
+				SAFE_STOI( weapontech_level, value );
+			} else if ( !strcasecmp( field.c_str(), "itemtechlevel" ) ) {
+				SAFE_STOI( itemtech_level, value );
+			} else if ( !strcasecmp( field.c_str(), "meteors" ) ) {
 				SAFE_STOI( meteors, value );
-			} else if ( !strcasecmp( field, "lightning" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "lightning" ) ) {
 				SAFE_STOI( lightning, value );
-			} else if ( !strcasecmp( field, "satellite" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "satellite" ) ) {
 				SAFE_STOI( satellite, value );
-			} else if ( !strcasecmp( field, "fog" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "fog" ) ) {
 				SAFE_STOI( fog, value );
-			} else if ( !strcasecmp( field, "landtype" ) ) {
-				SAFE_STOI( landType, value );
-			} else if ( !strcasecmp( field, "landslidetype" ) ) {
-				SAFE_STOI( landSlideType, value );
-			} else if ( !strcasecmp( field, "walltype" ) ) {
-				SAFE_STOI( wallType, value );
-			} else if ( !strcasecmp( field, "boxmode" ) ) {
-				SAFE_STOI( boxedMode, value );
-			} else if ( !strcasecmp( field, "textfade" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "landtype" ) ) {
+				SAFE_STOI( land_type, value );
+			} else if ( !strcasecmp( field.c_str(), "landslidetype" ) ) {
+				SAFE_STOI( landslide_type, value );
+			} else if ( !strcasecmp( field.c_str(), "walltype" ) ) {
+				SAFE_STOI( wall_type, value );
+			} else if ( !strcasecmp( field.c_str(), "boxmode" ) ) {
+				SAFE_STOI( boxed_mode, value );
+			} else if ( !strcasecmp( field.c_str(), "textfade" ) ) {
 				int32_t res = 0;
 				SAFE_STOI( res, value );
-				fadingText = res != 0;
-			} else if ( !strcasecmp( field, "textshadow" ) ) {
+				fading_text = res != 0;
+			} else if ( !strcasecmp( field.c_str(), "textshadow" ) ) {
 				int32_t res = 0;
 				SAFE_STOI( res, value );
-				shadowedText = res != 0;
-			} else if ( !strcasecmp( field, "textsway" ) ) {
+				shadowed_text = res != 0;
+			} else if ( !strcasecmp( field.c_str(), "textsway" ) ) {
 				int32_t res = 0;
 				SAFE_STOI( res, value );
-				swayingText = res != 0;
-			} else if ( !strcasecmp( field, "landslidedelay" ) ) {
-				SAFE_STOI( landSlideDelay, value );
-			} else if ( !strcasecmp( field, "fallingdirtballs" ) ) {
+				swaying_text = res != 0;
+			} else if ( !strcasecmp( field.c_str(), "landslidedelay" ) ) {
+				SAFE_STOI( landslide_delay, value );
+			} else if ( !strcasecmp( field.c_str(), "fallingdirtballs" ) ) {
 				SAFE_STOI( falling_dirt_balls, value );
 				if ( falling_dirt_balls < 0 ) {
 					falling_dirt_balls = 0;
@@ -893,39 +873,39 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 				if ( falling_dirt_balls > 3 ) {
 					falling_dirt_balls = 3;
 				}
-			} else if ( !strcasecmp( field, "custombackground" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "custombackground" ) ) {
 				SAFE_STOI( custom_background, value );
-			} else if ( !strcasecmp( field, "volumefactor" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "volumefactor" ) ) {
 				SAFE_STOI( volume_factor, value );
-			} else if ( !strcasecmp( field, "volleydelay" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "volleydelay" ) ) {
 				SAFE_STOI( volley_delay, value );
-			} else if ( !strcasecmp( field, "screenwidth" ) ) {
-				SAFE_STOI( screenWidth, value );
-			} else if ( !strcasecmp( field, "screenheight" ) ) {
-				SAFE_STOI( screenHeight, value );
+			} else if ( !strcasecmp( field.c_str(), "screenwidth" ) ) {
+				SAFE_STOI( screen_width, value );
+			} else if ( !strcasecmp( field.c_str(), "screenheight" ) ) {
+				SAFE_STOI( screen_height, value );
 			}
 		} // end of read a line properly
 	}         // end of while not done
 
 	// If values were set on the command line, override
 	// configuration values:
-	if ( temp_screenHeight ) {
-		screenHeight = temp_screenHeight;
+	if ( temp_screen_height ) {
+		screen_height = temp_screen_height;
 	} else {
-		temp_screenHeight = screenHeight;
+		temp_screen_height = screen_height;
 	}
-	if ( temp_screenWidth ) {
-		screenWidth = temp_screenWidth;
+	if ( temp_screen_width ) {
+		screen_width = temp_screen_width;
 	} else {
-		temp_screenWidth = screenWidth;
+		temp_screen_width = screen_width;
 	}
 
 	// The resolution must not be below 800x600:
-	if ( screenHeight < 600 ) {
-		screenHeight = 600;
+	if ( screen_height < 600 ) {
+		screen_height = 600;
 	}
-	if ( screenWidth < 800 ) {
-		screenWidth = 800;
+	if ( screen_width < 800 ) {
+		screen_width = 800;
 	}
 
 	// The screen resolution values must be copied back into
@@ -933,21 +913,21 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
 	// or changing the resolution will make the menu exit crash.
 	// The resolution is set only once on game start, so
 	// these changes go into temp and are stored back from them.
-	temp_screenHeight = screenHeight;
-	temp_screenWidth  = screenWidth;
+	temp_screen_height = screen_height;
+	temp_screen_width  = screen_width;
 
 	if ( !sound_bookmark ) {
 		sound_enabled = false;
 	}
 
-	halfWidth  = screenWidth / 2;
-	halfHeight = screenHeight / 2;
+	half_width  = screen_width / 2;
+	half_height = screen_height / 2;
 
-	menuBeginY = ( screenHeight - 400 ) / 2;
-	if ( menuBeginY < 0 ) {
-		menuBeginY = 0;
+	menu_begin_y = ( screen_height - 400 ) / 2;
+	if ( menu_begin_y < 0 ) {
+		menu_begin_y = 0;
 	}
-	menuEndY = screenHeight - menuBeginY;
+	menu_end_y = screen_height - menu_begin_y;
 }
 
 #define LOAD_TEXT_BLOCK( var, file )                                                   \
@@ -963,10 +943,10 @@ void ENVIRONMENT::load_from_file( FILE* file ) {
  * language, into memory. If a previous text was loaded, it is
  * removed from memory first.
  **/
-void ENVIRONMENT::load_text_files() {
+void CEnvironment::load_text_files() {
 	char   suffix[ 12 ] = { 0 };
 	int    r            = 0;
-	string text_base{ dataDir };
+	string text_base{ data_dir };
 	text_base += "/text/";
 	string war_lines{ text_base };
 
@@ -1035,7 +1015,7 @@ void ENVIRONMENT::load_text_files() {
  *
  * @return true if a sample is loaded, false otherwise.
  **/
-bool ENVIRONMENT::loadBackgroundMusic() {
+bool CEnvironment::load_background_music() {
 	bool isSecondTry = false;
 
 	// see if we should bother
@@ -1045,7 +1025,7 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 
 	SAMPLE* newStream    = nullptr;
 	dirent* folder_entry = nullptr;
-	string  music_path{ configDir + "/music" };
+	string  music_path{ config_dir + "/music" };
 
 
 	while ( true ) {
@@ -1085,6 +1065,17 @@ bool ENVIRONMENT::loadBackgroundMusic() {
 				isSecondTry = true;
 				continue;
 			}
+
+			// Otherwise there is either an error or no music files
+			if ( background_music ) {
+				// Okay, this is odd.
+				destroy_sample( background_music );
+				background_music = nullptr;
+			}
+
+			// No music, no play
+			play_music = false;
+			return false;
 		} // end of not having a folder entry any more
 	}         // end of "endless" loop
 
@@ -1111,14 +1102,14 @@ bool ENVIRONMENT::loadBackgroundMusic() {
  * data directory. The function returns true on success and
  * false if an error occurs.
  */
-bool ENVIRONMENT::loadBitmaps() {
+bool CEnvironment::load_bitmaps() {
 	int32_t  file_group   = 0;
 	BITMAP*  newbitmap    = nullptr;
 	BITMAP** bitmap_array = nullptr;
 
 	while ( file_group < 7 ) {
 		// set the folder we're looking at
-		string folder{ dataDir };
+		string folder{ data_dir };
 		switch ( file_group ) {
 			case 0:
 				folder += "/title/";
@@ -1274,7 +1265,7 @@ bool ENVIRONMENT::loadBitmaps() {
 				break;
 			case 6:
 			default:
-				tankgun = bitmap_array;
+				tank_gun = bitmap_array;
 				break;
 		}
 
@@ -1288,8 +1279,8 @@ bool ENVIRONMENT::loadBitmaps() {
 // Fonts should be stored in the datafolder. On
 // success the function returns true. When an
 // error occurs, it returns false.
-bool ENVIRONMENT::loadFonts() {
-	string font_file{ dataDir + string( "/unicode.dat" ) };
+bool CEnvironment::load_fonts() {
+	string font_file{ data_dir + string( "/unicode.dat" ) };
 
 	main_font = load_font( font_file.c_str(), nullptr, nullptr );
 
@@ -1301,27 +1292,27 @@ bool ENVIRONMENT::loadFonts() {
 
 	// Store font height
 	if ( main_font ) {
-		fontHeight = text_height( main_font );
+		font_height = text_height( main_font );
 	}
 
 	return main_font != nullptr;
 }
 
 /// @brief collection of all game text file loadings.
-bool ENVIRONMENT::loadGameFiles() {
+bool CEnvironment::load_game_files() {
 	// Before the (language specific) weapons texts can be loaded,
 	// the english one must be pre-loaded to get the weapons data.
 	// all other files only hold the texts.
 	bool status = true;
 	if ( EL_ENGLISH != language ) {
-		eLanguages cur_lang = language;
+		ELanguages cur_lang = language;
 		language            = EL_ENGLISH;
-		status              = Load_Weapons_Text();
+		status              = load_weapons_text();
 		language            = cur_lang;
 	}
 
 	if ( status ) {
-		status = Load_Weapons_Text();
+		status = load_weapons_text();
 	}
 
 	if ( !status ) {
@@ -1333,15 +1324,15 @@ bool ENVIRONMENT::loadGameFiles() {
 	//       Thus the second load is always necessary.
 
 
-	bitmap_filenames = Find_Bitmaps( &number_of_bitmaps );
+	bitmap_filenames = find_bitmaps( &number_of_bitmaps );
 
 	// If no bitmaps where found, a custom background is futile.
 	if ( custom_background && !bitmap_filenames ) {
 		custom_background = 0;
 	}
 
-	Create_Music_Folder();
-	genItemsList();
+	create_music_folder();
+	gen_items_list();
 
 	return status;
 }
@@ -1351,7 +1342,7 @@ bool ENVIRONMENT::loadGameFiles() {
  * in an array.
  * @return true on success or false if an error happens.
  **/
-bool ENVIRONMENT::loadSounds() {
+bool CEnvironment::load_sounds() {
 	SAMPLE* temp_sample = nullptr;
 
 	// allocate space for sound samples
@@ -1362,7 +1353,7 @@ bool ENVIRONMENT::loadSounds() {
 	}
 
 	// read from directory
-	string sound_dir{ dataDir + string( "/sound/" ) };
+	string sound_dir{ data_dir + string( "/sound/" ) };
 	for ( int32_t i = 0; i < SND_COUNT; ++i ) {
 		string sound_file{ sound_dir };
 		sound_file += ( i < 10 ? "0" : "" ) + std::to_string( i ) + string( ".wav" );
@@ -1380,60 +1371,60 @@ bool ENVIRONMENT::loadSounds() {
 	return true;
 }
 
-void ENVIRONMENT::newRound() {
+void CEnvironment::new_round() {
 	// set wall type
-	if ( wallType == WALL_RANDOM ) {
-		current_wallType = get_rand() % 4;
+	if ( wall_type == WALL_RANDOM ) {
+		current_wall_type = get_rand() % 4;
 	} else {
-		current_wallType = wallType;
+		current_wall_type = wall_type;
 	}
 
-	time_to_fall = ( get_rand() & landSlideDelay ) + 1;
+	time_to_fall = ( get_rand() & landslide_delay ) + 1;
 
 	// Set boxed mode
-	if ( BM_RANDOM == boxedMode ) {
+	if ( BM_RANDOM == boxed_mode ) {
 		if ( get_rand() % 2 ) {
-			isBoxed = true;
+			is_boxed = true;
 		} else {
-			isBoxed = false;
+			is_boxed = false;
 		}
-	} else if ( BM_ON == boxedMode ) {
-		isBoxed = true;
+	} else if ( BM_ON == boxed_mode ) {
+		is_boxed = true;
 	} else {
-		isBoxed = false;
+		is_boxed = false;
 	}
 
 	// Set wall colour
-	switch ( current_wallType ) {
+	switch ( current_wall_type ) {
 		case WALL_RUBBER:
-			wallColour = makecol( 0, 255, 0 );
+			wall_colour = makecol( 0, 255, 0 );
 			break;
 		case WALL_STEEL:
-			wallColour = makecol( 255, 0, 0 );
+			wall_colour = makecol( 255, 0, 0 );
 			break;
 		case WALL_SPRING:
-			wallColour = makecol( 0, 0, 255 );
+			wall_colour = makecol( 0, 0, 255 );
 			break;
 		case WALL_WRAP:
-			wallColour = makecol( 255, 255, 0 );
+			wall_colour = makecol( 255, 255, 0 );
 			break;
 	}
 
 	// Init player array
-	for ( auto& i : playerOrder ) {
+	for ( auto& i : player_order ) {
 		i = nullptr;
 	}
 }
 
-void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
+void CEnvironment::remove_game_player( CPlayer* player_ ) {
 	int32_t fromCount = 0;
 	int32_t toCount   = -1;
 
 	if ( HUMAN_PLAYER == player_->type ) {
-		numHumanPlayers--;
+		num_human_players--;
 	}
 
-	while ( fromCount < numGamePlayers ) {
+	while ( fromCount < num_game_players ) {
 		if ( player_ != players[ fromCount ] ) {
 			if ( ( toCount >= 0 ) && ( fromCount > toCount ) ) {
 				players[ toCount ]   = players[ fromCount ];
@@ -1446,7 +1437,7 @@ void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
 		}
 		fromCount++;
 	}
-	numGamePlayers--;
+	num_game_players--;
 }
 
 /*
@@ -1455,33 +1446,33 @@ void ENVIRONMENT::removeGamePlayer( PLAYER* player_ ) {
  * to the config file.
  * -- Jesse
  *  */
-void ENVIRONMENT::Reset_Options() {
-	boxedMode          = BM_OFF;
+void CEnvironment::reset_options() {
+	boxed_mode          = BM_OFF;
 	check_for_updates  = true;
-	colourTheme        = CT_CRISPY;
+	colour_theme        = CT_CRISPY;
 	custom_background  = 0;
 	debris_level       = 1;
-	detailedLandscape  = false;
-	detailedSky        = false;
-	ditherGradients    = true;
+	detailed_landscape  = false;
+	detailed_sky        = false;
+	dither_gradients    = true;
 	divide_money       = false;
-	fadingText         = false;
+	fading_text         = false;
 	falling_dirt_balls = 0;
 	fog                = 0;
 	set_fps( 60 );
 	gravity               = 0.15;
 	interest              = 1.25;
-	itemtechLevel         = 5;
-	landSlideDelay        = MAX_GRAVITY_DELAY;
-	landSlideType         = SLIDE_GRAVITY;
-	landType              = LAND_RANDOM;
+	itemtech_level         = 5;
+	landslide_delay        = MAX_GRAVITY_DELAY;
+	landslide_type         = SLIDE_GRAVITY;
+	land_type              = LAND_RANDOM;
 	language              = EL_ENGLISH;
 	lightning             = 0;
-	maxFireTime           = 0;
+	max_fire_time           = 0;
 	meteors               = 0;
 	network_enabled       = false;
 	network_port          = DEFAULT_NETWORK_PORT;
-	osMouse               = true;
+	os_mouse               = true;
 	play_music            = true;
 	satellite             = 0;
 	scoreHitUnit          = 75;
@@ -1490,24 +1481,24 @@ void ENVIRONMENT::Reset_Options() {
 	scoreTeamHit          = 10;
 	scoreUnitDestroyBonus = 5000;
 	scoreUnitSelfDestroy  = 0;
-	sellpercent           = 0.80;
-	shadowedText          = true;
-	skipComputerPlay      = SKIP_HUMANS_DEAD;
+	sell_percent           = 0.80;
+	shadowed_text          = true;
+	skip_computer_play      = SKIP_HUMANS_DEAD;
 	sound_driver          = SD_AUTODETECT;
 	sound_enabled         = true;
-	startmoney            = 15000;
-	swayingText           = true;
-	temp_screenHeight     = DEFAULT_SCREEN_HEIGHT;
-	temp_screenWidth      = DEFAULT_SCREEN_WIDTH;
-	turntype              = TURN_RANDOM;
+	start_money            = 15000;
+	swaying_text           = true;
+	temp_screen_height     = DEFAULT_SCREEN_HEIGHT;
+	temp_screen_width      = DEFAULT_SCREEN_WIDTH;
+	turn_type              = TURN_RANDOM;
 	viscosity             = 0.5;
 	violent_death         = 0;
 	volley_delay          = 10;
 	volume_factor         = MAX_VOLUME_FACTOR;
-	wallType              = WALL_RUBBER;
-	weapontechLevel       = 5;
-	windstrength          = 8;
-	windvariation         = 1;
+	wall_type              = WALL_RUBBER;
+	weapontech_level       = 5;
+	wind_strength          = 8;
+	wind_variation         = 1;
 
 	strncpy( server_name, "127.0.0.1", 127 );
 	strncpy( server_port, "25645", 127 );
@@ -1520,75 +1511,75 @@ void ENVIRONMENT::Reset_Options() {
  *
  * @return true on success and false on failure.
  */
-bool ENVIRONMENT::save_to_file( FILE* file ) {
+bool CEnvironment::save_to_file( FILE* file ) {
 	if ( !file ) {
 		return false;
 	}
 
 	fprintf( file, "*ENV*\n" );
 
-	fprintf( file, "ACCELERATEDAI=%d\n", skipComputerPlay );
-	fprintf( file, "BOXMODE=%d\n", boxedMode );
+	fprintf( file, "ACCELERATEDAI=%d\n", skip_computer_play );
+	fprintf( file, "BOXMODE=%d\n", boxed_mode );
 	fprintf( file, "CHECKUPDATES=%d\n", check_for_updates ? 1 : 0 );
-	fprintf( file, "COLOURTHEME=%d\n", colourTheme );
+	fprintf( file, "COLOURTHEME=%d\n", colour_theme );
 	fprintf( file, "CUSTOMBACKGROUND=%d\n", custom_background );
 	fprintf( file, "DEBRISLEVEL=%d\n", debris_level );
-	fprintf( file, "DETAILEDLAND=%d\n", detailedLandscape ? 1 : 0 );
-	fprintf( file, "DETAILEDSKY=%d\n", detailedSky ? 1 : 0 );
-	fprintf( file, "DITHER=%d\n", ditherGradients ? 1 : 0 );
+	fprintf( file, "DETAILEDLAND=%d\n", detailed_landscape ? 1 : 0 );
+	fprintf( file, "DETAILEDSKY=%d\n", detailed_sky ? 1 : 0 );
+	fprintf( file, "DITHER=%d\n", dither_gradients ? 1 : 0 );
 	fprintf( file, "DIVIDEMONEY=%d\n", divide_money );
 	fprintf( file, "DOBOXWRAP=%d\n", do_box_wrap );
-	fprintf( file, "DYNAMICMENUBG=%d\n", dynamicMenuBg ? 1 : 0 );
+	fprintf( file, "DYNAMICMENUBG=%d\n", dynamic_menu_bg ? 1 : 0 );
 	fprintf( file, "FALLINGDIRTBALLS=%d\n", falling_dirt_balls );
 	fprintf( file, "FOG=%d\n", fog );
 	fprintf( file, "FRAMES=%d\n", frames_per_second );
 	fprintf( file, "FULLSCREEN=%d\n", full_screen );
 	fprintf( file, "GRAVITY=%f\n", gravity );
 	fprintf( file, "INTEREST=%f\n", interest );
-	fprintf( file, "ITEMTECHLEVEL=%d\n", itemtechLevel );
-	fprintf( file, "LANDSLIDEDELAY=%d\n", landSlideDelay );
-	fprintf( file, "LANDSLIDETYPE=%d\n", landSlideType );
-	fprintf( file, "LANDTYPE=%d\n", landType );
+	fprintf( file, "ITEMTECHLEVEL=%d\n", itemtech_level );
+	fprintf( file, "LANDSLIDEDELAY=%d\n", landslide_delay );
+	fprintf( file, "LANDSLIDETYPE=%d\n", landslide_type );
+	fprintf( file, "LANDTYPE=%d\n", land_type );
 	fprintf( file, "LANGUAGE=%u\n", static_cast< uint32_t >( language ) );
 	fprintf( file, "LIGHTNING=%d\n", lightning );
-	fprintf( file, "MAXFIRETIME=%d\n", maxFireTime );
+	fprintf( file, "MAXFIRETIME=%d\n", max_fire_time );
 	fprintf( file, "METEORS=%d\n", meteors );
 	fprintf( file, "NETWORKING=%d\n", network_enabled ? 1 : 0 );
 	fprintf( file, "NETWORKPORT=%d\n", network_port );
-	fprintf( file, "NUMPERMANENTPLAYERS=%d\n", numPermanentPlayers );
-	fprintf( file, "OSMOUSE=%d\n", osMouse );
+	fprintf( file, "NUMPERMANENTPLAYERS=%d\n", num_permanent_players );
+	fprintf( file, "OSMOUSE=%d\n", os_mouse );
 	fprintf( file, "PLAYMUSIC=%d\n", play_music ? 1 : 0 );
 	fprintf( file, "ROUNDS=%d\n", rounds );
 	fprintf( file, "SATELLITE=%d\n", satellite );
-	fprintf( file, "SCOREBOARD=%d\n", global.showScoreBoard ? 1 : 0 );
+	fprintf( file, "SCOREBOARD=%d\n", global.show_score_board ? 1 : 0 );
 	fprintf( file, "SCOREHITUNIT=%d\n", scoreHitUnit );
 	fprintf( file, "SCOREROUNDWINBONUS=%d\n", scoreRoundWinBonus );
 	fprintf( file, "SCORESELFHIT=%d\n", scoreSelfHit );
 	fprintf( file, "SCORETEAMHIT=%d\n", scoreTeamHit );
 	fprintf( file, "SCOREUNITDESTROYBONUS=%d\n", scoreUnitDestroyBonus );
 	fprintf( file, "SCOREUNITSELFDESTROY=%d\n", scoreUnitSelfDestroy );
-	fprintf( file, "SCREENHEIGHT=%d\n", temp_screenHeight );
-	fprintf( file, "SCREENWIDTH=%d\n", temp_screenWidth );
-	fprintf( file, "SELLPERCENT=%f\n", sellpercent );
+	fprintf( file, "SCREENHEIGHT=%d\n", temp_screen_height );
+	fprintf( file, "SCREENWIDTH=%d\n", temp_screen_width );
+	fprintf( file, "SELLPERCENT=%f\n", sell_percent );
 	fprintf( file, "SERVERNAME='%s'\n", server_name );
 	fprintf( file, "SERVERPORT='%s'\n", server_port );
-	fprintf( file, "SHOWAIFEEDBACK=%d\n", showAIFeedback ? 1 : 0 );
-	fprintf( file, "SHOWFPS=%d\n", showFPS ? 1 : 0 );
+	fprintf( file, "SHOWAIFEEDBACK=%d\n", show_ai_feedback ? 1 : 0 );
+	fprintf( file, "SHOWFPS=%d\n", show_fps ? 1 : 0 );
 	fprintf( file, "SOUNDDRIVER=%d\n", sound_driver );
 	fprintf( file, "SOUNDENABLED=%d\n", sound_enabled ? 1 : 0 );
-	fprintf( file, "STARTMONEY=%d\n", startmoney );
-	fprintf( file, "TEXTFADE=%d\n", fadingText ? 1 : 0 );
-	fprintf( file, "TEXTSHADOW=%d\n", shadowedText ? 1 : 0 );
-	fprintf( file, "TEXTSWAY=%d\n", swayingText ? 1 : 0 );
-	fprintf( file, "TURNTYPE=%d\n", turntype );
+	fprintf( file, "STARTMONEY=%d\n", start_money );
+	fprintf( file, "TEXTFADE=%d\n", fading_text ? 1 : 0 );
+	fprintf( file, "TEXTSHADOW=%d\n", shadowed_text ? 1 : 0 );
+	fprintf( file, "TEXTSWAY=%d\n", swaying_text ? 1 : 0 );
+	fprintf( file, "TURNTYPE=%d\n", turn_type );
 	fprintf( file, "VISCOSITY=%f\n", viscosity );
 	fprintf( file, "VIOLENTDEATH=%d\n", violent_death );
 	fprintf( file, "VOLLEYDELAY=%d\n", volley_delay );
 	fprintf( file, "VOLUMEFACTOR=%d\n", volume_factor );
-	fprintf( file, "WALLTYPE=%d\n", wallType );
-	fprintf( file, "WEAPONTECHLEVEL=%d\n", weapontechLevel );
-	fprintf( file, "WINDSTRENGTH=%d\n", windstrength );
-	fprintf( file, "WINDVARIATION=%d\n", windvariation );
+	fprintf( file, "WALLTYPE=%d\n", wall_type );
+	fprintf( file, "WEAPONTECHLEVEL=%d\n", weapontech_level );
+	fprintf( file, "WINDSTRENGTH=%d\n", wind_strength );
+	fprintf( file, "WINDVARIATION=%d\n", wind_variation );
 	fprintf( file, "***\n" );
 
 	return true;
@@ -1596,7 +1587,7 @@ bool ENVIRONMENT::save_to_file( FILE* file ) {
 
 /// @brief This function sends a message to all connected game clients.
 /// @return true on success or false if the message could not be sent
-bool ENVIRONMENT::sendToClients( char const* message ) const {
+bool CEnvironment::send_to_clients( char const* message ) const {
 	if ( !message ) {
 		return false;
 	}
@@ -1605,7 +1596,7 @@ bool ENVIRONMENT::sendToClients( char const* message ) const {
 	ssize_t written        = 0;
 	size_t  message_length = strlen( message );
 
-	for ( int32_t index = 0; index < numGamePlayers; index++ ) {
+	for ( int32_t index = 0; index < num_game_players; index++ ) {
 		if ( ( players[ index ] ) && ( players[ index ]->type == NETWORK_CLIENT ) ) {
 			written = write( players[ index ]->server_socket, message, message_length );
 			if ( written < static_cast< ssize_t >( message_length ) ) {
@@ -1624,18 +1615,21 @@ bool ENVIRONMENT::sendToClients( char const* message ) const {
 }
 
 /// @brief set new frames per second if valid and calculate dependent values.
-void ENVIRONMENT::set_fps( int32_t new_FPS ) {
+void CEnvironment::set_fps( int32_t new_FPS ) {
 	if ( !new_FPS || ( ( new_FPS > 0 ) && ( new_FPS != frames_per_second ) ) ) {
 		if ( new_FPS ) {
 			frames_per_second = new_FPS;
 		}
-		FPS_mod     = 100. / static_cast< double >( frames_per_second );
-		fall_vector = gravity * FPS_mod;
-		maxVelocity = static_cast< double >( MAX_POWER ) * FPS_mod / 100.;
+		frame_count_mod = static_cast< double >( frames_per_second ) / 60.;
+		fps_mod         = 100. / static_cast< double >( frames_per_second );
+		// Gravity is a per-frame velocity increment (acceleration), so unlike
+		// velocities it scales quadratically to stay frame-rate independent.
+		fall_vector     = gravity * fps_mod / frame_count_mod;
+		max_velocity    = static_cast< double >( MAX_POWER ) * fps_mod / 100.;
 	}
 }
 
-void ENVIRONMENT::window_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
+void CEnvironment::window_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	if ( x < window.x ) {
 		window.x = x;
 	}
@@ -1654,10 +1648,10 @@ void ENVIRONMENT::window_update( int32_t x, int32_t y, int32_t w, int32_t h ) {
 	if ( window.y < MENUHEIGHT ) {
 		window.y = MENUHEIGHT;
 	}
-	if ( window.w > ( screenWidth - 1 ) ) {
-		window.w = ( screenWidth - 1 );
+	if ( window.w > ( screen_width - 1 ) ) {
+		window.w = ( screen_width - 1 );
 	}
-	if ( window.h > ( screenHeight - 1 ) ) {
-		window.h = ( screenHeight - 1 );
+	if ( window.h > ( screen_height - 1 ) ) {
+		window.h = ( screen_height - 1 );
 	}
 }

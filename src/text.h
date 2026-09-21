@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_TEXT_H_INCLUDED
-#define ATANKS_SRC_TEXT_H_INCLUDED 1
+#ifndef ATANKS_TEXT_H_INCLUDED
+#define ATANKS_TEXT_H_INCLUDED 1
 
 /* This file contains functions for reading text from files and
  * storing it in the game. The entire text file will be kept in memory.
@@ -19,8 +19,11 @@
 #define MAX_LINES_IN_FILE 1024
 
 /// @brief alignment of texts
-enum alignType { CENTRE = 0, LEFT, RIGHT };
+enum EAlignType { CENTRE = 0, LEFT, RIGHT };
 
+/** @class TEXTBLOCK
+ * @brief Localized text file kept in memory.
+ **/
 class TEXTBLOCK {
 public:
 	/* -----------------------------------
@@ -28,8 +31,11 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct an empty text block.
 	TEXTBLOCK() = default;
+	/// Load a text block from a file.
 	explicit TEXTBLOCK( char const* filename );
+	/// Destroy a text block.
 	~TEXTBLOCK();
 
 
@@ -38,14 +44,19 @@ public:
 	 * ----------------------
 	 */
 
-	bool Load_File( char const* filename ); // load lines from a file
-	void Render_Lines( int32_t scrollOffset, int32_t spacing, int32_t top,
-	                   int32_t bottom ); // Render to global.canvas
+	/// Load lines from a file.
+	bool load_file( char const* filename );
+	/// Render to global.canvas.
+	void render_lines( int32_t scrollOffset, int32_t spacing, int32_t top,
+	                   int32_t bottom );
 
 	/* Text Getters */
-	[[nodiscard]] char const* Get_Line( int32_t index ) const; // return a specific line
-	[[nodiscard]] char const* Get_Random_Line() const;         // give us a random line
-	[[nodiscard]] int32_t     Lines() const;                   // Return number of total lines
+	/// Return a specific line.
+	[[nodiscard]] char const* get_line( int32_t index ) const;
+	/// Give us a random line.
+	[[nodiscard]] char const* get_random_line() const;
+	/// Return number of total lines.
+	[[nodiscard]] int32_t     lines() const;
 
 
 private:
@@ -71,11 +82,11 @@ private:
 // This function returns a string with
 // comma characters between every three digits.
 // You *MUST* *NOT* free the returned string.
-char const* Add_Comma( int32_t number );
+char const* add_comma( int32_t number );
 
-void        draw_text_in_box( BOX* region, char const* text, bool with_box );
+void        draw_text_in_box( sBox* region, char const* text, bool with_box );
 
 // hack the newline off a string
-void Trim_Newline( char* line );
+void trim_newline( char* line );
 
-#endif // ATANKS_SRC_TEXT_H_INCLUDED
+#endif // ATANKS_TEXT_H_INCLUDED

@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_OPTIONITEM_H_INCLUDED
-#define ATANKS_SRC_OPTIONITEM_H_INCLUDED 1
+#ifndef ATANKS_OPTIONITEM_H_INCLUDED
+#define ATANKS_OPTIONITEM_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
  **/
 
 
-/** @class OptionItem
+/** @class TOptionItem
  * @brief abstract one option menu entry
  *
  * One option menu entry is what the user interacts with. Each option menu
@@ -41,7 +41,7 @@
  *
  * The setup is fairly easy, just use the appropriate setData() method. The
  * template itself has only two other methods: activate() and display(). See
- * OptionItemBase for more public methods.
+ * COptionItemBase for more public methods.
  *
  * When using the empty ctor, remember to call it with an explicit type.
  * To be usable with the new-operator this class has an empty ctor which
@@ -50,7 +50,7 @@
  *
  *
  * One <B>BIG</B> fat warning, though: Do not use ET_TEXT with anything other
- * than a char* target, and only allow the usage of OptionItem::activate()
+ * than a char* target, and only allow the usage of TOptionItem::activate()
  * if it is not full, yet!\n
  * Background: Allowing other types would make the internals insanely
  * complicated, and all string options that can be manipulated with the option
@@ -62,13 +62,13 @@
  * types to proper types without the need to adapt the option menu.
  *
  * Template parameters:\n
- * While tgt_T defines the target type, opt_T is used for the manipulating
+ * While tgt_t defines the target type, opt_t is used for the manipulating
  * values like minimum, maximum, increment/decrement value and action function
  * typing. This is done to allow a more intuitive usage.\n
  * As an example, if the target is a double, minimum, maximum and increment
  * values can be set to -1.0, 1.0 and 0.1 without the need for a postfix 'L'.
  **/
-template< typename tgt_T, typename opt_T = int32_t > class OptionItem final : public OptionItemBase {
+template< typename tgt_t, typename opt_t = int32_t > class TOptionItem final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
@@ -84,7 +84,7 @@ public:
 	 * @param[in] color_ Color of the text to display.
 	 * @param[in] type_ Type of the option.
 	 * @param[in] title_ The title of the option to display.
-	 * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+	 * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
 	 * @param[in] format_ Format string to use when displaying the ET_TEXT target.
 	 * @param[in] top_ Top position of the display area.
 	 * @param[in] left_ Left position of the display area.
@@ -92,13 +92,13 @@ public:
 	 * @param[in] height_ Height of the display area.
 	 * @param[in] padding_ Padding of the title and buttons to the display area.
 	 **/
-	OptionItem(
-		tgt_T*      target_,
-		opt_T       max_,
+	TOptionItem(
+		tgt_t*      target_,
+		opt_t       max_,
 		int32_t     color_,
-		eEntryType  type_,
+		EEntryType  type_,
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		char const* format_,
 		int32_t     top_,
 		int32_t     left_,
@@ -106,13 +106,13 @@ public:
 		int32_t     height_,
 		int32_t     padding_
 	)
-		: OptionItemBase( type_, title_, titleIdx_, nullptr, color_, TC_NONE, format_, top_, left_, width_, height_, padding_, 0 )
-		, maxVal( max_ )
+		: COptionItemBase( type_, title_, title_idx_, nullptr, color_, TC_NONE, format_, top_, left_, width_, height_, padding_, 0 )
+		, max_val( max_ )
 		, target( target_ ) {
 		// The value of max_ determines whether this
 		// is read only or not. If it is set, it is writable.
-		// The default is true, so only if it maxVal is 0, something has to be done.
-		if ( maxVal ) {
+		// The default is true, so only if it max_val is 0, something has to be done.
+		if ( max_val ) {
 			read_only = false;
 		}
 	}
@@ -123,7 +123,7 @@ public:
 	 *
 	 * @param[in,out] target_ Pointer to the value to handle.
 	 * @param[in] title_ The title of the option to display.
-	 * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+	 * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
 	 * @param[in] text_ Array of texts to display.
 	 * @param[in] color_ Color of the text to display.
 	 * @param[in] class_ The text class of @a text_.
@@ -138,46 +138,46 @@ public:
 	 * @param[in] padding_ Padding of the title and buttons to the display area.
 	 * @param[in] display_ optional display function to use.
 	 **/
-	explicit OptionItem(
-		tgt_T*       target_,
+	explicit TOptionItem(
+		tgt_t*       target_,
 		char const*  title_,
-		int32_t      titleIdx_,
+		int32_t      title_idx_,
 		char const** text_,
 		int32_t      color_,
-		eTextClass   class_,
-		opt_T        min_,
-		opt_T        max_,
-		opt_T        decinc_,
+		ETextClass   class_,
+		opt_t        min_,
+		opt_t        max_,
+		opt_t        decinc_,
 		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
 		int32_t      width_,
 		int32_t      height_,
 		int32_t      padding_,
-		bool ( *display_ )( tgt_T* target, int32_t x, int32_t y )
+		bool ( *display_ )( tgt_t* target, int32_t x, int32_t y )
 	)
-		: OptionItemBase( ET_VALUE, title_, titleIdx_, text_, color_, class_, format_, top_, left_, width_, height_, padding_, 0 )
-		, displayFunc( display_ )
+		: COptionItemBase( ET_VALUE, title_, title_idx_, text_, color_, class_, format_, top_, left_, width_, height_, padding_, 0 )
+		, display_func( display_ )
 		, decinc( decinc_ )
-		, maxVal( max_ )
-		, minVal( min_ )
+		, max_val( max_ )
+		, min_val( min_ )
 		, target( target_ ) {
 		// The target must be set, this variant does not allow
 		// an action function:
 		assert( target && "A target must be set with ET_VALUE" );
 
-		// maxVal must be larger than minVal, otherwise they are swapped
-		if ( maxVal < minVal ) {
-			opt_T tmp = minVal;
-			minVal    = maxVal;
-			maxVal    = tmp;
+		// max_val must be larger than min_val, otherwise they are swapped
+		if ( max_val < min_val ) {
+			opt_t tmp = min_val;
+			min_val    = max_val;
+			max_val    = tmp;
 		}
 
-		// If this is a text rotator, entryNum must be set to *target:
-		entryNum = static_cast< int32_t >( *target );
+		// If this is a text rotator, entry_num must be set to *target:
+		entry_num = static_cast< int32_t >( *target );
 
 		// Either format, texts or display must be set
-		assert( ( format || texts || displayFunc || ( TC_NONE == class_ ) )
+		assert( ( format || texts || display_func || ( TC_NONE == class_ ) )
 		        && "Either format, texts or display must be set with ET_VALUE" );
 	}
 
@@ -193,10 +193,13 @@ public:
 	 * @param[in,out] action_ Pointer to the action function handling the target.
 	 * @param[in] type_ Type of the option.
 	 * @param[in] title_ The title of the option to display.
-	 * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+	 * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
 	 * @param[in] text_ Array of texts to display. Only needed with ET_VALUE.
 	 * @param[in] color_ Color of the text to display.
 	 * @param[in] class_ The text class of @a text.
+	 * @param[in] min_ Minimum value target can become.
+	 * @param[in] max_ Maximum value target can become.
+	 * @param[in] decinc_ Value target is changed on each action.
 	 * @param[in] format_ Format string to use when displaying the target.
 	 * @param[in] top_ Top position of the display area.
 	 * @param[in] left_ Left position of the display area.
@@ -205,61 +208,61 @@ public:
 	 * @param[in] padding_ Padding of the title and buttons to the display area.
 	 * @param[in] display_ optional display function to use.
 	 **/
-	OptionItem(
-		tgt_T* target_,
-		int32_t ( *action_ )( tgt_T* target, int32_t val ),
-		eEntryType   type_,
+	TOptionItem(
+		tgt_t* target_,
+		int32_t ( *action_ )( tgt_t* target, int32_t val ),
+		EEntryType   type_,
 		char const*  title_,
-		int32_t      titleIdx_,
+		int32_t      title_idx_,
 		char const** text_,
 		int32_t      color_,
-		eTextClass   class_,
-		opt_T        min_,
-		opt_T        max_,
-		opt_T        decinc_,
+		ETextClass   class_,
+		opt_t        min_,
+		opt_t        max_,
+		opt_t        decinc_,
 		char const*  format_,
 		int32_t      top_,
 		int32_t      left_,
 		int32_t      width_,
 		int32_t      height_,
 		int32_t      padding_,
-		bool ( *display_ )( tgt_T* target, int32_t x, int32_t y )
+		bool ( *display_ )( tgt_t* target, int32_t x, int32_t y )
 	)
-		: OptionItemBase( type_, title_, titleIdx_, text_, color_, class_, format_, top_, left_, width_, height_, padding_, 0 )
-		, actionFunc( action_ )
-		, displayFunc( display_ )
+		: COptionItemBase( type_, title_, title_idx_, text_, color_, class_, format_, top_, left_, width_, height_, padding_, 0 )
+		, action_func( action_ )
+		, display_func( display_ )
 		, decinc( decinc_ )
-		, maxVal( max_ )
-		, minVal( min_ )
+		, max_val( max_ )
+		, min_val( min_ )
 		, target( target_ ) {
 		// Either action or target must be set
-		assert( ( actionFunc || target ) && "Either action or target must be set" );
+		assert( ( action_func || target ) && "Either action or target must be set" );
 
 		// If this is an ET_ACTION, both action and display
 		// functions must be set:
-		assert( ( ( ET_ACTION != type ) || ( actionFunc && displayFunc ) )
+		assert( ( ( ET_ACTION != type ) || ( action_func && display_func ) )
 		        && "ET_ACTION needs both display and action function!" );
 
 		// An ET_MENU must have a display function set. To be more concrete,
 		// it must be OptionMenu->displaySub(). (Although this isn't checked.)
-		assert( ( ( ET_MENU != type ) || displayFunc )
+		assert( ( ( ET_MENU != type ) || display_func )
 		        && "ET_MENU must have a display function (OptionMenu->displaySub()) set!" );
 
 
 		// If this is ET_VALUE and no action function is set, the same
 		// limitations as with the ET_VALUE ctor are present.
 		if ( ET_VALUE == type ) {
-			if ( maxVal < minVal ) {
-				opt_T tmp = minVal;
-				minVal    = maxVal;
-				maxVal    = tmp;
+			if ( max_val < min_val ) {
+				opt_t tmp = min_val;
+				min_val    = max_val;
+				max_val    = tmp;
 			}
 
-			// If this is a text rotator, entryNum must be set to *target:
-			entryNum = static_cast< int32_t >( *target );
+			// If this is a text rotator, entry_num must be set to *target:
+			entry_num = static_cast< int32_t >( *target );
 
 			// Either format, texts or display must be set
-			assert( ( format || texts || displayFunc || ( TC_NONE == class_ ) )
+			assert( ( format || texts || display_func || ( TC_NONE == class_ ) )
 			        && "Either format, texts or display must be set with ET_VALUE" );
 		}
 	}
@@ -271,11 +274,11 @@ public:
 	 *
 	 * Buttons have no target, so set a dummy type when calling the ctor.
 	 *
-	 * @param[in] keyCode_ The key code to return when no action function is set.
+	 * @param[in] key_code_ The key code to return when no action function is set.
 	 * @param[in,out] target_ Pointer to the value to handle.
 	 * @param[in,out] action_ Pointer to the action function handling the button click.
 	 * @param[in] title_ The title of the option to display.
-	 * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+	 * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
 	 * @param[in] button_ Pointer to the button to use, it must be pre-created.
 	 * @param[in] top_ Top position of the display area.
 	 * @param[in] left_ Left position of the display area.
@@ -283,38 +286,38 @@ public:
 	 * @param[in] height_ Height of the display area.
 	 * @param[in] padding_ Padding of the title and buttons to the display area.
 	 **/
-	OptionItem(
-		int32_t keyCode_,
-		tgt_T*  target_,
-		int32_t ( *action_ )( tgt_T* target, int32_t val ),
+	TOptionItem(
+		int32_t key_code_,
+		tgt_t*  target_,
+		int32_t ( *action_ )( tgt_t* target, int32_t val ),
 		char const* title_,
-		int32_t     titleIdx_,
-		BUTTON*     button_,
+		int32_t     title_idx_,
+		CButton*     button_,
 		int32_t     top_,
 		int32_t     left_,
 		int32_t     width_,
 		int32_t     height_,
 		int32_t     padding_
 	)
-		: OptionItemBase( ET_BUTTON, title_, titleIdx_, nullptr, BLACK, TC_NONE, nullptr, top_, left_, width_, height_, padding_, 0 )
-		, actionFunc( action_ )
+		: COptionItemBase( ET_BUTTON, title_, title_idx_, nullptr, BLACK, TC_NONE, nullptr, top_, left_, width_, height_, padding_, 0 )
+		, action_func( action_ )
 		, target( target_ ) {
-		// Either action or keyCode must be set
-		assert( ( actionFunc || keyCode_ ) && "Either action_ or keyCode_ must be set" );
+		// Either action or key_code must be set
+		assert( ( action_func || key_code_ ) && "Either action_ or key_code_ must be set" );
 
-		if ( keyCode_ ) {
-			this->keyCode = keyCode_;
+		if ( key_code_ ) {
+			this->key_code = key_code_;
 		}
 		if ( button_ ) {
 			this->button = button_;
-			this->button->getLocation( this->left, this->top, this->width, this->height );
+			this->button->get_location( this->left, this->top, this->width, this->height );
 		}
 	}
 
 	/// @brief default dtor only setting nullptr values. No further action needed.
-	~OptionItem() final {
-		actionFunc  = nullptr;
-		displayFunc = nullptr;
+	~TOptionItem() final {
+		action_func  = nullptr;
+		display_func = nullptr;
 		target      = nullptr;
 	}
 
@@ -334,8 +337,8 @@ public:
 	 * value are used.
 	 *
 	 * @param[in] val Used for ET_VALUE: <0 = decrement, >0 = increment.
-	 * @param[in] ignored (see OptionItemColour)
-	 * @param[in] ignored (see OptionItemColour)
+	 * The two middle parameters are unnamed and unused here; COptionItemColour
+	 * uses them for the click position.
 	 * @param[in] last_key The latest last_key press to use on an ET_TEXT.
 	 * @return normally 0, but ET_BUTTON and ET_MENU can return key_codes
 	 * assigned with exit buttons.
@@ -343,18 +346,18 @@ public:
 	int32_t activate( int32_t val, int32_t, int32_t, int32_t last_key ) final {
 		int32_t result = 0;
 
-		if ( actionFunc ) {
-			result = actionFunc( target, val );
+		if ( action_func ) {
+			result = action_func( target, val );
 
 			// Here it is important that the action function does the right
 			// thing with the target if this is an ET_VALUE and val<>0
 			if ( ( ET_VALUE == type ) && val && texts ) {
-				entryNum = static_cast< int32_t >( *target );
+				entry_num = static_cast< int32_t >( *target );
 			}
 
 		} else {
 			// Here a target must be set as there is no action function.
-			if ( ( ET_BUTTON != type ) && !target && !actionFunc ) {
+			if ( ( ET_BUTTON != type ) && !target && !action_func ) {
 				cerr << "\n" << __FUNCTION__ << ": Illegal setup!" << endl;
 				cerr << "A target value MUST be set with ET_";
 				cerr
@@ -372,18 +375,18 @@ public:
 			switch ( type ) {
 				case ET_BUTTON:
 					// Can trigger end events
-					result = this->keyCode;
+					result = this->key_code;
 					break;
 				case ET_MENU:
-					result = this->activateMenu( target );
+					result = this->activate_menu( target );
 					break;
 				case ET_TEXT:
 					if ( !read_only ) {
-						this->activateText( target, last_key );
+						this->activate_text( target, last_key );
 					}
 					break;
 				case ET_TOGGLE:
-					this->activateToggle( target );
+					this->activate_toggle( target );
 					break;
 				case ET_VALUE:
 					this->activateValue( val );
@@ -412,7 +415,7 @@ public:
 	bool canGoDown() final {
 		if ( ( ET_VALUE == this->type ) && this->format ) {
 			// Check format, because texts[] based options are rotated.
-			return *target > static_cast< tgt_T >( minVal );
+			return *target > static_cast< tgt_t >( min_val );
 		}
 		return true;
 	}
@@ -420,7 +423,7 @@ public:
 	/// @brief return true if the target has not reached its maximum, yet
 	bool canGoUp() final {
 		if ( ( ET_VALUE == this->type ) && this->format ) {
-			return *target < static_cast< tgt_T >( maxVal );
+			return *target < static_cast< tgt_t >( max_val );
 		}
 		return true;
 	}
@@ -440,28 +443,28 @@ public:
 	 * @param[in] show_full If set to true, title and buttons are redrawn.
 	 **/
 	void display( bool show_full ) final {
-		if ( displayFunc ) {
+		if ( display_func ) {
 			clear_display( false );
-			displayFunc( target, left, top );
+			display_func( target, left, top );
 			drawn = true;
 		} else {
 			// Every type has its own base class display function,
 			// so a simple switch will do.
 			switch ( type ) {
 				case ET_BUTTON:
-					this->displayButton();
+					this->display_button();
 					break;
 				case ET_MENU:
-					this->displayMenu( target );
+					this->display_menu( target );
 					break;
 				case ET_TEXT:
-					this->displayText( target );
+					this->display_text( target );
 					break;
 				case ET_TOGGLE:
-					this->displayToggle( target );
+					this->display_toggle( target );
 					break;
 				case ET_VALUE:
-					this->displayValue( target );
+					this->display_value( target );
 					break;
 				case ET_NONE:
 				case ET_ACTION:
@@ -475,15 +478,15 @@ public:
 
 		// Show decorations if wanted: (ET_COLOR does that in displayColor())
 		if ( show_full && ( ET_COLOR != type ) ) {
-			this->displayDeco();
+			this->display_deco();
 		}
 	}
 
 	/// @brief return true if this is an ET_BUTTON with a key code and no action function.
-	bool isExitButton() final { return ( ( ET_BUTTON == type ) && ( nullptr == actionFunc ) && ( -1 < keyCode ) ); }
+	bool isExitButton() final { return ( ( ET_BUTTON == type ) && ( nullptr == action_func ) && ( -1 < key_code ) ); }
 
 	/// @brief Quickly change (or set) the action function
-	void setAction( int32_t ( *action_ )( tgt_T* target, int32_t val ) ) { actionFunc = action_; }
+	void setAction( int32_t ( *action_ )( tgt_t* target, int32_t val ) ) { action_func = action_; }
 
 
 private:
@@ -492,21 +495,21 @@ private:
 	 * ----------------------------------------------
 	 */
 
-	int32_t ( *actionFunc )( tgt_T* target, int32_t val )        = nullptr;
-	bool ( *displayFunc )( tgt_T* target, int32_t x, int32_t y ) = nullptr;
+	int32_t ( *action_func )( tgt_t* target, int32_t val )        = nullptr;
+	bool ( *display_func )( tgt_t* target, int32_t x, int32_t y ) = nullptr;
 
 	/// @brief templated ET_VALUE activation handling
 	void activateValue( int32_t val ) {
 		// A few short-cuts that make reading the following a lot easier:
-		auto t_val = static_cast< tgt_T >( ( decinc * val ) );
-		auto t_max = static_cast< tgt_T >( maxVal );
-		auto t_min = static_cast< tgt_T >( minVal );
+		auto t_val = static_cast< tgt_t >( ( decinc * val ) );
+		auto t_max = static_cast< tgt_t >( max_val );
+		auto t_min = static_cast< tgt_t >( min_val );
 
 		if ( format ) {
 			// If a format is set, this is just a simple adding/substracting
 			// of decinc with a check against min/max value afterwards
 			// val == 0 is simply ignored.
-			tgt_T oldTgt = *target;
+			tgt_t oldTgt = *target;
 			if ( val > 0 ) {
 				if ( *target <= ( t_max - t_val ) ) {
 					*target += t_val;
@@ -526,21 +529,21 @@ private:
 				display( true );
 			}
 		} else if ( texts ) {
-			// Otherwise entryNum is used and checked against texts[]
+			// Otherwise entry_num is used and checked against texts[]
 			if ( val > 0 ) {
-				if ( texts[ entryNum + 1 ] && ( *target < t_max ) ) {
-					++entryNum;
+				if ( texts[ entry_num + 1 ] && ( *target < t_max ) ) {
+					++entry_num;
 				} else {
-					entryNum = 0;
+					entry_num = 0;
 				}
 			} else if ( val < 0 ) {
-				if ( entryNum > 0 && ( *target > static_cast< tgt_T >( 0 ) ) ) {
-					--entryNum;
+				if ( entry_num > 0 && ( *target > static_cast< tgt_t >( 0 ) ) ) {
+					--entry_num;
 				} else {
-					entryNum = t_max;
+					entry_num = t_max;
 				}
 			}
-			*target = static_cast< tgt_T >( entryNum );
+			*target = static_cast< tgt_t >( entry_num );
 		}
 	}
 
@@ -549,11 +552,11 @@ private:
 	 * -----------------------
 	 */
 
-	opt_T  decinc = (opt_T)1; //!< Increment / decrement for ET_VALUE
-	opt_T  maxVal = (opt_T)0; //!< Maximum value for ET_VALUE
-	opt_T  minVal = (opt_T)0; //!< Minimum value for ET_VALUE
-	tgt_T* target = nullptr;  //!< Target to handle
+	opt_t  decinc = (opt_t)1; //!< Increment / decrement for ET_VALUE
+	opt_t  max_val = (opt_t)0; //!< Maximum value for ET_VALUE
+	opt_t  min_val = (opt_t)0; //!< Minimum value for ET_VALUE
+	tgt_t* target = nullptr;  //!< Target to handle
 };
 
 
-#endif // ATANKS_SRC_OPTIONITEM_H_INCLUDED
+#endif // ATANKS_OPTIONITEM_H_INCLUDED

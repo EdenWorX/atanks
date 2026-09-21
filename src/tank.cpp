@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -36,66 +36,66 @@
 
 enum shieldVals { SHIELD_ENERGY = 0, SHIELD_REPULSION, SHIELD_RED, SHIELD_GREEN, SHIELD_BLUE, SHIELD_THICKNESS };
 
-TANK::TANK()
-	: PHYSICAL_OBJECT( false )
-	, healthText( nullptr, -1, -1, 0., 0., WHITE, CENTRE, TS_NO_SWAY, -1, true )
-	, nameText( nullptr, -1, -1, 0., 0., WHITE, CENTRE, TS_NO_SWAY, -1, true )
-	, shieldText( nullptr, -1, -1, 0., 0., TURQUOISE, CENTRE, TS_NO_SWAY, -1, true ) {
+CTank::CTank()
+	: CPhysicalObject( false )
+	, health_text( nullptr, -1, -1, 0., 0., WHITE, CENTRE, TS_NO_SWAY, -1, true )
+	, name_text( nullptr, -1, -1, 0., 0., WHITE, CENTRE, TS_NO_SWAY, -1, true )
+	, shield_text( nullptr, -1, -1, 0., 0., TURQUOISE, CENTRE, TS_NO_SWAY, -1, true ) {
 	// The shield phase delta depends on currently set FPS
 	shld_delta /= static_cast< double >( env.frames_per_second );
 
-	setTextPositions( false );
+	set_text_positions( false );
 
 	drag  = 0.5;
 	mass  = 3000;
 	a    += get_rand() % 180;
 
-	// Add to the chain:
-	global.addObject( this );
-	global.numTanks++;
+	// add to the chain:
+	global.add_object( this );
+	global.num_tanks++;
 }
 
 /*
 The destructor only removes the tank and cleans up after it.
 Any tank destruction (with big badass explosions, vengeance and stuff) is done
-in TANK::explode().
+in CTank::explode().
 */
-TANK::~TANK() {
+CTank::~CTank() {
 	if ( player ) {
 		player->tank = nullptr;
 		player       = nullptr;
 	}
-	creditTo = nullptr;
+	credit_to = nullptr;
 
-	global.numTanks--;
+	global.num_tanks--;
 	if ( global.get_curr_tank() == this ) {
 		global.set_curr_tank( nullptr );
 	}
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 /// @brief Set texts to vertical bounce and initialize text positions
-void TANK::activate() {
-	shieldText.set_sway_type( TS_VERTICAL );
-	healthText.set_sway_type( TS_VERTICAL );
-	nameText.set_sway_type( TS_VERTICAL );
+void CTank::activate() {
+	shield_text.set_sway_type( TS_VERTICAL );
+	health_text.set_sway_type( TS_VERTICAL );
+	name_text.set_sway_type( TS_VERTICAL );
 
-	setTextPositions( true );
+	set_text_positions( true );
 }
 
 /// @brief activate (aka "fire" or "shoot") whatever is selected right now.
 /// Use this whenever a weapon is fired without the player hitting the trigger.
-/// For the trigger slamming use simActivateCurrentSelection().
-void TANK::activateCurrentSelection() {
+/// For the trigger slamming use sim_activate_current_selection().
+void CTank::activate_current_selection() {
 	// avoid firing weapons on exit in Windows
 	if ( ( global.get_command() == GLOBAL_COMMAND_QUIT ) || ( global.get_command() == GLOBAL_COMMAND_MENU ) ) {
 		return;
 	}
 
 	// This must not be called outside fire stage.
-	assert( ( STAGE_FIRE == global.stage ) && "ERROR: TANK::activateCurrentSelection() called outside STAGE_FIRE!" );
+	assert( ( STAGE_FIRE == global.stage ) && "ERROR: CTank::activate_current_selection() called outside STAGE_FIRE!" );
 	if ( STAGE_FIRE != global.stage ) {
 		return;
 	}
@@ -107,7 +107,7 @@ void TANK::activateCurrentSelection() {
 
 	// reduce time to fall, but reset if already done
 	if ( --env.time_to_fall < 0 ) {
-		env.time_to_fall = ( get_rand() % env.landSlideDelay ) + 1;
+		env.time_to_fall = ( get_rand() % env.landslide_delay ) + 1;
 	}
 
 	/** ==============================
@@ -130,11 +130,11 @@ void TANK::activateCurrentSelection() {
 				int32_t ca  = a + ( ( SPREAD * z ) - ( SPREAD * ( weapon[ cw ].spread - 1 ) / 2 ) );
 				auto    dp  = static_cast< double >( p > 0 ? p : 1 ); // Just a shortcut against further casts
 
-				double  mxv = env.slope[ ca ][ 0 ] * dp * env.FPS_mod / 100.;
-				double  myv = env.slope[ ca ][ 1 ] * dp * env.FPS_mod / 100.;
+				double  mxv = env.slope[ ca ][ 0 ] * dp * env.fps_mod / 100.;
+				double  myv = env.slope[ ca ][ 1 ] * dp * env.fps_mod / 100.;
 
 				try {
-					auto *newmis = new MISSILE(
+					auto *newmis = new CMissile(
 						player,
 						x + ( env.slope[ ca ][ 0 ] * turr_off_x ),
 						y + ( env.slope[ ca ][ 1 ] * turr_off_x ),
@@ -146,9 +146,9 @@ void TANK::activateCurrentSelection() {
 						0
 					);
 
-					// set up / check volley
+					// set up / check volley (frame count scaled to the frame rate, 60 FPS baseline)
 					if ( weapon[ cw ].delay && ( 0 == fire_another_shot ) ) {
-						fire_another_shot = weapon[ cw ].delay * env.volley_delay;
+						fire_another_shot = ROUND( weapon[ cw ].delay * env.volley_delay * env.frame_count_mod );
 					}
 
 					// Adapt missile drag if the player has dimpled/slick projectiles
@@ -161,7 +161,7 @@ void TANK::activateCurrentSelection() {
 					}
 				} catch ( ... ) {
 					perror( "tank.cpp: Failed to allocate memory for new"
-					        " missile in TANK::activateCurrentSelection()" );
+					        " missile in CTank::activate_current_selection()" );
 				}
 			}
 		} // End of ballistics
@@ -170,7 +170,7 @@ void TANK::activateCurrentSelection() {
 		//----------------------
 		else {
 			try {
-				new BEAM(
+				new CBeam(
 					player,
 					x + ( env.slope[ a ][ 0 ] * turr_off_x ),
 					y + ( env.slope[ a ][ 1 ] * turr_off_x ),
@@ -179,7 +179,7 @@ void TANK::activateCurrentSelection() {
 					BT_WEAPON
 				);
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new BEAM: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CBeam: " << e.what() << std::endl;
 			}
 		}
 	} // End of weapons
@@ -200,8 +200,8 @@ void TANK::activateCurrentSelection() {
 		// --- Teleport ---
 		//-----------------
 		if ( ITEM_TELEPORT == ci ) {
-			auto right  = ROUND( env.screenWidth - ( tank_dia * 2. ) );
-			auto bottom = ROUND( env.screenHeight - ( tank_dia * 2. ) - MENUHEIGHT );
+			auto right  = ROUND( env.screen_width - ( tank_dia * 2. ) );
+			auto bottom = ROUND( env.screen_height - ( tank_dia * 2. ) - MENUHEIGHT );
 			auto new_x  = ROUND( ( get_rand() % right ) + tank_dia );
 			auto new_y  = ROUND( ( get_rand() % bottom ) + tank_dia + MENUHEIGHT );
 
@@ -215,37 +215,37 @@ void TANK::activateCurrentSelection() {
 			}
 
 			try {
-				new TELEPORT( this, new_x, new_y, ROUND( tank_dia ), 120, ci );
-				addDamage( player, 0. ); // Fall is a self-hit.
-				isTeleported = true;
+				new CTeleport( this, new_x, new_y, ROUND( tank_dia ), 120, ci );
+				add_damage( player, 0. ); // Fall is a self-hit.
+				is_teleported = true;
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CTeleport: " << e.what() << std::endl;
 			}
 		}
 
 		// --- Swapper ---
 		//-----------------
 		else if ( ITEM_SWAPPER == ci ) {
-			TANK *other = nullptr;
+			CTank *other = nullptr;
 
 			while ( !other ) {
-				global.getHeadOfClass( CLASS_TANK, &other );
+				global.get_head_of_class( CLASS_TANK, &other );
 
 				// If there are only two tanks, just take the other
-				if ( 2 == global.numTanks ) {
+				if ( 2 == global.num_tanks ) {
 					if ( other == this ) {
-						other->getNext( &other );
+						other->get_next( &other );
 					}
 				} else {
 					// Otherwise, select one by random
-					int32_t rtn = get_rand() % ( global.numTanks - 1 );
+					int32_t rtn = get_rand() % ( global.num_tanks - 1 );
 					while ( rtn-- ) {
-						other->getNext( &other );
+						other->get_next( &other );
 					}
 
 					// If the selection ended up with this tank, chose the next one
 					if ( other == this ) {
-						other->getNext( &other );
+						other->get_next( &other );
 					}
 				}
 
@@ -257,29 +257,29 @@ void TANK::activateCurrentSelection() {
 				}
 			} // End of selecting other
 
-			this->addDamage( player, 0. ); // Own falling damage
-			this->isTeleported = true;
-			other->addDamage( player, 0. ); // Their falling damage
-			other->isTeleported = true;
+			this->add_damage( player, 0. ); // Own falling damage
+			this->is_teleported = true;
+			other->add_damage( player, 0. ); // Their falling damage
+			other->is_teleported = true;
 
 			try {
 				// create a teleport object for this tank
-				new TELEPORT( this, other->x, other->y, tank_dia, 120, ci );
+				new CTeleport( this, other->x, other->y, tank_dia, 120, ci );
 				// create a teleport object for the other tank
-				new TELEPORT( other, x, y, other->tank_dia, 120, ci );
+				new CTeleport( other, x, y, other->tank_dia, 120, ci );
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CTeleport: " << e.what() << std::endl;
 			}
 		}
 
 		// --- Mass Teleport ---
 		//-----------------------
 		else if ( ITEM_MASS_TELEPORT == ci ) {
-			auto  right  = ROUND( env.screenWidth - ( tank_dia * 2 ) );
-			auto  bottom = ROUND( env.screenHeight - ( tank_dia * 2 ) - MENUHEIGHT );
-			TANK *lt     = nullptr;
+			auto  right  = ROUND( env.screen_width - ( tank_dia * 2 ) );
+			auto  bottom = ROUND( env.screen_height - ( tank_dia * 2 ) - MENUHEIGHT );
+			CTank *lt     = nullptr;
 
-			global.getHeadOfClass( CLASS_TANK, &lt );
+			global.get_head_of_class( CLASS_TANK, &lt );
 			while ( lt ) {
 				auto new_x = ROUND( ( get_rand() % right ) + tank_dia );
 				auto new_y = ROUND( ( get_rand() % bottom ) + tank_dia + MENUHEIGHT );
@@ -292,30 +292,32 @@ void TANK::activateCurrentSelection() {
 					new_y = surf_y + 100;
 				}
 				try {
-					new TELEPORT( lt, new_x, new_y, lt->tank_dia, 120, ci );
-					lt->addDamage( player, 0. ); // They fall, we earn. Cool.
-					lt->isTeleported = true;
+					new CTeleport( lt, new_x, new_y, lt->tank_dia, 120, ci );
+					lt->add_damage( player, 0. ); // They fall, we earn. Cool.
+					lt->is_teleported = true;
 
 				} catch ( std::exception &e ) {
-					std::cerr << __func__ << " new TELEPORT: " << e.what() << std::endl;
+					std::cerr << __func__ << " new CTeleport: " << e.what() << std::endl;
 				}
-				lt->getNext( &lt );
+				lt->get_next( &lt );
 			}
 		}
 
 		// --- Rocket ("I beliiiieve Ay Can Flaaaaaaaayy") ---
 		//-----------------------------------------------------
 		else if ( ITEM_ROCKET == ci ) {
-			yv  = -10;
+			// Fixed per-frame launch speeds tuned for 60 FPS:
+			double const step = 1. / env.frame_count_mod;
+			yv  = -10. * step;
 			y  -= 10;
 			if ( a < 180 ) {
-				xv += 0.3;
+				xv += 0.3 * step;
 			} else if ( a > 180 ) {
-				xv -= 0.3;
+				xv -= 0.3 * step;
 			}
 			// If this leads to falling damage, make sure it is a self hit:
-			addDamage( player, 0. );
-			isTeleported = true;
+			add_damage( player, 0. );
+			is_teleported = true;
 			applyPhysics();
 		}
 
@@ -333,10 +335,10 @@ void TANK::activateCurrentSelection() {
 			}
 
 			// make sure wind is not too strong
-			if ( global.wind < ( -env.windstrength / 2. ) ) {
-				global.wind = -env.windstrength / 2.;
-			} else if ( global.wind > ( env.windstrength / 2. ) ) {
-				global.wind = env.windstrength / 2.;
+			if ( global.wind < ( -env.wind_strength / 2. ) ) {
+				global.wind = -env.wind_strength / 2.;
+			} else if ( global.wind > ( env.wind_strength / 2. ) ) {
+				global.wind = env.wind_strength / 2.;
 			}
 
 			global.lastwind = global.wind;
@@ -346,25 +348,25 @@ void TANK::activateCurrentSelection() {
 		else if ( ( ITEM_VENGEANCE <= ci ) && ( ITEM_FATAL_FURY >= ci ) ) {
 			// Just preparation. The tank explodes, and the vengeance goes
 			// off automatically as selected. ;-)
-			this->player->reclaimShield();
-			this->addDamage( nullptr, l + sh + repair_rate + 1 );
-			this->applyDamage();
+			this->player->reclaim_shield();
+			this->add_damage( nullptr, l + sh + repair_rate + 1 );
+			this->apply_damage();
 		}
 	} // End of items
 
-	player->time_left_to_fire = env.maxFireTime;
+	player->time_left_to_fire = env.max_fire_time;
 }
 
-/// @brief adds damage, sets creditTo and handles pending damage
-void TANK::addDamage( PLAYER *damageFrom, double damage_ ) {
+/// @brief adds damage, sets credit_to and handles pending damage
+void CTank::add_damage( CPlayer *damage_from, double damage_ ) {
 	// Clear pending damage if the 'deliverer' changes
-	if ( damageFrom != creditTo ) {
-		applyDamage();
+	if ( damage_from != credit_to ) {
+		apply_damage();
 		damage = 0.;
 
-		// Update creditTo first
-		creditTo   = damageFrom;
-		newDamager = true;
+		// Update credit_to first
+		credit_to   = damage_from;
+		new_damager = true;
 	}
 
 	assert( ( damage_ >= 0. ) && "ERROR: Negative damage?" );
@@ -375,13 +377,13 @@ void TANK::addDamage( PLAYER *damageFrom, double damage_ ) {
 	}
 }
 
-void TANK::applyDamage() {
-	// Only *one* call to applyDamage() at any time!
+void CTank::apply_damage() {
+	// Only *one* call to apply_damage() at any time!
 	std::lock_guard< CSpinLock > apply_damage_lock( damage_lock );
 
 	// Before taking any action, damage must be at least 1
 	if ( destroy || ( damage < 1. ) ) {
-		newDamager = false;
+		new_damager = false;
 		return;
 	}
 
@@ -405,19 +407,19 @@ void TANK::applyDamage() {
 	 * --- their reward or, in case of self/team hit, penalty. ---
 	 * -----------------------------------------------------------
 	 */
-	if ( creditTo ) {
+	if ( credit_to ) {
 		int32_t award    = full_damage;
-		bool    self_hit = creditTo == player;
-		bool    team_hit = !self_hit && ( TEAM_NEUTRAL != creditTo->team ) && ( player->team == creditTo->team );
+		bool    self_hit = credit_to == player;
+		bool    team_hit = !self_hit && ( TEAM_NEUTRAL != credit_to->team ) && ( player->team == credit_to->team );
 
 		// Award kill point if no suicide
 		if ( destroy && !self_hit ) {
-			creditTo->kills++;
+			credit_to->kills++;
 		}
 
 		// note damage in own and opponents memory
-		player->noteDamageFrom( creditTo, full_damage, destroy );
-		creditTo->noteDamageTo( player, full_damage, destroy );
+		player->note_damage_from( credit_to, full_damage, destroy );
+		credit_to->note_damage_to( player, full_damage, destroy );
 
 		// The award must be adapted to the situation
 		award *= self_hit ? env.scoreSelfHit : team_hit ? env.scoreTeamHit : env.scoreHitUnit;
@@ -428,72 +430,72 @@ void TANK::applyDamage() {
 		}
 
 		// Money can not go negative.
-		if ( ( self_hit || team_hit ) && ( award > creditTo->money ) ) {
-			award = creditTo->money;
+		if ( ( self_hit || team_hit ) && ( award > credit_to->money ) ) {
+			award = credit_to->money;
 		}
 
 		// If there is an award now, get the money text out
 		// and the register to ring.
 		if ( award > 0 ) {
-			if ( creditTo->tank && !global.skippingComputerPlay ) {
+			if ( credit_to->tank && !global.skipping_computer_play ) {
 				static char the_money[ 16 ] = { 0x0 };
-				snprintf( the_money, 15, "%s$%s", ( team_hit || self_hit ) ? "-" : "", Add_Comma( award ) );
+				snprintf( the_money, 15, "%s$%s", ( team_hit || self_hit ) ? "-" : "", add_comma( award ) );
 				// show how much the shooter gets
 				try {
-					new FLOATTEXT(
+					new CFloatText(
 						the_money,
-						creditTo->tank->x,
-						creditTo->tank->y - 30,
+						credit_to->tank->x,
+						credit_to->tank->y - 30,
 						.0,
 						-.5,
 						team_hit   ? PURPLE
 						: self_hit ? RED
 							   : GREEN,
 						CENTRE,
-						env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY,
+						env.swaying_text ? TS_HORIZONTAL : TS_NO_SWAY,
 						200,
 						false
 					);
 					if ( global.stage < STAGE_SCOREBOARD ) {
-						global.updateMenu = true;
+						global.update_menu = true;
 					}
 				} catch ( std::exception &e ) {
-					std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+					std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 				}
 			}
-			creditTo->money += ( ( team_hit || self_hit ) ? -1 : 1 ) * award;
+			credit_to->money += ( ( team_hit || self_hit ) ? -1 : 1 ) * award;
 		} // End of applying damage award
 
 		// If the tank is destroyed, and it was neither self nor team hit,
 		// the damager might spawn a gloating message
-		if ( destroy && !creditTo->gloating && !team_hit && !self_hit && creditTo->tank && !creditTo->tank->destroy
-		     && !global.skippingComputerPlay ) {
+		if ( destroy && !credit_to->gloating && !team_hit && !self_hit && credit_to->tank && !credit_to->tank->destroy
+		     && !global.skipping_computer_play ) {
 
-			creditTo->gloating = true;
+			credit_to->gloating = true;
 
 			try {
-				new FLOATTEXT(
-					PLAYER::selectGloatPhrase(),
-					creditTo->tank->x,
-					creditTo->tank->y - 30,
+				new CFloatText(
+					CPlayer::select_gloat_phrase(),
+					credit_to->tank->x,
+					credit_to->tank->y - 30,
 					.0,
 					-.4,
-					creditTo->color,
+					credit_to->color,
 					CENTRE,
 					TS_NO_SWAY,
 					200,
 					false
 				);
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 			}
 		} // End of spawning gloating text
 
 		// Issue a suicide message if the player applied for a darwin award
-		if ( self_hit && destroy && !global.skippingComputerPlay ) {
+		if ( self_hit && destroy && !global.skipping_computer_play ) {
 			try {
-				new FLOATTEXT(
-					PLAYER::selectSuicidePhrase(),
+				new CFloatText(
+					CPlayer::select_suicide_phrase(),
 					x,
 					y - 30,
 					.0,
@@ -505,7 +507,7 @@ void TANK::applyDamage() {
 					false
 				);
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 			}
 		}
 	} // End of handling damager texts and awards
@@ -548,11 +550,11 @@ void TANK::applyDamage() {
 	// --- Display the damage value ---
 	// --------------------------------
 	if ( full_damage > 0 ) {
-		flashdamage = 1;
+		flash_damage = 1;
 
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			try {
-				new FLOATTEXT(
+				new CFloatText(
 					std::to_string( full_damage ).c_str(),
 					x,
 					y - 30,
@@ -560,27 +562,27 @@ void TANK::applyDamage() {
 					-.3,
 					RED,
 					CENTRE,
-					env.swayingText ? TS_HORIZONTAL : TS_NO_SWAY,
+					env.swaying_text ? TS_HORIZONTAL : TS_NO_SWAY,
 					300,
 					false
 				);
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 			}
 		}
 
 		// If the shield remains, the shield text has to be regenerated
 		if ( sh > 0 ) {
 			snprintf( buf, 11, "%d", sh );
-			shieldText.set_text( buf );
+			shield_text.set_text( buf );
 		} else {
-			shieldText.set_text( nullptr );
+			shield_text.set_text( nullptr );
 		}
 
 		// If life points were taken, the life text is to be regenerated
 		if ( old_life != l ) {
 			snprintf( buf, 11, "%d", l );
-			healthText.set_text( buf );
+			health_text.set_text( buf );
 		}
 	} // end of having damage
 
@@ -589,7 +591,7 @@ void TANK::applyDamage() {
 
 // Thanks to the rockets, tanks can 'fly', and thanks to ... uhm ...
 // everything, tanks might fall down.
-void TANK::applyPhysics() {
+void CTank::applyPhysics() {
 	// Do nothing if this tank was destroyed
 	if ( destroy ) {
 		return;
@@ -601,7 +603,7 @@ void TANK::applyPhysics() {
 	if ( yv < 0. ) {
 		// Although activating a rocket, instantly pushes the tank
 		// upwards, it stops there if the tank is buried
-		if ( howBuried( nullptr, nullptr ) ) {
+		if ( how_buried( nullptr, nullptr ) ) {
 			xv = 0;
 			yv = 0;
 		}
@@ -614,23 +616,23 @@ void TANK::applyPhysics() {
 
 	// General movement is only applied while no damage flashes.
 	// Note: This means that damage application halts all movement.
-	if ( flashdamage ) {
-		++flashdamage; // Frame counted
+	if ( flash_damage ) {
+		++flash_damage; // Frame counted
 	} else {
 		bool    on_tank = tank_on_tank();
-		int32_t bottom  = env.screenHeight - tank_off_y; // shortcut
+		int32_t bottom  = env.screen_height - tank_off_y; // shortcut
 		int32_t pix_col = getpixel( global.terrain, x, y + tank_off_y - tank_sag );
 
 		// Hitting a wall only bounces the tank.
-		if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screenWidth - 1 ) ) ) {
+		if ( ( ( x + xv ) < 1 ) || ( ( x + xv ) > ( env.screen_width - 1 ) ) ) {
 			xv *= -1.;
 		}
 
 		// Check whether a previous fall just ends:
 		if ( ( yv > 0. ) && ( ( y >= bottom ) || ( PINK != pix_col ) || on_tank ) ) {
-			addDamage( creditTo, yv * 10. );
-			if ( isTeleported ) {
-				isTeleported = false;
+			add_damage( credit_to, yv * 10. );
+			if ( is_teleported ) {
+				is_teleported = false;
 			}
 
 			// 10 points of damage are 'free' when falling
@@ -651,19 +653,22 @@ void TANK::applyPhysics() {
 			}
 
 			// Reset falling delay and apply damage at once
-			delay_fall = env.landSlideDelay * 100;
-			applyDamage();
+			delay_fall = ROUND( env.landslide_delay * 100 * env.frame_count_mod );
+			apply_damage();
 		} // End of fall stop
 
 		// Check whether the tank currently is falling
-		else if ( ( y < bottom ) && ( PINK == pix_col ) && !on_tank && ( env.landSlideType > SLIDE_NONE ) ) {
+		else if ( ( y < bottom ) && ( PINK == pix_col ) && !on_tank && ( env.landslide_type > SLIDE_NONE ) ) {
 
 			// If this is set to cartoon falling, decrease delay and exit.
-			if ( ( SLIDE_CARTOON == env.landSlideType ) && ( --delay_fall > 0 ) ) {
+			if ( ( SLIDE_CARTOON == env.landslide_type ) && ( --delay_fall > 0 ) ) {
 				return;
 			}
 
 			yv += env.fall_vector;
+
+			// Fixed per-frame speeds below are tuned for 60 FPS.
+			double const step = 1. / env.frame_count_mod;
 
 			// Check for parachute opening
 			if ( para ) {
@@ -671,16 +676,17 @@ void TANK::applyPhysics() {
 					++para;
 				}
 
-				// With a parachute, wind can blow the tank away
-				xv += ( global.wind - xv ) / mass * ( drag + 0.35 ) * env.viscosity;
+				// With a parachute, wind can blow the tank away.
+				// The relaxation rate is tuned for 60 FPS, too.
+				xv += ( global.wind - xv ) / mass * ( drag + 0.35 ) * env.viscosity * step;
 
 				// Limit yv, we have a parachute!
-				if ( yv > 0.5 ) {
-					yv = 0.5;
+				if ( yv > ( 0.5 * step ) ) {
+					yv = 0.5 * step;
 				}
 			} else {
 				// If we have parachutes, deploy one:
-				if ( ( player->ni[ ITEM_PARACHUTE ] ) && ( yv >= 1.0 ) ) {
+				if ( ( player->ni[ ITEM_PARACHUTE ] ) && ( yv >= ( 1.0 * step ) ) ) {
 					para = 1;
 					player->ni[ ITEM_PARACHUTE ]--;
 				}
@@ -696,19 +702,19 @@ void TANK::applyPhysics() {
 		}
 
 		// If there is no damage flashing, apply what is there
-		if ( !flashdamage ) {
-			applyDamage();
+		if ( !flash_damage ) {
+			apply_damage();
 		}
 
-		requireUpdate();
+		require_update();
 	} // End of regular movement
 
-	setTextPositions( old_y != y );
+	set_text_positions( old_y != y );
 }
 
 /// @brief Test if the current weapon is available. Find another one,
 /// preferably stronger, if the current is empty.
-void TANK::check_weapon() {
+void CTank::check_weapon() {
 	if ( ( cw < 0 ) || ( cw > WEAPONS ) ) {
 		cw = 0;
 	}
@@ -732,25 +738,25 @@ void TANK::check_weapon() {
 }
 
 /// @brief Deactivate vertical bounce and reset text positions
-void TANK::deactivate() {
-	shieldText.set_sway_type( TS_NO_SWAY );
-	healthText.set_sway_type( TS_NO_SWAY );
-	nameText.set_sway_type( TS_NO_SWAY );
+void CTank::deactivate() {
+	shield_text.set_sway_type( TS_NO_SWAY );
+	health_text.set_sway_type( TS_NO_SWAY );
+	name_text.set_sway_type( TS_NO_SWAY );
 
-	setTextPositions( true );
+	set_text_positions( true );
 }
 
-void TANK::draw() {
+void CTank::draw() {
 	// check for foggy weather
 	if ( ( env.fog ) && ( global.get_curr_tank() != this ) ) {
-		addUpdateArea( x - tank_off_x - 3, y - 25, 35, 46 );
-		requireUpdate();
+		add_update_area( x - tank_off_x - 3, y - 25, 35, 46 );
+		require_update();
 		return;
 	}
 
 	// get bitmap for tank
 	if ( ( use_tankbitmap < 0 ) || ( use_turretbitmap < 0 ) ) {
-		setBitmap();
+		set_bitmap();
 
 		assert( ( use_tankbitmap >= 0 ) && ( use_turretbitmap >= 0 ) && "ERROR: Unable to set tank/turret bitmap!" );
 
@@ -824,7 +830,7 @@ void TANK::draw() {
 
 		drawing_mode( DRAW_MODE_SOLID, nullptr, 0, 0 );
 		global.current_drawing_mode = DRAW_MODE_SOLID;
-		setUpdateArea(
+		set_update_area(
 			move_x - shld_thickness - rad_x,
 			move_y - shld_thickness - rad_y,
 			( rad_x + shld_thickness ) * 2,
@@ -834,14 +840,14 @@ void TANK::draw() {
 
 	// Without a shield, the update area can be smaller
 	else {
-		setUpdateArea( x - turr_off_x - 1, y - turr_off_x - 1, ( turr_off_x * 2 ) + 2, tank_off_y + turr_off_x + 20 );
+		set_update_area( x - turr_off_x - 1, y - turr_off_x - 1, ( turr_off_x * 2 ) + 2, tank_off_y + turr_off_x + 20 );
 	}
 
 	// Now draw the tank sprite
 	draw_sprite( global.canvas, env.tank[ use_tankbitmap ], x - tank_off_x, y );
 	rotate_sprite(
 		global.canvas,
-		env.tankgun[ use_turretbitmap ],
+		env.tank_gun[ use_turretbitmap ],
 		x - turr_off_x,
 		y - turr_off_y,
 		itofix( ( 90 - a ) * 256 / 360 )
@@ -856,26 +862,26 @@ void TANK::draw() {
 	// Eventually draw the parachute
 	if ( para ) {
 		draw_sprite( global.canvas, env.tank[ para ], x - tank_off_x - 3, y - 25 );
-		addUpdateArea( x - tank_off_x - 3, y - 25, 35, 66 );
+		add_update_area( x - tank_off_x - 3, y - 25, 35, 66 );
 	}
 
-	setTextPositions( false );
-	requireUpdate();
+	set_text_positions( false );
+	require_update();
 }
 
 /// @brief Create explosion and sound if a tank is destroyed. If available
 /// and/or set, stage a violent death.
-void TANK::explode( bool allow_vengeance ) {
+void CTank::explode( bool allow_vengeance ) {
 	if ( !destroy ) {
 		return;
 	}
 
-	// Note: player->revenge and revenge texts are handled in applyDamage()
+	// Note: player->revenge and revenge texts are handled in apply_damage()
 
 	try {
-		new EXPLOSION( player, x, y, 0., env.screenHeight / 10., MED_MIS, false );
+		new CExplosion( player, x, y, 0., env.screen_height / 10., MED_MIS, false );
 	} catch ( std::exception &e ) {
-		std::cerr << __func__ << " new EXPLOSION: " << e.what() << std::endl;
+		std::cerr << __func__ << " new CExplosion: " << e.what() << std::endl;
 	}
 
 	play_explosion_sound( MED_MIS, ROUND( x ), 255, 1000 );
@@ -893,7 +899,7 @@ void TANK::explode( bool allow_vengeance ) {
 	bool    found       = false;
 
 	// get the player index
-	while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
+	while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
 		if ( env.players[ playerindex ] && ( env.players[ playerindex ]->tank == this ) ) {
 			found = true;
 		} else {
@@ -903,7 +909,7 @@ void TANK::explode( bool allow_vengeance ) {
 
 	// we should have found a match, and now we send it to all clients
 	if ( found ) {
-		env.sendToClients( string( "REMOVETANK " + std::to_string( playerindex ) ).c_str() );
+		env.send_to_clients( string( "REMOVETANK " + std::to_string( playerindex ) ).c_str() );
 	}
 #endif // NETWORK
 
@@ -916,7 +922,7 @@ void TANK::explode( bool allow_vengeance ) {
 	// possibly sponsor one for the player unless they
 	// already have something better.
 	// But only if it is not the first 3 rounds.
-	if ( env.violent_death && ( ( env.rounds - global.currentround ) > 3 ) ) {
+	if ( env.violent_death && ( ( env.rounds - global.current_round ) > 3 ) ) {
 		int32_t ri = get_rand() % VIOLENT_CHANCE;
 
 		// Limit ri to the value of violent_death.
@@ -974,11 +980,11 @@ void TANK::explode( bool allow_vengeance ) {
 		// Expensive equipment like this should come with a certain quality.
 		// The most important detail (right after actually going off and not
 		// being a dud) is that the bucks won't be blasted the wrong way.
-		TANK   *tank  = nullptr;
+		CTank   *tank  = nullptr;
 		int32_t med_x = 0;
 		int32_t tanks = 0;
 
-		global.getHeadOfClass( CLASS_TANK, &tank );
+		global.get_head_of_class( CLASS_TANK, &tank );
 
 		while ( tank ) {
 			if ( ( tank != this ) && !tank->destroy
@@ -986,7 +992,7 @@ void TANK::explode( bool allow_vengeance ) {
 				++tanks;
 				med_x += ROUND( tank->x );
 			}
-			tank->getNext( &tank );
+			tank->get_next( &tank );
 		}
 
 		// Get the medium x position of all tanks (or the middle of the
@@ -994,7 +1000,7 @@ void TANK::explode( bool allow_vengeance ) {
 		if ( tanks ) {
 			med_x /= tanks;
 		} else {
-			med_x = env.halfWidth;
+			med_x = env.half_width;
 		}
 
 		int32_t start_a = 45;
@@ -1011,7 +1017,7 @@ void TANK::explode( bool allow_vengeance ) {
 		// Before the violent death is applied, halve the players'
 		// damage multiplier:
 		assert( player && "ERROR: explode Tank without player?" );
-		player->damageMultiplier = player->damageMultiplier > 1. ? 1. + ( ( player->damageMultiplier - 1. ) / 2. ) : .75;
+		player->damage_multiplier = player->damage_multiplier > 1. ? 1. + ( ( player->damage_multiplier - 1. ) / 2. ) : .75;
 
 		// Now go for it!
 		int32_t cur_stage = global.stage;
@@ -1019,24 +1025,24 @@ void TANK::explode( bool allow_vengeance ) {
 		for ( int32_t i = numLaunch; i > 0; --i ) {
 			a = 180 - ( start_a + ( get_rand() % mod_a ) - 90 );
 			p = min_power + ( get_rand() % del_power );
-			activateCurrentSelection();
+			activate_current_selection();
 		}
 		global.stage = cur_stage;
 	}
 }
 
 /// @return The tanks bottom coordinate as used in collision detection.
-int32_t TANK::getBottom() {
+int32_t CTank::get_bottom() {
 	return ROUND( y + tank_off_y - tank_sag );
 }
 
 /// @return The calculated tank diameter
-double TANK::getDiameter() const {
+double CTank::get_diameter() const {
 	return tank_dia;
 }
 
 /// Sets @a top_x and @a top_y to the coordinates of the cannon tip
-void TANK::getGuntop( int32_t angle_, double &top_x, double &top_y ) {
+void CTank::get_guntop( int32_t angle_, double &top_x, double &top_y ) {
 	top_x = x + ( env.slope[ angle_ ][ 0 ] * turr_off_x );
 	top_y = y + ( env.slope[ angle_ ][ 1 ] * turr_off_y );
 
@@ -1046,20 +1052,20 @@ void TANK::getGuntop( int32_t angle_, double &top_x, double &top_y ) {
 	}
 }
 
-/// @return the current maxLife value
-int32_t TANK::getMaxLife() const {
-	return maxLife;
+/// @return the current max_life value
+int32_t CTank::get_max_life() const {
+	return max_life;
 }
 
 /// @brief return true if a repulsor shield is up and running
-bool TANK::hasRepulsorActivated() const {
+bool CTank::has_repulsor_activated() const {
 	return ( repulsion != 0 );
 }
 
 /// @brief return the number of pixels a tanks canon is buried
 /// If @a left and or @a right are given, they will receive the buried
 /// level on that side only.
-int32_t TANK::howBuried( int32_t *left, int32_t *right ) {
+int32_t CTank::how_buried( int32_t *left, int32_t *right ) {
 	int32_t result      = 0;
 	int32_t old_x       = 0;
 	int32_t old_y       = 0;
@@ -1091,7 +1097,7 @@ int32_t TANK::howBuried( int32_t *left, int32_t *right ) {
 		}
 	}
 
-	// Add a full result to right to negate left half and count only right half
+	// add a full result to right to negate left half and count only right half
 	if ( left ) {
 		*left += result;
 		if ( *left < 0 ) {
@@ -1112,27 +1118,27 @@ int32_t TANK::howBuried( int32_t *left, int32_t *right ) {
 		*right = ROUNDu( *right * angle_mod / 2. );
 	}
 
-	result *= ROUND( angle_mod * ( env.isBoxed ? 1.25 : 1. ) );
+	result *= ROUND( angle_mod * ( env.is_boxed ? 1.25 : 1. ) );
 
 	return ROUNDu( result );
 }
 
 /// @return true if the tank is moving up or downwards (rocket / fall / glide)
-bool TANK::isFlying() {
+bool CTank::is_flying() {
 	return ( yv < 0. ) || ( yv > 0. );
 }
 
 /// @return true if the tank is within the box defined by the given coordinates.
-bool TANK::isInBox( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
+bool CTank::is_in_box( int32_t x1, int32_t y1, int32_t x2, int32_t y2 ) {
 	double gun_x, gun_y;
-	getGuntop( a, gun_x, gun_y );
+	get_guntop( a, gun_x, gun_y );
 	return ( ( std::min( x1, x2 ) < std::max( x + tank_off_x, gun_x ) )
 	         && ( std::max( x1, x2 ) > std::min( x - tank_off_x, gun_x ) ) && ( std::min( y1, y2 ) < ( y + tank_off_y ) )
 	         && ( std::max( y1, y2 ) > std::min( y, gun_y ) ) );
 }
 
-bool TANK::isInBox( double x1, double y1, double x2, double y2 ) {
-	return isInBox( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
+bool CTank::is_in_box( double x1, double y1, double x2, double y2 ) {
+	return is_in_box( ROUND( x1 ), ROUND( y1 ), ROUND( x2 ), ROUND( y2 ) );
 }
 
 /** @return true if the tank is within the given ellipse.
@@ -1143,7 +1149,7 @@ bool TANK::isInBox( double x1, double y1, double x2, double y2 ) {
  * @param[out] in_rate_x The rate [0.;1.] of the tank x axis being in the ellipse.
  * @param[out] in_rate_y The rate [0.;1.] of the tank y axis being in the ellipse.
  **/
-bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_rate_x, double &in_rate_y ) {
+bool CTank::is_in_ellipse( double ex, double ey, double rx, double ry, double &in_rate_x, double &in_rate_y ) {
 	in_rate_x = 0.;
 	in_rate_y = 0.;
 
@@ -1191,7 +1197,7 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
 	 *
 	 * Unfortunately, this involves a 4th order equation to allow a numerical
 	 * solution. (I have found a very nice example written in JavaScript. It
-	 * uses several functions and has ~600 Lines. A bit much for a game, right?)
+	 * uses several functions and has ~600 lines. A bit much for a game, right?)
 	 *
 	 * The second-best solution would be to determine the position on the rim of
 	 * each ellipse that is on a line between the two centers and then use their
@@ -1463,7 +1469,7 @@ bool TANK::isInEllipse( double ex, double ey, double rx, double ry, double &in_r
  *
  * @return true if the tank was moved, false otherwise
  **/
-bool TANK::moveTank( int32_t direction ) {
+bool CTank::move_tank( int32_t direction ) {
 	// return now if the tank is flying/falling or has no fuel
 	if ( ( player->ni[ ITEM_FUEL ] < 1 )   // No fuel ?
 	     || ( yv < 0. ) || ( yv > 0. ) ) { // flying / falling ?
@@ -1472,14 +1478,14 @@ bool TANK::moveTank( int32_t direction ) {
 
 	// Safety: assert DIR_LEFT/RIGHT
 	assert( ( ( DIR_LEFT == direction ) || ( DIR_RIGHT == direction ) )
-	        && "ERROR: Call moveTank with either DIR_LEFT or DIR_RIGHT!" );
+	        && "ERROR: Call move_tank with either DIR_LEFT or DIR_RIGHT!" );
 	if ( ( DIR_LEFT != direction ) && ( DIR_RIGHT != direction ) ) {
 		return false;
 	}
 
 	// Check whether the target pixel is beyond the border or occupied
 	auto nextX = ROUND( x + direction );
-	if ( ( nextX < 1 ) || ( nextX >= env.screenWidth ) || ( env.landType == LAND_NONE ) ) {
+	if ( ( nextX < 1 ) || ( nextX >= env.screen_width ) || ( env.land_type == LAND_NONE ) ) {
 		return false;
 	}
 
@@ -1490,7 +1496,7 @@ bool TANK::moveTank( int32_t direction ) {
 	// be taken into account, too
 	int32_t afterX = nextX + direction;
 	double  afterY = nextY;
-	if ( ( afterX > 0 ) && ( afterX < env.screenWidth ) ) {
+	if ( ( afterX > 0 ) && ( afterX < env.screen_width ) ) {
 		afterY = global.surface[ afterX ].load( ATOMIC_READ ) - 1;
 	}
 
@@ -1504,8 +1510,8 @@ bool TANK::moveTank( int32_t direction ) {
 		y = nextY - tank_off_y + tank_sag;
 
 		// But secure y
-		if ( y > ( env.screenHeight - tank_off_y ) ) {
-			y = env.screenHeight - tank_off_y;
+		if ( y > ( env.screen_height - tank_off_y ) ) {
+			y = env.screen_height - tank_off_y;
 		}
 		return true;
 	}
@@ -1514,37 +1520,37 @@ bool TANK::moveTank( int32_t direction ) {
 	return false;
 }
 
-void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
+void CTank::new_round( int32_t pos_x, int32_t pos_y ) {
 	// A new round without a set player is futile.
-	assert( player && "ERROR: TANK::newRound called with nullptr player" );
+	assert( player && "ERROR: CTank::new_round called with nullptr player" );
 	if ( nullptr == player ) {
 		return;
 	}
 
 	// Reclaim shield if there is one left from the end of the last round
-	player->reclaimShield();
+	player->reclaim_shield();
 
 	// Reset all values
 	cw         = 0;
 	damage     = 0.;
 	para       = 0;
-	creditTo   = nullptr;
+	credit_to   = nullptr;
 	p          = MAX_POWER / 2;
 	a          = ( get_rand() % 150 ) + 105;
 	sh         = 0;
 	sht        = ITEM_NO_SHIELD;
 	repulsion  = 0;
-	delay_fall = env.landSlideDelay * 100;
+	delay_fall = ROUND( env.landslide_delay * 100 * env.frame_count_mod );
 
 	// Re-calculate max life
 	double tmpL = ( player->ni[ ITEM_ARMOUR ] * item[ ITEM_ARMOUR ].vals[ 0 ] )
 	            + ( player->ni[ ITEM_PLASTEEL ] * item[ ITEM_PLASTEEL ].vals[ 0 ] );
-	maxLife = 100 + ( tmpL > 0. ? static_cast< int32_t >( std::pow( tmpL, .6 ) ) : 0 );
-	l       = maxLife;
+	max_life = 100 + ( tmpL > 0. ? static_cast< int32_t >( std::pow( tmpL, .6 ) ) : 0 );
+	l       = max_life;
 
 	// (re)-init health text
-	healthText.set_text( std::to_string( l ).c_str() );
-	healthText.set_color( player->color );
+	health_text.set_text( std::to_string( l ).c_str() );
+	health_text.set_color( player->color );
 
 	// Re-calculate repair rate
 	int32_t num_kits        = player->ni[ ITEM_REPAIRKIT ];
@@ -1558,9 +1564,9 @@ void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
 	}
 
 	// (re-)init name text
-	if ( env.nameAboveTank ) {
-		nameText.set_text( player->getName() );
-		nameText.set_color( player->color );
+	if ( env.name_above_tank ) {
+		name_text.set_text( player->get_name() );
+		name_text.set_color( player->color );
 	}
 
 	fire_another_shot = 0;
@@ -1570,10 +1576,10 @@ void TANK::newRound( int32_t pos_x, int32_t pos_y ) {
 	y                = pos_y;
 	use_tankbitmap   = -1;
 	use_turretbitmap = -1;
-	setBitmap();
+	set_bitmap();
 }
 
-void TANK::reactivate_shield() {
+void CTank::reactivate_shield() {
 	// if no shield remains, try to reload
 	if ( sh > 0 ) {
 		return;
@@ -1608,38 +1614,38 @@ void TANK::reactivate_shield() {
 		player->last_shield_used = sht;
 		shld_phase               = 0.; // Start neutral.
 		snprintf( buf, 4, "%d", sh );
-		shieldText.set_text( std::to_string( sh ).c_str() );
-		setTextPositions( true );
+		shield_text.set_text( std::to_string( sh ).c_str() );
+		set_text_positions( true );
 	}
 }
 
 /// @brief do tank repairs
-void TANK::repair() {
-	if ( ( repair_rate > 0 ) && ( l < maxLife ) ) {
+void CTank::repair() {
+	if ( ( repair_rate > 0 ) && ( l < max_life ) ) {
 		int32_t old_life = l;
 
 		// Apply repair
 		l += repair_rate;
-		if ( l > maxLife ) {
-			l = maxLife;
+		if ( l > max_life ) {
+			l = max_life;
 		}
 
 		// update text
-		healthText.set_text( std::to_string( l ).c_str() );
+		health_text.set_text( std::to_string( l ).c_str() );
 
 		// add float text
-		if ( !global.skippingComputerPlay ) {
+		if ( !global.skipping_computer_play ) {
 			try {
 				snprintf( buf, 9, "+%d", l - old_life );
-				new FLOATTEXT( buf, x, y - 30, .0, -.8, GREEN, CENTRE, TS_NO_SWAY, 120, false );
+				new CFloatText( buf, x, y - 30, .0, -.8, GREEN, CENTRE, TS_NO_SWAY, 120, false );
 			} catch ( std::exception &e ) {
-				std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+				std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 			}
 		}
 	}
 }
 
-bool TANK::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType phys_type ) {
+bool CTank::repulse( double xpos, double ypos, double *xa, double *ya, EPhysType phys_type ) {
 	// If there is no repulsion or the physics type is
 	// not sensitive to repulsion, return at once.
 	if ( !repulsion || ( PT_FUNKY_FLOAT == phys_type ) || ( PT_NONE == phys_type ) || ( PT_ROLLING == phys_type ) ) {
@@ -1683,37 +1689,37 @@ bool TANK::repulse( double xpos, double ypos, double *xa, double *ya, ePhysType 
 
 /// @brief Resets flash_damage and applies damage if flash_damage
 /// is greater than half the FPS (meaning ~0.5 seconds) or the tank is dead.
-void TANK::resetFlashDamage() {
-	if ( ( flashdamage > ( env.frames_per_second / 2 ) ) || destroy ) {
-		flashdamage = 0;
+void CTank::reset_flash_damage() {
+	if ( ( flash_damage > ( env.frames_per_second / 2 ) ) || destroy ) {
+		flash_damage = 0;
 		if ( ROUND( damage ) > 0 ) {
-			applyDamage();
+			apply_damage();
 		}
-		requireUpdate();
+		require_update();
 	}
 }
 
-void TANK::setBitmap() {
+void CTank::set_bitmap() {
 	if ( !player ) {
 		return;
 	}
 
 	bool had_offsets = ( ( use_tankbitmap > -1 ) && ( use_turretbitmap > -1 ) );
 
-	if ( TT_NORMAL == player->tankbitmap ) {
+	if ( TT_NORMAL == player->tank_bitmap ) {
 		use_tankbitmap   = 0;
 		use_turretbitmap = 0;
 	} else {
-		use_tankbitmap   = player->tankbitmap + TO_TANK;
-		use_turretbitmap = player->tankbitmap + TO_TURRET;
+		use_tankbitmap   = player->tank_bitmap + TO_TANK;
+		use_turretbitmap = player->tank_bitmap + TO_TURRET;
 	}
 
 	// Set needed offsets
 	tank_off_x = ROUNDu( env.tank[ use_tankbitmap ]->w / 2 );
 	tank_off_y = env.tank[ use_tankbitmap ]->h;
 	tank_sag   = ROUNDu( static_cast< double >( tank_off_y ) / 2.66 );
-	turr_off_x = ROUNDu( env.tankgun[ use_turretbitmap ]->w / 2 );
-	turr_off_y = ROUNDu( env.tankgun[ use_turretbitmap ]->h / 2 ) - 2;
+	turr_off_x = ROUNDu( env.tank_gun[ use_turretbitmap ]->w / 2 );
+	turr_off_y = ROUNDu( env.tank_gun[ use_turretbitmap ]->h / 2 ) - 2;
 	shld_rad_x = tank_off_x + ( turr_off_x / 2 ) + 1;
 	shld_rad_y = ( ( tank_off_y + turr_off_y ) / 2 ) + 1;
 
@@ -1731,48 +1737,48 @@ void TANK::setBitmap() {
 
 	// Be sure the placement is correct:
 	assert( ( ( x - tank_off_x ) > 2 ) && "Placement too far left" );
-	assert( ( ( x + tank_off_x ) < ( env.screenWidth - 3 ) ) && "Placement too far right" );
+	assert( ( ( x + tank_off_x ) < ( env.screen_width - 3 ) ) && "Placement too far right" );
 
 	// Without a debug mode, this must be fixed:
 	if ( ( x - tank_off_x ) < 3 ) {
 		x = tank_off_x + 3;
 	}
-	if ( ( x + tank_off_x ) > ( env.screenWidth - 4 ) ) {
-		x = env.screenWidth - 4 - tank_off_x;
+	if ( ( x + tank_off_x ) > ( env.screen_width - 4 ) ) {
+		x = env.screen_width - 4 - tank_off_x;
 	}
 }
 
-void TANK::setTextPositions( bool renew_colour ) {
+void CTank::set_text_positions( bool renew_colour ) {
 	int32_t textpos = -12 - turr_off_x;
 
 	if ( sh > 0 ) {
-		shieldText.set_pos( x, y + textpos );
+		shield_text.set_pos( x, y + textpos );
 		textpos -= 14;
 		if ( renew_colour ) {
-			shieldText.set_color( TURQUOISE );
+			shield_text.set_color( TURQUOISE );
 		}
 	} else {
-		shieldText.set_pos( -1, -1 );
+		shield_text.set_pos( -1, -1 );
 	}
 
-	healthText.set_pos( x, y + textpos );
+	health_text.set_pos( x, y + textpos );
 	textpos -= 14;
 	if ( renew_colour ) {
-		healthText.set_color( player ? player->color : WHITE );
+		health_text.set_color( player ? player->color : WHITE );
 	}
 
-	if ( env.nameAboveTank ) {
-		nameText.set_pos( x, y + textpos );
+	if ( env.name_above_tank ) {
+		name_text.set_pos( x, y + textpos );
 		if ( renew_colour ) {
-			shieldText.set_color( player ? player->color : WHITE );
+			shield_text.set_color( player ? player->color : WHITE );
 		}
 	}
 }
 
-bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &crashed ) {
+bool CTank::shoot_clearance( int32_t target_angle, double minimum_clearance, bool &crashed ) {
 	int32_t clearance = 2;
-	double  xmov      = env.slope[ targetAngle ][ 0 ];
-	double  ymov      = env.slope[ targetAngle ][ 1 ];
+	double  xmov      = env.slope[ target_angle ][ 0 ];
+	double  ymov      = env.slope[ target_angle ][ 1 ];
 	double  xpos      = x + ( xmov * ( turr_off_x + clearance ) );
 	double  ypos      = y + ( ymov * ( turr_off_x + clearance ) );
 	bool    done      = false;
@@ -1782,11 +1788,11 @@ bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &c
 		xpos += xmov;
 		ypos += ymov;
 
-		if ( ( ypos <= MENUHEIGHT ) || ( xpos < 2 ) || ( xpos > ( env.screenWidth - 2 ) ) ) {
-			clearance = ROUND( minimumClearance ); // done it! There can't be dirt any more!
+		if ( ( ypos <= MENUHEIGHT ) || ( xpos < 2 ) || ( xpos > ( env.screen_width - 2 ) ) ) {
+			clearance = ROUND( minimum_clearance ); // done it! There can't be dirt any more!
 			done      = true;
 		} else {
-			if ( ++clearance >= minimumClearance ) {
+			if ( ++clearance >= minimum_clearance ) {
 				done = true;
 			} else {
 				if ( PINK != getpixel( global.terrain, xpos, ypos ) ) {
@@ -1798,25 +1804,25 @@ bool TANK::shootClearance( int32_t targetAngle, double minimumClearance, bool &c
 
 	// If a minimum clearance lower than the screen width is sought,
 	// check whether this results in a wall/ceiling hit.
-	if ( ( minimumClearance < env.screenWidth )
-	     && ( ( env.isBoxed && ( ypos <= MENUHEIGHT )
-	            && ( ( WALL_STEEL == env.current_wallType ) || ( WALL_WRAP == env.current_wallType ) ) )
-	          || ( ( WALL_STEEL == env.current_wallType ) && ( ( xpos < 2 ) || ( xpos > ( env.screenWidth - 3 ) ) ) ) ) ) {
+	if ( ( minimum_clearance < env.screen_width )
+	     && ( ( env.is_boxed && ( ypos <= MENUHEIGHT )
+	            && ( ( WALL_STEEL == env.current_wall_type ) || ( WALL_WRAP == env.current_wall_type ) ) )
+	          || ( ( WALL_STEEL == env.current_wall_type ) && ( ( xpos < 2 ) || ( xpos > ( env.screen_width - 3 ) ) ) ) ) ) {
 		clearance = -1;
 		crashed   = true;
 	}
 
-	return ( clearance >= minimumClearance );
+	return ( clearance >= minimum_clearance );
 }
 
 /// @brief this is used whenever a weapon really is triggered.
 /// In simultaneous play this does not actually mean it is fired.
 /// To fire another shot without the trigger action, call
-/// activateCurrentSelection().
-void TANK::simActivateCurrentSelection() {
+/// activate_current_selection().
+void CTank::sim_activate_current_selection() {
 
-	if ( env.turntype != TURN_SIMUL ) {
-		activateCurrentSelection();
+	if ( env.turn_type != TURN_SIMUL ) {
+		activate_current_selection();
 
 		if ( fire_another_shot ) {
 			fire_another_shot--;
@@ -1826,7 +1832,7 @@ void TANK::simActivateCurrentSelection() {
 	// allow naturals to happen again
 	global.naturals_activated = 0;
 
-	healthText.set_text( std::to_string( l ).c_str() );
+	health_text.set_text( std::to_string( l ).c_str() );
 
 	// avoid having key presses read in next turn
 	clear_keybuf();
@@ -1839,17 +1845,17 @@ void TANK::simActivateCurrentSelection() {
  *
  * @return true if the tank landed on another one, false otherwise
  **/
-bool TANK::tank_on_tank() {
-	TANK *lt         = nullptr;
+bool CTank::tank_on_tank() {
+	CTank *lt         = nullptr;
 	bool  found_tank = false;
 
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 	while ( lt && !found_tank ) {
 		if ( ( lt != this ) && ( std::abs( lt->x - x ) < tank_off_x ) && ( lt->y > y )
 		     && ( ( lt->y - y ) < tank_off_y ) ) {
 			found_tank = true;
 		} else {
-			lt->getNext( &lt );
+			lt->get_next( &lt );
 		}
 	}
 

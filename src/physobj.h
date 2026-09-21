@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -54,13 +54,17 @@
 // Re-calculate angle_ into a value displayable on the top bar:
 #define GET_DISP_ANGLE( angle_ ) ( 180 - ( (angle_)-90 ) )
 
-class PHYSICAL_OBJECT : public VIRTUAL_OBJECT {
+/** @class CPhysicalObject
+ * @brief Ballistic game object with gravity and drag.
+ **/
+class CPhysicalObject : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
-	explicit PHYSICAL_OBJECT( bool is_weapon );
+	/// Create a physical object.
+	explicit CPhysicalObject( bool is_weapon );
 
 	// No explicit dtor needed
 
@@ -69,12 +73,15 @@ public:
 	 * ----------------------
 	 */
 
-	void inline draw() override { VIRTUAL_OBJECT::draw(); };
+	/// Render the object.
+	void inline draw() override { CVirtualObject::draw(); };
 
-	void getVelocity( double &xv_, double &yv_ );
+	/// read the current velocity.
+	void get_velocity( double &xv_, double &yv_ );
 
 	/* Status Getters */
-	[[nodiscard]] bool isWeapon() const;
+	/// Test whether this is weapon fire.
+	[[nodiscard]] bool is_weapon() const;
 
 
 	/* ----------------------
@@ -82,10 +89,10 @@ public:
 	 * ----------------------
 	 */
 
-	bool    allowDirtyWrap = true; //!< Whether ceiling wrap is allowed into dirt bottom
-	double  drag           = 0.;
-	bool    hitSomething   = false;
-	int32_t weapType       = 0;
+	bool    allow_dirty_wrap = true;  //!< Whether ceiling wrap is allowed into dirt bottom
+	double  drag           = 0.;    ///< Air drag.
+	bool    hit_something   = false; ///< Collision occurred.
+	int32_t weap_type       = 0;     ///< Weapon type index.
 
 protected:
 	/* -------------------------
@@ -93,7 +100,9 @@ protected:
 	 * -------------------------
 	 */
 
+	/// Advance the physics simulation.
 	void applyPhysics() override;
+	/// Reset the physics state.
 	void initialise() override;
 
 
@@ -102,19 +111,19 @@ protected:
 	 * -------------------------
 	 */
 
-	int32_t bounces      = 0; //!< Bounces off walls, floor and ceiling
-	bool    isWeaponFire = true;
+	int32_t bounces      = 0;     //!< Bounces off walls, floor and ceiling
+	bool    is_weapon_fire = true;  ///< Fired as a weapon.
 	bool    lacerated    = false; //!< Set to true if the velocity check fails.
-	double  mass         = 0.;
-	double  maxVel       = 0.; //!< maximum Velocity
-	double  mindDelay    = 0.; //!< for mind shots to travel through dirt if delayed
-	double  mindPassed   = 0.; //!< Counts the amount of dirt a delayed shot already passed through
-	bool    noimpact     = false;
-	int32_t spin         = 0;
+	double  mass         = 0.;    ///< Mass.
+	double  max_vel       = 0.;    //!< maximum Velocity
+	double  mind_delay    = 0.;    //!< for mind shots to travel through dirt if delayed
+	double  mind_passed   = 0.;    //!< Counts the amount of dirt a delayed shot already passed through
+	bool    noimpact     = false; ///< Skip impact handling.
+	int32_t spin         = 0;     ///< Spin.
 };
 
 /// global helper methods:
-bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed );
-void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, double &ryv );
+bool check_pixels_between_two_points( double *start_x, double *start_y, double end_x, double end_y, double can_delay, double *has_delayed );
+void get_dirt_bounce_react( double x, double y, double xv, double yv, double &rxv, double &ryv );
 
 #endif // PHYSOBJ_DEFINE

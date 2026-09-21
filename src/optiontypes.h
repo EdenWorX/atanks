@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_OPTIONTYPES_H_INCLUDED
-#define ATANKS_SRC_OPTIONTYPES_H_INCLUDED 1
+#ifndef ATANKS_OPTIONTYPES_H_INCLUDED
+#define ATANKS_OPTIONTYPES_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your menu) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,40 +28,40 @@
 
 #include <string>
 
-/** @enum eMenuClass
+/** @enum EMenuClass
  * @brief List of menu classes. Every menu class is a menu in itself.
  *
  * MC_MENUCLASS_COUNT can be used to retrieve the number of menu classes.
  *
  * This enum is sorted in alphabetical order to make maintenance easier.
  **/
-enum eMenuClass {
-	MC_AREYOUSURE = 0, //!< The "Are you sure?" <yes> <no> screen
+enum EMenuClass {
+	MC_AREYOUSURE = 0, //!< The "Are you sure?" &lt;yes&gt; &lt;no&gt; screen
 	MC_FINANCE,        //!< The finance ("Money") options sub menu
 	MC_GRAPHICS,       //!< The graphics options sub menu
-	MC_MAIN,           //!< Menu shown when using "Options" button
+	MC_MAIN,           //!< CMenu shown when using "Options" button
 	MC_NETWORK,        //!< The network options sub menu
 	MC_PHYSICS,        //!< The physics options sub menu
-	MC_PLAY,           //!< Menu shown when using "Play" button
+	MC_PLAY,           //!< CMenu shown when using "Play" button
 	MC_PLAYER,         //!< The player edit menu
-	MC_PLAYERS,        //!< Menu shown when hitting "Players" button
-	MC_RESET,          //!< The "Reset options?" <Reset> <Back> screen
+	MC_PLAYERS,        //!< CMenu shown when hitting "Players" button
+	MC_RESET,          //!< The "Reset options?" &lt;Reset&gt; &lt;Back&gt; screen
 	MC_SOUND,          //!< The sound options sub menu
 	MC_WEATHER,        //!< The weather options sub menu
 	MC_MENUCLASS_COUNT
 };
 
-/** @enum eTextClass
+/** @enum ETextClass
  * @brief Declare the menu option text classes.
  *
  * These are used so repeating texts do not need to be translated over and
  * over again.
  * TC_TEXTCLASS_COUNT can be used to retrieve the number of
- * fixed menu entry text classes in OptionClassText[][][].
+ * fixed menu entry text classes in OPTION_CLASS_TEXT[][][].
  *
  * This enum is sorted alphabetically to make maintenance easier.
  **/
-enum eTextClass {
+enum ETextClass {
 	TC_COLOUR = 0,
 	TC_LANDSLIDE,
 	TC_LANDTYPE,
@@ -85,21 +85,21 @@ enum eTextClass {
 	TC_NONE             //!< Special value for no text class at all
 };
 
-/** @enum eEntryType
+/** @enum EEntryType
  * @brief Declare the different entry types option items can have
  **/
-enum eEntryType { ET_NONE = 0, ET_ACTION, ET_BUTTON, ET_COLOR, ET_MENU, ET_OPTION, ET_TEXT, ET_TOGGLE, ET_VALUE };
+enum EEntryType { ET_NONE = 0, ET_ACTION, ET_BUTTON, ET_COLOR, ET_MENU, ET_OPTION, ET_TEXT, ET_TOGGLE, ET_VALUE };
 
-/** @enum eResetOptions
+/** @enum EResetOptions
  * @brief return codes for the "Are you sure" reset button question
  **/
-enum eResetOptions { RO_BACK = 667, RO_RESET = 1337 };
+enum EResetOptions { RO_BACK = 667, RO_RESET = 1337 };
 
 #if defined( ATANKS_DEBUG )
 // Some helper functions to get names for enum entries
-char const* getEntryTypeName( eEntryType etype );
-char const* getMenuClassName( eMenuClass mclass );
-char const* getTextClassName( eTextClass tclass );
+char const* getEntryTypeName( EEntryType etype );
+char const* getMenuClassName( EMenuClass mclass );
+char const* getTextClassName( ETextClass tclass );
 #endif // ATANKS_DEBUG
 
-#endif // ATANKS_SRC_OPTIONTYPES_H_INCLUDED
+#endif // ATANKS_OPTIONTYPES_H_INCLUDED

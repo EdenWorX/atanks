@@ -1,5 +1,5 @@
-#ifndef MAIN_DEFINE
-#define MAIN_DEFINE
+#ifndef ATANKS_MAIN_H_INCLUDED
+#define ATANKS_MAIN_H_INCLUDED
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,8 +20,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * */
 
+// Generated build configuration. ATANKS_HAVE_CONFIG_H is only defined for
+// CMake builds (see config.h.in); Visual Studio and legacy Makefile builds
+// keep passing -DVERSION= and -DDATA_DIR= on the compiler command line.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #ifndef VERSION
-#  error "VERSION information is missing. Fix Makefile."
+#  define VERSION "0.0.0"
 #endif
 
 #ifndef BUFFER_SIZE
@@ -41,7 +48,7 @@
 #  ifndef ALLEGRO_HAVE_STDINT_H
 #    define ALLEGRO_HAVE_STDINT_H 1
 #  endif // ALLEGRO_HAVE_STDINT_H
-#  if !defined( ATANKS_SRC_ATANKS_CPP )
+#  if !defined( ATANKS_ATANKS_CPP )
 #    define ALLEGRO_NO_MAGIC_MAIN
 #  endif // Not called from atanks.cpp
 #endif   // Windows build system
@@ -230,7 +237,7 @@ using std::string;
  **/
 #define SHOW_MOUSE( where )                                                                                 \
 	{                                                                                                   \
-		if ( !env.osMouse ) {                                                                       \
+		if ( !env.os_mouse ) {                                                                       \
 			if ( ( where ) != nullptr )                                                         \
 				unscare_mouse();                                                            \
 			else                                                                                \
@@ -287,9 +294,10 @@ using std::string;
 #define ATOMIC_READ  std::memory_order_acquire
 #define ATOMIC_WRITE std::memory_order_release
 
-struct gradient {
-	RGB   color;
-	float point;
+/// Color stop of a sGradient strip.
+struct sGradient {
+	RGB   color; ///< Stop color.
+	float point; ///< Stop position (0.0-1.0); -1 terminates the strip.
 };
 
 // signals
@@ -305,12 +313,12 @@ struct gradient {
 #define GLOBAL_COMMAND_DEMO    6
 #define GLOBAL_COMMAND_NETWORK 7
 
-/** @enum eClass
+/** @enum EClass
  * @brief class definitions of everything from virtual objects up
  *
  * The ordering here determines the order of the drawing.
  **/
-enum eClass {
+enum EClass {
 	CLASS_MISSILE = 0,
 	CLASS_BEAM,
 	CLASS_TANK,
@@ -324,16 +332,16 @@ enum eClass {
 
 
 #ifndef HAS_TANK
-class TANK; // forwarding if not known
+class CTank; // forwarding if not known
 #endif      // HAS_TANK
 
 /// === Global functions used in several compilation units ====
 double interpolate( double x1, double x2, double i );
-double Noise( int x );
-double Noise2D( int x, int y );
-double perlin1DPoint( double amplitude, double scale, double xo, double lambda, int octaves );
-double perlin2DPoint( double amplitude, double scale, double xo, double yo, double lambda, int octaves );
-void   quickChange( bool clearerror );
+double noise( int x );
+double noise_2d( int x, int y );
+double perlin_1d_point( double amplitude, double scale, double xo, double lambda, int octaves );
+double perlin_2d_point( double amplitude, double scale, double xo, double yo, double lambda, int octaves );
+void   quick_change( bool clearerror );
 
 /// === Helpful wrappers and overrides ===
 [[maybe_unused]] static inline void circle( BITMAP* bmp, double x, double y, int radius, int color ) {
@@ -396,4 +404,4 @@ void   quickChange( bool clearerror );
 
 #include "externs.h"
 
-#endif // MAIN_DEFINE
+#endif // ATANKS_MAIN_H_INCLUDED

@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -35,35 +35,40 @@
 
 struct sSDI;
 
-/** @enum eMissileType
+/** @enum EMissileType
  * @brief Determines what kind of weapon is shot
  **/
-enum eMissileType {
+enum EMissileType {
 	MT_WEAPON = 0, //!< Normal weapon, nothing special
 	MT_ITEM,       //!< Not a weapon but an item
 	MT_NATURAL,    //!< Fired by natural disaster, like meteors and dirt balls.
 	MT_MIND_SHOT   //!< AI thinking.
 };
 
-class MISSILE final : public PHYSICAL_OBJECT {
+/** @class CMissile
+ * @brief Ballistic projectile.
+ **/
+class CMissile final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit MISSILE(
-		PLAYER*      player_,
+	/// Fire a missile.
+	explicit CMissile(
+		CPlayer*      player_,
 		double       xpos,
 		double       ypos,
 		double       xvel,
 		double       yvel,
 		int32_t      weapon_type,
-		eMissileType missile_type,
+		EMissileType missile_type,
 		int32_t      ai_level_,
 		int32_t      delay_idx_
 	);
-	~MISSILE() final;
+	/// Destroy a missile.
+	~CMissile() final;
 
 
 	/* ----------------------
@@ -71,15 +76,16 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   update_submun( ePhysType p_type, int32_t cnt_down );
+	void   applyPhysics() final;                                ///< Advance physics.
+	void   draw() final;                                        ///< Render the missile.
+	void   update_submun( EPhysType p_type, int32_t cnt_down ); ///< Release submunitions.
 
-	eClass getClass() final { return CLASS_MISSILE; }
+	/// Return the object class.
+	EClass get_class() final { return CLASS_MISSILE; }
 
 	/* Status Getters */
-	[[nodiscard]] int32_t bounced() const;
-	[[nodiscard]] int32_t direction() const;
+	[[nodiscard]] int32_t bounced() const;   ///< Bounce count.
+	[[nodiscard]] int32_t direction() const; ///< Flight direction.
 
 
 private:
@@ -88,20 +94,20 @@ private:
 	 * -----------------------
 	 */
 
-	void    applyPhysicsFunky();   // Handle funky projectiles
-	void    applyPhysicsNormal();  // Handle standard physics projectiles
-	void    applyPhysicsOther();   // Handle what is not normal, funky or rolling
-	void    applyPhysicsRolling(); // Handle rolling projectiles
-	sSDI*   Build_SDI_List( sSDI* sdi );
-	void    Check_Cluster();                    // Check/Launch weapons with submunition
-	bool    Check_Missile_Hit( sSDI* sdi );     // Check whether the missile will hit a certain target
-	bool    Check_Roller( double old_delta_x ); // Check whether a roller triggers
-	void    Check_SDI();                        // see if missile should be shot down
-	void    Check_Tanks();                      // see whether any tank is hit
-	int32_t Height_Above_Ground();
-	void    Repulse_Missile();
+	void    apply_physics_funky();   // Handle funky projectiles
+	void    apply_physics_normal();  // Handle standard physics projectiles
+	void    apply_physics_other();   // Handle what is not normal, funky or rolling
+	void    apply_physics_rolling(); // Handle rolling projectiles
+	sSDI*   build_sdi_list( sSDI* sdi );
+	void    check_cluster();                    // Check/Launch weapons with submunition
+	bool    check_missile_hit( sSDI* sdi );     // Check whether the missile will hit a certain target
+	bool    check_roller( double old_delta_x ); // Check whether a roller triggers
+	void    check_sdi();                        // see if missile should be shot down
+	void    check_tanks();                      // see whether any tank is hit
+	int32_t height_above_ground();
+	void    repulse_missile();
 	void    trigger();
-	void    triggerTest();
+	void    trigger_test();
 
 
 	/* -----------------------
@@ -112,10 +118,12 @@ private:
 	int32_t      ai_level     = 0; // Level of the AI shooting a mind shot
 	int32_t      countdown    = -1;
 	int32_t      funky_colour = BLACK;
-	int32_t      growRadius   = 0;
-	bool         isGrowing    = false;
-	eMissileType missileType  = MT_WEAPON;
-	WEAPON*      weap         = nullptr;
+	int32_t      grow_radius   = 0;
+	bool         is_growing    = false;
+	EMissileType missile_type  = MT_WEAPON;
+	double       roll_carry    = 0.; // Carry for frame-rate independent roller steps
+	double       spin_carry    = 0.; // Carry for frame-rate independent meteor tumble
+	CWeapon*      weap         = nullptr;
 };
 
 #endif // MISSILE_DEFINE

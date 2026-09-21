@@ -101,4 +101,4 @@ OBSERVAÇÃO: Alterações nos gráficos do jogo podem afetar o tempo necessári
 5. Clique duas vezes em 'Voltar' para aplicar suas alterações no próximo jogo.
 --------------------------------------
 
-Se você não encontrou a resposta para sua pergunta aqui, nem em http://sourceforge.net/projects/atanks e nem em http://atanks.sourceforge.net, mande e-mail (em inglês) para atanks@singular.org.uk
+Se você não encontrou a resposta para sua pergunta aqui, nem em https://github.com/EdenWorX/atanks e nem em https://github.com/EdenWorX/atanks/issues, mande e-mail (em inglês) para atanks@singular.org.uk

@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_DEBUG_H_INCLUDED
-#define ATANKS_SRC_DEBUG_H_INCLUDED 1
+#ifndef ATANKS_DEBUG_H_INCLUDED
+#define ATANKS_DEBUG_H_INCLUDED 1
 
 #include <cstdio>
 
@@ -170,4 +170,4 @@ void debug_log( char const* moduleName, char const* title, char const* message, 
 #endif // ATANKS_DEBUG_PHYSICS
 
 
-#endif // ATANKS_SRC_DEBUG_H_INCLUDED
+#endif // ATANKS_DEBUG_H_INCLUDED

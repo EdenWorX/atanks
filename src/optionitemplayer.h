@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_OPTIONITEMPLAYER_H_INCLUDED
-#define ATANKS_SRC_OPTIONITEMPLAYER_H_INCLUDED 1
+#ifndef ATANKS_OPTIONITEMPLAYER_H_INCLUDED
+#define ATANKS_OPTIONITEMPLAYER_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,47 +24,54 @@
 
 /** @file optionitemplayer.h
  * @brief declaration of the option entry class specialized on handling
- * PLAYER instances
+ * CPlayer instances
  **/
 
 
-/** @class OptionItemPlayer
- * @brief abstract one option menu entry to handle a PLAYER instance
+/** @class COptionItemPlayer
+ * @brief abstract one option menu entry to handle a CPlayer instance
  *
- * This class is a special version of the OptionItem template that can only
- * handle PLAYER instances.
+ * This class is a special version of the TOptionItem template that can only
+ * handle CPlayer instances.
  *
  * The the only entry type supported is the ET_MENU.
  **/
-class OptionItemPlayer final : public OptionItemBase {
+class COptionItemPlayer final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
 	 * -------------------------------------------
 	 */
 
-	explicit OptionItemPlayer(
-		PLAYER** player_,
-		int32_t ( *action_ )( PLAYER** player_, int32_t ),
+	/// Create a player entry.
+	explicit COptionItemPlayer(
+		CPlayer** player_,
+		int32_t ( *action_ )( CPlayer** player_, int32_t ),
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		int32_t     top_,
 		int32_t     left_,
 		int32_t     width_,
 		int32_t     height_,
 		int32_t     padding_
 	);
-	~OptionItemPlayer() final;
+	/// Destroy a player entry.
+	~COptionItemPlayer() final;
 
 	/* ----------------------
 	 * --- Public methods ---
 	 * ----------------------
 	 */
 
+	/// Run the player action.
 	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	/// Players have no minimum.
 	bool    canGoDown() final;
+	/// Players have no maximum.
 	bool    canGoUp() final;
+	/// Render the player entry.
 	void    display( bool show_full ) final;
+	/// Players are never exit buttons.
 	bool    isExitButton() final;
 
 private:
@@ -73,7 +80,7 @@ private:
 	 * ----------------------------------------------
 	 */
 
-	int32_t ( *actionFunc )( PLAYER** target, int32_t ) = nullptr;
+	int32_t ( *action_func )( CPlayer** target, int32_t ) = nullptr;
 
 
 	/* -----------------------
@@ -81,8 +88,8 @@ private:
 	 * -----------------------
 	 */
 
-	PLAYER** player = nullptr; //!< PLAYER instance to handle
+	CPlayer** player = nullptr; //!< CPlayer instance to handle
 };
 
 
-#endif // ATANKS_SRC_OPTIONITEMPLAYER_H_INCLUDED
+#endif // ATANKS_OPTIONITEMPLAYER_H_INCLUDED

@@ -1,0 +1,165 @@
+# Atomic Tanks arsenal data (TOML).
+# Generated from text/weapons.txt per docs/weapons_toml_spec.md; do not edit by hand without
+# keeping the legacy file in sync until WP PF-1.17.3 removes it.
+
+[[natural]]
+name = "Small Meteor"
+desc = "A small chunk of rock from the skies"
+cost = 0
+amt = 1
+mass = 15.0
+drag = 0.2
+radius = 25
+sound = 10
+etime = 0
+damage = 5
+picpoint = 20
+spread = 1
+delay = 0
+noimpact = 0
+tech_level = 0
+warhead = 0
+num_submunitions = 0
+submunition = -1
+impart_velocity = 0.0
+divergence = 0
+spread_variation = 0.0
+launch_speed = 0.0
+speed_variation = 0.0
+countdown = -1
+count_variation = 0.0
+
+[[natural]]
+name = "Medium Meteor"
+desc = "A medium chunk of rock from the skies"
+cost = 0
+amt = 1
+mass = 20.0
+drag = 0.2
+radius = 40
+sound = 11
+etime = 0
+damage = 10
+picpoint = 21
+spread = 1
+delay = 0
+noimpact = 0
+tech_level = 0
+warhead = 0
+num_submunitions = 0
+submunition = -1
+impart_velocity = 0.0
+divergence = 0
+spread_variation = 0.0
+launch_speed = 0.0
+speed_variation = 0.0
+countdown = -1
+count_variation = 0.0
+
+[[natural]]
+name = "Large Meteor"
+desc = "A large chunk of rock from the skies"
+cost = 0
+amt = 1
+mass = 25.0
+drag = 0.2
+radius = 60
+sound = 12
+etime = 1
+damage = 20
+picpoint = 22
+spread = 1
+delay = 0
+noimpact = 0
+tech_level = 0
+warhead = 0
+num_submunitions = 0
+submunition = -1
+impart_velocity = 0.0
+divergence = 0
+spread_variation = 0.0
+launch_speed = 0.0
+speed_variation = 0.0
+countdown = -1
+count_variation = 0.0
+
+[[natural]]
+name = "Small Lightning Bolt"
+desc = "A weak bolt of lightning."
+cost = 0
+amt = 1
+mass = 1.0
+drag = 0.0
+radius = 1
+sound = 30
+etime = 0
+damage = 5
+picpoint = 0
+spread = 1
+delay = 0
+noimpact = 0
+tech_level = 0
+warhead = 0
+num_submunitions = 0
+submunition = -1
+impart_velocity = 0.0
+divergence = 0
+spread_variation = 0.0
+launch_speed = 0.0
+speed_variation = 0.0
+countdown = -1
+count_variation = 0.0
+
+[[natural]]
+name = "Medium Lightning Bolt"
+desc = "A bolt of lightning"
+cost = 0
+amt = 1
+mass = 1.0
+drag = 0.0
+radius = 4
+sound = 30
+etime = 0
+damage = 15
+picpoint = 0
+spread = 1
+delay = 0
+noimpact = 0
+tech_level = 0
+warhead = 0
+num_submunitions = 0
+submunition = -1
+impart_velocity = 0.0
+divergence = 0
+spread_variation = 0.0
+launch_speed = 0.0
+speed_variation = 0.0
+countdown = -1
+count_variation = 0.0
+
+[[natural]]
+name = "Large Lightning Bolt"
+desc = "A powerful bolt of lightning"
+cost = 0
+amt = 1
+mass = 1.0
+drag = 0.0
+radius = 7
+sound = 31
+etime = 0
+damage = 35
+picpoint = 0
+spread = 1
+delay = 0
+noimpact = 0
+tech_level = 0
+warhead = 0
+num_submunitions = 0
+submunition = -1
+impart_velocity = 0.0
+divergence = 0
+spread_variation = 0.0
+launch_speed = 0.0
+speed_variation = 0.0
+countdown = -1
+count_variation = 0.0

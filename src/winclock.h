@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_WINCLOCK_H_INCLUDED
-#define ATANKS_SRC_WINCLOCK_H_INCLUDED 1
+#ifndef ATANKS_WINCLOCK_H_INCLUDED
+#define ATANKS_WINCLOCK_H_INCLUDED 1
 
 /* Workaround for the buggy <chrono> implementation of VS12.
  *
@@ -88,4 +88,4 @@ void menu_ms_reset() {
 
 #endif // defined(ATANKS_IS_MSVC)
 
-#endif // ATANKS_SRC_WINCLOCK_H_INCLUDED
+#endif // ATANKS_WINCLOCK_H_INCLUDED

@@ -22,7 +22,7 @@ void draw_top_bar();
 // Here we try to match the buffer with an action. We then attempt to
 // perform the action. Remember, this is a command from the server, so
 // it is either giving us some info or telling us to create something.
-bool Parse_Client_Data( char *buffer ) {
+bool parse_client_data( char *buffer ) {
 	char   args[ CLIENT_ARGS ][ BUFFER_SIZE ];
 	char   letter;
 	int    dest_string;
@@ -63,7 +63,7 @@ bool Parse_Client_Data( char *buffer ) {
 			SAFE_STOD( ( global.client_player->tank->x ), args[ 1 ] );
 			SAFE_STOD( ( global.client_player->tank->y ), args[ 2 ] );
 		}
-	} else if ( !strcmp( args[ 0 ], "BEAM" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CBeam" ) ) {
 		double my_x = 0., my_y = 0.;
 		int    my_angle = 0, my_type = 0;
 		SAFE_STOD( my_x, args[ 1 ] );
@@ -71,7 +71,7 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( my_angle, args[ 3 ] );
 		SAFE_STOI( my_type, args[ 4 ] );
 		try {
-			new BEAM( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
+			new CBeam( nullptr, my_x, my_y, my_angle, my_type, BT_WEAPON );
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create beam failed in client code: %s\n", e.what() );
 		}
@@ -79,55 +79,55 @@ bool Parse_Client_Data( char *buffer ) {
 		int got_box = 0;
 		SAFE_STOI( got_box, args[ 1 ] );
 		if ( got_box ) {
-			env.isBoxed = true;
+			env.is_boxed = true;
 		} else {
-			env.isBoxed = false;
+			env.is_boxed = false;
 		}
 		return true;
-	} else if ( !strcmp( args[ 0 ], "EXPLOSION" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CExplosion" ) ) {
 		double my_x = 0., my_y = 0.;
 		int    my_type = 0;
 		SAFE_STOD( my_x, args[ 1 ] );
 		SAFE_STOD( my_y, args[ 2 ] );
 		SAFE_STOI( my_type, args[ 3 ] );
 		try {
-			new EXPLOSION( nullptr, my_x, my_y, 0., 0., my_type, true );
+			new CExplosion( nullptr, my_x, my_y, 0., 0., my_type, true );
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create explosion failed in client code: %s\n", e.what() );
 		}
 		return false;
-	} else if ( !strcmp( args[ 0 ], "ITEM" ) ) {
-		int itemindex = 0, amount = 0;
-		SAFE_STOI( itemindex, args[ 1 ] );
+	} else if ( !strcmp( args[ 0 ], "CItem" ) ) {
+		int item_index = 0, amount = 0;
+		SAFE_STOI( item_index, args[ 1 ] );
 		SAFE_STOI( amount, args[ 2 ] );
-		if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
-			global.client_player->ni[ itemindex ] = amount;
+		if ( ( item_index >= 0 ) && ( item_index < ITEMS ) && ( amount >= 0 ) && ( amount <= 99 ) ) {
+			global.client_player->ni[ item_index ] = amount;
 		}
-		if ( itemindex == ( ITEMS - 1 ) ) {
+		if ( item_index == ( ITEMS - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "HEALTH" ) ) {
-		int  tankindex = 0;
+		int  tank_index = 0;
 		int  health = 0, shield = 0, shield_type = 0;
 		char some_text[ 32 ];
 
-		SAFE_STOI( tankindex, args[ 1 ] );
-		if ( tankindex >= 0 ) {
+		SAFE_STOI( tank_index, args[ 1 ] );
+		if ( tank_index >= 0 ) {
 			SAFE_STOI( health, args[ 2 ] );
 			SAFE_STOI( shield, args[ 3 ] );
 			SAFE_STOI( shield_type, args[ 4 ] );
-			env.players[ tankindex ]->tank->l   = health;
-			env.players[ tankindex ]->tank->sh  = shield;
-			env.players[ tankindex ]->tank->sht = shield_type;
+			env.players[ tank_index ]->tank->l   = health;
+			env.players[ tank_index ]->tank->sh  = shield;
+			env.players[ tank_index ]->tank->sht = shield_type;
 			// set the text over the tank
 			sprintf( some_text, "%d", health );
-			env.players[ tankindex ]->tank->healthText.set_text( some_text );
-			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
+			env.players[ tank_index ]->tank->health_text.set_text( some_text );
+			env.players[ tank_index ]->tank->health_text.set_color( env.players[ tank_index ]->color );
 			sprintf( some_text, "%d", shield );
-			env.players[ tankindex ]->tank->shieldText.set_text( some_text );
-			env.players[ tankindex ]->tank->healthText.set_color( env.players[ tankindex ]->color );
+			env.players[ tank_index ]->tank->shield_text.set_text( some_text );
+			env.players[ tank_index ]->tank->health_text.set_color( env.players[ tank_index ]->color );
 		}
-		if ( tankindex == ( env.numGamePlayers - 1 ) ) {
+		if ( tank_index == ( env.num_game_players - 1 ) ) {
 			return true;
 		} else {
 			return false;
@@ -135,7 +135,7 @@ bool Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "WIND" ) ) {
 		SAFE_STOD( ( global.wind ), args[ 1 ] );
 		return true;
-	} else if ( !strcmp( args[ 0 ], "MISSILE" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CMissile" ) ) {
 		int    my_type = 0;
 		double my_x = 0., my_y = 0., delta_x = 0., delta_y = 0.;
 		SAFE_STOD( my_x, args[ 1 ] );
@@ -144,27 +144,27 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOD( delta_y, args[ 4 ] );
 		SAFE_STOI( my_type, args[ 5 ] );
 		try {
-			new MISSILE( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
+			new CMissile( nullptr, my_x, my_y, delta_x, delta_y, my_type, MT_WEAPON, 1, 0 );
 		} catch ( std::bad_alloc &e ) {
 			printf( "Attempt to create missile failed in client code: %s\n", e.what() );
 		}
 		return false;
 	} else if ( !strcmp( args[ 0 ], "NUMPLAYERS" ) ) {
-		SAFE_STOI( ( env.numGamePlayers ), args[ 1 ] );
+		SAFE_STOI( ( env.num_game_players ), args[ 1 ] );
 		// create the players in question
-		for ( int counter = 0; counter < env.numGamePlayers; counter++ ) {
+		for ( int counter = 0; counter < env.num_game_players; counter++ ) {
 			try {
-				env.players[ counter ] = new PLAYER();
+				env.players[ counter ] = new CPlayer();
 			} catch ( std::bad_alloc &e ) {
-				printf( "Attempt to create PLAYER failed in client code: %s\n", e.what() );
+				printf( "Attempt to create CPlayer failed in client code: %s\n", e.what() );
 			}
 			try {
-				env.players[ counter ]->tank = new TANK();
+				env.players[ counter ]->tank = new CTank();
 			} catch ( std::bad_alloc &e ) {
-				printf( "Attempt to create TANK failed in client code: %s\n", e.what() );
+				printf( "Attempt to create CTank failed in client code: %s\n", e.what() );
 			}
 			env.players[ counter ]->tank->player = env.players[ counter ];
-			env.players[ counter ]->tank->nameText.set_text( nullptr );
+			env.players[ counter ]->tank->name_text.set_text( nullptr );
 		}
 		return true;
 	}
@@ -175,16 +175,16 @@ bool Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "PLAYERNAME" ) ) {
 		int number = 0;
 		SAFE_STOI( number, args[ 1 ] );
-		if ( ( number < env.numGamePlayers ) && ( number >= 0 ) ) {
-			env.players[ number ]->setName( args[ 2 ] );
+		if ( ( number < env.num_game_players ) && ( number >= 0 ) ) {
+			env.players[ number ]->set_name( args[ 2 ] );
 		}
-		if ( number == ( env.numGamePlayers - 1 ) ) {
+		if ( number == ( env.num_game_players - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "REMOVETANK" ) ) {
 		int index = 0;
 		SAFE_STOI( index, args[ 1 ] );
-		if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
+		if ( ( index >= 0 ) && ( index < env.num_game_players ) ) {
 			// make sure this tank exists before we get rid of it
 			if ( env.players[ index ]->tank ) {
 				delete env.players[ index ]->tank;
@@ -193,7 +193,7 @@ bool Parse_Client_Data( char *buffer ) {
 		}
 	} else if ( !strcmp( args[ 0 ], "ROUNDS" ) ) {
 		SAFE_STOUL( env.rounds, args[ 1 ] );
-		SAFE_STOUL( global.currentround, args[ 2 ] );
+		SAFE_STOUL( global.current_round, args[ 2 ] );
 		return true;
 	} else if ( !strcmp( args[ 0 ], "SURFACE" ) ) {
 		int x = 0, y = 0;
@@ -205,10 +205,10 @@ bool Parse_Client_Data( char *buffer ) {
 		SAFE_STOI( x, args[ 1 ] );
 		SAFE_STOI( y, args[ 2 ] );
 		global.surface[ x ].store( y );
-		my_height = env.screenHeight - y;
+		my_height = env.screen_height - y;
 		my_height = my_height / 50; // ratio of change
 		// fill in terrain...
-		for ( index = y; index < env.screenHeight; index++ ) {
+		for ( index = y; index < env.screen_height; index++ ) {
 			putpixel( global.terrain, x, index, makecol( 0, green, 0 ) );
 			colour_change++;
 			if ( colour_change >= my_height ) {
@@ -216,7 +216,7 @@ bool Parse_Client_Data( char *buffer ) {
 				green--;
 			}
 		}
-		if ( x >= ( env.screenWidth - 1 ) ) {
+		if ( x >= ( env.screen_width - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "SCREEN" ) ) {
@@ -224,16 +224,16 @@ bool Parse_Client_Data( char *buffer ) {
 
 		SAFE_STOI( width, args[ 1 ] );
 		SAFE_STOI( height, args[ 2 ] );
-		if ( ( width == env.screenWidth ) && ( height == env.screenHeight ) ) {
+		if ( ( width == env.screen_width ) && ( height == env.screen_height ) ) {
 			printf( "Host's screen resolution matches ours.\n" );
 		} else {
 			printf( "Host's screen resolution is %d by %d.\n", width, height );
-			printf( "Ours is %d by %d. This is going to cause problems!\n", env.screenWidth, env.screenHeight );
+			printf( "Ours is %d by %d. This is going to cause problems!\n", env.screen_width, env.screen_height );
 		}
 		return true;
 	} else if ( !strcmp( args[ 0 ], "TANKPOSITION" ) ) {
 		int     player_number = 0, x = 0, y = 0;
-		PLAYER *my_player;
+		CPlayer *my_player;
 
 		SAFE_STOI( player_number, args[ 1 ] );
 		my_player = env.players[ player_number ];
@@ -243,7 +243,7 @@ bool Parse_Client_Data( char *buffer ) {
 			my_player->tank->x = x;
 			my_player->tank->y = y;
 		}
-		if ( player_number == ( env.numGamePlayers - 1 ) ) {
+		if ( player_number == ( env.num_game_players - 1 ) ) {
 			return true;
 		}
 	} else if ( !strcmp( args[ 0 ], "TEAM" ) ) {
@@ -252,8 +252,8 @@ bool Parse_Client_Data( char *buffer ) {
 		int     the_team      = 0;
 		SAFE_STOI( player_number, args[ 1 ] );
 		SAFE_STOI( the_team, args[ 2 ] );
-		if ( ( the_team < env.numGamePlayers ) && ( the_team >= 0 ) ) {
-			env.players[ player_number ]->team = static_cast< eTeamTypes >( the_team );
+		if ( ( the_team < env.num_game_players ) && ( the_team >= 0 ) ) {
+			env.players[ player_number ]->team = static_cast< ETeamTypes >( the_team );
 			if ( the_team == TEAM_JEDI ) {
 				colour = makecol( 0, 255, 0 );
 			} else if ( the_team == TEAM_SITH ) {
@@ -266,43 +266,43 @@ bool Parse_Client_Data( char *buffer ) {
 			}
 			env.players[ player_number ]->color = colour;
 		}
-		if ( player_number == ( env.numGamePlayers - 1 ) ) {
+		if ( player_number == ( env.num_game_players - 1 ) ) {
 			return true;
 		}
-	} else if ( !strcmp( args[ 0 ], "TELEPORT" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CTeleport" ) ) {
 		int player_num = 0;
 		int new_x = 0, new_y = 0;
 
 		SAFE_STOI( player_num, args[ 1 ] );
 		SAFE_STOI( new_x, args[ 2 ] );
 		SAFE_STOI( new_y, args[ 3 ] );
-		if ( ( player_num >= 0 ) && ( player_num < env.numGamePlayers ) && ( env.players[ player_num ]->tank ) ) {
-			TANK *lt = env.players[ player_num ]->tank;
+		if ( ( player_num >= 0 ) && ( player_num < env.num_game_players ) && ( env.players[ player_num ]->tank ) ) {
+			CTank *lt = env.players[ player_num ]->tank;
 			try {
-				new TELEPORT( lt, new_x, new_y, lt->getDiameter(), 120, ITEM_TELEPORT );
+				new CTeleport( lt, new_x, new_y, lt->get_diameter(), 120, ITEM_TELEPORT );
 			} catch ( std::bad_alloc &e ) {
 				printf( "Attempt to create teleport failed in client code: %s\n", e.what() );
 			}
 		}
 
 	} else if ( !strcmp( args[ 0 ], "WALLTYPE" ) ) {
-		SAFE_STOI( ( env.current_wallType ), args[ 1 ] );
-		switch ( env.current_wallType ) {
+		SAFE_STOI( ( env.current_wall_type ), args[ 1 ] );
+		switch ( env.current_wall_type ) {
 			case WALL_RUBBER:
-				env.wallColour = makecol( 0, 255, 0 ); // GREEN;
+				env.wall_colour = makecol( 0, 255, 0 ); // GREEN;
 				break;
 			case WALL_STEEL:
-				env.wallColour = makecol( 255, 0, 0 ); // RED;
+				env.wall_colour = makecol( 255, 0, 0 ); // RED;
 				break;
 			case WALL_SPRING:
-				env.wallColour = makecol( 0, 0, 255 ); // BLUE;
+				env.wall_colour = makecol( 0, 0, 255 ); // BLUE;
 				break;
 			case WALL_WRAP:
-				env.wallColour = makecol( 255, 255, 0 ); // YELLOW;
+				env.wall_colour = makecol( 255, 255, 0 ); // YELLOW;
 				break;
 		}
 		return true;
-	} else if ( !strcmp( args[ 0 ], "WEAPON" ) ) {
+	} else if ( !strcmp( args[ 0 ], "CWeapon" ) ) {
 		int weaponindex = 0, amount = 0;
 		SAFE_STOI( weaponindex, args[ 1 ] );
 		SAFE_STOI( amount, args[ 2 ] );
@@ -315,7 +315,7 @@ bool Parse_Client_Data( char *buffer ) {
 	} else if ( !strcmp( args[ 0 ], "YOUARE" ) ) {
 		int index = 0;
 		SAFE_STOI( index, args[ 1 ] );
-		if ( ( index >= 0 ) && ( index < env.numGamePlayers ) ) {
+		if ( ( index >= 0 ) && ( index < env.num_game_players ) ) {
 			global.client_player = env.players[ index ];
 			global.set_curr_tank( global.client_player->tank );
 		}
@@ -325,7 +325,7 @@ bool Parse_Client_Data( char *buffer ) {
 	return false;
 }
 
-void Create_Sky() {
+void create_sky() {
 	if ( env.custom_background && env.bitmap_filenames ) {
 		if ( env.sky ) {
 			destroy_bitmap( env.sky );
@@ -334,24 +334,24 @@ void Create_Sky() {
 	}
 
 	if ( !env.custom_background || !env.sky ) {
-		if ( env.sky && ( ( env.sky->w != env.screenWidth ) || ( env.sky->h != ( env.screenHeight - MENUHEIGHT ) ) ) ) {
+		if ( env.sky && ( ( env.sky->w != env.screen_width ) || ( env.sky->h != ( env.screen_height - MENUHEIGHT ) ) ) ) {
 			destroy_bitmap( env.sky );
 			env.sky = nullptr;
 		}
 
 		if ( !env.sky ) {
-			env.sky = create_bitmap( env.screenWidth, env.screenHeight - MENUHEIGHT );
+			env.sky = create_bitmap( env.screen_width, env.screen_height - MENUHEIGHT );
 		}
 		generate_sky(
 			nullptr,
-			sky_gradients[ global.cursky ],
-			( env.ditherGradients ? GENSKY_DITHERGRAD : 0 ) | ( env.detailedSky ? GENSKY_DETAILED : 0 )
+			sky_gradients[ global.cur_sky ],
+			( env.dither_gradients ? GENSKY_DITHERGRAD : 0 ) | ( env.detailed_sky ? GENSKY_DETAILED : 0 )
 		);
 	}
 } // end of create sky function
 
 // Send a shot command to the server
-bool Client_Fire( PLAYER *my_player, int my_socket ) {
+bool client_fire( CPlayer *my_player, int my_socket ) {
 	if ( !my_player ) {
 		return false;
 	}
@@ -365,7 +365,7 @@ bool Client_Fire( PLAYER *my_player, int my_socket ) {
 }
 
 // Adjust our power on the client side
-bool Client_Power( PLAYER *my_player, int more_or_less ) {
+bool client_power( CPlayer *my_player, int more_or_less ) {
 	if ( ( my_player ) && ( my_player->tank ) ) {
 		if ( ( more_or_less == CLIENT_UP ) && ( my_player->tank->p < 1996 ) ) {
 			my_player->tank->p += 5;
@@ -377,7 +377,7 @@ bool Client_Power( PLAYER *my_player, int more_or_less ) {
 	return false;
 }
 
-bool Client_Angle( PLAYER *my_player, int left_or_right ) {
+bool client_angle( CPlayer *my_player, int left_or_right ) {
 	if ( !my_player ) {
 		return false;
 	}
@@ -393,7 +393,7 @@ bool Client_Angle( PLAYER *my_player, int left_or_right ) {
 	return true;
 }
 
-bool Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
+bool client_cycle_weapon( CPlayer *my_player, int forward_or_back ) {
 	bool found = false;
 
 	if ( !my_player->tank ) {
@@ -434,14 +434,14 @@ bool Client_Cycle_Weapon( PLAYER *my_player, int forward_or_back ) {
 // On success, a pointer to char is returned.
 // On failure, a nullptr is returned.
 // The returned pointer does NOT need to be freed.
-char const *Explain_Error( int32_t error_code ) {
+char const *explain_error( int32_t error_code ) {
 	switch ( error_code ) {
 		case CLIENT_ERROR_VERSION:
-			return env.ingame->Get_Line( 77 );
+			return env.ingame->get_line( 77 );
 		case CLIENT_ERROR_SCREENSIZE:
-			return env.ingame->Get_Line( 78 );
+			return env.ingame->get_line( 78 );
 		case CLIENT_ERROR_DISCONNECT:
-			return env.ingame->Get_Line( 79 );
+			return env.ingame->get_line( 79 );
 		default:
 			break;
 	}
@@ -471,7 +471,7 @@ int Game_Client( int socket_number ) {
 	bool            screen_update = false;
 	int             count;                    // generic counter
 	int             stuff_going_down = false; // explosions, missiles etc on the screen
-	VIRTUAL_OBJECT *my_object, *next_obj;
+	CVirtualObject *my_object, *next_obj;
 	int32_t         class_ = 0;
 	bool            fired  = false;
 
@@ -480,20 +480,20 @@ int Game_Client( int socket_number ) {
 	clear_to_color( global.canvas, BLACK );
 
 	// clean up old text
-	global.getHeadOfClass( CLASS_FLOATTEXT, &my_object );
+	global.get_head_of_class( CLASS_FLOATTEXT, &my_object );
 	while ( my_object ) {
-		my_object->getNext( &next_obj );
-		dynamic_cast< FLOATTEXT * >( my_object )->newRound();
+		my_object->get_next( &next_obj );
+		dynamic_cast< CFloatText * >( my_object )->new_round();
 		delete my_object;
 	}
 
-	Create_Sky(); // so we have a background
+	create_sky(); // so we have a background
 
 	SAFE_WRITE( socket_number, "%s", "VERSION" );
 
 	while ( !end_of_round ) {
 		// check for waiting input from the server
-		incoming = Check_For_Incoming_Data( socket_number );
+		incoming = check_for_incoming_data( socket_number );
 		if ( incoming ) {
 			ssize_t bytes_read;
 
@@ -505,12 +505,12 @@ int Game_Client( int socket_number ) {
 					end_of_round = true;
 					keep_playing = false;
 					printf( "Got close message.\n" );
-					global.client_message = strdup( env.ingame->Get_Line( 81 ) );
+					global.client_message = strdup( env.ingame->get_line( 81 ) );
 				} else if ( !strncmp( buffer, "NOROOM", 6 ) ) {
 					end_of_round = true;
 					keep_playing = false;
 					printf( "The server is full or the game has not started. Please try again later.\n" );
-					global.client_message = strdup( env.ingame->Get_Line( 80 ) );
+					global.client_message = strdup( env.ingame->get_line( 80 ) );
 				} else if ( !strncmp( buffer, "GAMEEND", 7 ) ) {
 					end_of_round = true;
 					keep_playing = false;
@@ -518,7 +518,7 @@ int Game_Client( int socket_number ) {
 					if ( strlen( buffer ) > 7 ) {
 						global.client_message = strdup( &( buffer[ 8 ] ) );
 					} else {
-						global.client_message = strdup( env.ingame->Get_Line( 82 ) );
+						global.client_message = strdup( env.ingame->get_line( 82 ) );
 					}
 				} else if ( !strncmp( buffer, "ROUNDEND", 8 ) ) {
 					end_of_round = true;
@@ -528,7 +528,7 @@ int Game_Client( int socket_number ) {
 
 				else // not a special command, parse it
 				{
-					if ( Parse_Client_Data( buffer ) ) {
+					if ( parse_client_data( buffer ) ) {
 						if ( game_stage < CLIENT_PLAYING ) {
 							game_stage++;
 						}
@@ -555,17 +555,17 @@ int Game_Client( int socket_number ) {
 									strcpy( buffer, "WHOAMI" );
 									break;
 								case CLIENT_WEAPONS:
-									strcpy( buffer, "WEAPON 0" );
+									strcpy( buffer, "CWeapon 0" );
 									break;
 								case CLIENT_ITEMS:
-									strcpy( buffer, "ITEM 0" );
+									strcpy( buffer, "CItem 0" );
 									break;
 								case CLIENT_ROUNDS:
 									strcpy( buffer, "ROUNDS" );
 									break;
 								case CLIENT_TEAMS:
 									strcpy( buffer, "TEAMS 0" );
-									global.updateMenu = true;
+									global.update_menu = true;
 									break;
 								case CLIENT_WALL_TYPE:
 									strcpy( buffer, "WALLTYPE" );
@@ -593,13 +593,13 @@ int Game_Client( int socket_number ) {
 								if ( global.client_player->tank->cw < WEAPONS ) {
 									SAFE_WRITE(
 										socket_number,
-										"WEAPON %d",
+										"CWeapon %d",
 										global.client_player->tank->cw
 									);
 								} else {
 									SAFE_WRITE(
 										socket_number,
-										"ITEM %d",
+										"CItem %d",
 										global.client_player->tank->cw - WEAPONS
 									);
 								}
@@ -608,18 +608,18 @@ int Game_Client( int socket_number ) {
 							SAFE_WRITE( socket_number, "SURFACE %d", surface_x );
 							surface_x++;
 						} else if ( game_stage == CLIENT_ITEMS ) {
-							SAFE_WRITE( socket_number, "ITEM %d", item_number );
+							SAFE_WRITE( socket_number, "CItem %d", item_number );
 							item_number++;
 						} else if ( game_stage == CLIENT_TANK_POSITION ) {
 							SAFE_WRITE( socket_number, "TANKPOSITION %d", tank_position );
 							tank_position++;
-							if ( tank_position >= env.numGamePlayers ) {
+							if ( tank_position >= env.num_game_players ) {
 								tank_position = 0;
 							}
 						} else if ( game_stage == CLIENT_TANK_HEALTH ) {
 							SAFE_WRITE( socket_number, "HEALTH %d", tank_health );
 							tank_health++;
-							if ( tank_health >= env.numGamePlayers ) {
+							if ( tank_health >= env.num_game_players ) {
 								tank_health = 0;
 							}
 						} else if ( game_stage == CLIENT_TEAMS ) {
@@ -629,14 +629,14 @@ int Game_Client( int socket_number ) {
 							SAFE_WRITE( socket_number, "PLAYERNAME %d", name_number );
 							name_number++;
 						} else if ( game_stage == CLIENT_WEAPONS ) {
-							SAFE_WRITE( socket_number, "WEAPON %d", weapon_number );
+							SAFE_WRITE( socket_number, "CWeapon %d", weapon_number );
 							weapon_number++;
 						} else if ( game_stage == CLIENT_PLAYING ) {
 							time_clock++;
 							if ( time_clock > 1 ) // check positions every few inputs
 							{
 								time_clock = 0;
-								if ( surface_x < env.screenWidth ) {
+								if ( surface_x < env.screen_width ) {
 									game_stage = CLIENT_SURFACE;
 									SAFE_WRITE( socket_number, "SURFACE %d", surface_x );
 									surface_x++;
@@ -666,18 +666,18 @@ int Game_Client( int socket_number ) {
 				continue;
 			}
 
-			global.getHeadOfClass( static_cast< eClass >( class_ ), &my_object );
+			global.get_head_of_class( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
-				my_object->getNext( &next_obj );
+				my_object->get_next( &next_obj );
 
 				if ( CLASS_EXPLOSION == class_ ) {
-					dynamic_cast< EXPLOSION * >( my_object )->explode();
+					dynamic_cast< CExplosion * >( my_object )->explode();
 				}
 
 				my_object->applyPhysics();
 
 				if ( my_object->destroy ) {
-					my_object->requireUpdate();
+					my_object->require_update();
 					my_object->update();
 					delete my_object;
 					if ( CLASS_TELEPORT == class_ ) {
@@ -695,16 +695,16 @@ int Game_Client( int socket_number ) {
 			++class_;
 		}
 
-		global.slideLand();
+		global.slide_land();
 
 		// update everything on the screen
-		if ( global.updateMenu ) {
+		if ( global.update_menu ) {
 			draw_top_bar();
 		}
 
 		if ( screen_update ) {
 			screen_update = false;
-			global.make_fullUpdate();
+			global.make_full_update();
 		}
 		global.replace_canvas();
 
@@ -712,14 +712,14 @@ int Game_Client( int socket_number ) {
 
 		class_        = 0;
 		while ( class_ < CLASS_COUNT ) {
-			global.getHeadOfClass( static_cast< eClass >( class_ ), &my_object );
+			global.get_head_of_class( static_cast< EClass >( class_ ), &my_object );
 			while ( my_object ) {
 				my_object->draw();
 				if ( CLASS_FLOATTEXT == class_ ) {
-					my_object->requireUpdate();
+					my_object->require_update();
 				}
 				my_object->update();
-				my_object->getNext( &my_object );
+				my_object->get_next( &my_object );
 			}
 			++class_;
 		}
@@ -732,28 +732,28 @@ int Game_Client( int socket_number ) {
 			my_key = readkey();
 			my_key = my_key >> 8;
 			if ( my_key == KEY_SPACE ) {
-				Client_Fire( global.client_player, socket_number );
+				client_fire( global.client_player, socket_number );
 				fired = true;
 			} else if ( my_key == KEY_ESC ) {
 				end_of_round = true;
 				close( socket_number );
 			} else if ( my_key == KEY_UP ) {
-				Client_Power( global.client_player, CLIENT_UP );
+				client_power( global.client_player, CLIENT_UP );
 			} else if ( my_key == KEY_DOWN ) {
-				Client_Power( global.client_player, CLIENT_DOWN );
+				client_power( global.client_player, CLIENT_DOWN );
 			} else if ( my_key == KEY_LEFT ) {
-				Client_Angle( global.client_player, CLIENT_LEFT );
+				client_angle( global.client_player, CLIENT_LEFT );
 			} else if ( my_key == KEY_RIGHT ) {
-				Client_Angle( global.client_player, CLIENT_RIGHT );
+				client_angle( global.client_player, CLIENT_RIGHT );
 			} else if ( ( my_key == KEY_Z ) || ( my_key == KEY_BACKSPACE ) ) {
-				Client_Cycle_Weapon( global.client_player, CYCLE_BACK );
+				client_cycle_weapon( global.client_player, CYCLE_BACK );
 			} else if ( ( my_key == KEY_C ) || ( my_key == KEY_TAB ) ) {
-				Client_Cycle_Weapon( global.client_player, CYCLE_FORWARD );
-				global.updateMenu = true;
+				client_cycle_weapon( global.client_player, CYCLE_FORWARD );
+				global.update_menu = true;
 			}
 
 			screen_update     = false;
-			global.updateMenu = true;
+			global.update_menu = true;
 		}
 
 		// pause for a moment
@@ -765,7 +765,7 @@ int Game_Client( int socket_number ) {
 	}
 
 	// we should clean up here
-	for ( count = 0; count < env.numGamePlayers; count++ ) {
+	for ( count = 0; count < env.num_game_players; count++ ) {
 		if ( env.players[ count ]->tank ) {
 			delete env.players[ count ]->tank;
 			env.players[ count ]->tank = nullptr;

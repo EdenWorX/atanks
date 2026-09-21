@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_OPTIONITEMMENU_H_INCLUDED
-#define ATANKS_SRC_OPTIONITEMMENU_H_INCLUDED 1
+#ifndef ATANKS_OPTIONITEMMENU_H_INCLUDED
+#define ATANKS_OPTIONITEMMENU_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,29 +24,30 @@
 
 /** @file optionitemmenu.h
  * @brief declaration of the option entry class specialized on handling
- * Menu instances
+ * CMenu instances
  **/
 
 
-/** @class OptionItemMenu
- * @brief abstract one option menu entry to handle a Menu instance
+/** @class COptionItemMenu
+ * @brief abstract one option menu entry to handle a CMenu instance
  *
- * This class is a special version of the OptionItem template that can only
- * handle Menu instances.
+ * This class is a special version of the TOptionItem template that can only
+ * handle CMenu instances.
  *
  * The the only entry type supported is the ET_MENU.
  **/
-class OptionItemMenu final : public OptionItemBase {
+class COptionItemMenu final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
 	 * -------------------------------------------
 	 */
 
-	explicit OptionItemMenu(
-		Menu*       menu_,
+	/// Create a sub menu entry.
+	explicit COptionItemMenu(
+		CMenu*       menu_,
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		int32_t     color_,
 		int32_t     top_,
 		int32_t     left_,
@@ -54,7 +55,8 @@ public:
 		int32_t     height_,
 		int32_t     padding_
 	);
-	~OptionItemMenu() final;
+	/// Destroy a sub menu entry.
+	~COptionItemMenu() final;
 
 
 	/* ----------------------
@@ -62,12 +64,18 @@ public:
 	 * ----------------------
 	 */
 
+	/// Open the sub menu.
 	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	/// Menus have no minimum.
 	bool    canGoDown() final;
+	/// Menus have no maximum.
 	bool    canGoUp() final;
+	/// Render the sub menu entry.
 	void    display( bool show_full ) final;
+	/// Menus are never exit buttons.
 	bool    isExitButton() final;
-	void    setLanguage();
+	/// Retranslate the entry.
+	void    set_language();
 
 private:
 	/* -----------------------
@@ -75,8 +83,8 @@ private:
 	 * -----------------------
 	 */
 
-	Menu* menu = nullptr; //!< Menu instance to handle
+	CMenu* menu = nullptr; //!< CMenu instance to handle
 };
 
 
-#endif // ATANKS_SRC_OPTIONITEMMENU_H_INCLUDED
+#endif // ATANKS_OPTIONITEMMENU_H_INCLUDED

@@ -1,6 +1,14 @@
 #ifndef ATANKS_NETWORK_H_INCLUDED
 #define ATANKS_NETWORK_H_INCLUDED 1
 
+// Build configuration (CMake only): the NETWORK macro lives in the generated
+// config.h, which must be visible before the first #ifdef NETWORK below
+// regardless of include order. Non-CMake builds keep passing -DNETWORK= on
+// the compiler command line, so this include stays conditional.
+#ifdef ATANKS_HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 /*
 This file will contain two sets of headers and data. One for dealing with queued message
 and the other for handling server sockets. This queue will be in standard, platform-neutral
@@ -12,40 +20,53 @@ updated to run on other operating systems.
 
 #define MAX_MESSAGE_LENGTH 256
 
-struct MESSAGE {
-	char *text;
-	int   to; // which client does the message go to? May not be used as most will go to everyone
-	void *next;
+/** @struct sMessage
+ * @brief Queued network message.
+ **/
+struct sMessage {
+	char *text; ///< Message text.
+	int   to;   ///< Receiving client.
+	void *next; ///< Next queued message.
 };
 
-class MESSAGE_QUEUE {
+/** @class CMessageQueue
+ * @brief FIFO queue of network messages.
+ **/
+class CMessageQueue {
 public:
-	MESSAGE *first_message, *last_message;
+	sMessage *first_message; ///< Queue head.
+	sMessage *last_message;  ///< Queue tail.
 
-	MESSAGE_QUEUE();
-	~MESSAGE_QUEUE();
+	/// Construct an empty queue.
+	CMessageQueue();
+	/// Destroy the queue.
+	~CMessageQueue();
 
-	// add a message to the queue
-	bool Add( char *some_text, int to );
+	/// add a message to the queue.
+	bool add( char *some_text, int to );
 
-	// pull the first message from the queue and erase it from the queue
-	MESSAGE *Read();
+	/// Pull the first message from the queue and erase it from the queue.
+	sMessage *read();
 
-	// read the next message in the queue without erasing it
-	[[nodiscard]] MESSAGE *Peek() const;
+	/// read the next message in the queue without erasing it.
+	[[nodiscard]] sMessage *peek() const;
 
-	[[nodiscard]] MESSAGE *Read_To( int to );
+	/// read the next message for a client.
+	[[nodiscard]] sMessage *read_to( int to );
 
-	// erases the next message in the queue without reading it
-	void Erase();
+	/// erase the next message in the queue without reading it.
+	void erase();
 
-	// erase all messages in the queue
-	void Erase_All();
+	/// erase all messages in the queue.
+	void erase_all();
 };
 
-struct SEND_RECEIVE_TYPE {
-	int  listening_port;
-	bool shut_down;
+/** @struct sSendReceive
+ * @brief Network thread control block.
+ **/
+struct sSendReceive {
+	int  listening_port; ///< Server listen port.
+	bool shut_down;      ///< Stop the network thread.
 };
 
 #define DEFAULT_NETWORK_PORT 25645
@@ -87,16 +108,16 @@ static inline void safe_write_func( int sock_, char const *file_, int32_t line_,
 
 #  define SAFE_WRITE( sock_, fmt_, ... ) safe_write_func( sock_, __FILE__, __LINE__, fmt_, __VA_ARGS__ )
 
-int      Setup_Server_Socket( int port );
-int      Setup_Client_Socket( char *server, char const *port );
-int      Accept_Incoming_Connection( int my_socket );
-int      Send_Message( MESSAGE *mess, int to_socket );
-MESSAGE *Receive_Message( int from_socket );
-void     Clean_Up_Server_Socket( int my_socket );
-void     Clean_Up_Client_Socket( int my_socket );
-int      Check_For_Incoming_Data( int socket_number );
-bool     Check_For_Errors( int socket_number );
-void     Send_And_Receive( void *data_we_need );
+int      setup_server_socket( int port );
+int      setup_client_socket( char *server, char const *port );
+int      accept_incoming_connection( int my_socket );
+int      send_message( sMessage *mess, int to_socket );
+sMessage *receive_message( int from_socket );
+void     clean_up_server_socket( int my_socket );
+void     clean_up_client_socket( int my_socket );
+int      check_for_incoming_data( int socket_number );
+bool     check_for_errors( int socket_number );
+void     send_and_receive( void *data_we_need );
 
 #else
 #  define SAFE_WRITE( sock_, fmt_, ... ) \

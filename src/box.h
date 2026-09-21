@@ -7,19 +7,24 @@
 
 #include <cstdint>
 
-struct BOX {
-	int32_t x = 0;
-	int32_t y = 0;
-	int32_t w = 0;
-	int32_t h = 0;
+/** @struct sBox
+ * @brief Integer rectangle helper.
+ **/
+struct sBox {
+	int32_t x = 0; ///< Left position.
+	int32_t y = 0; ///< Top position.
+	int32_t w = 0; ///< Width.
+	int32_t h = 0; ///< Height.
 
-	BOX()     = default;
-	BOX( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
+	sBox()     = default;
+	/// Assign the rectangle.
+	sBox( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
+	/// Set the rectangle.
 	void set( int32_t x_, int32_t y_, int32_t w_, int32_t h_ );
 };
 
-// Make the BOX usage easier:
-bool operator== ( const BOX& lhs, const BOX& rhs );
-bool operator!= ( const BOX& lhs, const BOX& rhs );
+// Make the sBox usage easier:
+bool operator== ( const sBox& lhs, const sBox& rhs );
+bool operator!= ( const sBox& lhs, const sBox& rhs );
 
 #endif // ATANKS_BOX_H

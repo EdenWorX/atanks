@@ -16,7 +16,7 @@ static int32_t CURSOR_FLIP_TIME = 25; // Delays cursor flipping
 /** @brief default and only constructor
  * @param[in] type_ Type of the option.
  * @param[in] title_ The title of the option to display.
- * @param[in] titleIdx_ Index value of the submitted title. -1 means @a title_ is fixed.
+ * @param[in] title_idx_ Index value of the submitted title. -1 means @a title_ is fixed.
  * @param[in] text_ Array of texts to display.
  * @param[in] color_ The color to use for the text, mainly useful for OT_TOGGLE.
  * @param[in] class_ Index value of the submitted texts or TC_NONE if no texts are needed.
@@ -28,13 +28,13 @@ static int32_t CURSOR_FLIP_TIME = 25; // Delays cursor flipping
  * @param[in] padding_ Padding of the title and buttons to the display area.
  * @param[in] show_size_ Sets the size of the show color box. (ET_COLOR only)
  **/
-OptionItemBase::OptionItemBase(
-	eEntryType   type_,
+COptionItemBase::COptionItemBase(
+	EEntryType   type_,
 	char const*  title_,
-	int32_t      titleIdx_,
+	int32_t      title_idx_,
 	char const** text_,
 	int32_t      color_,
-	eTextClass   class_,
+	ETextClass   class_,
 	char const*  format_,
 	int32_t      top_,
 	int32_t      left_,
@@ -49,17 +49,17 @@ OptionItemBase::OptionItemBase(
 	, left( left_ )
 	, padding( padding_ )
 	, show_size( show_size_ )
-	, textClass( class_ )
+	, text_class( class_ )
 	, texts( text_ )
 	, title( title_ )
-	, titleIdx( titleIdx_ )
+	, title_idx( title_idx_ )
 	, top( top_ )
 	, type( type_ )
 	, width( width_ ) {
 	// Assert the title as the most basic value
 	assert( title && "Title not set" );
-	assert( ( texts || ( TC_NONE == textClass ) ) && "text_ and class_ do not fit!" );
-	titleLen = text_length( font, title );
+	assert( ( texts || ( TC_NONE == text_class ) ) && "text_ and class_ do not fit!" );
+	title_len = text_length( font, title );
 
 	// Set static globals
 	if ( 0 == menu_hint_text_len ) {
@@ -71,7 +71,7 @@ OptionItemBase::OptionItemBase(
 }
 
 /// @brief simple default destructor
-OptionItemBase::~OptionItemBase() {
+COptionItemBase::~COptionItemBase() {
 	this->remove();
 	delete this->button;
 }
@@ -95,7 +95,7 @@ OptionItemBase::~OptionItemBase() {
  * @a update_full will only change the state of the decorated state and not
  * clear any additional space.
  */
-void OptionItemBase::clear_display( bool update_full ) {
+void COptionItemBase::clear_display( bool update_full ) {
 	if ( drawn || ( update_full && decorated ) ) {
 		int32_t xLeft   = left;
 		int32_t xWidth  = drawn ? width : 0;
@@ -107,8 +107,8 @@ void OptionItemBase::clear_display( bool update_full ) {
 
 			// First: Title if displayed left of the display area
 			if ( ( ET_TOGGLE != type ) && ( ET_BUTTON != type ) ) {
-				xLeft  -= titleLen + padding;
-				xWidth += titleLen + padding;
+				xLeft  -= title_len + padding;
+				xWidth += title_len + padding;
 			}
 
 			// Second: Selection text if needed
@@ -141,7 +141,7 @@ void OptionItemBase::clear_display( bool update_full ) {
 }
 
 /// @brief Toggle cursor_on if this is a selected ET_TEXT
-void OptionItemBase::cursor_flip() {
+void COptionItemBase::cursor_flip() {
 	if ( ( ET_TEXT == type ) && selected && !read_only ) {
 		if ( --curs_clk < 1 ) {
 			curs_clk  = CURSOR_FLIP_TIME;
@@ -154,7 +154,7 @@ void OptionItemBase::cursor_flip() {
 /// @brief get width and height at once
 /// Note: Special circumstances like padding, menu indication and
 ///       ET_TOGGLE extra sizes are added.
-void OptionItemBase::getDimension( int32_t& tgt_width, int32_t& tgt_height ) {
+void COptionItemBase::get_dimension( int32_t& tgt_width, int32_t& tgt_height ) {
 	tgt_width  = width + padding;
 	tgt_height = height + padding + 2;
 
@@ -171,32 +171,32 @@ void OptionItemBase::getDimension( int32_t& tgt_width, int32_t& tgt_height ) {
 }
 
 /// @brief return currently set key code
-int32_t OptionItemBase::getKeyCode() const {
-	return keyCode;
+int32_t COptionItemBase::get_key_code() const {
+	return key_code;
 }
 
 /// @brief return the value of the next pointer
-OptionItemBase* OptionItemBase::getNext() {
+COptionItemBase* COptionItemBase::get_next() {
 	return next;
 }
 
 /// @brief return the value of the prev pointer
-OptionItemBase* OptionItemBase::getPrev() {
+COptionItemBase* COptionItemBase::get_prev() {
 	return prev;
 }
 
 /// @brief return text class as index value
-uint32_t OptionItemBase::getTextClass() {
-	return static_cast< uint32_t >( textClass );
+uint32_t COptionItemBase::get_text_class() {
+	return static_cast< uint32_t >( text_class );
 }
 
 /// @brief return the index value of the displayed title
-uint32_t OptionItemBase::getTitleIdx() const {
-	return titleIdx;
+uint32_t COptionItemBase::get_title_idx() const {
+	return title_idx;
 }
 
-/// @brief return the eEntryType of the entry
-eEntryType OptionItemBase::getType() {
+/// @brief return the EEntryType of the entry
+EEntryType COptionItemBase::get_type() {
 	return type;
 }
 
@@ -206,7 +206,7 @@ eEntryType OptionItemBase::getType() {
  *
  * @param[in,out] new_prev (Optional) pointer to the option that becomes the new prev.
  */
-void OptionItemBase::insert_after( OptionItemBase* new_prev ) {
+void COptionItemBase::insert_after( COptionItemBase* new_prev ) {
 	if ( prev || next ) {
 		this->remove();
 	}
@@ -228,7 +228,7 @@ void OptionItemBase::insert_after( OptionItemBase* new_prev ) {
  *
  * @param[in,out] new_next (Optional) pointer to the option that becomes the new next.
  */
-void OptionItemBase::insert_before( OptionItemBase* new_next ) {
+void COptionItemBase::insert_before( COptionItemBase* new_next ) {
 	if ( prev || next ) {
 		this->remove();
 	}
@@ -259,7 +259,7 @@ void OptionItemBase::insert_before( OptionItemBase* new_next ) {
  * @param[out] ret Value to set to an assigned key code or -1/+1 for ET_VALUE inc/dec click.
  * @return true if this option is hit, false otherwise.
  **/
-bool OptionItemBase::is_click_in( int32_t x, int32_t y, int32_t& ret ) {
+bool COptionItemBase::is_click_in( int32_t x, int32_t y, int32_t& ret ) {
 	int32_t xLeft   = left + 1;
 	int32_t xTop    = top + 1;
 	int32_t xRight  = xLeft + width - 2;
@@ -316,7 +316,7 @@ bool OptionItemBase::is_click_in( int32_t x, int32_t y, int32_t& ret ) {
 }
 
 /// @brief returns true if this entry is selected
-bool OptionItemBase::is_selected() const {
+bool COptionItemBase::is_selected() const {
 	return selected;
 }
 
@@ -329,7 +329,7 @@ bool OptionItemBase::is_selected() const {
  * @param[in] new_top The new top position of the display area.
  * @param[in] do_update if set to true, the current display is cleared.
  */
-void OptionItemBase::move( int32_t new_left, int32_t new_top, bool do_update ) {
+void COptionItemBase::move( int32_t new_left, int32_t new_top, bool do_update ) {
 	if ( ( new_left != left ) || ( new_top != top ) ) {
 		if ( do_update ) {
 			clear_display( true );
@@ -340,15 +340,15 @@ void OptionItemBase::move( int32_t new_left, int32_t new_top, bool do_update ) {
 }
 
 /// @brief return true if this option needs set texts
-bool OptionItemBase::needs_text() {
-	return ( textClass < TC_TEXTCLASS_COUNT );
+bool COptionItemBase::needs_text() {
+	return ( text_class < TC_TEXTCLASS_COUNT );
 }
 
 /** @brief remove this option from the list.
  *
  * This is a standard remove from a doubly linked list.
  */
-void OptionItemBase::remove() {
+void COptionItemBase::remove() {
 	if ( next ) {
 		next->prev = prev;
 	}
@@ -367,7 +367,7 @@ void OptionItemBase::remove() {
  * @param[in] new_width The new width of the display area.
  * @param[in] new_height The new height of the display area.
  */
-void OptionItemBase::resize( int32_t new_width, int32_t new_height ) {
+void COptionItemBase::resize( int32_t new_width, int32_t new_height ) {
 	if ( ( new_width != width ) || ( new_height != height ) ) {
 		clear_display( true );
 		width  = new_width;
@@ -376,7 +376,7 @@ void OptionItemBase::resize( int32_t new_width, int32_t new_height ) {
 }
 
 /// @brief selects this entry and triggers a redraw
-void OptionItemBase::select() {
+void COptionItemBase::select() {
 	if ( !selected ) {
 		selected = true;
 		clear_display( true );
@@ -390,7 +390,7 @@ void OptionItemBase::select() {
  *
  * @param[in] new_padding The new padding value.
  */
-void OptionItemBase::setPadding( int32_t new_padding ) {
+void COptionItemBase::set_padding( int32_t new_padding ) {
 	if ( new_padding != padding ) {
 		clear_display( true );
 		padding = new_padding;
@@ -404,13 +404,13 @@ void OptionItemBase::setPadding( int32_t new_padding ) {
  *
  * @param[in] new_title Pointer to the new title to display
  */
-void OptionItemBase::setTitle( char const* new_title ) {
+void COptionItemBase::set_title( char const* new_title ) {
 	if ( new_title != title ) {
 		clear_display( true );
 		title    = new_title;
-		titleLen = text_length( font, title );
+		title_len = text_length( font, title );
 		if ( ( ET_BUTTON == type ) && button ) {
-			button->setText( title );
+			button->set_text( title );
 		}
 	}
 }
@@ -418,13 +418,13 @@ void OptionItemBase::setTitle( char const* new_title ) {
 /** @brief set a new text class
  *
  * The only reaal purpose is to be able to add text-less
- * options in templated add methods in the Menu class,
- * where the OptionClassText is not available.
+ * options in templated add methods in the CMenu class,
+ * where the OPTION_CLASS_TEXT is not available.
  *
  * Call this then from the compilation unit.
  **/
-void OptionItemBase::setTextClass( eTextClass new_class ) {
-	textClass = new_class;
+void COptionItemBase::set_text_class( ETextClass new_class ) {
+	text_class = new_class;
 }
 
 /** @brief set new texts array
@@ -432,7 +432,7 @@ void OptionItemBase::setTextClass( eTextClass new_class ) {
  * This method clears the current display without decorations and changes the
  * used texts array. Use this to switch languages.
  */
-void OptionItemBase::setTexts( char const** new_texts ) {
+void COptionItemBase::set_texts( char const** new_texts ) {
 	if ( new_texts != texts ) {
 		clear_display( false );
 		texts = new_texts;
@@ -440,7 +440,7 @@ void OptionItemBase::setTexts( char const** new_texts ) {
 }
 
 /// @brief unselects this entry and triggers a redraw
-void OptionItemBase::unselect() {
+void COptionItemBase::unselect() {
 	if ( selected ) {
 		clear_display( true );
 		selected  = false;
@@ -457,16 +457,16 @@ void OptionItemBase::unselect() {
 
 /** @brief return the outcome of a menu activation
  * @param[in] target pointer to the menu
- * @return Result of Menu::operator()
+ * @return Result of CMenu::operator()
  **/
-int32_t OptionItemBase::activateMenu( Menu* target ) {
+int32_t COptionItemBase::activate_menu( CMenu* target ) {
 	if ( target ) {
 		return target->operator() ();
 	}
 	return 0;
 }
 
-/** @brief Add the result of key press @a raw_key to @a target.
+/** @brief add the result of key press @a raw_key to @a target.
  *
  * Please make sure that @a has at least one byte free space excluding
  * null character termination!
@@ -474,19 +474,19 @@ int32_t OptionItemBase::activateMenu( Menu* target ) {
  * @param[out] target The char array (or string) to receive the result.
  * @param[in] raw_key Allegro 4 raw key code, or the allegro 5 unichar field
  */
-void OptionItemBase::activateText( char* target, int32_t raw_key ) {
+void COptionItemBase::activate_text( char* target, int32_t raw_key ) {
 	if ( target && ( raw_key > 0 ) ) {
 		auto oldTextLen = static_cast< int32_t >( strlen( target ) );
 		char chr        = static_cast< char >( raw_key & 0xff );
-		textLen         = oldTextLen;
+		text_len         = oldTextLen;
 
-		if ( ( ( 0x08 == chr ) || ( 0x7f == chr ) ) && textLen ) {
-			target[ --textLen ] = 0x0;
+		if ( ( ( 0x08 == chr ) || ( 0x7f == chr ) ) && text_len ) {
+			target[ --text_len ] = 0x0;
 		} else if ( isprint( chr ) ) {
-			target[ textLen++ ] = chr;
+			target[ text_len++ ] = chr;
 		}
 
-		if ( oldTextLen != textLen ) {
+		if ( oldTextLen != text_len ) {
 			clear_display( false );
 		}
 	}
@@ -496,7 +496,7 @@ void OptionItemBase::activateText( char* target, int32_t raw_key ) {
  *
  * @param[in,out] target The target value to switch
  */
-void OptionItemBase::activateToggle( bool* target ) {
+void COptionItemBase::activate_toggle( bool* target ) {
 	if ( target ) {
 		*target = !( *target );
 		clear_display( false );
@@ -505,7 +505,7 @@ void OptionItemBase::activateToggle( bool* target ) {
 
 /** @brief display the set button
  **/
-void OptionItemBase::displayButton() {
+void COptionItemBase::display_button() {
 	if ( !drawn ) {
 		if ( this->button ) {
 			button->draw();
@@ -521,31 +521,31 @@ void OptionItemBase::displayButton() {
  *
  * @param[in] show_color Used only for the ET_COLOR show box.
  */
-void OptionItemBase::displayDeco( int32_t show_color ) {
+void COptionItemBase::display_deco( int32_t show_color ) {
 	if ( !decorated ) {
 		int32_t xLeft    = left;
 		int32_t xWidth   = 0;
 		int32_t xTop     = top;
 		int32_t xHeight  = height;
-		int32_t text_top = top + ( height / 2 ) - ( env.fontHeight / 2 );
+		int32_t text_top = top + ( height / 2 ) - ( env.font_height / 2 );
 		int32_t deco_top = text_top + 4;
 
 		// First: Title text
 		if ( title && ( ET_BUTTON != type ) && ( ET_MENU != type ) && ( ET_TOGGLE != type ) ) {
-			int32_t tColor  = ( ET_COLOR == type ) || textOnly ? BLACK : color;
+			int32_t tColor  = ( ET_COLOR == type ) || text_only ? BLACK : color;
 
-			xLeft          -= titleLen + padding;
-			xWidth          = titleLen + padding;
+			xLeft          -= title_len + padding;
+			xWidth          = title_len + padding;
 
-			// Add a nice shadow if wanted
-			if ( env.shadowedText ) {
+			// add a nice shadow if wanted
+			if ( env.shadowed_text ) {
 				textout_ex(
 					global.canvas,
 					font,
 					title,
 					xLeft + 1,
 					text_top + 1,
-					GetShadeColor( tColor, true, PINK ),
+					get_shade_color( tColor, true, PINK ),
 					-1
 				);
 			}
@@ -612,13 +612,13 @@ void OptionItemBase::displayDeco( int32_t show_color ) {
  *
  * @param[in] target pointer to the menu to display
  */
-void OptionItemBase::displayMenu( Menu* target ) {
-	if ( title && ( titleIdx > -1 ) ) {
-		this->displayText( title );
+void COptionItemBase::display_menu( CMenu* target ) {
+	if ( title && ( title_idx > -1 ) ) {
+		this->display_text( title );
 	} else if ( target ) {
-		this->displayText( target->getTitle() );
+		this->display_text( target->get_title() );
 	} else {
-		this->displayText( "Oh no! No Menu Title!" );
+		this->display_text( "Oh no! No CMenu Title!" );
 	}
 }
 
@@ -626,17 +626,17 @@ void OptionItemBase::displayMenu( Menu* target ) {
  *
  * @param[in] target (optional) pointer to the text to display
  */
-void OptionItemBase::displayText( char* target ) {
-	this->displayText( static_cast< char const* >( target ) );
+void COptionItemBase::display_text( char* target ) {
+	this->display_text( static_cast< char const* >( target ) );
 }
 
 /** @brief Display the @a target as text.
  *
  * @param[in] target (optional) pointer to the text to display
  */
-void OptionItemBase::displayText( char const* target ) {
+void COptionItemBase::display_text( char const* target ) {
 	if ( !drawn ) {
-		if ( !textOnly ) {
+		if ( !text_only ) {
 			rect( global.canvas, left, top, left + width, top + height, BLACK );
 			rectfill( global.canvas, left + 1, top + 1, left + width - 1, top + height - 1, WHITE );
 		}
@@ -647,7 +647,7 @@ void OptionItemBase::displayText( char const* target ) {
 
 		if ( txt_p ) {
 			int32_t len_available = width - 6;
-			int32_t text_top      = top + ( height / 2 ) - ( env.fontHeight / 2 );
+			int32_t text_top      = top + ( height / 2 ) - ( env.font_height / 2 );
 
 
 			// If this is a read/write selected ET_TEXT, it has a cursor being
@@ -665,19 +665,19 @@ void OptionItemBase::displayText( char const* target ) {
 			if ( txt_p && txt_p[ 0 ] ) {
 
 				// With a shadow? But not in text field mode
-				if ( env.shadowedText && textOnly ) {
+				if ( env.shadowed_text && text_only ) {
 					textout_ex(
 						global.canvas,
 						font,
 						txt_p,
 						left + 4,
 						text_top + 1,
-						GetShadeColor( color, true, PINK ),
+						get_shade_color( color, true, PINK ),
 						-1
 					);
 				}
 
-				textout_ex( global.canvas, font, txt_p, left + 3, text_top, textOnly ? color : BLACK, -1 );
+				textout_ex( global.canvas, font, txt_p, left + 3, text_top, text_only ? color : BLACK, -1 );
 			}
 		}
 
@@ -696,8 +696,8 @@ void OptionItemBase::displayText( char const* target ) {
  *
  * @param[in] target (optional) pointer to the text to display
  */
-void OptionItemBase::displayText( uint32_t* target ) {
-	this->displayValue( target );
+void COptionItemBase::display_text( uint32_t* target ) {
+	this->display_value( target );
 }
 
 /** @brief Displays a toggle option in either black on white or vice versa
@@ -705,18 +705,18 @@ void OptionItemBase::displayText( uint32_t* target ) {
  * Note: The title is actually the displayed text.
  *
  * @param[in] target (optional) pointer to the toggle option.
- * to be set by OptionItemPlayer only.
+ * to be set by COptionItemPlayer only.
  */
-void OptionItemBase::displayToggle( bool const* target ) {
+void COptionItemBase::display_toggle( bool const* target ) {
 	if ( !drawn ) {
 		int32_t fg_color = color;
 		int32_t bg_color = BLACK;
 		int32_t sh_color = DARK_GREY;
-		int32_t x_radius = ROUND( titleLen / 1.8 ) + padding + 5;
+		int32_t x_radius = ROUND( title_len / 1.8 ) + padding + 5;
 		int32_t y_radius = height / 2;
 		int32_t xLeft    = left + ( width / 2 );
 		int32_t xTop     = top + ( height / 2 );
-		int32_t txtLeft  = xLeft - ( titleLen / 2 ) + 1;
+		int32_t txtLeft  = xLeft - ( title_len / 2 ) + 1;
 
 		// Swap if activated
 		if ( target && *target ) {

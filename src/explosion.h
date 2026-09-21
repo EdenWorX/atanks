@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,18 +25,22 @@
 #include "physobj.h"
 #include "weapon.h"
 
-class EXPLOSION final : public PHYSICAL_OBJECT {
+/** @class CExplosion
+ * @brief Detonation effect.
+ **/
+class CExplosion final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	// default ctor for all non-BEAM explosions
-	explicit EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
-	// Special ctor for BEAM:
-	EXPLOSION( PLAYER* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
-	~EXPLOSION() final;
+	/// Detonate a standard explosion.
+	explicit CExplosion( CPlayer* player_, double x_, double y_, double xv_, double yv_, int32_t type, bool is_weapon );
+	/// Detonate a beam explosion with custom damage.
+	CExplosion( CPlayer* player_, double x_, double y_, double xv_, double yv_, int32_t type, double damage_, bool is_weapon );
+	/// Destroy an explosion.
+	~CExplosion() final;
 
 
 	/* ----------------------
@@ -44,11 +48,12 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   explode();
+	void   applyPhysics() final; ///< Advance physics.
+	void   draw() final;         ///< Render the explosion.
+	void   explode();            ///< Detonate the explosion.
 
-	eClass getClass() final { return CLASS_EXPLOSION; }
+	/// Return the object class.
+	EClass get_class() final { return CLASS_EXPLOSION; }
 
 
 private:
@@ -59,7 +64,7 @@ private:
 
 	void do_clear();
 	void do_throw();
-	void drawFracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segmentLength, int32_t maxRecurse );
+	void draw_fracture( int32_t x, int32_t y, int32_t frac_angle, int32_t width, int32_t segment_length, int32_t max_recurse );
 
 
 	/* -----------------------
@@ -68,24 +73,24 @@ private:
 	 */
 
 	bool    apply_damage = true;
-	int32_t curFrame     = 1;
+	int32_t cur_frame     = 1;
 	int32_t damage       = 0;
 	int32_t etime        = 0;
-	int32_t exclock      = 0;
-	bool    hasCleared   = false;
-	int32_t hasDebris    = 0;
-	bool    hasSlid      = false;
-	bool    hasThrown    = false;
+	int32_t ex_clock      = 0;
+	bool    has_cleared   = false;
+	int32_t has_debris    = 0;
+	bool    has_slid      = false;
+	bool    has_thrown    = false;
 	double  impact_xv    = 0.;
 	double  impact_yv    = 0.;
-	int32_t maxDebris    = 0;
-	int32_t maxFrame     = 0;
+	int32_t max_debris    = 0;
+	int32_t max_frame     = 0;
 	bool    peaked       = false;
 	int32_t radius       = 10;
 };
 
 // Global helpers:
-void   draw_Napalm_Blob( VIRTUAL_OBJECT* blob, double x, double y, int32_t radius, int32_t frame );
-double get_hit_damage( TANK* tank, weaponType type, double hit_x, double hit_y );
+void   draw_Napalm_Blob( CVirtualObject* blob, double x, double y, int32_t radius, int32_t frame );
+double get_hit_damage( CTank* tank, EWeaponType type, double hit_x, double hit_y );
 
 #endif

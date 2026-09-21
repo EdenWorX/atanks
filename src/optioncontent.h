@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_OPTIONCONTENT_H_INCLUDED
-#define ATANKS_SRC_OPTIONCONTENT_H_INCLUDED 1
+#ifndef ATANKS_OPTIONCONTENT_H_INCLUDED
+#define ATANKS_OPTIONCONTENT_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -34,11 +34,13 @@
 
 
 // Maximum number of entries including Title and 0x0 termination per menu
-uint32_t const maxEntriesPerMenu = 18;
+/// Entries per menu including title and terminator.
+uint32_t const MAX_ENTRIES_PER_MENU = 18;
 
 
 // Maximum text entries per text class including 0x0 termination
-uint32_t const maxEntriesPerClass = 11;
+/// Text entries per class including terminator.
+uint32_t const MAX_ENTRIES_PER_CLASS = 11;
 
 
 /** @brief string array for the menu content
@@ -57,7 +59,7 @@ uint32_t const maxEntriesPerClass = 11;
  * listed with two entries per line. Unless a possible third entry is the
  * finalizing 0x0 entry, it does not need its own line.
  **/
-char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerMenu ] = {
+char const* const MENU_TITLE_TEXT[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ MAX_ENTRIES_PER_MENU ] = {
 	{/* -------------------- *
          * --- AREYOUSURE   --- *
          * -------------------- */
@@ -243,7 +245,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Game Speed",
 	    "Custom Background",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_PORTUGUESE === */
@@ -262,7 +264,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Velocidade do jogo",
 	    "Fundo personalizado",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_FRENCH === */
@@ -281,7 +283,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Vitesse du jeu",
 	    "Fond fait sur commande",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_GERMAN === */
@@ -319,7 +321,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Rýchlosť hry",
 	    "Vlastné pozadie",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Späť",
 	    nullptr },
          { /* ===	EL_RUSSIAN === */
@@ -338,7 +340,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Скорость игры",
 	    "Собственный фон",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Назад",
 	    nullptr },
          { /* ===	EL_SPANISH === */
@@ -358,7 +360,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Game Speed",
 	    "Custom Background",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr },
          { /* ===	EL_ITALIAN === */
@@ -378,14 +380,14 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Game Speed",
 	    "Custom Background",
 	    "Show AI Feedback",
-	    "Dynamic Menu Background",
+	    "Dynamic CMenu Background",
 	    "Back",
 	    nullptr } },
 	{ /* -------------------- *
          * --- MAIN         --- *
          * -------------------- */
 	  { /* === EL_ENGLISH === */
-	    "Main Menu",
+	    "Main CMenu",
 	    "Reset All",
 	    "Physics",
 	    "Weather",
@@ -403,7 +405,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Back",
 	    nullptr },
          { /* ===	EL_PORTUGUESE === */
-	    "Menu Principal",
+	    "CMenu Principal",
 	    "Reset All",
 	    "Física",
 	    "Condições Meteorológicas",
@@ -421,7 +423,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Back",
 	    nullptr },
          { /* ===	EL_FRENCH === */
-	    "Menu principal",
+	    "CMenu principal",
 	    "Reset All",
 	    "Physique",
 	    "Météo",
@@ -494,7 +496,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    nullptr },
          { /* ===	EL_SPANISH === */
 	    /* ===== Needs to be translated ===== */
-	    "Main Menu",
+	    "Main CMenu",
 	    "Reset All",
 	    "Physics",
 	    "Weather",
@@ -513,7 +515,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    nullptr },
          { /* ===	EL_ITALIAN === */
 	    /* ===== Needs to be translated ===== */
-	    "Main Menu",
+	    "Main CMenu",
 	    "Reset All",
 	    "Physics",
 	    "Weather",
@@ -821,7 +823,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
 	    "Back",
 	    nullptr } },
 	{   /* -------------------- *
-         * --- PLAYER       --- *
+         * --- CPlayer       --- *
          * -------------------- *
          * Note: The title says "New Player", but this class is used for the
          * player editing, too. There the title is substituted by the player
@@ -1223,7 +1225,7 @@ char const* const MenuTitleText[ MC_MENUCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxE
  * All text arrays end with a zero 0x0 entry. It is therefore not needed to
  * hard code any option value sizes.
  **/
-char const* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ maxEntriesPerClass ] = {
+char const* const OPTION_CLASS_TEXT[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ MAX_ENTRIES_PER_CLASS ] = {
 	{ /* -------------------- *
          * --- TC_COLOUR   --- *
          * -------------------- */
@@ -1657,4 +1659,4 @@ char const* const OptionClassText[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ ma
 }; // End of MenuClassText
 
 
-#endif // ATANKS_SRC_OPTIONCONTENT_H_INCLUDED
+#endif // ATANKS_OPTIONCONTENT_H_INCLUDED

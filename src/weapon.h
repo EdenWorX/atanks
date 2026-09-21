@@ -6,7 +6,7 @@
 
 #include "main.h"
 
-enum weaponType {
+enum EWeaponType {
 	SML_MIS           = 0,
 	MED_MIS           = 1,
 	LRG_MIS           = 2,
@@ -73,14 +73,18 @@ enum weaponType {
 
 #define LAST_EXPLOSIVE DRILLER
 
-class WEAPON {
+/** @class CWeapon
+ * @brief Weapon stats record.
+ **/
+class CWeapon {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit WEAPON();
+	/// Construct default weapon stats.
+	explicit CWeapon();
 
 
 	/* -----------------------------------
@@ -89,32 +93,37 @@ public:
 	 */
 
 	/* Getters */
-	[[nodiscard]] int32_t     getDelayDiv() const;
-	[[nodiscard]] char const* getDesc() const;
-	[[nodiscard]] char const* getName() const;
+	/// Volley delay divisor.
+	[[nodiscard]] int32_t     get_delay_div() const;
+	/// Localized description.
+	[[nodiscard]] char const* get_desc() const;
+	/// Localized name.
+	[[nodiscard]] char const* get_name() const;
 
 	/* Setters */
-	void setDesc( char const* desc_ );
-	void setName( char const* name_ );
+	/// Set the description.
+	void set_desc( char const* desc_ );
+	/// Set the name.
+	void set_name( char const* name_ );
 
 
 	/* -----------------------------------
 	 * --- Public members              ---
 	 * -----------------------------------
 	 */
-	int32_t cost            = 0; //!< $ :))
-	int32_t amt             = 0; //!< number of weapons in one buying package
-	double  mass            = 0.;
-	double  drag            = 0.;
-	int32_t radius          = 0; //!< of the explosion
-	int32_t sound           = 0;
-	int32_t etime           = 0;
-	int32_t damage          = 0; //!< damage power
-	int32_t picpoint        = 0; //!< which picture do we show in flight?
-	int32_t spread          = 0; //!< number of weapons in the shot
-	int32_t delay           = 0; //!< volleys etc.
-	int32_t noimpact        = 0;
-	int32_t techLevel       = 0;
+	int32_t cost            = 0;  //!< $ :))
+	int32_t amt             = 0;  //!< number of weapons in one buying package
+	double  mass            = 0.; ///< Mass.
+	double  drag            = 0.; ///< Air drag.
+	int32_t radius          = 0;  //!< of the explosion
+	int32_t sound           = 0;  ///< Sound index.
+	int32_t etime           = 0;  ///< Explosion frame time.
+	int32_t damage          = 0;  //!< damage power
+	int32_t picpoint        = 0;  //!< which picture do we show in flight?
+	int32_t spread          = 0;  //!< number of weapons in the shot
+	int32_t delay           = 0;  //!< volleys etc.
+	int32_t noimpact        = 0;  ///< No impact detonation.
+	int32_t tech_level       = 0;  ///< Shop tech level.
 	int32_t warhead         = 0;  //!< Is it a warhead?
 	int32_t numSubmunitions = 0;  //!< Number of submunitions
 	int32_t submunition     = 0;  //!< The next stage

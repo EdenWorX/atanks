@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -38,18 +38,30 @@ static bool ctrlUsedUp        = false;
 static bool has_ctrl_pressed  = false;
 static bool has_shift_pressed = false;
 
+/// @brief Bank one frame's worth of control steps in @a carry and return the whole steps due.
+///
+/// Hold-to-repeat controls (aim angle/power keys, AI dial transfer) are tuned in steps per frame at 60 FPS.
+/// Banking fractions keeps the wall-clock rate constant at any frame rate: one step per frame at 60 FPS,
+/// one step every other frame at 120 FPS, two steps per frame at 30 FPS.
+static int32_t control_steps_due( double& carry ) {
+	carry += 1. / env.frame_count_mod;
+	int32_t const steps = static_cast< int32_t >( carry );
+	carry -= steps;
+	return steps;
+}
+
 /// @brief default ctor
-PLAYER::PLAYER() {
+CPlayer::CPlayer() {
 
 	// 25% of the time set to perplay weapon preferences
-	preftype = ( get_rand() % 4 ) ? ALWAYS_PREF : PERPLAY_PREF;
+	pref_type = ( get_rand() % 4 ) ? ALWAYS_PREF : PERPLAY_PREF;
 
 	/* Generate a set of preferences now. The reason is:
 	 * If the player is a PERPLAY_PREF type player, no preferences are loaded from the atanks configuration file.
 	 * But if the user changes the type to ALWAYS_PREF and starts a new game, no new preferences are generated. So then
 	 * these are used, which is safe enough.
 	 */
-	generatePreferences();
+	generate_preferences();
 
 	switch ( get_rand() % 4 ) {
 		case 0: // === red type ===
@@ -69,7 +81,7 @@ PLAYER::PLAYER() {
 }
 
 /// @brief default dtor
-PLAYER::~PLAYER() {
+CPlayer::~CPlayer() {
 	if ( tank ) {
 		delete ( tank );
 		tank = nullptr;
@@ -82,45 +94,45 @@ PLAYER::~PLAYER() {
 }
 
 /// @brief specifically boost amp preference item[idx] from @arg old_pref using @arg ai_level
-double PLAYER::boostAmpPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
+double CPlayer::boost_amp_pref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
 	double pref  = old_pref;
 	double boost = 1. + ( ( -1. * defensive + 2. + RAND_AI_10P /* [1;12] */ ) / 10. );
 	if ( pref < 1. ) {
 		pref = 1.;
 	}
-	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].get_name(), pref, boost, pref * boost )
 	pref *= boost;
 	return pref;
 }
 
 /// @brief specifically boost armour preference item[idx] from @arg old_pref using @arg ai_level
-double PLAYER::boostArmourPref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
+double CPlayer::boost_armour_pref( double old_pref, int32_t idx [[maybe_unused]], int32_t ai_level ) const {
 	double pref  = old_pref;
 	double boost = 1. + ( ( defensive + 2. + RAND_AI_10P /* [1;12] */ ) / 10. );
 	if ( pref < 1. ) {
 		pref = 1.;
 	}
-	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].getName(), pref, boost, pref * boost )
+	DEBUG_LOG_FIN( name.c_str(), "Boost %s : %3.2f * %3.2f = %3.2f", item[ idx ].get_name(), pref, boost, pref * boost )
 	pref *= boost;
 	return pref;
 }
 
 /// @brief update currPrefs array with considering needs and stock amounts
-void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons ) {
+void CPlayer::boost_prefences( bool boost_armour, bool boost_amps, bool boost_weapons ) {
 	auto ai_level = static_cast< int32_t >( type );
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
-		double pref = currPref[ i ];
+		double pref = curr_pref[ i ];
 
 		// Lower weapon preferences if there is enough in stock already
 		if ( i && ( i < WEAPONS ) ) {
-			auto   delay_div  = static_cast< double >( weapon[ i ].getDelayDiv() );
+			auto   delay_div  = static_cast< double >( weapon[ i ].get_delay_div() );
 			auto   cur_amount = ROUND( nm[ i ] / delay_div );
 			double one_amount = weapon[ i ].amt / delay_div;
 			double max_amount = one_amount * ai_level;
 			double div_amount = cur_amount - max_amount;
 
-			// - cur_amount is the total amount of single shots. getDelayDiv()
+			// - cur_amount is the total amount of single shots. get_delay_div()
 			// is used, because it simply returns the number of shots fired by
 			// delayed weapons, while it returns always 1 for the other weapons.
 			// - one_amount - The number of nm[i] that is gotten by buying one
@@ -130,7 +142,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 			//              - if larger than one_amount, selling the excess
 			//                amount is considered.
 
-			if ( boostWeapons && i && ( i < WEAPONS ) ) {
+			if ( boost_weapons && i && ( i < WEAPONS ) ) {
 				double boost = 1. + ( ( std::abs( defensive ) + RAND_AI_10P /* [0;10] */ ) / 10. );
 				if ( pref < 1. ) {
 					pref = 1.;
@@ -138,7 +150,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					"Boost %s : %3.2f * %3.2f = %3.2f",
-					weapon[ i ].getName(),
+					weapon[ i ].get_name(),
 					pref,
 					boost,
 					pref * boost
@@ -151,26 +163,26 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					"Lower %s pref (%d in stock) %d -> %d",
-					weapon[ i ].getName(),
+					weapon[ i ].get_name(),
 					ROUND( cur_amount ),
-					currPref[ i ],
+					curr_pref[ i ],
 					ROUND( pref )
 				)
 
-				if ( env.sellpercent > 0.01 ) {
+				if ( env.sell_percent > 0.01 ) {
 
 					// saleable are the units considered to be sold:
 					int32_t saleable = ROUND( div_amount - RAND_AI_1P ) / one_amount;
 
 					if ( saleable > 0 ) {
-						money   += ROUND( weapon[ i ].cost * env.sellpercent * saleable );
+						money   += ROUND( weapon[ i ].cost * env.sell_percent * saleable );
 						nm[ i ] -= weapon[ i ].amt * saleable;
 						DEBUG_LOG_FIN(
 							name.c_str(),
 							"Sold %d %s for $%s",
 							saleable,
-							weapon[ i ].getName(),
-							Add_Comma( ROUNDu( weapon[ i ].cost * env.sellpercent ) * saleable )
+							weapon[ i ].get_name(),
+							add_comma( ROUNDu( weapon[ i ].cost * env.sell_percent ) * saleable )
 						)
 					}
 				} // end of selling allowed
@@ -189,20 +201,20 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 
 				// Repair kit and SDI are limited differently
 				if ( ITEM_REPAIRKIT == j ) {
-					max_amount *= painSensitivity + defensive + 2.;
+					max_amount *= pain_sensitivity + defensive + 2.;
 				} else if ( ITEM_SDI == j ) {
 					max_amount *= defensive + 2. + ( ai_level / 2. );
 				}
 
 				double div_amount = cur_amount - max_amount;
 
-				if ( boostArmour && ( ( WEAPONS + ITEM_ARMOUR ) <= i ) && ( ( WEAPONS + ITEM_PLASTEEL ) >= i ) ) {
-					pref = boostArmourPref( pref, j, ai_level );
+				if ( boost_armour && ( ( WEAPONS + ITEM_ARMOUR ) <= i ) && ( ( WEAPONS + ITEM_PLASTEEL ) >= i ) ) {
+					pref = boost_armour_pref( pref, j, ai_level );
 				}
 
-				if ( boostAmps && ( ( WEAPONS + ITEM_INTENSITY_AMP ) <= i )
+				if ( boost_amps && ( ( WEAPONS + ITEM_INTENSITY_AMP ) <= i )
 				     && ( ( WEAPONS + ITEM_VIOLENT_FORCE ) >= i ) ) {
-					pref = boostAmpPref( pref, j, ai_level );
+					pref = boost_amp_pref( pref, j, ai_level );
 				}
 
 				if ( ( div_amount > 1. ) && ( pref >= 1. ) ) {
@@ -210,26 +222,26 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 					DEBUG_LOG_FIN(
 						name.c_str(),
 						"Lower %s pref (%d in stock) %d -> %d",
-						item[ j ].getName(),
+						item[ j ].get_name(),
 						ROUND( cur_amount ),
-						currPref[ i ],
+						curr_pref[ i ],
 						ROUND( pref )
 					)
 
-					if ( ( env.sellpercent > 0.01 ) && ( j < ITEM_VENGEANCE ) ) {
+					if ( ( env.sell_percent > 0.01 ) && ( j < ITEM_VENGEANCE ) ) {
 
 						// Note: Armour and Amps are not considered here!
 						auto saleable = ROUND( ( div_amount - RAND_AI_1P ) / one_amount );
 
 						if ( saleable > 0 ) {
-							money   += ROUND( item[ j ].cost * env.sellpercent * saleable );
+							money   += ROUND( item[ j ].cost * env.sell_percent * saleable );
 							ni[ j ] -= item[ j ].amt * saleable;
 							DEBUG_LOG_FIN(
 								name.c_str(),
 								"Sold %d %s for $%s",
 								saleable,
-								item[ j ].getName(),
-								Add_Comma( ROUND( item[ j ].cost * env.sellpercent * saleable ) )
+								item[ j ].get_name(),
+								add_comma( ROUND( item[ j ].cost * env.sell_percent * saleable ) )
 							)
 						}
 					} // end of selling allowed
@@ -238,7 +250,7 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
 		}                         // end of being in items range
 
 		// Write back preferences:
-		currPref[ i ] = ROUND( pref );
+		curr_pref[ i ] = ROUND( pref );
 	}
 }
 
@@ -248,22 +260,22 @@ void PLAYER::boostPrefences( bool boostArmour, bool boostAmps, bool boostWeapons
  * The function returns true if we successfully bought the item or
  * false if we could not get it for some reason.
  **/
-bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
+bool CPlayer::buy_item( int32_t item_index, int32_t max_boost ) {
 	bool bought = false;
 
-	if ( itemindex < WEAPONS ) {
+	if ( item_index < WEAPONS ) {
 		// The three things to test:
 		// 1: Enough money?
 		// 2: Space free in stock?
 		// 3: Tech level not too high?
-		if ( ( money >= weapon[ itemindex ].cost ) && ( nm[ itemindex ] < MAX_ITEMS_IN_STOCK )
-		     && ( weapon[ itemindex ].techLevel <= env.weapontechLevel ) ) {
-			money           -= weapon[ itemindex ].cost;
-			nm[ itemindex ] += weapon[ itemindex ].amt;
+		if ( ( money >= weapon[ item_index ].cost ) && ( nm[ item_index ] < MAX_ITEMS_IN_STOCK )
+		     && ( weapon[ item_index ].tech_level <= env.weapontech_level ) ) {
+			money           -= weapon[ item_index ].cost;
+			nm[ item_index ] += weapon[ item_index ].amt;
 
 			// don't allow more than MAX_ITEMS_IN_STOCK
-			if ( nm[ itemindex ] > MAX_ITEMS_IN_STOCK ) {
-				nm[ itemindex ] = MAX_ITEMS_IN_STOCK;
+			if ( nm[ item_index ] > MAX_ITEMS_IN_STOCK ) {
+				nm[ item_index ] = MAX_ITEMS_IN_STOCK;
 			}
 			bought = true;
 		}
@@ -277,25 +289,25 @@ bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
 		// The same applies to shields
 
 		auto    ai_level = static_cast< int32_t >( type );
-		int32_t itemNum  = itemindex - WEAPONS;
+		int32_t itemNum  = item_index - WEAPONS;
 		bool    isBoost  = ( ( itemNum >= ITEM_ARMOUR ) && ( itemNum <= ITEM_VIOLENT_FORCE ) );
 		bool    isShield = ( ( itemNum >= ITEM_LGT_SHIELD ) && ( itemNum <= ITEM_HVY_REPULSOR_SHIELD ) );
 
-		if ( ( money > item[ itemNum ].cost ) && ( ni[ itemNum ] < MAX_ITEMS_IN_STOCK ) && env.isItemAvailable( itemNum )
+		if ( ( money > item[ itemNum ].cost ) && ( ni[ itemNum ] < MAX_ITEMS_IN_STOCK ) && env.is_item_available( itemNum )
 		     && ( ( HUMAN_PLAYER == type ) || !( isBoost || isShield )
-		          || ( isBoost && ( ai_level > boostBought ) && ( getBoostValue() < max_boost ) )
-		          || ( isShield && ( ai_level > shieldBought ) ) ) ) {
+		          || ( isBoost && ( ai_level > boost_bought ) && ( get_boost_value() < max_boost ) )
+		          || ( isShield && ( ai_level > shield_bought ) ) ) ) {
 			money         -= item[ itemNum ].cost;
 			ni[ itemNum ] += item[ itemNum ].amt;
 
 			// Count it if it was a boost item
 			if ( isBoost ) {
-				boostBought++; // Okay, take it!
+				boost_bought++; // Okay, take it!
 			}
 
 			// Count it if it was a shield
 			if ( isShield ) {
-				shieldBought++; // Okay, same procedure
+				shield_bought++; // Okay, same procedure
 			}
 
 			// don't allow more than MAX_ITEMS_IN_STOCK
@@ -306,23 +318,23 @@ bool PLAYER::buy_item( int32_t itemindex, int32_t max_boost ) {
 		}
 	}
 
-	// Reset boostPref if we bought the item
+	// Reset boost_pref if we bought the item
 	if ( bought ) {
-		boostPref[ itemindex ] = 0;
+		boost_pref[ item_index ] = 0;
 	}
 
 	return bought;
 }
 
 /// @brief call this after loading a game to ensure backwards compatibility
-void PLAYER::checkOppMem() {
-	if ( !oppCount ) {
-		newGame();
+void CPlayer::check_opp_mem() {
+	if ( !opp_count ) {
+		new_game();
 	}
 }
 
 /// @brief Have the AI choosing something to buy.
-int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
+int32_t CPlayer::choose_item_to_buy( int32_t max_boost, int32_t& last_idx ) {
 
 	// Do not do this if there is no money:
 	if ( money < 1000 ) {
@@ -330,7 +342,7 @@ int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 	}
 
 	// Possibly pre-select an item by checking the current situation:
-	int32_t currItem = computerSelectPreBuyItem( max_boost );
+	int32_t currItem = computer_select_pre_buy_item( max_boost );
 
 	// Be done already if the pre-selection provided a "must have"
 	if ( ( currItem > 0 ) && buy_item( currItem, max_boost ) ) {
@@ -406,7 +418,7 @@ int32_t PLAYER::chooseItemToBuy( int32_t max_boost, int32_t& last_idx ) {
 	return -1;
 }
 
-eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
+EControl CPlayer::computer_controls( CAICore* aicore, bool allow_fire ) {
 	// Don't act at all when in scoreboard or endgame stage
 	if ( STAGE_SCOREBOARD <= global.stage ) {
 		return CONTROL_NONE;
@@ -415,7 +427,7 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 	int32_t       ai_weap    = tank ? tank->cw : SML_MIS;
 	int32_t       ai_angle   = 0;
 	int32_t       ai_power   = 0;
-	ePlayerStages ai_stage   = PS_STAGE_COUNT;
+	EPlayerStages ai_stage   = PS_STAGE_COUNT;
 	bool          is_working = aicore->status( ai_weap, ai_angle, ai_power, ai_stage );
 
 	// If the AI is working with a different player or the AI is dead, return
@@ -425,11 +437,11 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 
 	// Do not try to start the AI if this players tank is
 	// about to be destroyed or while it is moving.
-	if ( !tank || tank->destroy || tank->isFlying() || ( tank->l < 1 ) ) {
+	if ( !tank || tank->destroy || tank->is_flying() || ( tank->l < 1 ) ) {
 		return CONTROL_NONE;
 	}
 
-	tank->requireUpdate();
+	tank->require_update();
 
 	/* Start the AI for this player if:
 	 * 1) The AI is idle and
@@ -462,7 +474,7 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 	// Now, being here, the ai is working on this very player.
 
 	// Copy stage now, as it is this players stage as well
-	plStage = ai_stage;
+	pl_stage = ai_stage;
 
 	// Sanitize AI values:
 	// Note: None of these should ever kick in!
@@ -492,31 +504,46 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 	}
 
 	// Only put anything on the screen if this is the firing stage
-	if ( PS_FIRE == plStage ) {
+	if ( PS_FIRE == pl_stage ) {
 
 		// If there is a difference between the AI selection and the
 		// display, transport the values on the screen.
 		if ( ( ai_angle != tank->a ) || ( ai_power != tank->p ) || ( ai_weap != tank->cw ) ) {
-			global.updateMenu = true;
+			global.update_menu = true;
 
-			if ( global.skippingComputerPlay ) {
+			if ( global.skipping_computer_play ) {
 				// When skipping, the values are simply copied:
 				tank->a  = ai_angle;
 				tank->p  = ai_power;
 				tank->cw = ai_weap;
 			} else {
+				// Frame-rate independent transfer: bank fractions so the dials move
+				// at the same wall-clock rate at any frame rate (60 FPS baseline).
+				int32_t angle_steps = 0;
+				int32_t power_steps = 0;
+				if ( ( ai_angle != tank->a ) || ( ai_weap != tank->cw ) ) {
+					angle_steps = control_steps_due( angle_carry );
+				} else {
+					angle_carry = 0.;
+				}
+				if ( ai_power != tank->p ) {
+					power_steps = control_steps_due( power_carry );
+				} else {
+					power_carry = 0.;
+				}
+
 				// Transfer angle:
 				if ( ai_angle > tank->a ) {
-					++tank->a;
+					tank->a = std::min( tank->a + angle_steps, ai_angle );
 				} else if ( ai_angle < tank->a ) {
-					--tank->a;
+					tank->a = std::max( tank->a - angle_steps, ai_angle );
 				}
 
 				// Transfer power:
 				if ( ai_power > tank->p ) {
-					tank->p += 5;
+					tank->p = std::min( tank->p + ( 5 * power_steps ), ai_power );
 				} else if ( ai_power < tank->p ) {
-					tank->p -= 5;
+					tank->p = std::max( tank->p - ( 5 * power_steps ), ai_power );
 				}
 
 				// Transfer weapon information:
@@ -524,14 +551,20 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 					changed_weapon  = false;
 
 					int32_t cw_mod  = tank->cw < ai_weap ? 1 : -1;
-					tank->cw       += cw_mod;
-
-					// Skip unusable items and those that are
-					// out of stock
-					while ( ( !env.isItemAvailable( tank->cw ) || ( ( tank->cw < WEAPONS ) && !nm[ tank->cw ] )
-					          || ( ( tank->cw >= WEAPONS ) && !ni[ tank->cw - WEAPONS ] ) )
-					        && ( tank->cw != ai_weap ) ) {
+					for ( int32_t step = 0; step < angle_steps; ++step ) {
 						tank->cw += cw_mod;
+
+						// Skip unusable items and those that are
+						// out of stock
+						while ( ( !env.is_item_available( tank->cw ) || ( ( tank->cw < WEAPONS ) && !nm[ tank->cw ] )
+						          || ( ( tank->cw >= WEAPONS ) && !ni[ tank->cw - WEAPONS ] ) )
+						        && ( tank->cw != ai_weap ) ) {
+							tank->cw += cw_mod;
+						}
+
+						if ( tank->cw == ai_weap ) {
+							break;
+						}
 					}
 				}
 			} // End of regular transfer
@@ -540,39 +573,39 @@ eControl PLAYER::computerControls( AICore* aicore, bool allow_fire ) {
 		// otherwise, fire the current weapon if this is allowed
 		else if ( allow_fire ) {
 			aicore->weapon_fired();
-			global.updateMenu = true;
+			global.update_menu = true;
 
 			if ( type == VERY_PART_TIME_BOT ) {
 				type = NETWORK_CLIENT;
 			}
 
 			gloating = false;
-			plStage  = PS_CLEANUP;
+			pl_stage  = PS_CLEANUP;
 			return CONTROL_FIRE;
 		}
 	} // End of handling firing stage
 
 	// If the AI wants to move their tank, do so:
-	else if ( PS_MOVE_LEFT == plStage ) {
-		if ( tank->moveTank( DIR_LEFT ) ) {
-			aicore->hasMoved( DIR_LEFT );
+	else if ( PS_MOVE_LEFT == pl_stage ) {
+		if ( tank->move_tank( DIR_LEFT ) ) {
+			aicore->has_moved( DIR_LEFT );
 			return CONTROL_OTHER;
 		} else {
-			aicore->hasMoved( 0 ); // No movement possible
+			aicore->has_moved( 0 ); // No movement possible
 		}
-	} else if ( PS_MOVE_RIGHT == plStage ) {
-		if ( tank->moveTank( DIR_RIGHT ) ) {
-			aicore->hasMoved( DIR_RIGHT );
+	} else if ( PS_MOVE_RIGHT == pl_stage ) {
+		if ( tank->move_tank( DIR_RIGHT ) ) {
+			aicore->has_moved( DIR_RIGHT );
 			return CONTROL_OTHER;
 		} else {
-			aicore->hasMoved( 0 ); // No movement possible
+			aicore->has_moved( 0 ); // No movement possible
 		}
 	}
 
 	return CONTROL_NONE;
 }
 
-int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
+int32_t CPlayer::computer_select_pre_buy_item( int32_t max_boost ) {
 	auto   max_level = static_cast< int32_t >( DEADLY_PLAYER );
 	auto   ai_level  = static_cast< int32_t >( type );
 	double mood = 1. + defensive + ( ( static_cast< double >( get_rand() ) / ( static_cast< double >( RAND_MAX ) / 2. ) ) );
@@ -581,7 +614,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	/*	Prior buying anything else, a 5 step system takes place:
 	 * 1.: Parachutes (if gravity is on)
 	 * 2.: Minimum weapon probability (aka 5 medium and 3 large missiles)
-	 * 3.: The most expensive item from the saveMoneyFor list
+	 * 3.: The most expensive item from the save_money_for list
 	 * 4.: Armour/Amps
 	 * 5.: "Tools" to free themselves like Riot Blasts
 	 * 6.: Shields, if enough money is there
@@ -591,7 +624,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 
 
 	// Step 1: Check for parachutes (if the bot remembers to check)
-	if ( ( ( type >= RANGEFINDER_PLAYER ) || RAND_AI_1P ) && ( env.landSlideType > SLIDE_NONE )
+	if ( ( ( type >= RANGEFINDER_PLAYER ) || RAND_AI_1P ) && ( env.landslide_type > SLIDE_NONE )
 	     && ( ni[ ITEM_PARACHUTE ] < 10 ) && ( money > item[ ITEM_PARACHUTE ].cost ) ) {
 
 		DEBUG_LOG_FIN( name.c_str(), "Pre-selecting Parachute", 0 )
@@ -618,8 +651,8 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	int32_t saved_cost = 0;
 	int32_t saved_item = 0;
 	for ( int32_t i = 0; i < THINGS; ++i ) {
-		if ( ( saveMoneyFor[ i ] > 0 ) && ( saveMoneyFor[ i ] < money ) && ( saveMoneyFor[ i ] > saved_cost ) ) {
-			saved_cost = saveMoneyFor[ i ];
+		if ( ( save_money_for[ i ] > 0 ) && ( save_money_for[ i ] < money ) && ( save_money_for[ i ] > saved_cost ) ) {
+			saved_cost = save_money_for[ i ];
 			saved_item = i;
 		}
 	}
@@ -628,23 +661,23 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 		DEBUG_LOG_FIN(
 			name.c_str(),
 			"Finally got enough money for %s!",
-			saved_item < WEAPONS ? weapon[ saved_item ].getName() : item[ saved_item - WEAPONS ].getName()
+			saved_item < WEAPONS ? weapon[ saved_item ].get_name() : item[ saved_item - WEAPONS ].get_name()
 		)
 		// Take it out from the wish list:
-		saveMoneyFor[ saved_item ] = 0;
+		save_money_for[ saved_item ] = 0;
 		return saved_item;
 	}
 
 
 	// Step 4: Check for Armour / Amps (if the bot remembers to check)
-	if ( ( boostBought < ai_level ) && RAND_AI_1P ) {
-		int32_t boost_value = getBoostValue();
+	if ( ( boost_bought < ai_level ) && RAND_AI_1P ) {
+		int32_t boost_value = get_boost_value();
 		int32_t boost_limit = max_boost - boost_value;
-		int32_t armour_val  = getArmourValue();
-		int32_t amp_val     = getAmpValue();
+		int32_t armour_val  = get_armour_value();
+		int32_t amp_val     = get_amp_value();
 
 
-		if ( ( boost_limit > ( max_level - ai_level + 1 ) ) && ( !needDamage || RAND_AI_0P ) ) {
+		if ( ( boost_limit > ( max_level - ai_level + 1 ) ) && ( !need_damage || RAND_AI_0P ) ) {
 
 			DEBUG_LOG_FIN(
 				name.c_str(),
@@ -662,16 +695,16 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 				double amp_mood = amp_val - mood + 2.;
 				double arm_mood = armour_val + mood + 2.;
 				if ( amp_mood < arm_mood ) {
-					needAmp    = true;
-					needArmour = false;
+					need_amp    = true;
+					need_armour = false;
 				} else {
-					needAmp    = false;
-					needArmour = true;
+					need_amp    = false;
+					need_armour = true;
 				}
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					"=> need %s: boost %d/%d, amp %3.2f %s %3.2f arm",
-					needAmp ? "Amp" : "armor",
+					need_amp ? "Amp" : "armor",
 					boost_value,
 					boost_limit,
 					amp_mood,
@@ -683,7 +716,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 
 			// Prefer armour if the mood is defensive and armour isn't too
 			// far ahead from the amps:
-			if ( needArmour || ( ( mood >= 2.0 ) && ( armour_val <= amp_val ) ) ) {
+			if ( need_armour || ( ( mood >= 2.0 ) && ( armour_val <= amp_val ) ) ) {
 				// The player is in a defensive mood or armour has fallen behind
 				// If we have 25% more money than the plasteel cost, buy it,
 				// else the armour will do. If the armour is far behind, no
@@ -706,12 +739,12 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 				// If nothing could be selected, at least boost what we need for the next round
 				int32_t i     = ITEM_PLASTEEL + WEAPONS;
 				int32_t j     = ITEM_PLASTEEL;
-				currPref[ i ] = ROUND( boostArmourPref( currPref[ i ], j, ai_level ) );
+				curr_pref[ i ] = ROUND( boost_armour_pref( curr_pref[ i ], j, ai_level ) );
 
 			} // end of armour check
 
 			// Otherwise go for a shining new amp:
-			if ( needAmp || ( ( mood <= 2.0 ) && ( amp_val <= armour_val ) ) ) {
+			if ( need_amp || ( ( mood <= 2.0 ) && ( amp_val <= armour_val ) ) ) {
 				// The player is in a offensive mood or amps have fallen behind
 				// If we have 25% more money than the violent force cost, buy
 				// it, else the normal amp will do.
@@ -734,7 +767,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 				// If nothing could be selected, at least boost what we need for the next round
 				int32_t i     = ITEM_VIOLENT_FORCE + WEAPONS;
 				int32_t j     = ITEM_VIOLENT_FORCE;
-				currPref[ i ] = ROUND( boostAmpPref( currPref[ i ], j, ai_level ) );
+				curr_pref[ i ] = ROUND( boost_amp_pref( curr_pref[ i ], j, ai_level ) );
 			} // end of amp check
 		}         // dnd of being allowed to by boost items
 	}                 // end of step 3
@@ -774,7 +807,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 
 
 	// 6.: Shields
-	if ( ( shieldBought < ai_level ) && RAND_AI_1P ) {
+	if ( ( shield_bought < ai_level ) && RAND_AI_1P ) {
 		if ( mood <= 1.5 ) {
 
 			// offensive type, go through reflectors
@@ -853,7 +886,7 @@ int32_t PLAYER::computerSelectPreBuyItem( int32_t max_boost ) {
 	return -1;
 }
 
-eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
+EControl CPlayer::control_tank( CAICore* aicore, bool allow_fire ) {
 	// Handle User input, this is read for providing the ingame menu
 	// even when no human player is active. Otherwise, the player would
 	// not be able to enter the ingame menu whenever an AI player is
@@ -876,14 +909,14 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 
 		// Enter ingame menu?
 		if ( ( KEY_ESC == K ) || ( KEY_P == K ) ) {
-			int32_t mm = env.ingamemenu();
+			int32_t mm = env.in_game_menu();
 
-			global.make_update( 0, 0, env.screenWidth, env.screenHeight );
-			global.make_bgupdate( 0, 0, env.screenWidth, env.screenHeight );
+			global.make_update( 0, 0, env.screen_width, env.screen_height );
+			global.make_bgupdate( 0, 0, env.screen_width, env.screen_height );
 
 			switch ( mm ) {
 				case 1:
-					// Main Menu
+					// Main CMenu
 					global.set_command( GLOBAL_COMMAND_MENU );
 					return CONTROL_QUIT;
 				case 2:
@@ -906,9 +939,9 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 			K             = 0;
 
 			// make sure the value is within range
-			if ( ( value < env.numGamePlayers ) && env.players[ value ] ) {
+			if ( ( value < env.num_game_players ) && env.players[ value ] ) {
 
-				TANK* my_tank = env.players[ value ]->tank;
+				CTank* my_tank = env.players[ value ]->tank;
 
 				if ( my_tank ) {
 					snprintf(
@@ -918,10 +951,10 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 						env.players[ value ]->name.c_str(),
 						my_tank->l,
 						my_tank->sh,
-						env.players[ value ]->getTeamName()
+						env.players[ value ]->get_team_name()
 					);
 					global.tank_status_colour = env.players[ value ]->color;
-					global.updateMenu         = true;
+					global.update_menu         = true;
 				} else {
 					memset( global.tank_status, 0, sizeof( char ) * 128 );
 				}
@@ -931,11 +964,11 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 		// Check for scorboard toggle key
 		if ( ( K == KEY_TILDE ) || ( K == KEY_SLASH ) ) {
 			K                     = 0;
-			global.showScoreBoard = !global.showScoreBoard;
-			if ( !global.showScoreBoard ) {
+			global.show_score_board = !global.show_score_board;
+			if ( !global.show_score_board ) {
 				// erase it:
-				global.make_update( 0, MENUHEIGHT, 300, ( env.maxNumTanks + 1 ) * env.fontHeight );
-				global.make_bgupdate( 0, MENUHEIGHT, 300, ( env.maxNumTanks + 1 ) * env.fontHeight );
+				global.make_update( 0, MENUHEIGHT, 300, ( env.max_num_tanks + 1 ) * env.font_height );
+				global.make_bgupdate( 0, MENUHEIGHT, 300, ( env.max_num_tanks + 1 ) * env.font_height );
 			}
 		}
 
@@ -943,9 +976,9 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 		if ( KEY_V == K ) {
 			K = 0;
 			if ( has_shift_pressed ) {
-				env.increaseVolume();
+				env.increase_volume();
 			} else {
-				env.decreaseVolume();
+				env.decrease_volume();
 			}
 		}
 	} // End of handling all time possible key presses.
@@ -979,25 +1012,25 @@ eControl PLAYER::controlTank( AICore* aicore, bool allow_fire ) {
 
 	// A) HUMAN
 	if ( ( HUMAN_PLAYER == type ) || !tank ) {
-		return humanControls( aicore );
+		return human_controls( aicore );
 	}
 
 	// B) Network Client
 #ifdef NETWORK
 	else if ( type == NETWORK_CLIENT ) {
-		return executeNetCmd( true, aicore );
+		return execute_net_cmd( true, aicore );
 	}
 #endif // NETWORK
 
 	// C) AI Player
 	else if ( global.stage == STAGE_AIM ) {
-		return computerControls( aicore, allow_fire );
+		return computer_controls( aicore, allow_fire );
 	}
 
 	return CONTROL_NONE;
 }
 
-void PLAYER::drawIndicator( int32_t x, int32_t y, int32_t h ) const {
+void CPlayer::draw_indicator( int32_t x, int32_t y, int32_t h ) const {
 	if ( HUMAN_PLAYER == type ) {
 		int32_t radius = ROUND( static_cast< double >( h ) / 2. ) - 2;
 		circlefill( global.canvas, x + radius + 2, y + radius + 2, radius, makecol( 200, 100, 255 ) );
@@ -1019,7 +1052,7 @@ void PLAYER::drawIndicator( int32_t x, int32_t y, int32_t h ) const {
 //
 // We should have some time keeping in here before this goes live
 // to avoid hanging the game.
-eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
+EControl CPlayer::execute_net_cmd( bool my_turn, CAICore* aicore ) {
 	static int playerindex = -1;
 	static int fire_delay = 0, net_delay = 0;
 
@@ -1029,7 +1062,7 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		if ( fire_delay >= NET_DELAY ) {
 			type       = VERY_PART_TIME_BOT;
 			fire_delay = 0;
-			return computerControls( aicore, true );
+			return computer_controls( aicore, true );
 		}
 	}
 
@@ -1043,7 +1076,7 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		   type = VERY_PART_TIME_BOT;
 		   strcpy(buffer, "PING");
 		   write(server_socket, buffer, strlen(buffer));
-		   return computerControls();
+		   return computer_controls();
 		}
 		else*/
 		if ( net_delay >= NET_DELAY_SHORT ) {
@@ -1063,32 +1096,32 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		close( server_socket );
 		type = DEADLY_PLAYER;
 	} else if ( !strncmp( net_command, "BOXED", 5 ) ) {
-		SAFE_WRITE( server_socket, "BOXED %d", env.isBoxed ? 1 : 0 );
+		SAFE_WRITE( server_socket, "BOXED %d", env.is_boxed ? 1 : 0 );
 	} else if ( !strncmp( net_command, "GOSSIP", 6 ) ) {
 		snprintf( global.tank_status, 127, "%s", &( net_command[ 7 ] ) );
-		global.updateMenu = true;
+		global.update_menu = true;
 	} else if ( !strncmp( net_command, "HEALTH", 6 ) ) {
-		int tankindex = 0;
+		int tank_index = 0;
 
-		SAFE_STOI( tankindex, &( net_command[ 7 ] ) );
-		if ( ( tankindex >= 0 ) && ( tankindex < env.numGamePlayers ) ) {
-			if ( env.players[ tankindex ]->tank ) {
+		SAFE_STOI( tank_index, &( net_command[ 7 ] ) );
+		if ( ( tank_index >= 0 ) && ( tank_index < env.num_game_players ) ) {
+			if ( env.players[ tank_index ]->tank ) {
 				SAFE_WRITE(
 					server_socket,
 					"HEALTH %d %d %d %d",
-					tankindex,
-					env.players[ tankindex ]->tank->l,
-					env.players[ tankindex ]->tank->sh,
-					env.players[ tankindex ]->tank->sht
+					tank_index,
+					env.players[ tank_index ]->tank->l,
+					env.players[ tank_index ]->tank->sh,
+					env.players[ tank_index ]->tank->sht
 				);
 			}
 		}
 
-	} else if ( !strncmp( net_command, "ITEM", 4 ) ) {
-		int itemindex = 0;
-		SAFE_STOI( itemindex, &( net_command[ 5 ] ) );
-		if ( ( itemindex >= 0 ) && ( itemindex < ITEMS ) ) {
-			SAFE_WRITE( server_socket, "ITEM %d %d", itemindex, ni[ itemindex ] );
+	} else if ( !strncmp( net_command, "CItem", 4 ) ) {
+		int item_index = 0;
+		SAFE_STOI( item_index, &( net_command[ 5 ] ) );
+		if ( ( item_index >= 0 ) && ( item_index < ITEMS ) ) {
+			SAFE_WRITE( server_socket, "CItem %d %d", item_index, ni[ item_index ] );
 		}
 	} else if ( !strncmp( net_command, "MOVE", 4 ) ) {
 		if ( !my_turn ) {
@@ -1096,11 +1129,11 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		}
 		if ( tank ) {
 			if ( strstr( net_command, "LEFT" ) ) {
-				tank->moveTank( DIR_LEFT );
+				tank->move_tank( DIR_LEFT );
 			} else {
-				tank->moveTank( DIR_RIGHT );
+				tank->move_tank( DIR_RIGHT );
 			}
-			global.updateMenu = true;
+			global.update_menu = true;
 		}
 	} else if ( !strncmp( net_command, "FIRE", 4 ) ) {
 		int angle = 180, power = 1000, item_to_use = 0;
@@ -1148,7 +1181,7 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 	else if ( !strncmp( net_command, "WHOAMI", 6 ) ) {
 		bool found = false;
 
-		while ( ( playerindex < env.numGamePlayers ) && ( !found ) ) {
+		while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
 			if ( env.players[ playerindex ] == this ) {
 				found = true;
 				SAFE_WRITE( server_socket, "YOUARE %d", playerindex );
@@ -1168,25 +1201,25 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 
 	// find out how many players we have
 	else if ( !strncmp( net_command, "NUMPLAYERS", 10 ) ) {
-		SAFE_WRITE( server_socket, "NUMPLAYERS %d", env.numGamePlayers );
+		SAFE_WRITE( server_socket, "NUMPLAYERS %d", env.num_game_players );
 	} else if ( !strncmp( net_command, "PLAYERNAME", 10 ) ) {
 		int my_number = 0;
 		SAFE_STOI( my_number, &( net_command[ 11 ] ) );
-		if ( ( my_number >= 0 ) && ( my_number < env.numGamePlayers ) ) {
-			SAFE_WRITE( server_socket, "PLAYERNAME %d %s", my_number, env.players[ my_number ]->getName() );
+		if ( ( my_number >= 0 ) && ( my_number < env.num_game_players ) ) {
+			SAFE_WRITE( server_socket, "PLAYERNAME %d %s", my_number, env.players[ my_number ]->get_name() );
 		}
 	}
 
 	// how many rounds are we playing
 	else if ( !strncmp( net_command, "ROUNDS", 6 ) ) {
-		SAFE_WRITE( server_socket, "ROUNDS %d %d", env.rounds, global.currentround );
+		SAFE_WRITE( server_socket, "ROUNDS %d %d", env.rounds, global.current_round );
 	}
 	// send back the position of each tank
 	else if ( !strncmp( net_command, "TANKPOSITION", 12 ) ) {
 		int count = 0;
 
 		SAFE_STOI( count, &( net_command[ 13 ] ) );
-		if ( ( count >= 0 ) && ( count < env.numGamePlayers ) && ( env.players[ count ]->tank ) ) {
+		if ( ( count >= 0 ) && ( count < env.num_game_players ) && ( env.players[ count ]->tank ) ) {
 			SAFE_WRITE(
 				server_socket,
 				"TANKPOSITION %d %d %d",
@@ -1202,25 +1235,25 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 		int x = 0;
 
 		SAFE_STOI( x, &( net_command[ 8 ] ) );
-		if ( ( x >= 0 ) && ( x < env.screenWidth ) ) {
+		if ( ( x >= 0 ) && ( x < env.screen_width ) ) {
 			SAFE_WRITE( server_socket, "SURFACE %d %d", x, global.surface[ x ].load() );
 		}
 	} else if ( !strncmp( net_command, "SCREEN", 6 ) ) {
-		SAFE_WRITE( server_socket, "SCREEN %d %d", env.screenWidth, env.screenHeight );
+		SAFE_WRITE( server_socket, "SCREEN %d %d", env.screen_width, env.screen_height );
 	} else if ( !strncmp( net_command, "TEAMS", 5 ) ) {
 		int count = 0;
 
 		SAFE_STOI( count, &( net_command[ 6 ] ) );
-		if ( ( count < env.numGamePlayers ) && ( count >= 0 ) ) {
+		if ( ( count < env.num_game_players ) && ( count >= 0 ) ) {
 			SAFE_WRITE( server_socket, "TEAM %d %d", count, (int)env.players[ count ]->team );
 		}
 	} else if ( !strncmp( net_command, "WALLTYPE", 8 ) ) {
-		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wallType );
-	} else if ( !strncmp( net_command, "WEAPON", 6 ) ) {
+		SAFE_WRITE( server_socket, "WALLTYPE %d", env.current_wall_type );
+	} else if ( !strncmp( net_command, "CWeapon", 6 ) ) {
 		int weapon_number = 0;
 		SAFE_STOI( weapon_number, &( net_command[ 7 ] ) );
 		if ( ( weapon_number >= 0 ) && ( weapon_number < WEAPONS ) ) {
-			SAFE_WRITE( server_socket, "WEAPON %d %d", weapon_number, nm[ weapon_number ] );
+			SAFE_WRITE( server_socket, "CWeapon %d %d", weapon_number, nm[ weapon_number ] );
 		}
 	}
 
@@ -1231,14 +1264,14 @@ eControl PLAYER::executeNetCmd( bool my_turn, AICore* aicore ) {
 #endif // NETWORK
 
 
-void PLAYER::exitShop() {
+void CPlayer::exit_shop() {
 	double tmpDM = ( ni[ ITEM_INTENSITY_AMP ] * item[ ITEM_INTENSITY_AMP ].vals[ 0 ] )
 	             + ( ni[ ITEM_VIOLENT_FORCE ] * item[ ITEM_VIOLENT_FORCE ].vals[ 0 ] );
 
-	damageMultiplier = 1.0;
+	damage_multiplier = 1.0;
 
 	if ( tmpDM > 0 ) {
-		damageMultiplier += std::pow( tmpDM, 0.6 );
+		damage_multiplier += std::pow( tmpDM, 0.6 );
 	}
 
 	// All players need small missiles:
@@ -1251,31 +1284,31 @@ void PLAYER::exitShop() {
 }
 
 /// @brief fill the list of desired items and return the number of damaging weapons
-int32_t PLAYER::generateDesiredList() {
+int32_t CPlayer::generate_desired_list() {
 	int32_t result = 0;
 
 	memset( desired, 0, sizeof( int32_t ) * THINGS );
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
-		if ( env.isItemAvailable( i ) ) {
+		if ( env.is_item_available( i ) ) {
 			desired[ i ]   = i;
-			boostPref[ i ] = std::max( boostPref[ i ], currPref[ i ] - weapPref[ i ] );
-			currPref[ i ]  = weapPref[ i ] + boostPref[ i ];
+			boost_pref[ i ] = std::max( boost_pref[ i ], curr_pref[ i ] - weap_pref[ i ] );
+			curr_pref[ i ]  = weap_pref[ i ] + boost_pref[ i ];
 
-			/* Notes on boostPref:
+			/* Notes on boost_pref:
 			 * To be able to both reset to the static preferences and boost items over several rounds,
 			 * the boostPrefs array is used as follows:
 			 * It is reset to the difference between the current preferences (modified last round) and the
 			 * static preference, if it is higher than the current value.
-			 * So if it has a value of 0, and currPref is 550 because it was boosted 10% over a static 500
+			 * So if it has a value of 0, and curr_pref is 550 because it was boosted 10% over a static 500
 			 * preference, it would be set to 50.
-			 * Whenever a weapon or an item having a boosPref value over zero is bought by the bot, the boostPref
+			 * Whenever a weapon or an item having a boosPref value over zero is bought by the bot, the boost_pref
 			 * entry is reset to 0 and the weapon/item has to be "re-boosted" to get the value back up again.
 			 */
 
 			// No negative prefs:
-			if ( currPref[ i ] < 0 ) {
-				currPref[ i ] = 0;
+			if ( curr_pref[ i ] < 0 ) {
+				curr_pref[ i ] = 0;
 			}
 
 			// Count weapons:
@@ -1293,7 +1326,7 @@ int32_t PLAYER::generateDesiredList() {
 	return result;
 }
 
-void PLAYER::generatePreferences() {
+void CPlayer::generate_preferences() {
 	double  baseProb    = static_cast< double >( MAX_WEAP_PROBABILITY ) / 2.;
 	int32_t currItem    = 0;
 	double  worth       = 0.;
@@ -1308,9 +1341,9 @@ void PLAYER::generatePreferences() {
 	 */
 	defensive          = ( static_cast< double >( get_rand() % 10001 ) / 5000. ) - 1.; // [-1;+1]
 	vengeful           = 1 + ( get_rand() % 100 );                                     // [1;100]
-	vengeanceThreshold = 0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
-	selfPreservation   = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
-	painSensitivity    = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
+	vengeance_threshold = 0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
+	self_preservation   = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
+	pain_sensitivity    = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
 
 	// Now 'defensive' can be modified by team:
 	if ( team == TEAM_JEDI ) {
@@ -1334,7 +1367,7 @@ void PLAYER::generatePreferences() {
 		DEBUG_LOG_EMO( name.c_str(), "---------------------------------------", 0 )
 	}
 
-	weapPref[ 0 ] = 0; // small missiles are always zero!
+	weap_pref[ 0 ] = 0; // small missiles are always zero!
 
 	for ( int32_t i = 1; i < THINGS; ++i ) {
 		worth     = baseProb / -2.;
@@ -1384,7 +1417,7 @@ void PLAYER::generatePreferences() {
 				} else {
 					// Otherwise use spread value with damage. For non-spread
 					// weapons this value is always 1.
-					worth = weapon[ currItem ].damage * ( warheads * 2 ) * weapon[ currItem ].getDelayDiv();
+					worth = weapon[ currItem ].damage * ( warheads * 2 ) * weapon[ currItem ].get_delay_div();
 				}
 				// Note: warheads are counted twice, because otherwise spread
 				//       weapons get a by far too low score!
@@ -1410,7 +1443,7 @@ void PLAYER::generatePreferences() {
 				// silence.
 				if ( ( currItem >= DIRT_BALL ) && ( currItem <= SMALL_DIRT_SPREAD ) ) {
 					worth = warheads * weapon[ currItem ].radius * ai_rate * ( defensive + 2. )
-					      * selfPreservation;
+					      * self_preservation;
 				}
 
 				// === 4. Debuff weapons ===
@@ -1420,11 +1453,11 @@ void PLAYER::generatePreferences() {
 				// Note: Although the percent bomb is not a de-buff weapon,
 				// it can hardly be rated any other way, as it has no set yield.
 				if ( ( currItem >= PERCENT_BOMB ) && ( currItem <= REDUCER ) ) {
-					worth = 300. * ai_rate * -( defensive - 2. ) * selfPreservation;
+					worth = 300. * ai_rate * -( defensive - 2. ) * self_preservation;
 				}
 				// Note: The theft bomb is a debuff weapon with extra benefits. ;-)
 				if ( THEFT_BOMB == currItem ) {
-					worth = ( 150. + vengeful ) * ai_rate * ( ( selfPreservation + 2. ) / 2. )
+					worth = ( 150. + vengeful ) * ai_rate * ( ( self_preservation + 2. ) / 2. )
 					      * ( std::abs( defensive ) + 1.0 );
 				}
 
@@ -1470,13 +1503,13 @@ void PLAYER::generatePreferences() {
 
 			switch ( currItem ) {
 				case ITEM_TELEPORT:
-					worth = ( defensive - 1.5 ) * ( baseProb / -5.00 ) * selfPreservation;
+					worth = ( defensive - 1.5 ) * ( baseProb / -5.00 ) * self_preservation;
 					break;
 				case ITEM_SWAPPER:
-					worth = ( defensive - 1.5 ) * ( baseProb / -3.75 ) * selfPreservation;
+					worth = ( defensive - 1.5 ) * ( baseProb / -3.75 ) * self_preservation;
 					break;
 				case ITEM_MASS_TELEPORT:
-					worth = ( defensive - 1.5 ) * ( baseProb / -1.50 ) * selfPreservation;
+					worth = ( defensive - 1.5 ) * ( baseProb / -1.50 ) * self_preservation;
 					break;
 				case ITEM_FAN:
 					worth = 0.0; // useless things!
@@ -1512,7 +1545,7 @@ void PLAYER::generatePreferences() {
 					      * ( ( -1. * defensive ) + 1.25 );
 					break;
 				case ITEM_REPAIRKIT:
-					worth = ( baseProb / 12. * ai_rate ) * ( defensive + 2.25 + ( selfPreservation / 2. ) );
+					worth = ( baseProb / 12. * ai_rate ) * ( defensive + 2.25 + ( self_preservation / 2. ) );
 					break;
 				case ITEM_PARACHUTE:
 					worth = ( baseProb / 10. * ai_rate ) * ( ( defensive + 1.5 ) / 1.5 );
@@ -1534,11 +1567,11 @@ void PLAYER::generatePreferences() {
 					break;
 				case ITEM_SDI:
 					worth = ( baseProb / 13. * ai_rate )
-					      * ( ( defensive + 2.25 + selfPreservation ) / 1.25 );
+					      * ( ( defensive + 2.25 + self_preservation ) / 1.25 );
 					break;
 				default:
 					cerr << "Error: Unhandled item " << currItem;
-					cerr << "       in generatePreferences()!" << endl;
+					cerr << "       in generate_preferences()!" << endl;
 					worth = baseProb / ai_rate;
 			}
 
@@ -1564,26 +1597,26 @@ void PLAYER::generatePreferences() {
 		}
 
 		if ( isWarhead ) {
-			weapPref[ i ] = 0; // It will not get any slot!
+			weap_pref[ i ] = 0; // It will not get any slot!
 		} else {
-			weapPref[ i ] = ROUND( worth );
+			weap_pref[ i ] = ROUND( worth );
 		}
 
 		// Count statistical values
-		if ( ( i < WEAPONS ) && ( weapPref[ i ] > maxWeapPref ) ) {
-			maxWeapPref = weapPref[ i ];
+		if ( ( i < WEAPONS ) && ( weap_pref[ i ] > maxWeapPref ) ) {
+			maxWeapPref = weap_pref[ i ];
 		}
-		if ( ( i >= WEAPONS ) && ( weapPref[ i ] > maxItemPref ) ) {
-			maxItemPref = weapPref[ i ];
+		if ( ( i >= WEAPONS ) && ( weap_pref[ i ] > maxItemPref ) ) {
+			maxItemPref = weap_pref[ i ];
 		}
 
 		if ( name != "New Player" ) {
 			DEBUG_LOG_EMO(
 				name.c_str(),
 				"%23s (%6s): %5d",
-				i < WEAPONS ? weapon[ i ].getName() : item[ i - WEAPONS ].getName(),
+				i < WEAPONS ? weapon[ i ].get_name() : item[ i - WEAPONS ].get_name(),
 				i < WEAPONS ? "weapon" : "item",
-				weapPref[ i ]
+				weap_pref[ i ]
 			)
 		}
 	} // end of looping THINGS
@@ -1593,15 +1626,15 @@ void PLAYER::generatePreferences() {
 		worth = static_cast< double >( MAX_WEAP_PROBABILITY ) / static_cast< double >( maxWeapPref );
 
 		for ( int32_t i = 1; i < WEAPONS; ++i ) {
-			if ( weapPref[ i ] > ( MAX_WEAP_PROBABILITY / 100.0 ) ) {
-				weapPref[ i ] = ROUND( worth * weapPref[ i ] );
+			if ( weap_pref[ i ] > ( MAX_WEAP_PROBABILITY / 100.0 ) ) {
+				weap_pref[ i ] = ROUND( worth * weap_pref[ i ] );
 				if ( name != "New Player" ) {
 					DEBUG_LOG_EMO(
 						name.c_str(),
 						"%23s (%6s) amplified to: %5d",
-						weapon[ i ].getName(),
+						weapon[ i ].get_name(),
 						"weapon",
-						weapPref[ i ]
+						weap_pref[ i ]
 					)
 				}
 			}
@@ -1612,15 +1645,15 @@ void PLAYER::generatePreferences() {
 		worth = static_cast< double >( MAX_WEAP_PROBABILITY ) * 0.75 / static_cast< double >( maxItemPref );
 
 		for ( int32_t i = WEAPONS; i < THINGS; ++i ) {
-			if ( weapPref[ i ] > ( MAX_WEAP_PROBABILITY / 100.0 ) ) {
-				weapPref[ i ] = ROUND( worth * weapPref[ i ] );
+			if ( weap_pref[ i ] > ( MAX_WEAP_PROBABILITY / 100.0 ) ) {
+				weap_pref[ i ] = ROUND( worth * weap_pref[ i ] );
 				if ( name != "New Player" ) {
 					DEBUG_LOG_EMO(
 						name.c_str(),
 						"%23s (%6s) amplified to: %5d",
-						item[ i - WEAPONS ].getName(),
+						item[ i - WEAPONS ].get_name(),
 						"item",
-						weapPref[ i ]
+						weap_pref[ i ]
 					)
 				}
 			}
@@ -1632,34 +1665,34 @@ void PLAYER::generatePreferences() {
 	}
 }
 
-int PLAYER::getAmpValue() {
+int CPlayer::get_amp_value() {
 	double amp_val = ni[ ITEM_INTENSITY_AMP ] * item[ ITEM_INTENSITY_AMP ].vals[ 0 ];
 	double vio_val = ni[ ITEM_VIOLENT_FORCE ] * item[ ITEM_VIOLENT_FORCE ].vals[ 0 ];
 	return ROUNDu( ( amp_val + vio_val ) / static_cast< double >( item[ ITEM_VIOLENT_FORCE ].vals[ 0 ] ) );
 }
 
-int PLAYER::getArmourValue() {
+int CPlayer::get_armour_value() {
 	double arm_val = ni[ ITEM_ARMOUR ] * item[ ITEM_ARMOUR ].vals[ 0 ];
 	double pla_val = ni[ ITEM_PLASTEEL ] * item[ ITEM_PLASTEEL ].vals[ 0 ];
 	return ROUNDu( ( arm_val + pla_val ) / static_cast< double >( item[ ITEM_PLASTEEL ].vals[ 0 ] ) );
 }
 
-int PLAYER::getBoostValue() {
-	return ( getAmpValue() + getArmourValue() );
+int CPlayer::get_boost_value() {
+	return ( get_amp_value() + get_armour_value() );
 }
 
 /// @brief return the item preference of item @a idx or -1 if @a idx is out of
 /// range
-/// Note: This uses the static weapPref instead of the adapted currPref,
-///       because it is used by AICore for point calculation.
-int32_t PLAYER::getItemPref( int32_t idx ) {
+/// Note: This uses the static weap_pref instead of the adapted curr_pref,
+///       because it is used by CAICore for point calculation.
+int32_t CPlayer::get_item_pref( int32_t idx ) {
 	if ( ( idx > -1 ) && ( idx < ITEMS ) ) {
-		return weapPref[ WEAPONS + idx ];
+		return weap_pref[ WEAPONS + idx ];
 	}
 	return -1;
 }
 
-int32_t PLAYER::getMoneyToSave( bool first_look ) {
+int32_t CPlayer::get_money_to_save( bool first_look ) {
 	// If this is the first look in a shopping round,
 	// the list of items to save money for must be built:
 
@@ -1667,11 +1700,11 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		int32_t avgPref   = 0;
 		int32_t prefCount = 0;
 		int32_t prefLimit = 0;
-		memset( saveMoneyFor, 0, sizeof( int32_t ) * THINGS );
+		memset( save_money_for, 0, sizeof( int32_t ) * THINGS );
 
 		// if the preferences are exceptionally low, a div by 0
 		// might occur, so it has to be made dynamic:
-		for ( int i : currPref ) {
+		for ( int i : curr_pref ) {
 			if ( i > 0 ) {
 				prefLimit += i;
 				prefCount++;
@@ -1683,7 +1716,7 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		prefCount = 0;
 
 		// Now that the prefLimit is roughly the middle, let's get the average of everything above
-		for ( int i : currPref ) {
+		for ( int i : curr_pref ) {
 			if ( i > prefLimit ) {
 				prefCount++;
 				avgPref += i;
@@ -1700,16 +1733,16 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 		// is too low:
 		for ( int32_t i = 0; i < THINGS; ++i ) {
 			int32_t j = i - WEAPONS; // short cut
-			if ( ( currPref[ i ] > avgPref )
+			if ( ( curr_pref[ i ] > avgPref )
 			     && ( ( ( i < WEAPONS ) && ( nm[ i ] < weapon[ i ].amt ) ) // Stock up weapons
-			          || ( ( j == ITEM_VIOLENT_FORCE ) && needAmp )        // Save up for amp if we need it
-			          || ( ( j == ITEM_PLASTEEL ) && needArmour )          // Save up for armor if we need it
+			          || ( ( j == ITEM_VIOLENT_FORCE ) && need_amp )        // Save up for amp if we need it
+			          || ( ( j == ITEM_PLASTEEL ) && need_armour )          // Save up for armor if we need it
 			     ) ) {
-				saveMoneyFor[ i ] = i < WEAPONS ? weapon[ i ].cost : item[ j ].cost;
+				save_money_for[ i ] = i < WEAPONS ? weapon[ i ].cost : item[ j ].cost;
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					" => Save money for %s!",
-					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
+					i < WEAPONS ? weapon[ i ].get_name() : item[ j ].get_name()
 				)
 			} // end of having a big enough preference
 		}         // end of looping THINGS
@@ -1725,33 +1758,33 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 	for ( int32_t i = 0; i < THINGS; ++i ) {
 		int32_t j = i - WEAPONS; // short cut
 
-		if ( saveMoneyFor[ i ] > 0 ) {
+		if ( save_money_for[ i ] > 0 ) {
 			// Still needed?
 			if ( ( ( i < WEAPONS ) && ( nm[ i ] < weapon[ i ].amt ) ) // Stock up weapons
-			     || ( ( j == ITEM_VIOLENT_FORCE ) && needAmp )        // Save up for amp if we need it
-			     || ( ( j == ITEM_PLASTEEL ) && needArmour )          // Save up for armor if we need it
+			     || ( ( j == ITEM_VIOLENT_FORCE ) && need_amp )        // Save up for amp if we need it
+			     || ( ( j == ITEM_PLASTEEL ) && need_armour )          // Save up for armor if we need it
 			) {
-				moneyToSave += saveMoneyFor[ i ];
+				moneyToSave += save_money_for[ i ];
 				wanted      += 1.;
-				if ( saveMoneyFor[ i ] > max_cost ) {
-					max_cost = saveMoneyFor[ i ];
+				if ( save_money_for[ i ] > max_cost ) {
+					max_cost = save_money_for[ i ];
 				}
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					" ==> I%s need %d.: %s! (+ %d => %d)",
 					first_look ? "" : " still",
 					ROUND( wanted ),
-					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName(),
-					saveMoneyFor[ i ],
+					i < WEAPONS ? weapon[ i ].get_name() : item[ j ].get_name(),
+					save_money_for[ i ],
 					ROUND( moneyToSave )
 				)
 			} else {
 				// nope...
-				saveMoneyFor[ i ] = 0;
+				save_money_for[ i ] = 0;
 				DEBUG_LOG_FIN(
 					name.c_str(),
 					" <== I no longer need %s ...",
-					i < WEAPONS ? weapon[ i ].getName() : item[ j ].getName()
+					i < WEAPONS ? weapon[ i ].get_name() : item[ j ].get_name()
 				)
 			}
 		}
@@ -1780,17 +1813,17 @@ int32_t PLAYER::getMoneyToSave( bool first_look ) {
 	 * Deadly : 100,000 * (1 + ( (6 - 5) / 10)) = 100,000 * 1.1 = 110,000
 	 */
 
-	// Whenever moneyToSave is less than the money owned, boostBought is reset
+	// Whenever moneyToSave is less than the money owned, boost_bought is reset
 	if ( first_look && ( money > ROUND( moneyToSave ) ) ) {
-		boostBought  = 0; // Let's go!
-		shieldBought = 0;
+		boost_bought  = 0; // Let's go!
+		shield_bought = 0;
 	}
 
 	return ROUND( moneyToSave );
 }
 
 // return the player name
-char const* PLAYER::getName() const {
+char const* CPlayer::get_name() const {
 	return name.c_str();
 }
 
@@ -1798,9 +1831,9 @@ char const* PLAYER::getName() const {
 // If data is coming in, we put the incoming data in the net_command
 // variable. If the socket connection is broken, then we will
 // close the socket and hand control over to the AI.
-bool PLAYER::getNetCmd() {
+bool CPlayer::get_net_cmd() {
 #ifdef NETWORK
-	if ( Check_For_Incoming_Data( server_socket ) ) {
+	if ( check_for_incoming_data( server_socket ) ) {
 		// we have something coming down the pipe
 		memset( net_command, '\0', NET_COMMAND_SIZE ); // clear buffer
 		size_t status = read( server_socket, net_command, NET_COMMAND_SIZE );
@@ -1813,7 +1846,7 @@ bool PLAYER::getNetCmd() {
 		} else {
 			// we got data
 			net_command[ NET_COMMAND_SIZE - 1 ] = '\0';
-			Trim_Newline( net_command );
+			trim_newline( net_command );
 		}
 	}
 #endif // NETWORK
@@ -1823,9 +1856,9 @@ bool PLAYER::getNetCmd() {
 /** @brief Get one entry of the opponent memory or the last one attacked
  * @param[in] idx Index of the opponent memory to get, or -1 to get the last attacked.
  **/
-sOpponent* PLAYER::getOppMem( int32_t idx ) {
+sOpponent* CPlayer::get_opp_mem( int32_t idx ) {
 	// regular memory
-	if ( ( idx > -1 ) && ( idx < oppCount ) ) {
+	if ( ( idx > -1 ) && ( idx < opp_count ) ) {
 		return &opponents[ idx ];
 	}
 
@@ -1839,7 +1872,7 @@ sOpponent* PLAYER::getOppMem( int32_t idx ) {
 }
 
 // returns a static string to the player's team name
-char const* PLAYER::getTeamName() const {
+char const* CPlayer::get_team_name() const {
 	static char team_name[ 9 ] = { 0 };
 
 	switch ( team ) {
@@ -1863,88 +1896,106 @@ char const* PLAYER::getTeamName() const {
 
 /// @brief return the weapon preference of weapon @a idx or -1 if @a idx is out
 /// of range.
-/// Note: This uses the static weapPref instead of the adapted currPref,
-///       because it is used by AICore for point calculation.
-int32_t PLAYER::getWeapPref( int32_t idx ) {
+/// Note: This uses the static weap_pref instead of the adapted curr_pref,
+///       because it is used by CAICore for point calculation.
+int32_t CPlayer::get_weap_pref( int32_t idx ) {
 	if ( ( idx > -1 ) && ( idx < WEAPONS ) ) {
-		return weapPref[ idx ];
+		return weap_pref[ idx ];
 	}
 	return -1;
 }
 
-eControl PLAYER::humanControls( AICore* aicore ) {
+EControl CPlayer::human_controls( CAICore* aicore ) {
 	bool     moved  = false;
-	eControl status = CONTROL_NONE;
+	EControl status = CONTROL_NONE;
 
 	// Keyboard control in aim stage
 	if ( ( global.stage == STAGE_AIM ) && tank ) {
 		if ( ( key[ KEY_LEFT ] || key[ KEY_A ] ) && !ctrlUsedUp && ( tank->a < 270 ) ) {
-			if ( has_shift_pressed ) {
-				tank->a = std::min( tank->a + 5, 270 );
-			} else {
-				tank->a++;
-			}
-			global.updateMenu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( angle_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->a = std::min( tank->a + ( 5 * steps ), 270 );
+				} else {
+					tank->a = std::min( tank->a + steps, 270 );
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_RIGHT ] || key[ KEY_D ] ) && !ctrlUsedUp && ( tank->a > 90 ) ) {
-			if ( has_shift_pressed ) {
-				tank->a = std::max( tank->a - 5, 90 );
-			} else {
-				tank->a--;
-			}
-			global.updateMenu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( angle_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->a = std::max( tank->a - ( 5 * steps ), 90 );
+				} else {
+					tank->a = std::max( tank->a - steps, 90 );
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_DOWN ] || key[ KEY_S ] ) && !ctrlUsedUp && ( tank->p > 0 ) ) {
-			if ( has_shift_pressed ) {
-				tank->p = std::max( tank->p - 25, 0 );
-			} else {
-				tank->p -= 5;
-			}
-			global.updateMenu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->p = std::max( tank->p - ( 25 * steps ), 0 );
+				} else {
+					tank->p -= 5 * steps;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_UP ] || key[ KEY_W ] ) && !ctrlUsedUp && ( tank->p < MAX_POWER ) ) {
-			if ( has_shift_pressed ) {
-				tank->p = std::min( tank->p + 25, MAX_POWER );
-			} else {
-				tank->p += 5;
-			}
-			global.updateMenu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->p = std::min( tank->p + ( 25 * steps ), MAX_POWER );
+				} else {
+					tank->p += 5 * steps;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_PGUP ] || key[ KEY_R ] ) && !ctrlUsedUp && ( tank->p < MAX_POWER ) ) {
-			tank->p += 100;
-			if ( tank->p > MAX_POWER ) {
-				tank->p = MAX_POWER;
-			}
-			global.updateMenu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				tank->p += 100 * steps;
+				if ( tank->p > MAX_POWER ) {
+					tank->p = MAX_POWER;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_PGDN ] || key[ KEY_F ] ) && !ctrlUsedUp && ( tank->p > 0 ) ) {
-			tank->p -= 100;
-			if ( tank->p < 0 ) {
-				tank->p = 0;
-			}
-			global.updateMenu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				tank->p -= 100 * steps;
+				if ( tank->p < 0 ) {
+					tank->p = 0;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 	}
@@ -1964,12 +2015,12 @@ eControl PLAYER::humanControls( AICore* aicore ) {
 		if ( ( global.stage == STAGE_AIM ) && tank ) {
 			if ( K == KEY_N ) {
 				tank->a           = 180;
-				global.updateMenu = true;
+				global.update_menu = true;
 				K                 = 0;
 			}
 
 			if ( ( K == KEY_TAB ) || ( K == KEY_C ) ) {
-				global.updateMenu = true;
+				global.update_menu = true;
 				bool done         = false;
 				while ( !done ) {
 					if ( ++tank->cw >= THINGS ) {
@@ -1987,7 +2038,7 @@ eControl PLAYER::humanControls( AICore* aicore ) {
 			}
 
 			if ( ( K == KEY_BACKSPACE ) || ( K == KEY_Z ) ) {
-				global.updateMenu = true;
+				global.update_menu = true;
 				bool done         = false;
 				while ( !done ) {
 					if ( --tank->cw < 0 ) {
@@ -2008,19 +2059,19 @@ eControl PLAYER::humanControls( AICore* aicore ) {
 			if ( K == KEY_F10 ) {
 				type = PART_TIME_BOT;
 				K    = 0;
-				return ( computerControls( aicore, false ) );
+				return ( computer_controls( aicore, false ) );
 			}
 
 			// move the tank
 			if ( ( K == KEY_COMMA ) || ( K == KEY_H ) ) {
-				moved = tank->moveTank( DIR_LEFT );
+				moved = tank->move_tank( DIR_LEFT );
 			}
 			if ( ( K == KEY_STOP ) || ( K == KEY_J ) ) {
-				moved = tank->moveTank( DIR_RIGHT );
+				moved = tank->move_tank( DIR_RIGHT );
 			}
 
 			if ( moved ) {
-				global.updateMenu = true;
+				global.update_menu = true;
 				K                 = 0;
 			}
 
@@ -2040,7 +2091,7 @@ eControl PLAYER::humanControls( AICore* aicore ) {
 	return status;
 }
 
-void PLAYER::initialise( bool loaded_game ) {
+void CPlayer::initialise( bool loaded_game ) {
 	// Initialize basic values if this is not loaded
 	if ( !loaded_game ) {
 		memset( nm, 0, sizeof( int32_t ) * WEAPONS );
@@ -2058,100 +2109,80 @@ void PLAYER::initialise( bool loaded_game ) {
 }
 
 /// @brief read player data from a dump file.
-bool PLAYER::load_from_file( FILE* file ) {
+bool CPlayer::load_from_file( FILE* file ) {
 	if ( !file ) {
 		return false;
 	}
 
-	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char* result                       = nullptr;
+	string line;
+	string field;
+	string value;
+	bool   result = false;
 
 	setlocale( LC_NUMERIC, "C" );
 
-	// read until we hit line "*PLAYER*" or "***" or EOF
+	// read until we hit line "*CPlayer*" or "***" or EOF
 	do {
-		result = fgets( line, MAX_CONFIG_LINE, file );
-		if ( !result || !strncmp( line, "***", 3 ) ) {
+		result = read_config_line( file, line );
+		if ( !result || !strncmp( line.c_str(), "***", 3 ) ) {
 			// eof OR end of record
 			return false;
 		}
-	} while ( 0 != strncmp( line, "*PLAYER*", 8 ) );
+	} while ( 0 != strncmp( line.c_str(), "*CPlayer*", 8 ) );
 
 	bool done = false;
 
 	while ( result && !done ) {
 		// read a line
-		memset( line, '\0', MAX_CONFIG_LINE );
-		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
+		if ( ( result = read_config_line( file, line ) ) ) {
 
 			// if we hit end of the record, stop
-			if ( !strncmp( line, "***", 3 ) ) {
+			if ( !strncmp( line.c_str(), "***", 3 ) ) {
 				done = true;
 				continue; // This exits the loop as well
 			}
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
-			// find equal sign
-			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-				equal_position++;
-			}
-
-			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) {
+			// separate field from value
+			if ( !split_config_field( line, field, value ) ) {
 				continue; // Go to next line
 			}
 
-			// separate field from value
-			memset( field, '\0', MAX_CONFIG_LINE );
-			memset( value, '\0', MAX_CONFIG_LINE );
-			strncpy( field, line, equal_position );
-			strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
-
 			// check which field we have and process value
-			if ( !strcasecmp( field, "NAME" ) ) {
+			if ( !strcasecmp( field.c_str(), "NAME" ) ) {
 				name.assign( value );
 				if ( name.length() > NAME_LEN ) {
 					name.erase( NAME_LEN );
 				}
-			} else if ( !strcasecmp( field, "COLOR" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "COLOR" ) ) {
 				SAFE_STOI( color, value );
-			} else if ( !strcasecmp( field, "DEFENSIVE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "DEFENSIVE" ) ) {
 				SAFE_STOD( defensive, value );
-			} else if ( !strcasecmp( field, "PAINSENSITIVITY" ) ) {
-				SAFE_STOD( painSensitivity, value );
-			} else if ( !strcasecmp( field, "PLAYED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PAINSENSITIVITY" ) ) {
+				SAFE_STOD( pain_sensitivity, value );
+			} else if ( !strcasecmp( field.c_str(), "PLAYED" ) ) {
 				SAFE_STOUL( played, value );
-			} else if ( !strcasecmp( field, "PREFTYPE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PREFTYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= 0 ) && ( val <= ALWAYS_PREF ) ) {
-					preftype = static_cast< playerPrefType >( val );
+					pref_type = static_cast< EPlayerPrefType >( val );
 				}
-			} else if ( !strcasecmp( field, "SELFPRESERVATION" ) ) {
-				SAFE_STOD( selfPreservation, value );
-			} else if ( !strcasecmp( field, "TANK_BITMAP" ) ) {
-				SAFE_STOI( tankbitmap, value );
-			} else if ( !strcasecmp( field, "TEAM" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "SELFPRESERVATION" ) ) {
+				SAFE_STOD( self_preservation, value );
+			} else if ( !strcasecmp( field.c_str(), "TANK_BITMAP" ) ) {
+				SAFE_STOI( tank_bitmap, value );
+			} else if ( !strcasecmp( field.c_str(), "TEAM" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= 0 ) && ( val <= TEAM_JEDI ) ) {
-					team = static_cast< eTeamTypes >( val );
+					team = static_cast< ETeamTypes >( val );
 				}
-			} else if ( !strcasecmp( field, "TYPE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 
 				if ( ( val >= HUMAN_PLAYER ) && ( val <= LAST_PLAYER_TYPE ) ) {
-					type = static_cast< playerType >( val );
+					type = static_cast< EPlayerType >( val );
 				}
 
 				// make sure previous human players are restored as humans
@@ -2159,26 +2190,26 @@ bool PLAYER::load_from_file( FILE* file ) {
 					type = HUMAN_PLAYER;
 				}
 
-			} else if ( !strcasecmp( field, "TYPESAVED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPESAVED" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val <= LAST_PLAYER_TYPE ) ) {
-					type_saved = static_cast< playerType >( val );
+					type_saved = static_cast< EPlayerType >( val );
 					if ( type_saved > HUMAN_PLAYER ) {
 						type = type_saved;
 					}
 				}
-			} else if ( !strcasecmp( field, "VENGEANCETHRESHOLD" ) ) {
-				SAFE_STOD( vengeanceThreshold, value );
+			} else if ( !strcasecmp( field.c_str(), "VENGEANCETHRESHOLD" ) ) {
+				SAFE_STOD( vengeance_threshold, value );
 				// fix old configs
-				if ( vengeanceThreshold < 0.05 ) {
-					vengeanceThreshold =
+				if ( vengeance_threshold < 0.05 ) {
+					vengeance_threshold =
 						0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
 				}
-				if ( vengeanceThreshold > 0.95 ) {
-					vengeanceThreshold = 0.95;
+				if ( vengeance_threshold > 0.95 ) {
+					vengeance_threshold = 0.95;
 				}
-			} else if ( !strcasecmp( field, "VENGEFUL" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "VENGEFUL" ) ) {
 				SAFE_STOI( vengeful, value );
 				// fix old configs
 				if ( vengeful < 1 ) {
@@ -2187,15 +2218,15 @@ bool PLAYER::load_from_file( FILE* file ) {
 				if ( vengeful > 100 ) {
 					vengeful = 100;
 				}
-			} else if ( !strcasecmp( field, "WON" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "WON" ) ) {
 				SAFE_STOUL( won, value );
-			} else if ( !strcasecmp( field, "WEAPONPREFERENCES" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "WEAPONPREFERENCES" ) ) {
 				int32_t            wp_index = -1;
 				int32_t            wp_value = -1;
 				std::istringstream iss( value );
 				iss >> wp_index >> wp_value;
 				if ( ( wp_index < THINGS ) && ( wp_index >= 0 ) ) {
-					weapPref[ wp_index ] = wp_value;
+					weap_pref[ wp_index ] = wp_value;
 				}
 			} // end of valid data line
 		}         // end of if we read a line properly
@@ -2217,15 +2248,15 @@ bool PLAYER::load_from_file( FILE* file ) {
  * </ul>
  *
  **/
-void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
+void CPlayer::load_game_data( FILE* file, int32_t file_version ) {
 	if ( !file ) {
 		return;
 	}
 
-	char  line[ MAX_CONFIG_LINE + 1 ]  = { 0 };
-	char  field[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char  value[ MAX_CONFIG_LINE + 1 ] = { 0 };
-	char* result                       = nullptr;
+	string line;
+	string field;
+	string value;
+	bool  result                       = false;
 	bool  done                         = false;
 	bool  has_pref_loaded              = false;
 
@@ -2234,77 +2265,57 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 
 	do {
 		// read a line
-		memset( line, '\0', MAX_CONFIG_LINE );
-		if ( ( result = fgets( line, MAX_CONFIG_LINE, file ) ) ) {
+		if ( ( result = read_config_line( file, line ) ) ) {
 
 			// if we hit end of the record, stop
-			if ( !strncmp( line, "***", 3 ) ) {
+			if ( !strncmp( line.c_str(), "***", 3 ) ) {
 				done = true;
 				continue; // This exits the loop as well
 			}
 
-			// strip newline character
-			size_t line_length = strlen( line );
-			while ( line[ line_length - 1 ] == '\n' ) {
-				line[ line_length - 1 ] = '\0';
-				line_length--;
-			}
-
-			// find equal sign
-			size_t equal_position = 1;
-			while ( ( equal_position < line_length ) && ( line[ equal_position ] != '=' ) ) {
-				equal_position++;
-			}
-
-			// make sure the equal sign position is valid
-			if ( line[ equal_position ] != '=' ) {
+			// separate field from value
+			if ( !split_config_field( line, field, value ) ) {
 				continue; // Go to next line
 			}
 
-			// separate field from value
-			memset( field, '\0', MAX_CONFIG_LINE );
-			memset( value, '\0', MAX_CONFIG_LINE );
-			strncpy( field, line, equal_position );
-			strncpy( value, &( line[ equal_position + 1 ] ), MAX_CONFIG_LINE );
-
 			// check which field we have and process value
-			if ( !strcasecmp( field, "DEFENSIVE" ) ) {
+			if ( !strcasecmp( field.c_str(), "DEFENSIVE" ) ) {
 				SAFE_STOD( defensive, value );
-			} else if ( !strcasecmp( field, "PAINSENSITIVITY" ) ) {
-				SAFE_STOD( painSensitivity, value );
-			} else if ( !strcasecmp( field, "KILLED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "PAINSENSITIVITY" ) ) {
+				SAFE_STOD( pain_sensitivity, value );
+			} else if ( !strcasecmp( field.c_str(), "KILLED" ) ) {
 				SAFE_STOI( killed, value );
-			} else if ( !strcasecmp( field, "KILLS" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "KILLS" ) ) {
 				SAFE_STOI( kills, value );
-			} else if ( !strcasecmp( field, "MONEY" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "MONEY" ) ) {
 				SAFE_STOI( money, value );
-			} else if ( !strcasecmp( field, "SCORE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "SCORE" ) ) {
 				SAFE_STOI( score, value );
-			} else if ( !strcasecmp( field, "SELFPRESERVATION" ) ) {
-				SAFE_STOD( selfPreservation, value );
-			} else if ( !strcasecmp( field, "TYPE" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "SELFPRESERVATION" ) ) {
+				SAFE_STOD( self_preservation, value );
+			} else if ( !strcasecmp( field.c_str(), "TYPE" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val < LAST_PLAYER_TYPE ) ) {
-					type = static_cast< playerType >( val );
+					type = static_cast< EPlayerType >( val );
 				}
-			} else if ( !strcasecmp( field, "TYPESAVED" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "TYPESAVED" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
 				if ( ( val >= HUMAN_PLAYER ) && ( val < LAST_PLAYER_TYPE ) ) {
-					type_saved = static_cast< playerType >( val );
+					type_saved = static_cast< EPlayerType >( val );
 				}
-			} else if ( !strcasecmp( field, "VENGEANCETHRESHOLD" ) ) {
-				SAFE_STOD( vengeanceThreshold, value );
+			} else if ( !strcasecmp( field.c_str(), "VENGEANCETHRESHOLD" ) ) {
+				SAFE_STOD( vengeance_threshold, value );
 				// fix old configs
-				if ( vengeanceThreshold < 0.05 ) {
-					vengeanceThreshold =
+				if ( vengeance_threshold < 0.05 ) {
+					vengeance_threshold =
 						0.05 + ( static_cast< double >( get_rand() % 901 ) / 1000. ); // [0.05;0.95]
 				}
-				if ( vengeanceThreshold > 0.95 ) {
-					vengeanceThreshold = 0.95;
+				if ( vengeance_threshold > 0.95 ) {
+					vengeance_threshold = 0.95;
 				}
-			} else if ( !strcasecmp( field, "VENGEFUL" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "VENGEFUL" ) ) {
 				SAFE_STOI( vengeful, value );
 				// fix old configs
 				if ( vengeful < 1 ) {
@@ -2316,7 +2327,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Preferences - saved if "PERPLAY_PREF" - type player.
-			else if ( !strcasecmp( field, "WEAPONPREFERENCES" ) ) {
+			else if ( !strcasecmp( field.c_str(), "WEAPONPREFERENCES" ) ) {
 				int32_t            prf_idx = -1;
 				int32_t            prf_val = -1;
 				std::istringstream iss( value );
@@ -2328,16 +2339,16 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 					if ( ( file_version < 65 ) && ( prf_idx >= THEFT_BOMB ) ) {
 						if ( THEFT_BOMB == prf_idx ) {
 							// Generate a value
-							weapPref[ THEFT_BOMB ] = ROUND(
+							weap_pref[ THEFT_BOMB ] = ROUND(
 								( 150. + vengeful ) * ( static_cast< double >( type ) / 2. + .5 )
-								* ( ( selfPreservation + 2. ) / 2. )
+								* ( ( self_preservation + 2. ) / 2. )
 								* ( std::abs( defensive ) + 1. )
 							);
 							DEBUG_LOG_EMO(
 								name.c_str(),
 								"New preference for %s : %5d",
-								weapon[ THEFT_BOMB ].getName(),
-								weapPref[ THEFT_BOMB ]
+								weapon[ THEFT_BOMB ].get_name(),
+								weap_pref[ THEFT_BOMB ]
 							)
 						}
 						++prf_idx; // Skip new index value
@@ -2353,7 +2364,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 							DEBUG_LOG_EMO(
 								name.c_str(),
 								"Changed preference for %s : %5d",
-								item[ ITEM_FUEL ].getName(),
+								item[ ITEM_FUEL ].get_name(),
 								prf_val
 							)
 						}
@@ -2363,7 +2374,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 					// (If someone edited the save game, the index might
 					//  be too larger now, so check again to be safe!)
 					if ( prf_idx < THINGS ) {
-						weapPref[ prf_idx ] = prf_val;
+						weap_pref[ prf_idx ] = prf_val;
 					}
 
 					// separate very old from new save games
@@ -2372,7 +2383,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Inventory of the weapons
-			else if ( !strcasecmp( field, "WEAPON" ) ) {
+			else if ( !strcasecmp( field.c_str(), "CWeapon" ) ) {
 				int32_t            weap_idx = -1;
 				int32_t            weap_val = -1;
 				std::istringstream iss( value );
@@ -2395,7 +2406,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Inventory of the items
-			else if ( !strcasecmp( field, "ITEM" ) ) {
+			else if ( !strcasecmp( field.c_str(), "CItem" ) ) {
 				int32_t            item_idx = -1;
 				int32_t            item_val = -1;
 				std::istringstream iss( value );
@@ -2410,7 +2421,7 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 			}
 
 			// Opponents Memory
-			else if ( !strcasecmp( field, "OPPCOUNT" ) ) {
+			else if ( !strcasecmp( field.c_str(), "OPPCOUNT" ) ) {
 				int32_t safed_count = 0;
 				SAFE_STOI( safed_count, value );
 
@@ -2422,66 +2433,66 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 
 				if ( safed_count ) {
 					try {
-						oppCount  = safed_count;
-						opponents = new opp_t[ oppCount ];
+						opp_count  = safed_count;
+						opponents = new opp_t[ opp_count ];
 					} catch ( std::exception& e ) {
 						cerr << "ERROR: Unable to allocate ";
-						cerr << ( sizeof( opp_t ) * oppCount );
+						cerr << ( sizeof( opp_t ) * opp_count );
 						cerr << " bytes for opponents array!" << endl;
 						cerr << "ERROR: " << e.what() << endl;
-						oppCount = 0;
+						opp_count = 0;
 					}
 				} else {
-					oppCount = 0;
+					opp_count = 0;
 				}
 			} // end of oppcount handling
-			else if ( !strcasecmp( field, "OPPMEM_INDX" ) ) {
+			else if ( !strcasecmp( field.c_str(), "OPPMEM_INDX" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
 				iss >> opp_idx >> opp_val;
-				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
+				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].index    = opp_val;
-					opponents[ opp_idx ].opponent = env.allPlayers[ opp_val ];
+					opponents[ opp_idx ].opponent = env.all_players[ opp_val ];
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_DDEA" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_DDEA" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
 				iss >> opp_idx >> opp_val;
-				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
+				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].damage_from = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_DDON" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_DDON" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
 				iss >> opp_idx >> opp_val;
-				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
+				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].damage_to = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_FEAR" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_FEAR" ) ) {
 				int32_t            opp_idx = -1;
 				double             opp_val = 0.;
 				std::istringstream iss( value );
 				iss >> opp_idx >> opp_val;
-				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
+				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].fear = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_KIME" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_KIME" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
 				iss >> opp_idx >> opp_val;
-				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
+				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].killed_me = opp_val;
 				}
-			} else if ( !strcasecmp( field, "OPPMEM_KITH" ) ) {
+			} else if ( !strcasecmp( field.c_str(), "OPPMEM_KITH" ) ) {
 				int32_t            opp_idx = -1;
 				int32_t            opp_val = -1;
 				std::istringstream iss( value );
 				iss >> opp_idx >> opp_val;
-				if ( ( opp_idx > -1 ) && ( opp_idx < oppCount ) ) {
+				if ( ( opp_idx > -1 ) && ( opp_idx < opp_count ) ) {
 					opponents[ opp_idx ].killed_them = opp_val;
 				}
 			}
@@ -2495,14 +2506,14 @@ void PLAYER::load_game_data( FILE* file, int32_t file_version ) {
 	// For backwards compatibility the preferences must be generated
 	// if this is a PERPLAY type player but no preferences got saved.
 	// This might be the case for very old save games.
-	if ( !has_pref_loaded && ( PERPLAY_PREF == preftype ) && ( type != HUMAN_PLAYER ) ) {
-		generatePreferences();
+	if ( !has_pref_loaded && ( PERPLAY_PREF == pref_type ) && ( type != HUMAN_PLAYER ) ) {
+		generate_preferences();
 	}
 }
 
 /// @brief reserve memory for the opponents array and fill it
-void PLAYER::newGame() {
-	if ( env.numGamePlayers ) {
+void CPlayer::new_game() {
+	if ( env.num_game_players ) {
 
 		if ( opponents ) {
 			delete[] opponents;
@@ -2510,18 +2521,18 @@ void PLAYER::newGame() {
 		}
 
 		try {
-			oppCount  = env.numGamePlayers;
-			opponents = new opp_t[ oppCount ];
+			opp_count  = env.num_game_players;
+			opponents = new opp_t[ opp_count ];
 		} catch ( std::exception& e ) {
-			cerr << "ERROR: Unable to allocate " << ( sizeof( opp_t ) * oppCount );
+			cerr << "ERROR: Unable to allocate " << ( sizeof( opp_t ) * opp_count );
 			cerr << " bytes for opponents array!" << endl;
 			cerr << "ERROR: " << e.what() << endl;
-			oppCount = 0;
+			opp_count = 0;
 		}
 	}
 
-	if ( oppCount ) {
-		for ( int32_t i = 0; i < oppCount; ++i ) {
+	if ( opp_count ) {
+		for ( int32_t i = 0; i < opp_count; ++i ) {
 			opponents[ i ].opponent = env.players[ i ];
 			opponents[ i ].index    = env.players[ i ]->index;
 		}
@@ -2529,7 +2540,7 @@ void PLAYER::newGame() {
 }
 
 // run this at the beginning of each turn
-void PLAYER::newRound() {
+void CPlayer::new_round() {
 	// if the player is under computer control, give it back to the player
 	if ( type == PART_TIME_BOT ) {
 		type = HUMAN_PLAYER;
@@ -2537,29 +2548,31 @@ void PLAYER::newRound() {
 
 	if ( !tank ) {
 		try {
-			tank         = new TANK();
+			tank         = new CTank();
 			tank->player = this;
 		} catch ( std::exception& e ) {
-			cerr << "FATAL: Error allocating memory for TANK in player.cpp:";
+			cerr << "FATAL: Error allocating memory for CTank in player.cpp:";
 			cerr << __LINE__ << " : " << e.what() << endl;
 			global.set_command( GLOBAL_COMMAND_QUIT );
 		}
 	}
-	// tank->newRound() doesn't need to be called, because
+	// tank->new_round() doesn't need to be called, because
 	// the game loop will do that on tank placement.
 
 	// if we are playing in a campaign, raise the AI level for every 20% played
 	// rounds, so that useless players become deadly at 80% played rounds
-	if ( env.campaign_mode && ( global.currentround < env.nextCampaignRound ) && ( type > HUMAN_PLAYER )
+	if ( env.campaign_mode && ( global.current_round < env.next_campaign_round ) && ( type > HUMAN_PLAYER )
 	     && ( type < DEADLY_PLAYER ) ) {
 		++type;
 	}
 
 	// reset some basic values
 	changed_weapon    = false;
-	time_left_to_fire = env.maxFireTime;
+	time_left_to_fire = env.max_fire_time;
 	skip_me           = false;
 	last_shield_used  = 0;
+	angle_carry       = 0.;
+	power_carry       = 0.;
 
 	// Save damage from opponents if there was some not processed.
 	// Although this would be done automatically once the AI takes
@@ -2568,7 +2581,7 @@ void PLAYER::newRound() {
 	// against players, who haven't fired, yet.
 	// Noting the damage will raise the probability, but only once
 	// the opponent had their first shot.
-	for ( int32_t i = 0; i < oppCount; ++i ) {
+	for ( int32_t i = 0; i < opp_count; ++i ) {
 		if ( opponents[ i ].damage_last > 0 ) {
 			opponents[ i ].damage_from += opponents[ i ].damage_last;
 			opponents[ i ].damage_last  = 0;
@@ -2576,12 +2589,12 @@ void PLAYER::newRound() {
 	}
 }
 
-void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) {
+void CPlayer::note_damage_from( CPlayer* opponent, int32_t damage, bool destroyed ) {
 	if ( opponent ) {
-		int32_t idx       = oppCount;
+		int32_t idx       = opp_count;
 		int32_t max_score = 0;
 
-		for ( int32_t i = 0; i < oppCount; ++i ) {
+		for ( int32_t i = 0; i < opp_count; ++i ) {
 			if ( opponents[ i ].revenge_dmg > max_score ) {
 				max_score = opponents[ i ].revenge_dmg;
 			}
@@ -2590,7 +2603,7 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 			}
 		}
 
-		if ( idx < oppCount ) {
+		if ( idx < opp_count ) {
 			opponents[ idx ].damage_last += damage;
 			if ( destroyed ) {
 				opponents[ idx ].killed_me++;
@@ -2601,14 +2614,14 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 			int32_t rev_dmg = opponents[ idx ].damage_last + opponents[ idx ].revenge_dmg;
 
 			if ( ( opponents[ idx ].opponent != this ) && ( opponents[ idx ].opponent != revenge )
-			     && ( rev_dmg > ( vengeanceThreshold * tank->getMaxLife() ) ) && ( rev_dmg > max_score ) ) {
+			     && ( rev_dmg > ( vengeance_threshold * tank->get_max_life() ) ) && ( rev_dmg > max_score ) ) {
 
 				revenge = opponents[ idx ].opponent;
 
-				if ( !global.skippingComputerPlay ) {
+				if ( !global.skipping_computer_play ) {
 					try {
-						new FLOATTEXT(
-							selectRevengePhrase(),
+						new CFloatText(
+							select_revenge_phrase(),
 							tank->x,
 							tank->y - 30,
 							.0,
@@ -2620,7 +2633,7 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 							false
 						);
 					} catch ( std::exception& e ) {
-						std::cerr << __func__ << " new FLOATTEXT: " << e.what() << std::endl;
+						std::cerr << __func__ << " new CFloatText: " << e.what() << std::endl;
 					}
 				}
 			}
@@ -2628,15 +2641,15 @@ void PLAYER::noteDamageFrom( PLAYER* opponent, int32_t damage, bool destroyed ) 
 	}         // end of having any opponent
 }
 
-void PLAYER::noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed ) {
+void CPlayer::note_damage_to( CPlayer* opponent, int32_t damage, bool destroyed ) {
 	if ( opponent ) {
 		int32_t idx = 0;
 
-		while ( ( idx < oppCount ) && ( opponent != opponents[ idx ].opponent ) ) {
+		while ( ( idx < opp_count ) && ( opponent != opponents[ idx ].opponent ) ) {
 			++idx;
 		}
 
-		if ( idx < oppCount ) {
+		if ( idx < opp_count ) {
 			opponents[ idx ].damage_to += damage;
 			if ( destroyed ) {
 				opponents[ idx ].killed_them++;
@@ -2647,7 +2660,7 @@ void PLAYER::noteDamageTo( PLAYER* opponent, int32_t damage, bool destroyed ) {
 
 // if we have some shield strength at the end of the round, then
 // reclaim this shield back into our inventory
-void PLAYER::reclaimShield() {
+void CPlayer::reclaim_shield() {
 	if ( tank && last_shield_used && ( tank->sh > 0 ) ) {
 		ni[ last_shield_used ] += 1;
 	}
@@ -2658,14 +2671,14 @@ void PLAYER::reclaimShield() {
 // If the player runs out of time, the function returns true.
 // If the player has time left, or no time clock is being used,
 // then the function returns false.
-bool PLAYER::reduceClock() {
+bool CPlayer::reduce_clock() {
 	if ( !time_left_to_fire ) {
 		// not using clock
 		return false;
 	}
 
 	if ( 0 == --time_left_to_fire ) {
-		time_left_to_fire = env.maxFireTime;
+		time_left_to_fire = env.max_fire_time;
 		return true;
 	}
 
@@ -2673,7 +2686,7 @@ bool PLAYER::reduceClock() {
 }
 
 /// @brief save game relevant data to @a file
-void PLAYER::save_game_data( FILE* file ) {
+void CPlayer::save_game_data( FILE* file ) {
 	fprintf( file, "KILLED=%d\n", killed );
 	fprintf( file, "KILLS=%d\n", kills );
 	fprintf( file, "MONEY=%d\n", money );
@@ -2682,32 +2695,32 @@ void PLAYER::save_game_data( FILE* file ) {
 	fprintf( file, "TYPESAVED=%d\n", type_saved );
 
 	// Preferences, needed for "PERPLAY_PREF" - players
-	if ( ( PERPLAY_PREF == preftype ) && ( HUMAN_PLAYER != type ) ) {
+	if ( ( PERPLAY_PREF == pref_type ) && ( HUMAN_PLAYER != type ) ) {
 		// Note: "ALWAYS_PREF" - players do not need this here, but in
 		// save_to_file(), as the preferences are generated only once.
 		fprintf( file, "DEFENSIVE=%lf\n", defensive );
-		fprintf( file, "PAINSENSITIVITY=%lf\n", painSensitivity );
-		fprintf( file, "SELFPRESERVATION=%lf\n", selfPreservation );
-		fprintf( file, "VENGEANCETHRESHOLD=%lf\n", vengeanceThreshold );
+		fprintf( file, "PAINSENSITIVITY=%lf\n", pain_sensitivity );
+		fprintf( file, "SELFPRESERVATION=%lf\n", self_preservation );
+		fprintf( file, "VENGEANCETHRESHOLD=%lf\n", vengeance_threshold );
 		fprintf( file, "VENGEFUL=%d\n", vengeful );
 		for ( int32_t i = 0; i < THINGS; ++i ) {
-			fprintf( file, "WEAPONPREFERENCES=%d %d\n", i, weapPref[ i ] );
+			fprintf( file, "WEAPONPREFERENCES=%d %d\n", i, weap_pref[ i ] );
 		}
 	}
 
 	// Inventory of the weapons
 	for ( int32_t i = 0; i < WEAPONS; ++i ) {
-		fprintf( file, "WEAPON=%d %d\n", i, nm[ i ] );
+		fprintf( file, "CWeapon=%d %d\n", i, nm[ i ] );
 	}
 
 	// Inventory of the items
 	for ( int32_t i = 0; i < ITEMS; ++i ) {
-		fprintf( file, "ITEM=%d %d\n", i, ni[ i ] );
+		fprintf( file, "CItem=%d %d\n", i, ni[ i ] );
 	}
 
 	// Opponents memory
-	fprintf( file, "OPPCOUNT=%d\n", oppCount );
-	for ( int32_t i = 0; i < oppCount; ++i ) {
+	fprintf( file, "OPPCOUNT=%d\n", opp_count );
+	for ( int32_t i = 0; i < opp_count; ++i ) {
 		int32_t idx = opponents[ i ].index; // Just a shortcut
 
 		// Save damage from last turn if any is still there:
@@ -2727,75 +2740,75 @@ void PLAYER::save_game_data( FILE* file ) {
 }
 
 /// @brief dump full player data to @a file
-void PLAYER::save_to_file( FILE* file ) {
+void CPlayer::save_to_file( FILE* file ) {
 	if ( !file ) {
 		return;
 	}
 
-	// start section with "*PLAYER*"
-	fprintf( file, "*PLAYER*\n" );
+	// start section with "*CPlayer*"
+	fprintf( file, "*CPlayer*\n" );
 	fprintf( file, "NAME=%s\n", name.c_str() ); // Set first for easier debugging
 	fprintf( file, "COLOR=%d\n", color );
 	fprintf( file, "DEFENSIVE=%lf\n", defensive );
-	fprintf( file, "PAINSENSITIVITY=%lf\n", painSensitivity );
+	fprintf( file, "PAINSENSITIVITY=%lf\n", pain_sensitivity );
 	fprintf( file, "PLAYED=%u\n", played );
-	fprintf( file, "PREFTYPE=%d\n", preftype );
-	fprintf( file, "SELFPRESERVATION=%lf\n", selfPreservation );
-	fprintf( file, "TANK_BITMAP=%d\n", tankbitmap );
+	fprintf( file, "PREFTYPE=%d\n", pref_type );
+	fprintf( file, "SELFPRESERVATION=%lf\n", self_preservation );
+	fprintf( file, "TANK_BITMAP=%d\n", tank_bitmap );
 	fprintf( file, "TEAM=%d\n", team );
 	fprintf( file, "TYPE=%d\n", type );
 	fprintf( file, "TYPESAVED=%d\n", type_saved );
-	fprintf( file, "VENGEANCETHRESHOLD=%lf\n", vengeanceThreshold );
+	fprintf( file, "VENGEANCETHRESHOLD=%lf\n", vengeance_threshold );
 	fprintf( file, "VENGEFUL=%d\n", vengeful );
 	fprintf( file, "WON=%u\n", won );
 
 	// Preferences, needed for "ALWAYS_PREF" - players
-	if ( ALWAYS_PREF == preftype ) {
+	if ( ALWAYS_PREF == pref_type ) {
 		// Note: "PERPLAY_PREF" - players do not need this here, but in
 		// save_game_data(), as the preferences are different in each game.
 		for ( int32_t i = 0; i < THINGS; ++i ) {
-			fprintf( file, "WEAPONPREFERENCES=%d %d\n", i, weapPref[ i ] );
+			fprintf( file, "WEAPONPREFERENCES=%d %d\n", i, weap_pref[ i ] );
 		}
 	}
 
 	fprintf( file, "***\n" );
 }
 
-char const* PLAYER::selectGloatPhrase() {
-	return env.gloat->Get_Random_Line();
+char const* CPlayer::select_gloat_phrase() {
+	return env.gloat->get_random_line();
 }
 
 /// @return a constructed panic phrase which must be freed!
-char const* PLAYER::selectPanicPhrase( PLAYER* shocker ) {
+char const* CPlayer::select_panic_phrase( CPlayer* shocker ) {
 	if ( !shocker ) {
 		return nullptr;
 	}
 
-	char const* line  = env.panic->Get_Random_Line();
-	size_t      tLen  = strlen( shocker->getName() ) + strlen( line );
+	char const* line  = env.panic->get_random_line();
+	size_t      tLen  = strlen( shocker->get_name() ) + strlen( line );
 	char*       pText = (char*)calloc( tLen + 1, sizeof( char ) );
 
 	if ( !pText ) {
 		return nullptr;
 	}
 
-	snprintf( pText, tLen, line, shocker->getName() );
+	snprintf( pText, tLen, line, shocker->get_name() );
 
 	return pText;
 }
 
-char const* PLAYER::selectKamikazePhrase() {
-	return env.kamikaze->Get_Random_Line();
+char const* CPlayer::select_kamikaze_phrase() {
+	return env.kamikaze->get_random_line();
 }
 
 /// @return a constructed retaliation phrase which must be freed!
-char const* PLAYER::selectRetaliationPhrase() const {
+char const* CPlayer::select_retaliation_phrase() const {
 	if ( !revenge ) {
 		return nullptr;
 	}
 
-	char const* line  = env.retaliation->Get_Random_Line();
-	char const* rname = revenge->getName();
+	char const* line  = env.retaliation->get_random_line();
+	char const* rname = revenge->get_name();
 	size_t      tLen  = strlen( rname ) + 4 + strlen( line );
 	char*       pText = (char*)calloc( tLen + 1, sizeof( char ) );
 
@@ -2806,42 +2819,42 @@ char const* PLAYER::selectRetaliationPhrase() const {
 	return pText;
 }
 
-char const* PLAYER::selectRevengePhrase() {
-	return env.revenge->Get_Random_Line();
+char const* CPlayer::select_revenge_phrase() {
+	return env.revenge->get_random_line();
 }
 
-char const* PLAYER::selectSuicidePhrase() {
-	return env.suicide->Get_Random_Line();
+char const* CPlayer::select_suicide_phrase() {
+	return env.suicide->get_random_line();
 }
 
 /// @brief store @a last_opp to be remembered as the current/last target
-void PLAYER::setLastOpponent( sOpponent* last_opp ) {
+void CPlayer::set_last_opponent( sOpponent* last_opp ) {
 	last_opponent = last_opp;
 }
 
-void PLAYER::setName( char const* name_ ) {
+void CPlayer::set_name( char const* name_ ) {
 	if ( !name_ || ( ( name != name_ ) ) ) {
 		name.assign( name_ ? name_ : "" );
 	}
 }
 
 /// @brief fill in the list of desired items and update their preferences
-void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
+void CPlayer::update_preferences( int32_t max_boost, int32_t max_score ) {
 	// 1.: Fill cart and preference array.
 	// The preferences are copied, as they might get boosted this round
-	int32_t weapons_in_stock = generateDesiredList();
+	int32_t weapons_in_stock = generate_desired_list();
 	auto    ai_level         = static_cast< int32_t >( type );
 
 	// 2.: Amplify wish list by current boost and score situation
-	needAmp    = false;
-	needArmour = false;
-	needDamage = false;
+	need_amp    = false;
+	need_armour = false;
+	need_damage = false;
 
 	// Check whether boosting armour / amps is wanted:
-	if ( getBoostValue() < ( max_boost / ai_level ) ) {
+	if ( get_boost_value() < ( max_boost / ai_level ) ) {
 		// Yes. which?
-		double amp_val = getAmpValue();
-		double arm_val = getArmourValue();
+		double amp_val = get_amp_value();
+		double arm_val = get_armour_value();
 
 		// Amplifier rating for offensive bot: 3:1, and for defensive bot: 3:5
 		double amp_want = defensive < 0 ? arm_val - ( amp_val / 3. ) : ( arm_val / 5. ) - ( amp_val / 3. );
@@ -2850,33 +2863,33 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 		double arm_want = defensive < 0 ? ( amp_val / 5. ) - ( arm_val / 3. ) : amp_val - ( arm_val / 3. );
 
 		if ( amp_want > arm_want ) {
-			DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost amps    (%d / %d)", getBoostValue(), max_boost / ai_level )
-			needAmp = true; // Try to come back with more damage output
+			DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost amps    (%d / %d)", get_boost_value(), max_boost / ai_level )
+			need_amp = true; // Try to come back with more damage output
 		} else {
-			DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost armour  (%d / %d)", getBoostValue(), max_boost / ai_level )
-			needArmour = true; // Try to come back with more endurance
+			DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost armour  (%d / %d)", get_boost_value(), max_boost / ai_level )
+			need_armour = true; // Try to come back with more endurance
 		}
 	}
 
 	// Fallen behind? Need more weapons?
 	if ( ( score <= ( max_score / ( ai_level + 1 ) ) ) && ( weapons_in_stock < ( 2 * ai_level ) ) ) {
 		DEBUG_LOG_FIN( name.c_str(), "updPref: Need to boost weapons (%d / %d)", score, max_score / ( ai_level + 1 ) )
-		needDamage = true;
+		need_damage = true;
 	}
 
 	// Account for boosted preferences from last round
-	if ( ( boostPref[ WEAPONS + ITEM_VIOLENT_FORCE ] > 0 ) || ( boostPref[ WEAPONS + ITEM_INTENSITY_AMP ] > 0 ) ) {
-		needAmp = true;
+	if ( ( boost_pref[ WEAPONS + ITEM_VIOLENT_FORCE ] > 0 ) || ( boost_pref[ WEAPONS + ITEM_INTENSITY_AMP ] > 0 ) ) {
+		need_amp = true;
 	}
-	if ( ( boostPref[ WEAPONS + ITEM_PLASTEEL ] > 0 ) || ( boostPref[ WEAPONS + ITEM_ARMOUR ] > 0 ) ) {
-		needArmour = true;
+	if ( ( boost_pref[ WEAPONS + ITEM_PLASTEEL ] > 0 ) || ( boost_pref[ WEAPONS + ITEM_ARMOUR ] > 0 ) ) {
+		need_armour = true;
 	}
 
 
 	// 3.: Boost preferences if wanted and lower weapon/item
 	//     preferences if there are enough in stock already.
 	//     Further note down items to sell.
-	boostPrefences( needArmour, needAmp, needDamage );
+	boost_prefences( need_armour, need_amp, need_damage );
 
 
 	// 4.: Sort these items by preferences
@@ -2888,7 +2901,7 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 			int32_t idx_l = desired[ i - 1 ];
 			int32_t idx_r = desired[ i ];
 
-			if ( ( currPref[ idx_l ] < currPref[ idx_r ] )
+			if ( ( curr_pref[ idx_l ] < curr_pref[ idx_r ] )
 			     // sort SML_MIS to the back, too
 			     || ( ( 0 == idx_l ) && idx_r ) ) {
 				isSorted         = false;
@@ -2905,27 +2918,27 @@ void PLAYER::updatePreferences( int32_t max_boost, int32_t max_score ) {
 			name.c_str(),
 			"%2d. preference: %6d - %s",
 			i + 1,
-			currPref[ desired[ i ] ],
-			desired[ i ] < WEAPONS ? weapon[ desired[ i ] ].getName() : item[ desired[ i ] - WEAPONS ].getName()
+			curr_pref[ desired[ i ] ],
+			desired[ i ] < WEAPONS ? weapon[ desired[ i ] ].get_name() : item[ desired[ i ] - WEAPONS ].get_name()
 		)
 	}
 #endif // ATANKS_DEBUG_FINANCE
 }
 
 /// @brief mini ctor to pacify Visual C++
-PLAYER_mini::PLAYER_mini() = default;
+PlayerMini::PlayerMini() = default;
 
 /// @brief backup a players editable data
-void PLAYER_mini::copy_from( PLAYER* source ) {
+void PlayerMini::copy_from( CPlayer* source ) {
 	if ( source ) {
-		assert( ( source->index > -1 ) && "INDEX ERROR on PLAYER!" );
+		assert( ( source->index > -1 ) && "INDEX ERROR on CPlayer!" );
 		color = source->color;
 		index = source->index;
-		strncpy( name, source->getName(), NAME_LEN );
+		strncpy( name, source->get_name(), NAME_LEN );
 		played     = source->played;
 		player     = source;
-		preftype   = source->preftype;
-		tankbitmap = source->tankbitmap;
+		pref_type   = source->pref_type;
+		tank_bitmap = source->tank_bitmap;
 		team       = source->team;
 		type       = source->type;
 		won        = source->won;
@@ -2933,16 +2946,16 @@ void PLAYER_mini::copy_from( PLAYER* source ) {
 }
 
 /// @brief copy backed up values back to the source player
-void PLAYER_mini::write_back( PLAYER* target ) {
+void PlayerMini::write_back( CPlayer* target ) {
 	if ( target ) {
 		player = target;
 	}
 	if ( player ) {
 		player->color = color;
-		player->setName( name );
+		player->set_name( name );
 		// played is read only.
-		player->preftype   = preftype;
-		player->tankbitmap = tankbitmap;
+		player->pref_type   = pref_type;
+		player->tank_bitmap = tank_bitmap;
 		player->team       = team;
 		player->type       = type;
 		// won is read only.
@@ -2950,7 +2963,7 @@ void PLAYER_mini::write_back( PLAYER* target ) {
 }
 
 /// @brief action function to display the edit player screen
-int32_t edit_player( PLAYER** target, int32_t ) {
+int32_t edit_player( CPlayer** target, int32_t ) {
 	int32_t result = 0;
 
 	assert( target && "ERROR: target must be set" );
@@ -2962,21 +2975,21 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 
 	int32_t menuMid        = 300;
 	int32_t itemLeft       = menuMid - 75;
-	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemHeight     = env.font_height + 2;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 3;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 
 
 	// Use "Mini-Player" struct to be able to cancel player editing
-	PLAYER_mini player_bak;
+	PlayerMini player_bak;
 	player_bak.copy_from( *target );
 
 	// The "Are you sure" screen when deleting a player
-	Menu areyousure( MC_AREYOUSURE, env.halfWidth - menuMid, env.menuBeginY );
-	areyousure.addButton(
+	CMenu areyousure( MC_AREYOUSURE, env.half_width - menuMid, env.menu_begin_y );
+	areyousure.add_button(
 		1,
 		nullptr,
 		PE_CONFIRM_DEL,
@@ -2990,7 +3003,7 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 		0,
 		itemPadding
 	);
-	areyousure.addButton(
+	areyousure.add_button(
 		2,
 		nullptr,
 		PE_BACK,
@@ -3006,19 +3019,19 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 	);
 
 	// The menu, but with the player name as title
-	Menu menu( MC_PLAYER, env.halfWidth - menuMid, env.menuBeginY );
-	menu.setTitle( player_bak.name, false );
+	CMenu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
+	menu.set_title( player_bak.name, false );
 
 	// "Name"
-	menu.addText( player_bak.name, 1, NAME_LEN, player_bak.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( player_bak.name, 1, NAME_LEN, player_bak.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Colour"
-	menu.addColor( &player_bak.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
+	menu.add_color( &player_bak.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
 	itemY += 50 + itemPadding;
 
 	// "Type"
-	menu.addValue(
+	menu.add_value(
 		&player_bak.type,
 		3,
 		nullptr,
@@ -3034,7 +3047,7 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Team"
-	menu.addValue(
+	menu.add_value(
 		&player_bak.team,
 		4,
 		nullptr,
@@ -3050,8 +3063,8 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Generate Pref"
-	menu.addValue(
-		&player_bak.preftype,
+	menu.add_value(
+		&player_bak.pref_type,
 		5,
 		nullptr,
 		BLACK,
@@ -3066,16 +3079,16 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Played"
-	menu.addText( &player_bak.played, 6, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( &player_bak.played, 6, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Won"
-	menu.addText( &player_bak.won, 7, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( &player_bak.won, 7, BLACK, "% 8u", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Tank Type"
-	menu.addValue(
-		&player_bak.tankbitmap,
+	menu.add_value(
+		&player_bak.tank_bitmap,
 		8,
 		nullptr,
 		BLACK,
@@ -3091,10 +3104,10 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 	itemY += 35 + itemPadding;
 
 	// "Delete This Player"
-	menu.addMenu( &areyousure, 9, RED, itemLeft, itemY, 150, itemFullHeight, itemPadding );
+	menu.add_menu( &areyousure, 9, RED, itemLeft, itemY, 150, itemFullHeight, itemPadding );
 
 	// "Okay" and "Back"
-	menu.addButton(
+	menu.add_button(
 		10,
 		nullptr,
 		PE_CONFIRM_EDIT,
@@ -3108,7 +3121,7 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 		0,
 		itemPadding
 	);
-	menu.addButton(
+	menu.add_button(
 		11,
 		nullptr,
 		PE_BACK,
@@ -3138,10 +3151,10 @@ int32_t edit_player( PLAYER** target, int32_t ) {
 	return result;
 }
 
-static PLAYER_mini player_new; //!< Used by new_player to keep previous settings
+static PlayerMini player_new; //!< Used by new_player to keep previous settings
 
 /// @brief action function to display the edit player screen
-int32_t new_player( PLAYER** target, int32_t ) {
+int32_t new_player( CPlayer** target, int32_t ) {
 	int32_t result = 0;
 
 	assert( target && "ERROR: target must be set" );
@@ -3153,26 +3166,26 @@ int32_t new_player( PLAYER** target, int32_t ) {
 
 	int32_t menuMid        = 300;
 	int32_t itemLeft       = menuMid - 75;
-	int32_t itemHeight     = env.fontHeight + 2;
+	int32_t itemHeight     = env.font_height + 2;
 	int32_t itemPadding    = 2;
 	int32_t itemFullHeight = itemHeight + itemPadding;
 	int32_t itemY          = itemFullHeight * 3;
 	int32_t btnHeight      = env.misc[ 7 ]->h + itemPadding;
-	int32_t menuHeight     = env.menuEndY - env.menuBeginY; // Raw height
+	int32_t menuHeight     = env.menu_end_y - env.menu_begin_y; // Raw height
 
 	// The menu, with title from the menu class
-	Menu menu( MC_PLAYER, env.halfWidth - menuMid, env.menuBeginY );
+	CMenu menu( MC_PLAYER, env.half_width - menuMid, env.menu_begin_y );
 
 	// "Name"
-	menu.addText( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
+	menu.add_text( player_new.name, 1, NAME_LEN, player_new.color, "%s", itemLeft, itemY, 150, itemHeight, itemPadding );
 	itemY += itemFullHeight;
 
 	// "Colour"
-	menu.addColor( &player_new.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
+	menu.add_color( &player_new.color, 2, itemLeft, itemY, 150, 50, 25, itemPadding );
 	itemY += 50 + itemPadding;
 
 	// "Type"
-	menu.addValue(
+	menu.add_value(
 		&player_new.type,
 		3,
 		nullptr,
@@ -3188,7 +3201,7 @@ int32_t new_player( PLAYER** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Team"
-	menu.addValue(
+	menu.add_value(
 		&player_new.team,
 		4,
 		nullptr,
@@ -3204,8 +3217,8 @@ int32_t new_player( PLAYER** target, int32_t ) {
 	itemY += itemFullHeight;
 
 	// "Generate Pref"
-	menu.addValue(
-		&player_new.preftype,
+	menu.add_value(
+		&player_new.pref_type,
 		5,
 		nullptr,
 		BLACK,
@@ -3222,8 +3235,8 @@ int32_t new_player( PLAYER** target, int32_t ) {
 	// "Played" and "Won" do not make sense here
 
 	// "Tank Type"
-	menu.addValue(
-		&player_new.tankbitmap,
+	menu.add_value(
+		&player_new.tank_bitmap,
 		8,
 		nullptr,
 		BLACK,
@@ -3241,7 +3254,7 @@ int32_t new_player( PLAYER** target, int32_t ) {
 	// "Delete This Player" is surely not needed
 
 	// "Okay" and "Back"
-	menu.addButton(
+	menu.add_button(
 		10,
 		nullptr,
 		PE_CONFIRM_NEW,
@@ -3255,7 +3268,7 @@ int32_t new_player( PLAYER** target, int32_t ) {
 		0,
 		itemPadding
 	);
-	menu.addButton(
+	menu.add_button(
 		11,
 		nullptr,
 		PE_BACK,
@@ -3278,16 +3291,16 @@ int32_t new_player( PLAYER** target, int32_t ) {
 		// First, ensure that the name is unique
 		// Second, create the real player
 		if ( PE_CONFIRM_NEW & result ) {
-			if ( -1 == env.getPlayerByName( player_new.name ) ) {
-				*target = env.createNewPlayer( player_new.name );
+			if ( -1 == env.get_player_by_name( player_new.name ) ) {
+				*target = env.create_new_player( player_new.name );
 				if ( *target ) {
 					player_new.write_back( *target );
 				}
 			} else {
 				snprintf( existsMessage, 199, "The player \"%s\" already exists!", player_new.name );
 				errorMessage = existsMessage;
-				errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
-				errorY       = env.menuBeginY + itemFullHeight;
+				errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+				errorY       = env.menu_begin_y + itemFullHeight;
 				result       = 0;
 			}
 		}

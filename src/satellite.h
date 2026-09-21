@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_SATELLITE_H_INCLUDED
-#define ATANKS_SRC_SATELLITE_H_INCLUDED 1
+#ifndef ATANKS_SATELLITE_H_INCLUDED
+#define ATANKS_SATELLITE_H_INCLUDED 1
 
 
 #include "environment.h"
@@ -8,9 +8,12 @@
 #define SATELLITE_IMAGE 16
 
 #ifndef BEAM_DEFINE
-class BEAM;
+class CBeam;
 #endif // BEAM_DEFINE
 
+/** @class SATELLITE
+ * @brief Orbiting laser satellite.
+ **/
 class SATELLITE {
 public:
 	/* -----------------------------------
@@ -18,6 +21,7 @@ public:
 	 * -----------------------------------
 	 */
 
+	/// Construct a satellite.
 	explicit SATELLITE();
 
 
@@ -26,8 +30,11 @@ public:
 	 * ----------------------
 	 */
 
+	/// Render the satellite.
 	void draw() const;
+	/// Advance the satellite.
 	void move();
+	/// Fire the laser.
 	void shoot();
 
 
@@ -37,11 +44,11 @@ private:
 	 * -----------------------
 	 */
 
-	BEAM*   beam   = nullptr;
-	int32_t x      = 0;
-	int32_t y      = MENUHEIGHT + 5;
-	int32_t xv     = -2;
-	int32_t prev_x = 0;
+	CBeam*   beam   = nullptr;
+	double   x      = 0;
+	int32_t  y      = MENUHEIGHT + 5;
+	double   xv     = -2;
+	double   prev_x = 0;
 };
 
-#endif // ATANKS_SRC_SATELLITE_H_INCLUDED
+#endif // ATANKS_SATELLITE_H_INCLUDED

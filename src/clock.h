@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ATANKS_SRC_CLOCK_H_INCLUDED
-#  define ATANKS_SRC_CLOCK_H_INCLUDED
+#ifndef ATANKS_CLOCK_H_INCLUDED
+#  define ATANKS_CLOCK_H_INCLUDED
 
 #  include "debug.h"
 
@@ -25,4 +25,4 @@ void win_clock_init();
 	    {}
 #  endif
 
-#endif // ATANKS_SRC_CLOCK_H_INCLUDED
+#endif // ATANKS_CLOCK_H_INCLUDED

@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_OPTIONITEMCOLOUR_H_INCLUDED
-#define ATANKS_SRC_OPTIONITEMCOLOUR_H_INCLUDED 1
+#ifndef ATANKS_OPTIONITEMCOLOUR_H_INCLUDED
+#define ATANKS_OPTIONITEMCOLOUR_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -28,25 +28,26 @@
  **/
 
 
-/** @class OptionItemColour
+/** @class COptionItemColour
  * @brief abstract one option menu entry to handle an int32_t instance
  *
- * This class is a special version of the OptionItem template that can only
+ * This class is a special version of the TOptionItem template that can only
  * handle int32_t instances representing colours.
  *
  * The the only entry type supported is the ET_COLOR.
  **/
-class OptionItemColour final : public OptionItemBase {
+class COptionItemColour final : public COptionItemBase {
 public:
 	/* -------------------------------------------
 	 * --- Public constructors and destructors ---
 	 * -------------------------------------------
 	 */
 
-	explicit OptionItemColour(
+	/// Create a color entry.
+	explicit COptionItemColour(
 		int32_t*    color_,
 		char const* title_,
-		int32_t     titleIdx_,
+		int32_t     title_idx_,
 		int32_t     top_,
 		int32_t     left_,
 		int32_t     width_,
@@ -54,17 +55,23 @@ public:
 		int32_t     padding_,
 		int32_t     show_size_
 	);
-	~OptionItemColour() final;
+	/// Destroy a color entry.
+	~COptionItemColour() final;
 
 	/* ----------------------
 	 * --- Public methods ---
 	 * ----------------------
 	 */
 
+	/// Handle activation with click position.
 	int32_t activate( int32_t, int32_t, int32_t, int32_t ) final;
+	/// Colors have no minimum.
 	bool    canGoDown() final;
+	/// Colors have no maximum.
 	bool    canGoUp() final;
+	/// Render the color box.
 	void    display( bool show_full ) final;
+	/// Colors are never exit buttons.
 	bool    isExitButton() final;
 
 
@@ -75,7 +82,7 @@ private:
 	 */
 
 
-	void displayCross();
+	void display_cross();
 
 
 	/* -----------------------
@@ -90,4 +97,4 @@ private:
 };
 
 
-#endif // ATANKS_SRC_OPTIONITEMCOLOUR_H_INCLUDED
+#endif // ATANKS_OPTIONITEMCOLOUR_H_INCLUDED

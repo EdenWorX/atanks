@@ -1,4 +1,4 @@
-#define ATANKS_SRC_ATANKS_CPP 1
+#define ATANKS_ATANKS_CPP 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -6,7 +6,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -55,8 +55,8 @@
 *** static local variables ***
 *****************************/
 static bool        allow_network = true;
-static string      fullPath;
-static eFullScreen full_screen      = FULL_SCREEN_EITHER;
+static string      full_path;
+static EFullScreen full_screen      = FULL_SCREEN_EITHER;
 static bool        load_config_file = true;
 static int32_t     screen_mode      = GFX_AUTODETECT_WINDOWED;
 #ifdef NETWORK
@@ -67,34 +67,34 @@ static int32_t client_socket = -1;
 /*************************
 *** External variables ***
 *************************/
-extern WEAPON weapon[ WEAPONS ];    // from files.cpp
-extern WEAPON naturals[ NATURALS ]; // from files.cpp
-extern ITEM   item[ ITEMS ];        // from files.cpp
+extern CWeapon weapon[ WEAPONS ];    // from files.cpp
+extern CWeapon naturals[ NATURALS ]; // from files.cpp
+extern CItem   item[ ITEMS ];        // from files.cpp
 
 
 /*****************************
 *** static local functions ***
 *****************************/
-static void        Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech );
+static void        change_settings( bool old_sound, int32_t old_itech, int32_t old_wtech );
 static void        close_button_handler();
-static void        createConfig();
+static void        create_config();
 static void        credits();
 static char const* do_winner();
 static void        endgame_cleanup();
 void               init_mouse_cursor();
 static void        init_game_settings();
-static void        initialisePlayers();
-static bool        loadConfig();
-static bool        loadPlayers( FILE* file );
+static void        initialise_players();
+static bool        load_config();
+static bool        load_players( FILE* file );
 static int32_t     menu();
-static void        newgame();
+static void        new_game();
 static int32_t     parse_args( int32_t argc, char** argv );
 static void        play_demo();
 static void        play_local();
 static void        play_networked();
 static void        print_text_help();
-static void        print_text_initmsg();
-static bool        Save_Game_Settings( char const* path );
+static void        print_text_init_msg();
+static bool        save_game_settings( char const* path );
 static void        show_options();
 static void        title();
 
@@ -113,7 +113,7 @@ void draw_simple_bg( bool drawImage ); // from shop.cpp
  * This function detects changes to some environment settings and, if a
  * change has happened, makes the required changes to the game environment.
  **/
-static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtech ) {
+static void change_settings( bool old_sound, int32_t old_itech, int32_t old_wtech ) {
 	// first, check for a change in the sound settings
 	if ( old_sound != env.sound_enabled ) {
 		if ( env.sound_enabled ) {
@@ -130,8 +130,8 @@ static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtec
 	} // End of sound checking
 
 	// Check for tech level changes
-	if ( ( old_itech != env.itemtechLevel ) || ( old_wtech != env.weapontechLevel ) ) {
-		env.genItemsList();
+	if ( ( old_itech != env.itemtech_level ) || ( old_wtech != env.weapontech_level ) ) {
+		env.gen_items_list();
 	}
 }
 
@@ -141,20 +141,20 @@ static void Change_Settings( bool old_sound, int32_t old_itech, int32_t old_wtec
  * the close window button. We'll try to clean-up.
  **/
 static void close_button_handler() {
-	global.pressCloseButton();
+	global.press_close_button();
 }
 
 /// @brief Show the credits file in a text box
 static void credits() {
-	string    credits_file{ env.dataDir + string( "/credits.txt" ) };
+	string    credits_file{ env.data_dir + string( "/credits.txt" ) };
 
 	TEXTBLOCK my_text( credits_file.c_str() );
-	scrollTextList( &my_text );
+	scroll_text_list( &my_text );
 }
 
 /// @brief create a fresh new config if loading was prohibited or failed
-static void createConfig() {
-	env.numPermanentPlayers = 0;
+static void create_config() {
+	env.num_permanent_players = 0;
 
 	// Override full screen settings from command line
 	if ( ( full_screen == FULL_SCREEN_TRUE ) || ( full_screen == FULL_SCREEN_FALSE ) ) {
@@ -162,59 +162,24 @@ static void createConfig() {
 	}
 
 	// Determine basic screen settings
-	env.temp_screenWidth  = env.screenWidth;
-	env.temp_screenHeight = env.screenHeight;
-	env.halfWidth         = env.screenWidth / 2;
-	env.halfHeight        = env.screenHeight / 2;
-	env.menuBeginY        = ( env.screenHeight - 400 ) / 2;
-	if ( env.menuBeginY < 0 ) {
-		env.menuBeginY = 0;
+	env.temp_screen_width  = env.screen_width;
+	env.temp_screen_height = env.screen_height;
+	env.half_width         = env.screen_width / 2;
+	env.half_height        = env.screen_height / 2;
+	env.menu_begin_y        = ( env.screen_height - 400 ) / 2;
+	if ( env.menu_begin_y < 0 ) {
+		env.menu_begin_y = 0;
 	}
-	env.menuEndY = env.screenHeight - env.menuBeginY;
+	env.menu_end_y = env.screen_height - env.menu_begin_y;
 
 	// Perform game initialization
 	init_game_settings();
 	env.load_text_files();
 	init_mouse_cursor();
 
-	// At least one human player must be created
-	PLAYER* tempPlayer        = nullptr;
-	int32_t tempRes           = PE_BACK; // ePlayerEdit, player_types.h
-	char    noHumanMsg[ 200 ] = { 0 };
-
-	while ( !( tempRes & PE_CONFIRM_NEW ) ) {
-		tempRes = new_player( &tempPlayer, 0 );
-
-		if ( tempPlayer ) {
-			// Error case 1: The created player is an AI player
-			if ( HUMAN_PLAYER != tempPlayer->type ) {
-				snprintf( noHumanMsg, 199, "The player \"%s\" is no human player!", tempPlayer->getName() );
-				errorMessage = noHumanMsg;
-				errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
-				errorY       = env.menuBeginY + 15;
-				tempPlayer   = nullptr; // It is saved already
-				tempRes      = PE_BACK;
-			}
-		} else {
-			// error case 2: No player was created at all
-			strncpy( noHumanMsg, "Please create at least one human player!", 199 );
-			errorMessage = noHumanMsg;
-			errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
-			errorY       = env.menuBeginY + 15;
-			tempRes      = PE_BACK;
-		}
-	} // End of force-creating a human player
-
-	// Default AI player names
-	char const* const defaultNames[] = {
-		"Caesar", "Alex", "Hatshepsut", "Patton", "Napoleon", "Attila", "Catherine", "Hannibal", "Stalin", "Mao"
-	};
-
-	for ( auto defaultName : defaultNames ) {
-		tempPlayer       = env.createNewPlayer( defaultName );
-		tempPlayer->type = static_cast< playerType >( get_rand() % ( LAST_PLAYER_TYPE - 1 ) + 1 );
-		tempPlayer->generatePreferences();
-	}
+	// At least one human player must be created, plus the default AI set
+	create_human_player();
+	create_ai_players();
 }
 
 /// @brief Draw the endgame screen and return the winner name
@@ -224,7 +189,7 @@ static char const* do_winner() {
 	static char return_string[ 257 ] = { 0 };
 
 	// Get the dimensions of the score board and the texts right:
-	int32_t lh = env.fontHeight + 3; // The line height.
+	int32_t lh = env.font_height + 3; // The line height.
 	int32_t pd = 10;                 // Padding. How much space to the board border.
 
 	// Find out longest player name and score length do determine the
@@ -248,13 +213,13 @@ static char const* do_winner() {
 	int32_t  maxkills               = -1;
 	int32_t  minkilled              = INT32_MAX;
 	bool     multiwinner            = false;
-	PLAYER** players                = env.players; // short cut
+	CPlayer** players                = env.players; // short cut
 	int32_t  pl_money[ MAXPLAYERS ] = { 0 };
 
-	for ( int32_t z = 0; z < env.numGamePlayers; z++ ) {
+	for ( int32_t z = 0; z < env.num_game_players; z++ ) {
 
 		// Check the length of the name
-		int32_t curLen = text_length( font, players[ z ]->getName() );
+		int32_t curLen = text_length( font, players[ z ]->get_name() );
 		if ( curLen > namLen ) {
 			namLen = curLen;
 		}
@@ -275,7 +240,7 @@ static char const* do_winner() {
 
 		// Check value length
 		char valTxt[ 32 ] = { 0 };
-		snprintf( valTxt, 16, " %14s", Add_Comma( pl_money[ z ] ) );
+		snprintf( valTxt, 16, " %14s", add_comma( pl_money[ z ] ) );
 		curLen = text_length( font, valTxt );
 		if ( curLen > valLen ) {
 			valLen = curLen;
@@ -327,11 +292,11 @@ static char const* do_winner() {
 
 	// Now calculate the dimensions of our score board.
 	int32_t w  = namLen + valLen + scoLen + ( 2 * pd );
-	int32_t h  = ( ( env.numGamePlayers + 4 ) * lh ) + ( 2 * pd );
-	int32_t x  = env.halfWidth - ( w / 2 );
-	int32_t y  = env.halfHeight - ( h / 2 );
+	int32_t h  = ( ( env.num_game_players + 4 ) * lh ) + ( 2 * pd );
+	int32_t x  = env.half_width - ( w / 2 );
+	int32_t y  = env.half_height - ( h / 2 );
 	int32_t qy = y + h + pd;
-	BOX     qarea( x + pd, qy, w - ( 2 * pd ), env.screenHeight - pd - qy );
+	sBox     qarea( x + pd, qy, w - ( 2 * pd ), env.screen_height - pd - qy );
 
 	// stop mouse during drawing
 	SHOW_MOUSE( nullptr )
@@ -340,12 +305,12 @@ static char const* do_winner() {
 
 	// Draw the winning bitmap, the background and the border
 	draw_simple_bg( false );
-	draw_sprite( global.canvas, env.misc[ 9 ], env.halfWidth - ( env.misc[ 9 ]->w / 2 ), y - env.misc[ 9 ]->h - pd );
+	draw_sprite( global.canvas, env.misc[ 9 ], env.half_width - ( env.misc[ 9 ]->w / 2 ), y - env.misc[ 9 ]->h - pd );
 	rectfill( global.canvas, x, y, x + w, y + h, BLACK );
 	rect( global.canvas, x, y, x + w, y + h, WHITE );
 	rect( global.canvas, x + 1, y + 1, x + w - 1, y + h - 1, GREY );
 
-	// Add the padding now, or it must be summed in everywhere!
+	// add the padding now, or it must be summed in everywhere!
 	x += pd;
 	y += pd;
 	w -= 2 * pd;
@@ -357,32 +322,32 @@ static char const* do_winner() {
 		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
 			if ( ( ( idx_sith >= 0 ) && ( players[ idx_sith ]->score == players[ idx_winner ]->score ) )
 			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 45 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
 			}
 		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
 			if ( ( ( idx_jedi >= 0 ) && ( players[ idx_jedi ]->score == players[ idx_winner ]->score ) )
 			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
-				snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
+				snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
 			}
 		} else {
-			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 48 ) );
+			snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 		}
 	} else {
 		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
-			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 45 ) );
+			snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
 		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
-			snprintf( return_string, 256, "%s", env.ingame->Get_Line( 46 ) );
+			snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
 		} else {
-			snprintf( return_string, 256, "%s: %s", env.ingame->Get_Line( 47 ), players[ idx_winner ]->getName() );
+			snprintf( return_string, 256, "%s: %s", env.ingame->get_line( 47 ), players[ idx_winner ]->get_name() );
 		}
 	}
 
 	// Print the title lines
-	textprintf_centre_ex( global.canvas, font, env.halfWidth, y, players[ idx_winner ]->color, -1, "%s", return_string );
+	textprintf_centre_ex( global.canvas, font, env.half_width, y, players[ idx_winner ]->color, -1, "%s", return_string );
 
 	// to make the following easier, skip the two used lines
 	// (The title and one blank)
@@ -424,7 +389,7 @@ static char const* do_winner() {
 			WHITE,
 			-1,
 			" %14s",
-			Add_Comma( pl_money[ score->idx ] )
+			add_comma( pl_money[ score->idx ] )
 		);
 		textprintf_right_ex( global.canvas, font, scoStart + ( 1 * scoWidth ), y + ( z * lh ), GREEN, -1, " %6d", score->kills );
 		textprintf_right_ex( global.canvas, font, scoStart + ( 2 * scoWidth ), y + ( z * lh ), RED, -1, " %6d", score->killed );
@@ -444,8 +409,8 @@ static char const* do_winner() {
 	}
 	global.do_updates();
 
-	// Add a war quote:
-	char const* quote = env.war_quotes->Get_Random_Line();
+	// add a war quote:
+	char const* quote = env.war_quotes->get_random_line();
 	if ( quote ) {
 		draw_text_in_box( &qarea, quote, false );
 	}
@@ -457,7 +422,7 @@ static char const* do_winner() {
 }
 
 static void endgame_cleanup() {
-	while ( env.numGamePlayers > 0 ) {
+	while ( env.num_game_players > 0 ) {
 		if ( env.players[ 0 ]->tank ) {
 			delete env.players[ 0 ]->tank;
 			env.players[ 0 ]->tank = nullptr;
@@ -469,7 +434,7 @@ static void endgame_cleanup() {
 			env.players[ 0 ]->type = env.players[ 0 ]->previous_type;
 		}
 
-		env.removeGamePlayer( env.players[ 0 ] );
+		env.remove_game_player( env.players[ 0 ] );
 	}
 
 	global.clear_objects();
@@ -493,7 +458,7 @@ BOOL WINAPI ctrlHandler( DWORD CtrlType ) {
 
 
 void init_mouse_cursor() {
-	if ( env.osMouse ) {
+	if ( env.os_mouse ) {
 		show_os_cursor( MOUSE_CURSOR_ARROW );
 	} else {
 		set_mouse_sprite( env.misc[ 0 ] );
@@ -503,7 +468,7 @@ void init_mouse_cursor() {
 
 static void init_game_settings() {
 	if ( env.full_screen == FULL_SCREEN_TRUE ) {
-		env.osMouse = false;
+		env.os_mouse = false;
 	}
 
 	int32_t status = allegro_init();
@@ -524,10 +489,10 @@ static void init_game_settings() {
 	// Before we get started make sure, that if we are using full
 	// screen mode, we have to ignore width and height settings.
 	if ( env.full_screen == FULL_SCREEN_TRUE ) {
-		status = get_desktop_resolution( &env.screenWidth, &env.screenHeight );
+		status = get_desktop_resolution( &env.screen_width, &env.screen_height );
 		if ( status < 0 ) {
-			env.screenWidth  = 800;
-			env.screenHeight = 600;
+			env.screen_width  = 800;
+			env.screen_height = 600;
 		}
 		screen_mode = GFX_AUTODETECT_FULLSCREEN;
 	}
@@ -537,17 +502,17 @@ static void init_game_settings() {
 	set_close_button_callback( close_button_handler );
 
 	// Ensure sane colour depth
-	if ( !env.colourDepth ) {
-		env.colourDepth = desktop_color_depth();
+	if ( !env.colour_depth ) {
+		env.colour_depth = desktop_color_depth();
 	}
 
-	if ( ( env.colourDepth != 16 ) && ( env.colourDepth != 32 ) ) {
-		env.colourDepth = 16;
+	if ( ( env.colour_depth != 16 ) && ( env.colour_depth != 32 ) ) {
+		env.colour_depth = 16;
 	}
-	set_color_depth( env.colourDepth );
+	set_color_depth( env.colour_depth );
 
 	// Now the screen mode can be set
-	if ( set_gfx_mode( screen_mode, env.screenWidth, env.screenHeight, 0, 0 ) < 0 ) {
+	if ( set_gfx_mode( screen_mode, env.screen_width, env.screen_height, 0, 0 ) < 0 ) {
 		perror( "set_gfx_mode" );
 
 		status = set_gfx_mode( screen_mode, 800, 600, 0, 0 );
@@ -555,13 +520,13 @@ static void init_game_settings() {
 		if ( status < 0 ) {
 			exit( 1 );
 		}
-		env.screenWidth  = 800;
-		env.screenHeight = 600;
+		env.screen_width  = 800;
+		env.screen_height = 600;
 	}
 	enable_triple_buffer();
 
-	env.halfWidth  = env.screenWidth / 2;
-	env.halfHeight = env.screenHeight / 2;
+	env.half_width  = env.screen_width / 2;
+	env.half_height = env.screen_height / 2;
 
 #ifdef ATANKS_IS_MSVC
 #  if defined( ATANKS_DEBUG )
@@ -608,11 +573,6 @@ static void init_game_settings() {
 				sound_type = DIGI_AUTODETECT;
 				break;
 		}
-#  ifdef UBUNTU
-		if ( DIGI_AUTODETECT == sound_type ) {
-			sound_type = DIGI_OSS;
-		}
-#  endif // UBUNTU
 #endif   // ATANKS_IS_LINUX
 
 		int32_t channels = detect_digi_driver( sound_type );
@@ -686,18 +646,18 @@ static void init_game_settings() {
 	YELLOW      = makecol( 0xff, 0xff, 0x00 );
 
 	// Start preparing environment
-	env.first_init();    // *MUST* be done before GLOBALDATA or
+	env.first_init();    // *MUST* be done before CGlobalData or
 	global.first_init(); // max_screen_updates is not correct!
 
 	// Prepare remaining environment
 	clear_to_color( global.canvas, BLACK );
-	env.loadBitmaps();
+	env.load_bitmaps();
 	title();
-	env.loadSounds();
+	env.load_sounds();
 
 	init_mouse_cursor();
 
-	env.loadFonts();
+	env.load_fonts();
 
 	env.window.x = 0;
 	env.window.y = 0;
@@ -712,25 +672,25 @@ static void init_game_settings() {
 	}
 }
 
-static void initialisePlayers() {
-	for ( int32_t z = 0; z < env.numGamePlayers; ++z ) {
-		env.players[ z ]->money = env.startmoney;
+static void initialise_players() {
+	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
+		env.players[ z ]->money = env.start_money;
 		env.players[ z ]->score = 0;
-		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->preftype ) ) {
-			env.players[ z ]->generatePreferences();
+		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->pref_type ) ) {
+			env.players[ z ]->generate_preferences();
 		}
 		env.players[ z ]->initialise( false );
 		env.players[ z ]->type_saved = env.players[ z ]->type;
 	}
 }
 
-static bool loadConfig() {
+static bool load_config() {
 	bool result = false;
 
-	fullPath.assign( env.configDir + string( "/atanks-config.txt" ) );
+	full_path.assign( env.config_dir + string( "/atanks-config.txt" ) );
 
 	if ( load_config_file ) {
-		FILE* old_config_file = fopen( fullPath.c_str(), "r" );
+		FILE* old_config_file = fopen( full_path.c_str(), "r" );
 
 		if ( old_config_file ) {
 			env.load_from_file( old_config_file );
@@ -747,7 +707,7 @@ static bool loadConfig() {
 			env.load_text_files();
 
 			// ...then the players last
-			result = loadPlayers( old_config_file );
+			result = load_players( old_config_file );
 
 			fclose( old_config_file );
 		}
@@ -756,38 +716,38 @@ static bool loadConfig() {
 	return result;
 }
 
-static bool loadPlayers( FILE* file ) {
-	int32_t max_pl = env.numPermanentPlayers;
+static bool load_players( FILE* file ) {
+	int32_t max_pl = env.num_permanent_players;
 
-	if ( env.allPlayers ) {
-		for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
-			if ( env.allPlayers[ i ] ) {
-				delete env.allPlayers[ i ];
+	if ( env.all_players ) {
+		for ( int32_t i = 0; i < env.num_permanent_players; ++i ) {
+			if ( env.all_players[ i ] ) {
+				delete env.all_players[ i ];
 			}
-			env.allPlayers[ i ] = nullptr;
+			env.all_players[ i ] = nullptr;
 		}
-		free( env.allPlayers );
-		env.allPlayers = nullptr;
+		free( env.all_players );
+		env.all_players = nullptr;
 	}
 
-	env.allPlayers = (PLAYER**)malloc( sizeof( PLAYER* ) * max_pl );
+	env.all_players = (CPlayer**)malloc( sizeof( CPlayer* ) * max_pl );
 
-	if ( !env.allPlayers ) {
-		fprintf( stderr, "%s:%d : Failed to allocate memory for allPlayers\n", __FILE__, __LINE__ );
+	if ( !env.all_players ) {
+		fprintf( stderr, "%s:%d : Failed to allocate memory for all_players\n", __FILE__, __LINE__ );
 		return false;
 	}
 
 	for ( int32_t i = 0; i < max_pl; ++i ) {
-		env.allPlayers[ i ] = nullptr;
+		env.all_players[ i ] = nullptr;
 	}
 
 	int32_t pl_count = 0;
 	bool    status   = true;
 
 	while ( status ) {
-		PLAYER* player_new = nullptr;
+		CPlayer* player_new = nullptr;
 		try {
-			player_new = new PLAYER();
+			player_new = new CPlayer();
 		} catch ( std::exception& e ) {
 			fprintf( stderr, "%s:%d : Failed to allocate memory for player (%s)\n", __FILE__, __LINE__, e.what() );
 			status = false;
@@ -799,15 +759,15 @@ static bool loadPlayers( FILE* file ) {
 
 		if ( status ) {
 			player_new->index            = pl_count;
-			env.allPlayers[ pl_count++ ] = player_new;
+			env.all_players[ pl_count++ ] = player_new;
 			if ( pl_count == max_pl ) {
 				max_pl               += 5;
-				auto new_player_list  = (PLAYER**)realloc( env.allPlayers, sizeof( PLAYER* ) * max_pl );
+				auto new_player_list  = (CPlayer**)realloc( env.all_players, sizeof( CPlayer* ) * max_pl );
 				if ( new_player_list ) {
-					env.allPlayers = new_player_list;
+					env.all_players = new_player_list;
 				}
 				for ( int32_t i = pl_count; i < max_pl; ++i ) {
-					env.allPlayers[ i ] = nullptr;
+					env.all_players[ i ] = nullptr;
 				}
 			}
 		} else {
@@ -815,79 +775,79 @@ static bool loadPlayers( FILE* file ) {
 		}
 	} // end of while status
 
-	env.numPermanentPlayers = pl_count;
+	env.num_permanent_players = pl_count;
 
 	return true;
 }
 
 static int32_t menu() {
 	int32_t result     = SIG_OK;
-	int32_t shift_menu = env.halfHeight < 240 ? 240 - env.halfHeight : 0;
+	int32_t shift_menu = env.half_height < 240 ? 240 - env.half_height : 0;
 	int32_t move_btn   = env.button[ 0 ]->w / 2;
 	int32_t bn         = env.language == EL_RUSSIAN ? MENUBUTTONS * 2 : 0;
 
-	BUTTON  but_play(
-                env.halfWidth - move_btn,
-                env.halfHeight - 235 + shift_menu,
+	CButton  but_play(
+                env.half_width - move_btn,
+                env.half_height - 235 + shift_menu,
                 env.button[ bn ],
                 env.button[ bn ],
                 env.button[ bn + 1 ]
         );
 	bn += 2;
-	BUTTON but_help(
-		env.halfWidth - move_btn,
-		env.halfHeight - 185 + shift_menu,
+	CButton but_help(
+		env.half_width - move_btn,
+		env.half_height - 185 + shift_menu,
 		env.button[ bn ],
 		env.button[ bn ],
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_options(
-		env.halfWidth - move_btn,
-		env.halfHeight - 135 + shift_menu,
+	CButton but_options(
+		env.half_width - move_btn,
+		env.half_height - 135 + shift_menu,
 		env.button[ bn ],
 		env.button[ bn ],
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_players(
-		env.halfWidth - move_btn,
-		env.halfHeight - 85 + shift_menu,
+	CButton but_players(
+		env.half_width - move_btn,
+		env.half_height - 85 + shift_menu,
 		env.button[ bn ],
 		env.button[ bn ],
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_credits(
-		env.halfWidth - move_btn,
-		env.halfHeight - 35 + shift_menu,
+	CButton but_credits(
+		env.half_width - move_btn,
+		env.half_height - 35 + shift_menu,
 		env.button[ bn ],
 		env.button[ bn ],
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_quit(
-		env.halfWidth - move_btn,
-		env.halfHeight + 65 + shift_menu,
+	CButton but_quit(
+		env.half_width - move_btn,
+		env.half_height + 65 + shift_menu,
 		env.button[ bn ],
 		env.button[ bn ],
 		env.button[ bn + 1 ]
 	);
 	bn += 2;
-	BUTTON but_network(
-		env.halfWidth - move_btn,
-		env.halfHeight + 15 + shift_menu,
+	CButton but_network(
+		env.half_width - move_btn,
+		env.half_height + 15 + shift_menu,
 		env.button[ bn ],
 		env.button[ bn ],
 		env.button[ bn + 1 ]
 	);
 
-	BUTTON* button[ MENUBUTTONS ] = {
+	CButton* button[ MENUBUTTONS ] = {
 		&but_play, &but_help, &but_options, &but_players, &but_credits, &but_network, &but_quit
 	};
 
 	// Initialization of the menu
-	global.stopwindow    = true;
+	global.stop_window    = true;
 	fi                   = 1;
 	lx                   = 0;
 	ly                   = 0;
@@ -912,7 +872,7 @@ static int32_t menu() {
 	// Enable first background drawing:
 	bool need_draw = true;
 	draw_simple_bg( true );
-	global.make_fullUpdate();
+	global.make_full_update();
 
 	while ( !done && ( SIG_OK == result ) ) {
 
@@ -927,7 +887,7 @@ static int32_t menu() {
 			}
 
 			// Detect mouse movement for custom cursors
-			if ( !env.osMouse && ( ( lastmouse_x != mouse_x ) || ( lastmouse_y != mouse_y ) ) ) {
+			if ( !env.os_mouse && ( ( lastmouse_x != mouse_x ) || ( lastmouse_y != mouse_y ) ) ) {
 				lastmouse_x = mouse_x;
 				lastmouse_y = mouse_y;
 				need_draw   = true;
@@ -935,7 +895,7 @@ static int32_t menu() {
 
 			// See where the mouse is
 			for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-				if ( button[ z ]->isMouseOver() ) {
+				if ( button[ z ]->is_mouse_over() ) {
 					if ( ( btn_over > -1 ) && ( btn_over != z ) ) {
 						button[ z ]->draw();
 						need_draw = true;
@@ -949,7 +909,7 @@ static int32_t menu() {
 			// Handle mouse click
 			if ( mouse_b & 1 ) {
 				for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-					if ( button[ z ]->isPressed() ) {
+					if ( button[ z ]->is_pressed() ) {
 						need_draw = true;
 						done      = true;
 						if ( z == 0 ) {
@@ -1022,7 +982,7 @@ static int32_t menu() {
 				result = SIG_QUIT_GAME;
 			}
 
-			// Erase key presses
+			// erase key presses
 			K = 0;
 
 			// Print out update info if any
@@ -1031,8 +991,8 @@ static int32_t menu() {
 					global.canvas,
 					font,
 					global.update_string,
-					env.halfWidth - 20,
-					env.screenHeight - 50,
+					env.half_width - 20,
+					env.screen_height - 50,
 					WHITE,
 					-1
 				);
@@ -1046,8 +1006,8 @@ static int32_t menu() {
 					global.canvas,
 					font,
 					global.client_message,
-					env.halfWidth - 20,
-					env.screenHeight - 25,
+					env.half_width - 20,
+					env.screen_height - 25,
 					WHITE,
 					-1
 				);
@@ -1074,10 +1034,10 @@ static int32_t menu() {
 
 				// draw a rectangle around the selected button
 				if ( ( z == currentindex ) || ( z == oldindex ) ) {
-					int32_t left   = env.halfWidth - move_btn - 6;
-					int32_t top    = env.halfHeight - 241 + ( 50 * currentindex ) + shift_menu;
-					int32_t right  = env.halfWidth + move_btn + 5;
-					int32_t bottom = env.halfHeight - 192 + ( 50 * currentindex ) + shift_menu;
+					int32_t left   = env.half_width - move_btn - 6;
+					int32_t top    = env.half_height - 241 + ( 50 * currentindex ) + shift_menu;
+					int32_t right  = env.half_width + move_btn + 5;
+					int32_t bottom = env.half_height - 192 + ( 50 * currentindex ) + shift_menu;
 					global.make_update( left, top, right - left, bottom - top );
 					if ( z == currentindex ) {
 						rect( global.canvas, left, top, right, bottom, YELLOW );
@@ -1099,33 +1059,33 @@ static int32_t menu() {
 	return result;
 }
 
-static void newgame() {
+static void new_game() {
 	env.initialise();
 	global.initialise();
 
 	// if a game should be loaded, try it or deny loading of the game
-	if ( ( env.loadGame ) && ( !Load_Game() ) ) {
-		env.loadGame = false;
+	if ( ( env.load_game ) && ( !load_game() ) ) {
+		env.load_game = false;
 	}
 
 	// Now check back whether to load a game
-	if ( !env.loadGame ) {
-		initialisePlayers();
+	if ( !env.load_game ) {
+		initialise_players();
 	}
 
 	// There must not be any tanks!
-	TANK* tank      = nullptr;
-	TANK* next_tank = nullptr;
-	global.getHeadOfClass( CLASS_TANK, &tank );
+	CTank* tank      = nullptr;
+	CTank* next_tank = nullptr;
+	global.get_head_of_class( CLASS_TANK, &tank );
 	while ( tank ) {
-		tank->getNext( &next_tank );
+		tank->get_next( &next_tank );
 		tank->player = nullptr;
 		delete tank;
 		tank = next_tank;
 	}
 
 	// This is always true here, as a newly started game is handled like a loaded one:
-	env.isGameLoaded = true;
+	env.is_game_loaded = true;
 }
 
 /// @brief parse arguments and return EXIT_SUCCESS on success or EXIT_FAILURE
@@ -1153,7 +1113,7 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				SAFE_STOI( val, next_arg );
 
 				if ( ( 16 == val ) || ( 32 == val ) ) {
-					env.colourDepth = val;
+					env.colour_depth = val;
 				} else {
 					cerr << "ERROR: Invalid graphics depth!\n"
 					     << "       Only 16 or 32 bit are supported!" << endl;
@@ -1170,9 +1130,9 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				SAFE_STOI( val, next_arg );
 
 				if ( 512 <= val ) {
-					env.screenWidth      = val;
-					env.halfWidth        = env.screenWidth / 2;
-					env.temp_screenWidth = env.screenWidth;
+					env.screen_width      = val;
+					env.half_width        = env.screen_width / 2;
+					env.temp_screen_width = env.screen_width;
 				} else {
 					cerr << "ERROR: Width too small (minimum 512)\n" << endl;
 					return EXIT_FAILURE;
@@ -1188,9 +1148,9 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				SAFE_STOI( val, next_arg );
 
 				if ( 320 <= val ) {
-					env.screenHeight      = val;
-					env.halfHeight        = env.screenHeight / 2;
-					env.temp_screenHeight = env.screenHeight;
+					env.screen_height      = val;
+					env.half_height        = env.screen_height / 2;
+					env.temp_screen_height = env.screen_height;
 				} else {
 					cerr << "ERROR: Height too small (minimum 320)\n" << endl;
 					return EXIT_FAILURE;
@@ -1203,7 +1163,7 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				std::string next_arg( argv[ ++c ] );
 
 				if ( next_arg.length() <= PATH_MAX ) {
-					env.dataDir = next_arg;
+					env.data_dir = next_arg;
 				} else {
 					cerr << "ERROR: Datadir path too long:\n"
 					     << "\"" << next_arg << "\"\n\n"
@@ -1218,7 +1178,7 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				std::string next_arg( argv[ ++c ] );
 
 				if ( next_arg.length() <= PATH_MAX ) {
-					env.configDir = next_arg;
+					env.config_dir = next_arg;
 				} else {
 					cerr << "ERROR: Configuration path too long:\n"
 					     << "\"" << next_arg << "\"\n\n"
@@ -1233,11 +1193,11 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 		} else if ( arg == "--nosound" ) {
 			env.sound_enabled = false;
 		} else if ( arg == "--noname" ) {
-			env.nameAboveTank = false;
+			env.name_above_tank = false;
 		} else if ( arg == "--nonetwork" ) {
 			allow_network = false;
 		} else if ( arg == "--nobackground" ) {
-			env.drawBackground = false;
+			env.draw_background = false;
 		} else if ( arg == "--nothread" ) {
 			cout << "--nothread is deprecated and will be ignored." << endl;
 		} else if ( arg == "--thread" ) {
@@ -1255,48 +1215,48 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 }
 
 static void play_demo() {
-	int32_t  old_skip   = env.skipComputerPlay;
+	int32_t  old_skip   = env.skip_computer_play;
 	uint32_t old_rounds = env.rounds;
 	bool     old_music  = env.play_music;
 
 	global.demo_mode    = true;
-	env.loadGame        = false;
+	env.load_game        = false;
 	env.play_music      = false;
 
 	env.rounds          = ( get_rand() % 101 ) + ( get_rand() % 101 ) + 50;
-	global.currentround = env.rounds - ( get_rand() % env.rounds );
+	global.current_round = env.rounds - ( get_rand() % env.rounds );
 
 	// Be sure to have at least 10 rounds left
-	if ( global.currentround < 10 ) {
-		global.currentround = 10;
+	if ( global.current_round < 10 ) {
+		global.current_round = 10;
 	}
 
 	// And at least 10 rounds must have been played, or it'll be a bit boring
-	if ( global.currentround > ( env.rounds - 10 ) ) {
-		global.currentround = env.rounds - 10;
+	if ( global.current_round > ( env.rounds - 10 ) ) {
+		global.current_round = env.rounds - 10;
 	}
 
-	env.skipComputerPlay = SKIP_NONE;
+	env.skip_computer_play = SKIP_NONE;
 
 	// set up a bunch of players (non-human, less than 10)
-	env.numGamePlayers = 0;
-	for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
-		if ( ( env.allPlayers[ i ]->type > HUMAN_PLAYER ) && ( i < MAXPLAYERS ) ) {
-			env.addGamePlayer( env.allPlayers[ i ] );
+	env.num_game_players = 0;
+	for ( int32_t i = 0; i < env.num_permanent_players; ++i ) {
+		if ( ( env.all_players[ i ]->type > HUMAN_PLAYER ) && ( i < MAXPLAYERS ) ) {
+			env.add_game_player( env.all_players[ i ] );
 		}
 	}
 
-	newgame();
+	new_game();
 
-	for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
-		env.players[ i ]->newGame();
+	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
+		env.players[ i ]->new_game();
 
 		// give them money to spend:
 		env.players[ i ]->money +=
-			static_cast< int32_t >( env.players[ i ]->type * 25000 * ( env.rounds - global.currentround ) );
+			static_cast< int32_t >( env.players[ i ]->type * 25000 * ( env.rounds - global.current_round ) );
 	}
 
-	while ( ( global.currentround > 0 ) && ( !global.isCloseBtnPressed() ) ) {
+	while ( ( global.current_round > 0 ) && ( !global.is_close_btn_pressed() ) ) {
 		game();
 		if ( ( global.get_command() == GLOBAL_COMMAND_QUIT ) || ( global.get_command() == GLOBAL_COMMAND_MENU ) ) {
 			break;
@@ -1305,56 +1265,56 @@ static void play_demo() {
 
 	endgame_cleanup();
 	global.demo_mode     = false;
-	env.skipComputerPlay = old_skip;
+	env.skip_computer_play = old_skip;
 	env.play_music       = old_music;
 	env.rounds           = old_rounds;
 }
 
 static void play_local() {
-	if ( selectPlayers() != MRC_Esc_Menu ) {
+	if ( select_players() != MRC_Esc_Menu ) {
 
 		// make sure the game has a name
 		if ( env.game_name.empty() ) {
-			env.game_name.assign( env.ingame->Get_Line( 53 ) );
+			env.game_name.assign( env.ingame->get_line( 53 ) );
 		}
 
-		newgame();
+		new_game();
 
-		if ( !env.loadGame ) {
-			global.currentround = env.rounds;
-			for ( int32_t i = 0; i < env.numGamePlayers; ++i ) {
-				env.players[ i ]->newGame();
+		if ( !env.load_game ) {
+			global.current_round = env.rounds;
+			for ( int32_t i = 0; i < env.num_game_players; ++i ) {
+				env.players[ i ]->new_game();
 			}
 		}
 
 		// play the game for the selected number of rounds
-		while ( ( global.currentround > 0 ) && ( !global.isCloseBtnPressed() ) ) {
+		while ( ( global.current_round > 0 ) && ( !global.is_close_btn_pressed() ) ) {
 			game(); // play a round
 
 			if ( env.background_music ) {
 				stop_sample( env.background_music );
 			}
 
-			if ( global.isCloseBtnPressed() ) {
+			if ( global.is_close_btn_pressed() ) {
 				global.set_command( GLOBAL_COMMAND_QUIT );
 			}
 
 			// if user selected to quit or return to main menu during game play
 			if ( ( global.get_command() == GLOBAL_COMMAND_QUIT )
 			     || ( global.get_command() == GLOBAL_COMMAND_MENU ) ) {
-				env.sendToClients( "CLOSE" );
+				env.send_to_clients( "CLOSE" );
 				break;
 			}
 
-			if ( global.currentround != 0 ) {
+			if ( global.current_round != 0 ) {
 				// end of the round
-				env.sendToClients( "ROUNDEND" );
+				env.send_to_clients( "ROUNDEND" );
 			}
 		}
 
 		// only show winner if finished all rounds and not broken off the last
 		// round by exiting or quitting
-		if ( ( global.currentround == 0 ) && ( global.get_command() == GLOBAL_COMMAND_PLAY ) ) {
+		if ( ( global.current_round == 0 ) && ( global.get_command() == GLOBAL_COMMAND_PLAY ) ) {
 			char        buffer[ 512 ] = { 0 };
 			char const* winner        = do_winner();
 
@@ -1366,13 +1326,13 @@ static void play_local() {
 				strncpy( buffer, "GAMEEND", 255 );
 			}
 
-			env.sendToClients( buffer );
+			env.send_to_clients( buffer );
 
 			// Do fade and wait for user keypress
-			quickChange( true );
+			quick_change( true );
 			readkey();
 
-			for ( int i = 0; i < env.numGamePlayers; i++ ) {
+			for ( int i = 0; i < env.num_game_players; i++ ) {
 				env.players[ i ]->type = env.players[ i ]->type_saved;
 			}
 		}
@@ -1382,7 +1342,7 @@ static void play_local() {
 
 static void play_networked() {
 #ifdef NETWORK
-	client_socket = Setup_Client_Socket( env.server_name, env.server_port );
+	client_socket = setup_client_socket( env.server_name, env.server_port );
 	if ( client_socket >= 0 ) {
 		bool keep_playing = true;
 		cout << "Ready to play networked" << endl;
@@ -1391,7 +1351,7 @@ static void play_networked() {
 			keep_playing = Game_Client( client_socket );
 		}
 
-		Clean_Up_Client_Socket( client_socket );
+		clean_up_client_socket( client_socket );
 	} else {
 		cerr << "ERROR: Unable to connect to server " << env.server_name << ", port " << env.server_port << endl;
 	}
@@ -1404,8 +1364,8 @@ static void play_networked() {
 		" handle network games."
 	);
 	errorMessage = noNetworkMsg;
-	errorX       = env.halfWidth - text_length( font, errorMessage ) / 2;
-	errorY       = env.menuBeginY + 15;
+	errorX       = env.half_width - text_length( font, errorMessage ) / 2;
+	errorY       = env.menu_begin_y + 15;
 	cerr << "ERROR: " << noNetworkMsg << endl;
 #endif
 }
@@ -1428,7 +1388,7 @@ static void print_text_help() {
 	     << "    --nobackground   Do not display the green menu background." << endl;
 }
 
-static void print_text_initmsg() {
+static void print_text_init_msg() {
 	cout << "Atomic Tanks Version " << VERSION << " (-h for help)\n"
 	     << "Authors: Tom Hudson        (rewrite, additions, improvements)\n"
 	     << "         Stevante Software (original design)\n"
@@ -1445,7 +1405,7 @@ the config file name.
 The function returns true on success and false on failure.
 -- Jesse
 */
-static bool Save_Game_Settings( char const* path ) {
+static bool save_game_settings( char const* path ) {
 	FILE* file = fopen( path, "w" );
 	if ( !file ) {
 		perror( "Error trying to open text file for writing.\n" );
@@ -1454,8 +1414,8 @@ static bool Save_Game_Settings( char const* path ) {
 
 	env.save_to_file( file );
 
-	for ( int32_t i = 0; i < env.numPermanentPlayers; ++i ) {
-		env.allPlayers[ i ]->save_to_file( file );
+	for ( int32_t i = 0; i < env.num_permanent_players; ++i ) {
+		env.all_players[ i ]->save_to_file( file );
 	}
 
 	fclose( file );
@@ -1465,17 +1425,17 @@ static bool Save_Game_Settings( char const* path ) {
 static void show_options() {
 	// save old settings
 	bool    temp_sound = env.sound_enabled;
-	int32_t temp_itech = env.itemtechLevel;
-	int32_t temp_wtech = env.weapontechLevel;
+	int32_t temp_itech = env.itemtech_level;
+	int32_t temp_wtech = env.weapontech_level;
 
-	optionsMenu();
+	options_menu();
 
-	if ( !Save_Game_Settings( fullPath.c_str() ) ) {
+	if ( !save_game_settings( full_path.c_str() ) ) {
 		cerr << "atanks.cpp:" << __LINE__ << " Failed to save game settings from " << __FUNCTION__ << endl;
 	}
 
 	// check for changes to settings
-	Change_Settings( temp_sound, temp_itech, temp_wtech );
+	change_settings( temp_sound, temp_itech, temp_wtech );
 }
 
 static void title() {
@@ -1484,15 +1444,15 @@ static void title() {
 	      screen,
 	      0,
 	      0,
-	      env.halfWidth - ( env.title[ 0 ]->w / 2 ),
-	      env.halfHeight - ( env.title[ 0 ]->h / 2 ),
+	      env.half_width - ( env.title[ 0 ]->w / 2 ),
+	      env.half_height - ( env.title[ 0 ]->h / 2 ),
 	      env.title[ 0 ]->w,
 	      env.title[ 0 ]->h );
 	clear_keybuf();
 }
 
 int32_t main( int32_t argc, char** argv ) {
-	print_text_initmsg();
+	print_text_init_msg();
 
 	// Parse arguments and exit early if needed
 	int32_t result = parse_args( argc, argv );
@@ -1522,42 +1482,44 @@ int32_t main( int32_t argc, char** argv ) {
 	env.find_config_dir();
 
 	// load or create a configuration
-	if ( !loadConfig() ) {
-		createConfig();
+	if ( !load_config() ) {
+		create_config();
 	}
 
 	// Load game files
-	if ( !env.loadGameFiles() ) {
+	if ( !env.load_game_files() ) {
 		return EXIT_FAILURE; // message already out
 	}
 
 
 #ifdef NETWORK /// new networking area
-	SEND_RECEIVE_TYPE* send_receive   = nullptr;
+	sSendReceive* send_receive   = nullptr;
 	std::thread*       network_thread = nullptr;
 
+#if 0 // legacy SourceForge update checker disabled; a modern replacement is planned (see TODO_Xtra.md)
 	// Create the update checker thread:
-	update_data updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
+	UpdateData updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
 
 	std::thread updateThread( std::ref( updateData ) );
 	if ( env.check_for_updates ) {
 		global.update_string = updateData.update_string;
 	}
+#endif // 0
 
 	// Initialize network if allowed and wanted
 	if ( env.network_enabled && allow_network ) {
-		send_receive = (SEND_RECEIVE_TYPE*)calloc( 1, sizeof( SEND_RECEIVE_TYPE ) );
+		send_receive = (sSendReceive*)calloc( 1, sizeof( sSendReceive ) );
 		if ( !send_receive ) {
 			cerr << "ERROR: Could not create networking data." << endl;
 		}
 	}
 
-	// If a SEND_RECEIVE_TYPE instance was created, start the networking thread
+	// If a sSendReceive instance was created, start the networking thread
 	if ( send_receive ) {
 		send_receive->listening_port = env.network_port;
 
 		// quit option already cleared by calloc call
-		network_thread = new std::thread( Send_And_Receive, send_receive );
+		network_thread = new std::thread( send_and_receive, send_receive );
 	}
 #endif // NETWORK
 
@@ -1578,20 +1540,20 @@ int32_t main( int32_t argc, char** argv ) {
 		}
 
 		// did the user signal to quit the game?
-		if ( ( signal == SIG_QUIT_GAME ) || global.isCloseBtnPressed() ) {
+		if ( ( signal == SIG_QUIT_GAME ) || global.is_close_btn_pressed() ) {
 			global.set_command( GLOBAL_COMMAND_QUIT );
 		}
 
 		// determine which menu item is selected
 		switch ( global.get_command() ) {
 			case GLOBAL_COMMAND_HELP:
-				scrollTextList( env.instructions );
+				scroll_text_list( env.instructions );
 				break;
 			case GLOBAL_COMMAND_OPTIONS:
 				show_options();
 				break;
 			case GLOBAL_COMMAND_PLAYERS:
-				editPlayers();
+				edit_players();
 				break;
 			case GLOBAL_COMMAND_CREDITS:
 				credits();
@@ -1627,10 +1589,12 @@ int32_t main( int32_t argc, char** argv ) {
 		delete network_thread;
 		free( send_receive );
 	}
+#if 0 // legacy SourceForge update checker disabled (see TODO_Xtra.md)
 	updateThread.join();
+#endif // 0
 #endif // NETWORK
 
-	if ( !Save_Game_Settings( fullPath.c_str() ) ) {
+	if ( !save_game_settings( full_path.c_str() ) ) {
 		// This is a very critical issue, but as we are ending here, we just report it
 		cerr << "atanks.cpp: Failed to save game settings from atanks::main()!" << endl;
 		result = EXIT_FAILURE;
@@ -1641,7 +1605,9 @@ int32_t main( int32_t argc, char** argv ) {
 
 	allegro_exit();
 
+#if 0 // legacy SourceForge farewell URL disabled (see TODO_Xtra.md)
 	cout << "See https://atanks.sourceforge.io for the latest news and downloads." << endl;
+#endif // 0
 
 	return result;
 }

@@ -8,7 +8,7 @@
 *.layout
 obj/*
 !obj/.keep_dir
-
+.clangd
 
 # Patch directory, it is purely for diff submissions
 patches
@@ -19,8 +19,15 @@ patches_sent
 
 # build results
 *.dep
+dep/*.d
 *.o
 atanks
+# CMake build directories owned by the Makefile wrapper
+cmake-build*/
+# Default make install destination (PROJECT_DIR/install)
+install/
+# Generated Doxygen API reference (make doc)
+docs/html/
 !vs12/atanks*
 !vs13/atanks*
 devtools
@@ -72,3 +79,9 @@ allegro.cfg
 # Screenshots
 screenshot_*.*
 Thumbs.db
+
+# AI files
+.opencode/
+.aiignore
+AGENTS.md
+talk_*.md

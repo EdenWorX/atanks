@@ -10,7 +10,7 @@
 
 #define ITEM_NO_SHIELD  ( -1 )
 
-enum itemType {
+enum EItemType {
 	ITEM_TELEPORT            = 0, // 56 (weap_idx - WEAPONS)
 	ITEM_SWAPPER             = 1, // 57
 	ITEM_MASS_TELEPORT       = 2, // 58
@@ -37,16 +37,20 @@ enum itemType {
 	ITEM_SDI                 = 23  // 79 (Last item)
 };
 
-enum selfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
+enum ESelfDestructVals { SELFD_TYPE = 0, SELFD_NUMBER };
 
-class ITEM {
+/** @class CItem
+ * @brief Shop item stats record.
+ **/
+class CItem {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit ITEM();
+	/// Construct default item stats.
+	explicit CItem();
 
 
 	/* -----------------------------------
@@ -55,12 +59,16 @@ public:
 	 */
 
 	/* Getters */
-	[[nodiscard]] char const* getDesc() const;
-	[[nodiscard]] char const* getName() const;
+	/// Localized description.
+	[[nodiscard]] char const* get_desc() const;
+	/// Localized name.
+	[[nodiscard]] char const* get_name() const;
 
 	/* Setters */
-	void setDesc( char const* desc_ );
-	void setName( char const* name_ );
+	/// Set the description.
+	void set_desc( char const* desc_ );
+	/// Set the name.
+	void set_name( char const* name_ );
 
 
 	/* -----------------------------------
@@ -68,11 +76,12 @@ public:
 	 * -----------------------------------
 	 */
 
-	int32_t cost       = 0;
-	int32_t amt        = 0;
-	int32_t selectable = 0;
-	int32_t techLevel  = 0;
-	int32_t sound      = 0;
+	int32_t cost       = 0; ///< Price.
+	int32_t amt        = 0; ///< Package amount.
+	int32_t selectable = 0; ///< Selectable in battle.
+	int32_t tech_level  = 0; ///< Shop tech level.
+	int32_t sound      = 0; ///< Sound index.
+	/// Effect values.
 	double  vals[ MAX_ITEM_VALUES ]{ 0x0 };
 
 

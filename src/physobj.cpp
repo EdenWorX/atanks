@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -24,21 +24,21 @@
 #include "random.h"
 #include "weapon.h"
 
-PHYSICAL_OBJECT::PHYSICAL_OBJECT( bool is_weapon ) : VIRTUAL_OBJECT(), isWeaponFire( is_weapon ) { /* nothing to do here */
+CPhysicalObject::CPhysicalObject( bool is_weapon ) : CVirtualObject(), is_weapon_fire( is_weapon ) { /* nothing to do here */
 }
 
-void PHYSICAL_OBJECT::initialise() {
-	VIRTUAL_OBJECT::initialise();
-	hitSomething = false;
+void CPhysicalObject::initialise() {
+	CVirtualObject::initialise();
+	hit_something = false;
 }
 
 /// @brief return true if this object was fired from a player weapon
-bool PHYSICAL_OBJECT::isWeapon() const {
-	return isWeaponFire;
+bool CPhysicalObject::is_weapon() const {
+	return is_weapon_fire;
 }
 
-/// @brief get the current velocity. Only important for AICore to track clusters.
-void PHYSICAL_OBJECT::getVelocity( double &xv_, double &yv_ ) {
+/// @brief get the current velocity. Only important for CAICore to track clusters.
+void CPhysicalObject::get_velocity( double &xv_, double &yv_ ) {
 	xv_ = xv;
 	yv_ = yv;
 }
@@ -50,15 +50,16 @@ void PHYSICAL_OBJECT::getVelocity( double &xv_, double &yv_ ) {
  *
  * @return true if something was hit, false otherwise.
  */
-void PHYSICAL_OBJECT::applyPhysics() {
-	// Apply wind to x movement
-	xv+= ( global.wind - xv ) / mass * drag * env.viscosity;
+void CPhysicalObject::applyPhysics() {
+	// Apply wind to x movement (frame-rate independent: the per-frame fraction
+	// is tuned for 60 FPS, so scale it to the actual frame rate)
+	xv+= ( global.wind - xv ) / mass * drag * env.viscosity / env.frame_count_mod;
 
 	// Apply the fall vector to y movement
 	yv += env.fall_vector;
 
 	// Barrier test:
-	if ( ( yv <= -1.0 ) && ( y <= ( env.screenHeight * -25.0 ) ) ) {
+	if ( ( yv <= -1.0 ) && ( y <= ( env.screen_height * -25.0 ) ) ) {
 		yv *= -1.0;
 	}
 
@@ -79,23 +80,23 @@ void PHYSICAL_OBJECT::applyPhysics() {
 	 */
 
 	// Shortcuts:
-	bool    hasTop = env.isBoxed;
+	bool    hasTop = env.is_boxed;
 	int32_t left   = 1;
-	int32_t right  = env.screenWidth - 2;
+	int32_t right  = env.screen_width - 2;
 	int32_t top    = MENUHEIGHT + ( hasTop ? 1 : 0 );
-	int32_t bottom = env.screenHeight - 2;
+	int32_t bottom = env.screen_height - 2;
 	double  xv_cur = xv;
 	double  yv_cur = yv;
 
 	// Special handling for Napalm Jellies if this is wrap or steel
 	// ceiling. They sort of 'glide off' of the ceiling instead of
 	// getting glued to it.
-	bool jelly = ( NAPALM_JELLY == weapType )
-	          && ( ( WALL_STEEL == env.current_wallType )
-	               || ( ( WALL_WRAP == env.current_wallType ) && ( !env.isBoxed || !env.do_box_wrap ) ) );
+	bool jelly = ( NAPALM_JELLY == weap_type )
+	          && ( ( WALL_STEEL == env.current_wall_type )
+	               || ( ( WALL_WRAP == env.current_wall_type ) && ( !env.is_boxed || !env.do_box_wrap ) ) );
 
 	// Easiest way is a loop that traces the path step-wise
-	while ( isMoving && !hitSomething ) {
+	while ( isMoving && !hit_something ) {
 		double currX    = x;
 		double currY    = y;
 		double nextX    = x + xv_cur;
@@ -152,8 +153,10 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				hitWall = false; // not reached
 				if ( jelly && hitTop ) {
 					nextY += 1.0;
-					yv     = static_cast< double >( ( get_rand() % 10 ) + 1 ) / 25.00; // 0.04 - 0.40
-					xv    /= static_cast< double >( ( get_rand() % 4 ) + 2 ) / 1.66;   // 1.20 - 3.01
+					// Fixed per-frame reaction velocity, tuned for 60 FPS
+					// (the xv damping below is a dimensionless per-event factor):
+					yv     = static_cast< double >( ( get_rand() % 10 ) + 1 ) / 25.00 / env.frame_count_mod; // 0.04 - 0.40
+					xv    /= static_cast< double >( ( get_rand() % 4 ) + 2 ) / 1.66;                         // 1.20 - 3.01
 				}
 			}
 			xv_cur -= deltaX;
@@ -166,15 +169,15 @@ void PHYSICAL_OBJECT::applyPhysics() {
 		//       terminates the movement towards a wall. Only if the path
 		//       really is clear wall handling makes sense.
 		// =================================================================
-		if ( checkPixelsBetweenTwoPoints( &currX, &currY, nextX, nextY, mindDelay, &mindPassed ) ) {
+		if ( check_pixels_between_two_points( &currX, &currY, nextX, nextY, mind_delay, &mind_passed ) ) {
 			xv_cur = currX - nextX;
 			yv_cur = currY - nextY;
 			nextX  = currX;
 			nextY  = currY;
 
-			if ( PT_DIRTBOUNCE == physType ) {
+			if ( PT_DIRTBOUNCE == phys_type ) {
 				double rxv, ryv;
-				getDirtBounceReact( nextX, nextY, xv, yv, rxv, ryv );
+				get_dirt_bounce_react( nextX, nextY, xv, yv, rxv, ryv );
 
 				// Modify rxv/ryv, this is no full bounce:
 				if ( std::abs( rxv ) > std::abs( ryv ) ) {
@@ -198,7 +201,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				xv     = rxv;
 				yv     = ryv;
 			} else {
-				hitSomething = true;
+				hit_something = true;
 				isMoving     = false;
 			}
 
@@ -210,7 +213,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 
 			// Note: Dirt bounce must be done first, it is handled
 			//       differently but for x-wrapping
-			if ( ( PT_DIRTBOUNCE == physType ) && ( ( WALL_WRAP != env.current_wallType ) || hitFloor ) ) {
+			if ( ( PT_DIRTBOUNCE == phys_type ) && ( ( WALL_WRAP != env.current_wall_type ) || hitFloor ) ) {
 				if ( hitWall ) {
 					xv_cur *= -0.5;
 					xv     *= -0.5;
@@ -229,7 +232,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 				// count the bounce:
 				++bounces;
 
-				switch ( env.current_wallType ) {
+				switch ( env.current_wall_type ) {
 					case WALL_RUBBER:
 						if ( hitWall ) {
 							xv_cur  = -xv_cur * BOUNCE_CHANGE;
@@ -259,7 +262,7 @@ void PHYSICAL_OBJECT::applyPhysics() {
 							} else {
 								nextX = left;
 							}
-						} else if ( env.isBoxed && env.do_box_wrap ) {
+						} else if ( env.is_boxed && env.do_box_wrap ) {
 							if ( hitTop ) {
 								// Some weapons do not warp through the
 								// ceiling if the bottom pixel is occupied
@@ -267,22 +270,22 @@ void PHYSICAL_OBJECT::applyPhysics() {
 								int32_t bX = ROUNDu( nextX );
 								bool    floor_free =
 									global.surface[ bX ].load( ATOMIC_READ ) >= bottom;
-								if ( allowDirtyWrap || floor_free ) {
+								if ( allow_dirty_wrap || floor_free ) {
 									nextY = bottom;
 								} else {
 									yv           *= -1.;
-									hitSomething  = true;
+									hit_something  = true;
 								}
 							} else {
 								nextY = top;
 							}
 						} else {
-							hitSomething = true;
+							hit_something = true;
 						}
 						break;
 					case WALL_STEEL:
 					default:
-						hitSomething = true;
+						hit_something = true;
 						break;
 				} // End of wall type switch
 			}
@@ -293,9 +296,9 @@ void PHYSICAL_OBJECT::applyPhysics() {
 		// === 6. If nothing is hit, check the object velocity and ===
 		// ===    detonate if too fast. (depending on the mass)    ===
 		// ===========================================================
-		if ( !hitSomething ) {
+		if ( !hit_something ) {
 			double actVel = FABSDISTANCE2( xv_cur, yv_cur, 0, 0 ); // a²+b²=c² ... says Pythagoras :)
-			if ( ( actVel > maxVel ) || std::isinf( xv_cur ) || std::isinf( yv_cur ) || std::isinf( xv )
+			if ( ( actVel > max_vel ) || std::isinf( xv_cur ) || std::isinf( yv_cur ) || std::isinf( xv )
 			     || std::isinf( yv ) ) {
 				// apply *some* velocity, as the thing is killed on its way
 				// (unless the current veocity is infinite of course
@@ -315,19 +318,19 @@ void PHYSICAL_OBJECT::applyPhysics() {
 					nextY = bottom;
 				}
 				if ( nextX < left ) {
-					if ( WALL_WRAP == env.current_wallType ) {
+					if ( WALL_WRAP == env.current_wall_type ) {
 						nextX = right - ( static_cast< int32_t >( std::abs( nextX ) ) % right );
 					} else {
 						nextX = left;
 					}
 				} else if ( nextX > right ) {
-					if ( WALL_WRAP == env.current_wallType ) {
+					if ( WALL_WRAP == env.current_wall_type ) {
 						nextX = static_cast< int32_t >( nextX ) % right;
 					} else {
 						nextX = right;
 					}
 				}
-				hitSomething = true;
+				hit_something = true;
 				lacerated    = true; // oh dear...
 			}
 
@@ -341,10 +344,10 @@ void PHYSICAL_OBJECT::applyPhysics() {
 		// === 4. If nothing is hit and if movement is left, check ===
 		// ===    remaining movement and prepare for 1. or exit    ===
 		// ===========================================================
-		if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) ) {
+		if ( !hit_something && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv ) + std::abs( yv ) ) < 0.8 ) ) {
 			// If the movement has slowed down too much, take it as a hit
-			hitSomething = true;
-		} else if ( !hitSomething && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv_cur ) + std::abs( yv_cur ) ) < 0.01 ) ) {
+			hit_something = true;
+		} else if ( !hit_something && isMoving && ( hitWall || hitFloor ) && ( ( std::abs( xv_cur ) + std::abs( yv_cur ) ) < 0.01 ) ) {
 			// Just stop, wall bouncing/wrapping didn't leave enough rest
 			isMoving = false;
 		}
@@ -356,36 +359,36 @@ void PHYSICAL_OBJECT::applyPhysics() {
 }
 
 /* --- global function --- */
-bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, double endY, double can_delay, double *has_delayed ) {
+bool check_pixels_between_two_points( double *start_x, double *start_y, double end_x, double end_y, double can_delay, double *has_delayed ) {
 	// return at once if there can't be any dirt in the box.
-	if ( !global.isDirtInBox( *startX, *startY, endX, endY ) ) {
-		*startX = endX;
-		*startY = endY;
+	if ( !global.is_dirt_in_box( *start_x, *start_y, end_x, end_y ) ) {
+		*start_x = end_x;
+		*start_y = end_y;
 		return false;
 	}
 
 	bool   result = false;
-	double xDist  = endX - *startX;
-	double yDist  = endY - *startY;
+	double xDist  = end_x - *start_x;
+	double yDist  = end_y - *start_y;
 	double length = FABSDISTANCE2( xDist, yDist, 0, 0 );
 
 	// Shortcuts:
 	bool   hasDelay = has_delayed && ( can_delay > *has_delayed );
-	bool   hasTop   = env.isBoxed;
+	bool   hasTop   = env.is_boxed;
 	double left     = 1;
-	double right    = env.screenWidth - 2;
+	double right    = env.screen_width - 2;
 	double top      = MENUHEIGHT + ( hasTop ? 1 : 0 );
-	double bottom   = env.screenHeight - 2;
+	double bottom   = env.screen_height - 2;
 
 
 	// Drop out early if a neighbouring pixel is checked and it is a hit
 	if ( length < 2. ) {
-		if ( ( endX > left ) && ( endX < right ) && ( endY > top ) && ( endY < bottom ) ) {
+		if ( ( end_x > left ) && ( end_x < right ) && ( end_y > top ) && ( end_y < bottom ) ) {
 
-			*startX = endX;
-			*startY = endY;
+			*start_x = end_x;
+			*start_y = end_y;
 
-			if ( PINK != getpixel( global.terrain, endX, endY ) ) {
+			if ( PINK != getpixel( global.terrain, end_x, end_y ) ) {
 				result = true;
 
 				// For mind shot delays the distance is only added
@@ -410,30 +413,30 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 	double iDist = ABSDISTANCE2( 0.0, 0.0, xInc, yInc ); // [i]ncrease[Dist]ance
 
 	// sanity check
-	if ( length > ( env.screenWidth + env.screenHeight ) ) {
-		length = env.screenWidth + env.screenHeight;
+	if ( length > ( env.screen_width + env.screen_height ) ) {
+		length = env.screen_width + env.screen_height;
 	}
 
 	// check all pixels along the line for land
 
 	// As xInc/yInc are known now, left, right, top and bottom can
 	// be corrected if the line would not leave the screen.
-	left   = std::min( { *startX, left, *startX + ( length * xInc ) } );
-	top    = std::min( { *startY, top, *startY + ( length * yInc ) } );
-	right  = std::max( { *startX, right, *startX + ( length * xInc ) } );
-	bottom = std::max( { *startY, bottom, *startY + ( length * yInc ) } );
+	left   = std::min( { *start_x, left, *start_x + ( length * xInc ) } );
+	top    = std::min( { *start_y, top, *start_y + ( length * yInc ) } );
+	right  = std::max( { *start_x, right, *start_x + ( length * xInc ) } );
+	bottom = std::max( { *start_y, bottom, *start_y + ( length * yInc ) } );
 
-	// Note: Start with 1 and increase startX/Y first, as
+	// Note: Start with 1 and increase start_x/Y first, as
 	//       the starting pixel can be assumed to be clean.
 	for ( int32_t pos = 1; !result && ( pos < length ); ++pos ) {
-		*startX += xInc;
-		*startY += yInc;
+		*start_x += xInc;
+		*start_y += yInc;
 
-		if ( ( *startX > left ) && ( *startX < right ) && ( *startY > top ) && ( *startY < bottom ) ) {
+		if ( ( *start_x > left ) && ( *start_x < right ) && ( *start_y > top ) && ( *start_y < bottom ) ) {
 
-			if ( PINK != getpixel( global.terrain, *startX, *startY ) ) {
+			if ( PINK != getpixel( global.terrain, *start_x, *start_y ) ) {
 				result = true;
-				// Note: startX/startY now point to the hit pixel
+				// Note: start_x/start_y now point to the hit pixel
 
 				// For mind shot delays we revert to false as long
 				// as the allowed distance through dirt is used up.
@@ -448,10 +451,10 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
 		} // End of having a valid position
 	}         // End of walking positions
 
-	// If nothing was hit, make sure startX/Y point to endX/Y
+	// If nothing was hit, make sure start_x/Y point to end_x/Y
 	if ( !result ) {
-		*startX = endX;
-		*startY = endY;
+		*start_x = end_x;
+		*start_y = end_y;
 	}
 
 	return result;
@@ -463,7 +466,7 @@ bool checkPixelsBetweenTwoPoints( double *startX, double *startY, double endX, d
  * a plane the vector @a xv / @a yv has an angle to and returns
  * appropriate reaction velocity values in @a rxv and @a ryv.
  **/
-void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, double &ryv ) {
+void get_dirt_bounce_react( double x, double y, double xv, double yv, double &rxv, double &ryv ) {
 	int32_t from_x = xv < 0. ? 1 : -1;
 	double  vel    = FABSDISTANCE2( xv, yv, 0., 0. );
 
@@ -474,10 +477,10 @@ void getDirtBounceReact( double x, double y, double xv, double yv, double &rxv, 
 		double min_y   = y - 2;
 		double max_y   = y + 2;
 		double start_y = std::max( min_y, static_cast< double >( MENUHEIGHT ) );
-		double stop_y  = std::min( max_y + 1, static_cast< double >( env.screenHeight ) );
+		double stop_y  = std::min( max_y + 1, static_cast< double >( env.screen_height ) );
 		y_map[ i ]     = -1;
 
-		if ( ( xpos > 0 ) && ( xpos < env.screenWidth ) && ( min_y < env.screenHeight ) && ( max_y > MENUHEIGHT )
+		if ( ( xpos > 0 ) && ( xpos < env.screen_width ) && ( min_y < env.screen_height ) && ( max_y > MENUHEIGHT )
 		     && ( ( stop_y - start_y ) > 0 ) ) {
 			y_map[ i ] = 5;
 

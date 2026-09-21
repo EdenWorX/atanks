@@ -4,7 +4,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-void VIRTUAL_OBJECT::addUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+void CVirtualObject::add_update_area( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
 	// compute right and bottom coordinates for new and old areas
 	int32_t newRight  = left_ + width_;
 	int32_t newBottom = top_ + height_;
@@ -39,13 +39,13 @@ void VIRTUAL_OBJECT::addUpdateArea( int32_t left_, int32_t top_, int32_t width_,
 	dim_cur.h = std::max( newBottom, oldBottom ) - dim_cur.y + 1;
 }
 
-void VIRTUAL_OBJECT::applyPhysics() {
+void CVirtualObject::applyPhysics() {
 	x += xv;
 	y += yv;
 }
 
-void VIRTUAL_OBJECT::draw() {
-	assert( bitmap && "ERROR: VIRTUAL_OBJECT::draw() called without bitmap!" );
+void CVirtualObject::draw() {
+	assert( bitmap && "ERROR: CVirtualObject::draw() called without bitmap!" );
 
 	if ( !destroy && bitmap ) {
 
@@ -54,27 +54,27 @@ void VIRTUAL_OBJECT::draw() {
 		// The update area depends on the rotation state (aka the angle)
 		if ( angle ) {
 			int32_t length = std::max( width, height ) + ( std::min( width, height ) / 2 );
-			setUpdateArea( x - ( length / 2. ), y - ( length / 2. ), length, length );
+			set_update_area( x - ( length / 2. ), y - ( length / 2. ), length, length );
 		} else {
-			setUpdateArea( x - ( width / 2. ) - 1, y - ( height / 2. ) - 1., width + 2, height + 2 );
+			set_update_area( x - ( width / 2. ) - 1, y - ( height / 2. ) - 1., width + 2, height + 2 );
 		}
-		requireUpdate();
+		require_update();
 	}
 }
 
-void VIRTUAL_OBJECT::initialise() {
+void CVirtualObject::initialise() {
 	age     = 0;
-	maxAge  = -1;
+	max_age  = -1;
 	x       = 0;
 	y       = 0;
 	xv      = 0;
 	yv      = 0;
 	destroy = false;
-	dim_cur = dim_old = BOX();
+	dim_cur = dim_old = sBox();
 }
 
 /// @brief Set a new bitmap and store width and height for easy drawing.
-void VIRTUAL_OBJECT::setBitmap( BITMAP* bitmap_ ) {
+void CVirtualObject::set_bitmap( BITMAP* bitmap_ ) {
 	if ( bitmap_ != bitmap ) {
 		bitmap = bitmap_;
 
@@ -88,7 +88,7 @@ void VIRTUAL_OBJECT::setBitmap( BITMAP* bitmap_ ) {
 	}
 }
 
-void VIRTUAL_OBJECT::setUpdateArea( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
+void CVirtualObject::set_update_area( int32_t left_, int32_t top_, int32_t width_, int32_t height_ ) {
 	dim_cur.x = left_;
 	dim_cur.y = top_;
 	dim_cur.w = width_;
@@ -100,12 +100,12 @@ void VIRTUAL_OBJECT::setUpdateArea( int32_t left_, int32_t top_, int32_t width_,
  * This method triggers an update of the canvas (aka drawing area) with the
  * dimensions and position of this object.
  */
-void VIRTUAL_OBJECT::update() {
+void CVirtualObject::update() {
 	if ( !needsUpdate.load( ATOMIC_READ ) ) {
 		return;
 	}
 
-	// Add update area for the current dimension
+	// add update area for the current dimension
 	if ( dim_cur.w > 0 ) {
 		int32_t left =
 			LEFT == align    ? dim_cur.x
@@ -114,8 +114,8 @@ void VIRTUAL_OBJECT::update() {
 		int32_t top    = LEFT == align  ? dim_cur.y
 		               : RIGHT == align ? dim_cur.y - dim_cur.h
 		                                : dim_cur.y - ( dim_cur.h / 2 );
-		int32_t right  = std::min( env.screenWidth, left + dim_cur.w + 2 );
-		int32_t bottom = std::min( env.screenHeight, top + dim_cur.h + 2 );
+		int32_t right  = std::min( env.screen_width, left + dim_cur.w + 2 );
+		int32_t bottom = std::min( env.screen_height, top + dim_cur.h + 2 );
 
 		if ( ( right > left ) && ( bottom > top ) ) {
 			global.make_update( left, top, right - left, bottom - top );
@@ -131,8 +131,8 @@ void VIRTUAL_OBJECT::update() {
 		int32_t top    = LEFT == align  ? dim_old.y
 		               : RIGHT == align ? dim_old.y - dim_old.h
 		                                : dim_old.y - ( dim_old.h / 2 );
-		int32_t right  = std::min( env.screenWidth, left + dim_old.w + 2 );
-		int32_t bottom = std::min( env.screenHeight, top + dim_old.h + 2 );
+		int32_t right  = std::min( env.screen_width, left + dim_old.w + 2 );
+		int32_t bottom = std::min( env.screen_height, top + dim_old.h + 2 );
 
 		if ( ( right > left ) && ( bottom > top ) ) {
 			global.make_update( left, top, right - left, bottom - top );

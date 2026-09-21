@@ -1,5 +1,5 @@
-#ifndef ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
-#define ATANKS_SRC_OPTIONSCREENS_H_INCLUDED 1
+#ifndef ATANKS_OPTIONSCREENS_H_INCLUDED
+#define ATANKS_OPTIONSCREENS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,10 +26,18 @@
 
 #include "menu.h"
 
-void    drawMenuBackground( eBackgroundTypes backType, int32_t tOffset, int32_t numItems );
-void    editPlayers();
-void    optionsMenu();
-int32_t selectPlayers();
+/// Draw a menu background.
+void    draw_menu_background( EBackgroundTypes backType, int32_t tOffset, int32_t numItems );
+/// Run the player editor.
+void    edit_players();
+/// Run the options menu.
+void    options_menu();
+/// Run the player selection.
+int32_t select_players();
+/// Force-create one human player through the player editor.
+void    create_human_player();
+/// Create the default AI player set.
+void    create_ai_players();
 
 
-#endif // ATANKS_SRC_OPTIONSCREENS_H_INCLUDED
+#endif // ATANKS_OPTIONSCREENS_H_INCLUDED

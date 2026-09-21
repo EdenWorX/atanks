@@ -7,7 +7,7 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,34 +25,39 @@
 #include "main.h"
 #include "virtobj.h"
 
-/// @enum eTextSway
+/// @enum ETextSway
 /// @brief Type of text swaying
-enum eTextSway {
+enum ETextSway {
 	TS_NO_SWAY    = 0,  //!< Static text that is moving normally
 	TS_VERTICAL   = 15, //!< Vertical "bouncing" text like tank health.
 	TS_HORIZONTAL = 22  //!< Horizontal swaying text, if turned on, used for damage and money.
 };
 
-class FLOATTEXT final : public VIRTUAL_OBJECT {
+/** @class CFloatText
+ * @brief Floating label text.
+ **/
+class CFloatText final : public CVirtualObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit FLOATTEXT(
+	/// Create a floating text.
+	explicit CFloatText(
 		char const* text_,
 		double      xpos,
 		double      ypos,
 		double      xv_,
 		double      yv_,
 		int32_t     color_,
-		alignType   alignment,
-		eTextSway   sway_type,
+		EAlignType   alignment,
+		ETextSway   sway_type,
 		int32_t     max_age,
 		bool        is_fixed_
 	);
-	~FLOATTEXT() final;
+	/// Destroy a floating text.
+	~CFloatText() final;
 
 
 	/* ----------------------
@@ -60,17 +65,19 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   newRound();
-	void   set_color( int32_t color_ );
-	void   set_pos( int32_t xpos, int32_t ypos );
-	void   set_sway_type( eTextSway sway_type );
-	void   set_text( char const* text_ );
+	void   applyPhysics() final;                  ///< Advance physics.
+	void   draw() final;                          ///< Render the text.
+	void   new_round();                                 ///< Expire round-scoped texts.
+	void   set_color( int32_t color_ );           ///< Set the text color.
+	void   set_pos( int32_t xpos, int32_t ypos ); ///< Set the text position.
+	void   set_sway_type( ETextSway sway_type );  ///< Set the sway type.
+	void   set_text( char const* text_ );         ///< Set the text content.
 
-	eClass getClass() final { return CLASS_FLOATTEXT; }
+	/// Return the object class.
+	EClass get_class() final { return CLASS_FLOATTEXT; }
 
 	/* Little inline helper */
+	/// Set the text position; coordinates are rounded.
 	inline void set_pos( double xpos, double ypos ) { set_pos( ROUND( xpos ), ROUND( ypos ) ); }
 
 private:
@@ -80,7 +87,7 @@ private:
 	 */
 
 	void    check_pos( bool is_new );
-	int32_t overlaps_by( const FLOATTEXT* other );
+	int32_t overlaps_by( const CFloatText* other );
 	void    push_down( int32_t ydiff, bool is_new );
 	void    reset_sway();
 	void    set_speed( double xv_, double yv_ );
@@ -92,18 +99,18 @@ private:
 	 */
 
 	int32_t   color     = SILVER; //!< Foreground colour
-	int32_t   halfColor = GREY;   //!< Shadow colour
+	int32_t   half_color = GREY;   //!< Shadow colour
 	bool      is_fixed  = false;  //!< Whether new texts can push this out of the way
 	bool      is_pushed = false;
 	double    pos_x     = 0.;
 	double    pos_y     = 0.;
-	eTextSway sway      = TS_NO_SWAY;
+	ETextSway sway      = TS_NO_SWAY;
 	char*     text      = nullptr;
 };
 
 // This function returns a shade colour, which
 // is either brighter or darker depending on
 // the given colour and options.
-int32_t GetShadeColor( int32_t colour, bool do_lighten, int32_t bg_colour );
+int32_t get_shade_color( int32_t colour, bool do_lighten, int32_t bg_colour );
 
 #endif

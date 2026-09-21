@@ -1,12 +1,12 @@
-#ifndef ATANKS_SRC_SOUNDS_H_INCLUDED
-#define ATANKS_SRC_SOUNDS_H_INCLUDED 1
+#ifndef ATANKS_SOUNDS_H_INCLUDED
+#define ATANKS_SOUNDS_H_INCLUDED 1
 
 /*
  * atanks - obliterate each other with oversize weapons
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -26,10 +26,15 @@
  * @brief declare centralized functions to play sounds.
  **/
 
+/// Play an explosion sound.
 void play_explosion_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
+/// Play a firing sound.
 void play_fire_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
+/// Play background music.
 void play_music();
+/// Play a natural disaster sound.
 void play_natural_sound( int32_t type, int32_t x, int32_t vol, int32_t f_off );
-void play_interface_sound( eSounds sound );
+/// Play an interface sound.
+void play_interface_sound( ESounds sound );
 
-#endif // ATANKS_SRC_SOUNDS_H_INCLUDED
+#endif // ATANKS_SOUNDS_H_INCLUDED

@@ -1,334 +1,210 @@
-.PHONY: aidebug all clean debug dist fulldebug i686-dist install osxuser \
-    source-dist tarball ubuntu user veryclean win32-dist winuser zipfile
+.PHONY: aidebug all bsduser clean cleanandprint debug dist doc fulldebug i686-dist install justprint osxuser source-dist \
+tarball test test-all test-asan test-tsan test-ubsan user veryclean zipfile
 
-VERSION := 6.7
-
-DEBUG   ?= NO
 # Note: Submit as "YES" to enable debugging
-# Note: If any flag starting with -g is found in the CXXFLAGS, DEBUG is
-#       switched to YES no matter whether set otherwise or not.
+DEBUG   := $(if $(DEBUG),$(DEBUG),NO)
 
 # The following switches can be used to fine-tune the debugging output:
 # Note: DEBUG_AICORE can be used to enable both DEBUG_AIMING and DEBUG_EMOTION
 #       together with a single flag.
-DEBUG_AICORE  ?= NO
-DEBUG_AIMING  ?= NO
-DEBUG_EMOTION ?= NO
-DEBUG_FINANCE ?= NO
-DEBUG_OBJECTS ?= NO
-DEBUG_PHYSICS ?= NO
+DEBUG_AICORE  := $(if $(DEBUG_AICORE),$(DEBUG_AICORE),NO)
+DEBUG_AIMING  := $(if $(DEBUG_AIMING),$(DEBUG_AIMING),NO)
+DEBUG_EMOTION := $(if $(DEBUG_EMOTION),$(DEBUG_EMOTION),NO)
+DEBUG_FINANCE := $(if $(DEBUG_FINANCE),$(DEBUG_FINANCE),NO)
+DEBUG_OBJECTS := $(if $(DEBUG_OBJECTS),$(DEBUG_OBJECTS),NO)
+DEBUG_PHYSICS := $(if $(DEBUG_PHYSICS),$(DEBUG_PHYSICS),NO)
 
 # If the debug output shall be written to atanks.log, set this to YES
 # ( Hint: If you enable more than one option above, you WANT to say YES here! ;-) )
-DEBUG_LOG_TO_FILE ?= NO
+DEBUG_LOG_TO_FILE := $(if $(DEBUG_LOG_TO_FILE),$(DEBUG_LOG_TO_FILE),NO)
 
-# These three are mutually exclusive. If all are set to yes,
-# address-sanitizing has priority, followed by leak, thread
-# is last.
-SANITIZE_ADDRESS ?= NO
-SANITIZE_LEAK    ?= NO
-SANITIZE_THREAD  ?= NO
+# Set this to YES to have make/ninja show all build commands
+# Defaults to YES if make is called with --just-print/-n option, and to NO otherwise.
+JUST_PRINT := $(if $(JUST_PRINT),$(JUST_PRINT),NO)
+
+# Address and thread sanitizers are mutually exclusive (address wins);
+# undefined combines with either. Any sanitizer implies a debug build.
+# SANITIZE_LEAK was dropped: lsan is part of asan now.
+SANITIZE_ADDRESS := $(if $(SANITIZE_ADDRESS),$(SANITIZE_ADDRESS),NO)
+SANITIZE_THREAD  := $(if $(SANITIZE_THREAD),$(SANITIZE_THREAD),NO)
+SANITIZE_UNDEF   := $(if $(SANITIZE_UNDEF),$(SANITIZE_UNDEF),NO)
+
+ifeq (YES,$(SANITIZE_LEAK))
+	$(warning SANITIZE_LEAK was dropped because lsan is part of asan now; use SANITIZE_ADDRESS=YES instead)
+endif
 
 # The following is only used without debugging enabled.
-USE_LTO     ?= NO
+USE_LTO     := $(if $(USE_LTO),$(USE_LTO),NO)
 
 # Set to one if wanting to use linker plugins. Requires USE_LOT to be YES
-GCCUSESGOLD ?= NO
+GCCUSESGOLD := $(if $(GCCUSESGOLD),$(GCCUSESGOLD),NO)
 
 
-# ------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 # Install and target directories
-# ------------------------------------
-PREFIX     ?= /usr
-DESTDIR    ?=
-BINPREFIX  ?= $(PREFIX)
-BINDIR     ?= ${BINPREFIX}/bin
-INSTALLDIR ?= ${PREFIX}/share/atanks
+# -----------------------------------------------------------------------------------------------------------------------------
+PROJECT_DIR := $(CURDIR)
+PREFIX      := $(if $(PREFIX),$(PREFIX),$(PROJECT_DIR)/install)
+DESTDIR     := $(if $(DESTDIR),$(DESTDIR),)
+BINPREFIX   := $(if $(BINPREFIX),$(BINPREFIX),$(PREFIX))
+BINDIR      := $(if $(BINDIR),$(BINDIR),${BINPREFIX}/bin)
+INSTALLDIR  := $(if $(INSTALLDIR),$(INSTALLDIR),${PREFIX}/share/atanks)
 
-
-# ------------------------------------
-# Source files and objects
-# ------------------------------------
-SOURCES := $(sort $(wildcard src/*.cpp))
-MODULES := $(addprefix obj/,$(notdir $(SOURCES:.cpp=.o)))
-DEPENDS := $(addprefix dep/,$(notdir $(SOURCES:.cpp=.d)))
-
-
-# -------------------------------------
-# Platform to build for (Can be forced)
-# -------------------------------------
-PLATFORM ?= none
-ifeq (none,$(PLATFORM))
-  # The easiest way is to go through our make goals
-  # I know this looks weird, but the following simply means:
-  # "If the search for "win" in MAKECMDGOALS does not return an empty string"
-  ifneq (,$(findstring win,$(MAKECMDGOALS)))
-    PLATFORM := WIN32
-  else ifneq (,$(findstring osx,$(MAKECMDGOALS)))
-    PLATFORM := MACOSX
-  else
-    PLATFORM := LINUX
-  endif
-endif
 
 # If this is a user make goal, the install directory is forced to be local:
 ifneq (,$(findstring user,$(MAKECMDGOALS)))
-  INSTALLDIR := .
+	INSTALLDIR := .
 endif
 
 
-# --------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# Version single source of truth: project(VERSION ...) in CMakeLists.txt.
+# -----------------------------------------------------------------------------------------------------------------------------
+VERSION := $(shell grep '^project.atanks VERSION' CMakeLists.txt | grep -o '[0-9][0-9.]*' | head -n 1)
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
 # Target executable and distribution file name
-# --------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 TARGET   := atanks
 FILENAME := $(TARGET)-$(VERSION)
 
 
-# ------------------------------------
-# Tools to use
-# ------------------------------------
-CXX     ?= $(shell which clang++)
-INSTALL := $(shell which install)
-MAKE    := $(shell which make)
-RM      := $(shell which rm) -f
-SED     := $(shell which sed)
-WINDRES :=
+# -----------------------------------------------------------------------------------------------------------------------------
+# Tools to use (thin cmake+ninja wrapper)
+# -----------------------------------------------------------------------------------------------------------------------------
+CMAKE := $(if $(CMAKE),$(CMAKE),$(shell which cmake))
+MAKE  := $(if $(MAKE),$(MAKE),$(shell which make))
+NINJA := $(if $(NINJA),$(NINJA),$(shell which ninja))
+RM    := $(if $(RM),$(RM),$(shell which rm) -f)
 
-ifeq (,$(findstring /,$(CXX)))
-  CXX   := $(shell which $(CXX))
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# Make sure "--just-print" gets translated over to ninja and make calls
+# -----------------------------------------------------------------------------------------------------------------------------
+ifneq (,$(findstring n,$(MAKEFLAGS)))
+	FILTER_ME = n
+	override MAKEFLAGS    := $(filter-out $(FILTER_ME),$(MAKEFLAGS))
+	override MAKEOVERRIDE := $(MAKEFLAGS)
+	# Explicitly set JUST_PRINT to "YES"
+	JUST_PRINT := YES
+endif
+
+# Simulate --just-print?
+ifeq (YES,$(JUST_PRINT))
+	DEBUG         := YES
+	MAKE_OPT      := --just-print --print-directory --keep-going --always-make --jobs=1
+	NINJA_OPT     := -v -j 1 -k 0 -t commands
 endif
 
 
-# if this is a Windows target, prefer mingw32-g++ over g++
-# Further more the WIN32 Platform needs windres.exe to create src/atanks.res
-ifeq (WIN32,$(PLATFORM))
-  ifneq (,$(findstring /g++,$(CXX)))
-    CXX   := $(shell which mingw32-g++)
-  endif
-  WINDRES := $(shell which windres.exe)
-  MODULES := ${MODULES} obj/atanks.res
-  TARGET  := ${TARGET}.exe
-  RM      := del /q
+# -----------------------------------------------------------------------------------------------------------------------------
+# Build directory owned by the wrapper
+# -----------------------------------------------------------------------------------------------------------------------------
+# Base ./cmake-build plus option postfixes
+BUILDDIR_BASE  := cmake-build
+BUILD_SUFFIX   := -release
+CMAKE_VERBOSE  := OFF
+HAVE_SANITIZER := NO
+ifeq (YES,$(SANITIZE_ADDRESS))
+	BUILD_SUFFIX   := -asan
+	HAVE_SANITIZER := YES
+else ifeq (YES,$(SANITIZE_THREAD))
+	BUILD_SUFFIX   := -tsan
+	HAVE_SANITIZER := YES
 endif
-
-# Use the compiler as the linker.
-LD := $(CXX)
-
-# --------------------------------------------------------------------------
-# C++17 is the minimum standard to use. Older compilers are a security risk.
-# --------------------------------------------------------------------------
-GCC_STACKPROT := -fstack-protector-strong
-GCC_CXXSTD    := 17
-PEDANDIC_FLAG := -Wpedantic
-
-
-# ------------------------------------
-# Flags for compiler and linker
-# ------------------------------------
-CPPFLAGS += -DDATA_DIR=\"${INSTALLDIR}\" -D$(PLATFORM) -DVERSION=\"${VERSION}\"
-CXXFLAGS += -Wall -Wextra $(PEDANDIC_FLAG) -std=c++$(GCC_CXXSTD) -fexceptions
-LDFLAGS  +=
-
-# Depending on the platform, some values have to be appended:
-ifeq (MACOSX,$(PLATFORM))
-  CPPFLAGS := ${CPPFLAGS} -I/usr/local/include $(shell allegro-config --cppflags)
-  LDFLAGS  := ${LDFLAGS} $(shell allegro-config --libs)
-else ifeq (WIN32,$(PLATFORM))
-  CPPFLAGS := ${CPPFLAGS} -I/usr/local/include
-  CXXFLAGS := ${CXXFLAGS} -mwindows
-  LDFLAGS  := ${LDFLAGS} -mwindows -L. -lalleg44
-else
-  ifneq (,$(findstring bsd,$(MAKECMDGOALS)))
-    C_INCLUDE_PATH     := /usr/local/include
-    CPLUS_INCLUDE_PATH := /usr/local/include
-    CXXFLAGS           := ${CXXFLAGS} -Wno-c99-extensions
-    export C_INCLUDE_PATH
-    export CPLUS_INCLUDE_PATH
-  endif
-  CPPFLAGS := ${CPPFLAGS} -DNETWORK $(shell allegro-config --cppflags)
-  CXXFLAGS := ${CXXFLAGS} -pthread
-  LDFLAGS  := ${LDFLAGS} $(shell allegro-config --libs) -lm -lpthread
+ifeq (YES,$(SANITIZE_UNDEF))
+	ifeq (YES,$(HAVE_SANITIZER))
+		BUILD_SUFFIX := ${BUILD_SUFFIX}-usan
+	else
+		BUILD_SUFFIX   := -usan
+		HAVE_SANITIZER := YES
+	endif
 endif
-
-
-# If the make goal is "ubuntu", a special define is to be added:
-ifeq (UBUNTU,$(MAKECMDGOALS))
-  CPPFLAGS := ${CPPFLAGS} -DUBUNTU
+ifeq (YES,$(HAVE_SANITIZER))
+	DEBUG := YES
 endif
-
-
-# ------------------------------------
-# Debug Mode settings
-# ------------------------------------
-HAS_DEBUG_FLAG := NO
-ifneq (,$(findstring -g,$(CXXFLAGS)))
-  ifneq (,$(findstring -ggdb,$(CXXFLAGS)))
-    HAS_DEBUG_FLAG := YES
-  endif
-  DEBUG := YES
-endif
-
 ifeq (YES,$(DEBUG))
-  ifeq (NO,$(HAS_DEBUG_FLAG))
-    CXXFLAGS := -ggdb ${CXXFLAGS}
-  endif
-
-  CPPFLAGS := ${CPPFLAGS} -Og -DATANKS_DEBUG
-  CXXFLAGS := ${CXXFLAGS} ${GCC_STACKPROT} -Wunused
-
-  # LTO is hard blocked now:
-  USE_LTO := NO
-
-  # address / thread sanitizer activation
-  ifeq (YES,$(SANITIZE_ADDRESS))
-    CXXFLAGS := ${CXXFLAGS} -fsanitize=address
-    LDFLAGS  := ${LDFLAGS} -fsanitize=address
-  else ifeq (YES,$(SANITIZE_LEAK))
-    CXXFLAGS := ${CXXFLAGS} -fsanitize=leak
-    LDFLAGS  := ${LDFLAGS} -fsanitize=leak
-  else ifeq (YES,$(SANITIZE_THREAD))
-    CPPFLAGS := ${CPPFLAGS} -DUSE_MUTEX_INSTEAD_OF_SPINLOCK
-    CXXFLAGS := ${CXXFLAGS} -fsanitize=thread -fPIC -O2 -ggdb
-    LDFLAGS  := ${LDFLAGS} -fsanitize=thread -pie -O2 -ggdb
-  endif
-
-  # Add specific debug message flavours
-  ifeq (YES,$(DEBUG_AICORE))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_AIMING -DATANKS_DEBUG_EMOTIONS
-  endif
-  ifeq (YES,$(DEBUG_AIMING))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_AIMING
-  endif
-  ifeq (YES,$(DEBUG_EMOTION))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_EMOTIONS
-  endif
-  ifeq (YES,$(DEBUG_FINANCE))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_FINANCE
-  endif
-  ifeq (YES,$(DEBUG_OBJECTS))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_OBJECTS
-  endif
-  ifeq (YES,$(DEBUG_PHYSICS))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_PHYSICS
-  endif
-  ifeq (YES,$(DEBUG_LOG_TO_FILE))
-    CPPFLAGS := ${CPPFLAGS} -DATANKS_DEBUG_LOGTOFILE
-  endif
-
+	ifneq (YES,$(HAVE_SANITIZER))
+		BUILD_SUFFIX  := -debug
+	endif
+	ifeq (NO,$(JUST_PRINT))
+		MAKE_OPT  := --print-directory --keep-going
+		NINJA_OPT := -v -j 1 -k 1
+	endif
+	CMAKE_VERBOSE := ON
 else
-  CPPFLAGS := ${CPPFLAGS} -O2
-  CXXFLAGS := -march=native ${CXXFLAGS}
+	ifeq (NO,$(JUST_PRINT))
+		NINJA_OPT := -v -j 8 -k 4
+	endif
 endif
 
 
-# Potentially enable LTO if this is gcc-4.9 and greater
-ifeq (YES,$(USE_LTO))
-  CXXFLAGS := ${CXXFLAGS} -flto
-  ifeq (YES,$(GCCUSESGOLD))
-    CXXFLAGS := ${CXXFLAGS} -fuse-linker-plugin
-  endif
+# -----------------------------------------------------------------------------
+# Finalize build management wrappers
+# -----------------------------------------------------------------------------
+BUILDDIR    := $(BUILDDIR_BASE)$(BUILD_SUFFIX)
+CMAKE_CONF  := ${BUILDDIR}/build.ninja
+CMAKE_STAMP := $(BUILDDIR)/.stamp
+NINJA_DEST  := -C $(BUILDDIR)
+ifneq (, ${MAKE_OPT})
+	MAKE += ${MAKE_OPT}
 endif
 
 
+# -----------------------------------------------------------------------------------------------------------------------------
+# Build and configuration options
+# -----------------------------------------------------------------------------------------------------------------------------
 
-# ------------------------------------
-# Distribution file lists
-# ------------------------------------
-DISTCOMMON := \
-atanks/*.dat atanks/COPYING atanks/README atanks/TODO \
-atanks/Changelog atanks/BUGS atanks/*.txt
+# BINDIR relative to PREFIX for -DATANKS_INSTALL_BINDIR.
+BINDIR_REL := $(patsubst $(PREFIX)/%,%,$(BINDIR))
 
-INCOMMON   := COPYING README TODO Changelog *.txt unicode.dat
+# Flags forwarded to the CMake configure step.
+CMAKE_FLAGS := -G Ninja -DCMAKE_VERBOSE_MAKEFILE=$(CMAKE_VERBOSE) \
+	-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DATANKS_DATA_DIR=$(INSTALLDIR) -DATANKS_INSTALL_BINDIR=$(BINDIR_REL)  \
+	-DDEBUG=$(DEBUG) -DDEBUG_AICORE=$(DEBUG_AICORE) -DDEBUG_AIMING=$(DEBUG_AIMING) -DDEBUG_EMOTION=$(DEBUG_EMOTION) \
+	-DDEBUG_FINANCE=$(DEBUG_FINANCE) -DDEBUG_OBJECTS=$(DEBUG_OBJECTS) -DDEBUG_PHYSICS=$(DEBUG_PHYSICS) \
+	-DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE) -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) -DSANITIZE_THREAD=$(SANITIZE_THREAD) \
+	-DSANITIZE_UNDEF=$(SANITIZE_UNDEF) -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
 
-# ------------------------------------
+# Built binary inside the configured tree (used by the dist targets).
+BUILDBINARY := $(BUILDDIR)/atanks
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
 # Default target
-# ------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
-all: $(TARGET)
+all: configure
+	$(CMAKE) --build $(BUILDDIR)
+	+@( test "$(JUST_PRINT)" = "YES" && ( \
+		echo "Printing $@ build steps ..." &&                  \
+		echo "make[1]: Entering directory '$(PROJECT_DIR)'" && \
+		$(NINJA) $(NINJA_DEST) $(NINJA_OPT) &&                 \
+		echo "make[1]: Leaving directory '$(PROJECT_DIR)'"     \
+	) || \
+		echo "Building $@ ..." ;          \
+		$(CMAKE) --build "$(BUILDDIR)" ;  \
+		echo "$@ built"                   \
+	)
 
-
-# ------------------------------------
-# Create dependencies
-# This is the standard as described
-# on the GNU make info manual.
-# (See Chapter 4.14)
-# ------------------------------------
-dep/%.d: src/%.cpp
-	@set -e; $(RM) $@; \
-	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $< > $@.$$$$; \
-	$(SED) 's,\($*\)\.o[ :]*,obj/\1.o $@ : ,g' < $@.$$$$ > $@; \
-	$(RM) $@.$$$$
-
-
-# ------------------------------------
-# Compile modules
-# ------------------------------------
-obj/%.o: src/%.cpp
-	@echo "Compiling $@"
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
+# Always reconfigure: this keeps flag changes from going stale when the
+# same build directory is reused with different options.
+.PHONY: configure
+configure: CMakeLists.txt src/config.h.in
+	$(CMAKE) -S . -B $(BUILDDIR) $(CMAKE_FLAGS)
 
 
-# ------------------------------------
-# Build windows res file
-# ------------------------------------
-obj/atanks.res:
-ifeq (WIN32,$(PLATFORM))
-	$(WINDRES) -i src/atanks.rc --input-format=rc -o obj/atanks.res -O coff
-else
-	@echo "This is no WIN32 platform, so why?"
-endif
+# -----------------------------------------------------------------------------------------------------------------------------
+# User (local) targets
+# -----------------------------------------------------------------------------------------------------------------------------
+
+user osxuser bsduser: all
 
 
-# ------------------------------------
-# Regular targets
-# ------------------------------------
-install: $(TARGET)
-	$(INSTALL) -d $(DESTDIR)${BINDIR}
-	$(INSTALL) -m 755 atanks $(DESTDIR)${BINDIR}
-	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/metainfo
-	$(INSTALL) -m 644 io.sourceforge.atanks.metainfo.xml $(DESTDIR)$(PREFIX)/share/metainfo
-	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/applications
-	$(INSTALL) -m 644 atanks.desktop $(DESTDIR)$(PREFIX)/share/applications
-	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/icons/hicolor/48x48/apps
-	$(INSTALL) -m 644 atanks.png $(DESTDIR)$(PREFIX)/share/icons/hicolor/48x48/apps
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/button
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/misc
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/missile
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/sound
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/stock
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/tank
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/tankgun
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/title
-	$(INSTALL) -d $(DESTDIR)${INSTALLDIR}/text
-	$(INSTALL) -m 644 $(INCOMMON) $(DESTDIR)${INSTALLDIR}
-	$(INSTALL) -m 644 button/* $(DESTDIR)${INSTALLDIR}/button
-	$(INSTALL) -m 644 misc/* $(DESTDIR)${INSTALLDIR}/misc
-	$(INSTALL) -m 644 missile/* $(DESTDIR)${INSTALLDIR}/missile
-	$(INSTALL) -m 644 sound/* $(DESTDIR)${INSTALLDIR}/sound
-	$(INSTALL) -m 644 stock/* $(DESTDIR)${INSTALLDIR}/stock
-	$(INSTALL) -m 644 tank/* $(DESTDIR)${INSTALLDIR}/tank
-	$(INSTALL) -m 644 tankgun/* $(DESTDIR)${INSTALLDIR}/tankgun
-	$(INSTALL) -m 644 title/* $(DESTDIR)${INSTALLDIR}/title
-	$(INSTALL) -m 644 text/* $(DESTDIR)${INSTALLDIR}/text
-
-$(TARGET): $(MODULES)
-	$(LD) -o $@ $(MODULES) $(CPPFLAGS) $(LDFLAGS) $(CXXFLAGS)
-
-clean:
-	$(RM) obj/* atanks
-
-veryclean: clean
-ifeq (WIN32,$(PLATFORM))
-	$(RM) $(TARGET).exe
-else
-	$(RM) $(TARGET)
-endif
-
-
-# ------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 # Debugging targets
-# ------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
 
 aidebug:
 	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_LOG_TO_FILE=YES
@@ -340,21 +216,66 @@ fulldebug:
 	$(MAKE) -f Makefile DEBUG=YES DEBUG_AICORE=YES DEBUG_FINANCE=YES DEBUG_OBJECTS=YES DEBUG_PHYSICS=YES DEBUG_LOG_TO_FILE=YES
 
 
-# ------------------------------------
-# User (local) targets
-# ------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# Regular targets
+# -----------------------------------------------------------------------------------------------------------------------------
+install: all
+	DESTDIR=$(DESTDIR) $(CMAKE) --install $(BUILDDIR) --prefix $(PREFIX)
 
-user: $(TARGET)
-winuser: $(TARGET)
-osxuser: $(TARGET)
-bsduser: $(TARGET)
-ubuntu: $(TARGET)
+# Unit tests (WP PF-1.11). `test` builds and runs the suite in the build
+# directory selected by the current flags (DEBUG and sanitizer options pick
+# cmake-build-debug, cmake-build-asan, and so on); `test-all` runs it in both
+# the release and the debug directory.
+test: all
+	ctest --test-dir $(BUILDDIR) --output-on-failure
 
-# ------------------------------------
+test-all:
+	$(MAKE) -f Makefile test
+	$(MAKE) -f Makefile test DEBUG=YES
+
+# Sanitizer runs (WP PF-1.11). Each builds and runs the unit-test scope in
+# its own build directory (cmake-build-asan, cmake-build-ubsan,
+# cmake-build-tsan), exercising the suite under the sanitizer. The thread
+# flavor keeps USE_MUTEX_INSTEAD_OF_SPINLOCK (see CMakeLists.txt).
+test-asan:
+	$(MAKE) -f Makefile test SANITIZE_ADDRESS=YES
+
+test-ubsan:
+	$(MAKE) -f Makefile test SANITIZE_UNDEF=YES
+
+test-tsan:
+	$(MAKE) -f Makefile test SANITIZE_THREAD=YES
+
+# API documentation (WP PF-1.12). Builds the Doxygen reference into
+# $(BUILDDIR)/doc without compiling the game; undocumented public APIs fail
+# the build until the PF-1.12.3 coverage items land.
+doc: configure
+	$(CMAKE) --build $(BUILDDIR) --target doc
+
+clean:
+	+@echo "[*] Performing clean..."
+	+$(NINJA) $(NINJA_DEST) -t cleandead
+
+cleanandprint: configure
+	+($(MAKE) clean DEBUG=YES)
+	+($(MAKE) all JUST_PRINT=YES DEBUG=YES)
+
+justprint: configure
+	+($(MAKE) all JUST_PRINT=YES DEBUG=YES)
+
+veryclean: clean
+	+@echo "[*] Performing verycleanclean..."
+	$(RM) -r cmake-build*
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
 # Distribution targets
-# ------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------
+# Note: DISTCOMMON below references legacy atanks/* paths that no longer
+# exist; these targets share that pre-existing rot and are kept as-is
+# apart from the moved build binary.
 
-dist: source-dist i686-dist win32-dist
+dist: source-dist i686-dist
 
 tarball: veryclean
 	cd .. && tar --create --file $(FILENAME).tar.gz --auto-compress --exclude-vcs $(FILENAME) 
@@ -362,25 +283,25 @@ tarball: veryclean
 zipfile: veryclean
 	cd .. && zip -r $(FILENAME)-source.zip $(FILENAME) -x '*.git*'
 
-source-dist: $(TARGET)
+source-dist:
 	cd ../; \
 	$(RM) $(FILENAME).tar.gz; \
 	tar czf $(FILENAME).tar.gz atanks/src/*.cpp atanks/src/*.h atanks/Makefile $(DISTCOMMON)
 
-i686-dist: $(TARGET)
+i686-dist: all
 	cd ../; \
 	$(RM) $(FILENAME)-i686-dist.tar.gz; \
-	strip atanks/atanks; \
-	tar czf $(FILENAME)-i686-dist.tar atanks/atanks $(DISTCOMMON)
+	strip atanks/$(BUILDBINARY); \
+	tar czf $(FILENAME)-i686-dist.tar atanks/$(BUILDBINARY) $(DISTCOMMON)
 
-win32-dist: $(TARGET)
-	cd ../; \
-	$(RM) $(FILENAME)-win32-dist.zip; \
-	zip -r $(FILENAME)-win32-dist.zip atanks/atanks.exe atanks/alleg40.dll $(DISTCOMMON)
 
-# ------------------------------------
-# Include all dependency files
-# ------------------------------------
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
-  -include $(DEPENDS)
-endif
+# -----------------------------------------------------------------------------------------------------------------------------
+# Distribution file lists
+# -----------------------------------------------------------------------------------------------------------------------------
+DISTCOMMON := \
+atanks/*.dat atanks/COPYING atanks/README atanks/TODO \
+atanks/Changelog atanks/BUGS atanks/*.txt
+
+# Kept for reference only: the install itself moved to CMakeLists.txt.
+# WP PF-1.10 updates this list when Changelog becomes docs/Changelog.history.
+INCOMMON   := COPYING README TODO docs/Changelog.history *.txt unicode.dat

@@ -107,4 +107,4 @@ POZNÁMKA: Zmena grafiky v hre môže ovplyvniť čas potrebný na spustenie hry
 --------------------------------------
 
 Ak ste nenašli odpoveď na svoju otázku tu, na
-http://atanks.sourceforge.net, pošlite e-mail na jessefrgsmith@yahoo.ca
+https://github.com/EdenWorX/atanks, pošlite e-mail na sven@eden-worx.com

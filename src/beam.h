@@ -7,7 +7,7 @@ Copyright (C) 2003  Thomas Hudson
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
+as published by the Free Software Foundation; either version 3
 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -25,33 +25,42 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "physobj.h"
 #include "weapon.h"
 
-/** @enum eBeamType
+/** @enum EBeamType
  * @brief Determines what kind of beam is generated
  **/
-enum eBeamType {
+enum EBeamType {
 	BT_WEAPON = 0, //!< Normal weapon, nothing special
 	BT_SDI,        //!< Not a weapon but an SDI laser
 	BT_NATURAL,    //!< Fired by natural disaster, like lightning.
 	BT_MIND_SHOT   //!< AI thinking.
 };
 
-struct POINT_t {
-	int32_t x          = 0;
-	int32_t y          = 0;
+/** @struct Point
+ * @brief 2D beam path point.
+ **/
+struct Point {
+	int32_t x          = 0; ///< Horizontal coordinate.
+	int32_t y          = 0; ///< Vertical coordinate.
 
-	explicit POINT_t() = default;
+	explicit Point() = default;
 };
 
-class BEAM final : public PHYSICAL_OBJECT {
+/** @class CBeam
+ * @brief Laser weapon.
+ **/
+class CBeam final : public CPhysicalObject {
 public:
 	/* -----------------------------------
 	 * --- Constructors and destructor ---
 	 * -----------------------------------
 	 */
 
-	explicit BEAM( PLAYER* player_, double x_, double y_, int32_t fireAngle, int32_t weaponType, eBeamType beam_type );
-	BEAM( PLAYER* player_, double x_, double y_, double tx, double ty, int32_t weaponType, bool is_burnt_out );
-	~BEAM() final;
+	/// Fire an angled beam.
+	explicit CBeam( CPlayer* player_, double x_, double y_, int32_t fire_angle, int32_t weapon_type, EBeamType beam_type );
+	/// Fire a point-to-point beam.
+	CBeam( CPlayer* player_, double x_, double y_, double tx, double ty, int32_t weapon_type, bool is_burnt_out );
+	/// Destroy a beam.
+	~CBeam() final;
 
 
 	/* ----------------------
@@ -59,12 +68,13 @@ public:
 	 * ----------------------
 	 */
 
-	void   applyPhysics() final;
-	void   draw() final;
-	void   getEndPoint( int32_t& x, int32_t& y ); // For mind shots to fetch
-	void   moveStart( double x_, double y_ );     // For the satellite
+	void   applyPhysics() final;                  ///< Advance physics.
+	void   draw() final;                          ///< Render the beam.
+	void   get_end_point( int32_t& x, int32_t& y ); ///< Fetch the beam end point for mind shots.
+	void   move_start( double x_, double y_ );     ///< Move the beam start for the satellite.
 
-	eClass getClass() final { return CLASS_BEAM; }
+	/// Return the object class.
+	EClass get_class() final { return CLASS_BEAM; }
 
 
 private:
@@ -73,9 +83,9 @@ private:
 	 * -----------------------
 	 */
 
-	void createBeamPath();
-	void makeLightningPath();
-	void traceBeamPath();
+	void create_beam_path();
+	void make_lightning_path();
+	void trace_beam_path();
 
 
 	/* -----------------------
@@ -83,16 +93,16 @@ private:
 	 * -----------------------
 	 */
 
-	eBeamType beamType  = BT_WEAPON;
+	EBeamType beam_type  = BT_WEAPON;
 	int32_t   color     = WHITE;
 	double    damage    = 0.;
-	int32_t   numPoints = 2; // Default for lasers
-	POINT_t   points[ 12 ];  // Maximum for lightnings
+	int32_t   num_points = 2; // Default for lasers
+	Point   points[ 12 ];  // Maximum for lightnings
 	int32_t   radius    = 0;
 	int32_t   seed      = 0;
-	int32_t   tgtLeftX  = 0;
-	int32_t   tgtRightX = 0;
-	WEAPON*   weap      = nullptr;
+	int32_t   tgt_left_x  = 0;
+	int32_t   tgt_right_x = 0;
+	CWeapon*   weap      = nullptr;
 };
 
 #endif // BEAM_DEFINE

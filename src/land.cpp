@@ -12,21 +12,21 @@ Static temp land bitmap for faster land creation
 static BITMAP* temp_land = nullptr;
 
 // Define how the land will look.
-void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
+void generate_land( CLevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 	double* depthStrip[ 2 ] = { nullptr, nullptr };
 	double  smoothness      = 100.;
 	int32_t octaves         = 8;
 	double  lambda          = .25;
-	int32_t curland         = global.curland;
-	int32_t land_type       = LAND_RANDOM == env.landType ? ( get_rand() % LAND_PLAIN ) + 1 : env.landType;
+	int32_t cur_land         = global.cur_land;
+	int32_t land_type       = LAND_RANDOM == env.land_type ? ( get_rand() % LAND_PLAIN ) + 1 : env.land_type;
 	int32_t land_height     = heightx / 6 * 5;
 
-	depthStrip[ 0 ]         = (double*)calloc( env.screenHeight + 1, sizeof( double ) );
-	depthStrip[ 1 ]         = (double*)calloc( env.screenHeight + 1, sizeof( double ) );
+	depthStrip[ 0 ]         = (double*)calloc( env.screen_height + 1, sizeof( double ) );
+	depthStrip[ 1 ]         = (double*)calloc( env.screen_height + 1, sizeof( double ) );
 
 	if ( !depthStrip[ 0 ] || !depthStrip[ 1 ] ) {
 		cerr << "ERROR: Unable to allocate ";
-		cerr << ( ( env.screenHeight + 1 ) * 2 * sizeof( double ) );
+		cerr << ( ( env.screen_height + 1 ) * 2 * sizeof( double ) );
 		cerr << " bytes in LandGenerator() !" << endl;
 		return;
 	}
@@ -67,11 +67,11 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			break;
 	}
 
-	temp_land = create_bitmap( env.screenWidth, env.screenHeight );
+	temp_land = create_bitmap( env.screen_width, env.screen_height );
 	clear_to_color( temp_land, PINK );
 	clear_to_color( global.terrain, PINK );
 
-	for ( int32_t x = 0; lcr->can_work() && ( x < env.screenWidth ); ++x ) {
+	for ( int32_t x = 0; lcr->can_work() && ( x < env.screen_width ); ++x ) {
 		int32_t surface = 1;
 
 		// surface[x] will end up being the y coordinate of the
@@ -82,7 +82,7 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 
 		if ( land_type != LAND_NONE ) {
 			surface = ROUND(
-				( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, 0, lambda, octaves ) ) / 2. * land_height
+				( 1. + perlin_2d_point( 1.0, smoothness, xoffset + x, 0, lambda, octaves ) ) / 2. * land_height
 			);
 		}
 		global.surface[ x ].store( surface > 1 ? surface : 1 );
@@ -90,15 +90,15 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 
 	// If this is a wrapped landcape, smooth out both sides towards their
 	// opposite counterparts
-	if ( WALL_WRAP == env.current_wallType ) {
-		int32_t length = env.screenWidth / 20; // 5% left + right = 10% overall
+	if ( WALL_WRAP == env.current_wall_type ) {
+		int32_t length = env.screen_width / 20; // 5% left + right = 10% overall
 
 		for ( int32_t x = 0; lcr->can_work() && ( x < length ); ++x ) {
 			// The idea is to compare the strips from left to right with the
 			// points being taken by a ratio greater the nearer to its wall.
 
 			int32_t left    = x;
-			int32_t right   = env.screenWidth - ( x + 1 );
+			int32_t right   = env.screen_width - ( x + 1 );
 
 			double  ratio_n = ( static_cast< double >( x ) / static_cast< double >( length ) / 2. ) + .5;
 			// [n]ear: 50% at the wall, 100% at length.
@@ -120,14 +120,14 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 	}
 
 	// Generate detailed depths
-	for ( int32_t x = 0; lcr->can_work() && ( x < env.screenWidth ); ++x ) {
-		int32_t height = env.screenHeight - global.surface[ x ].load();
+	for ( int32_t x = 0; lcr->can_work() && ( x < env.screen_width ); ++x ) {
+		int32_t height = env.screen_height - global.surface[ x ].load();
 
-		if ( env.detailedLandscape && ( LAND_NONE != land_type ) ) {
-			memcpy( depthStrip[ 0 ], depthStrip[ 1 ], env.screenHeight * sizeof( double ) );
-			for ( int32_t d = 1; d < env.screenHeight; d++ ) {
+		if ( env.detailed_landscape && ( LAND_NONE != land_type ) ) {
+			memcpy( depthStrip[ 0 ], depthStrip[ 1 ], env.screen_height * sizeof( double ) );
+			for ( int32_t d = 1; d < env.screen_height; d++ ) {
 				depthStrip[ 1 ][ d ] =
-					( 1. + perlin2DPoint( 1.0, smoothness, xoffset + x, d, lambda, octaves ) ) / 2. * heightx
+					( 1. + perlin_2d_point( 1.0, smoothness, xoffset + x, d, lambda, octaves ) ) / 2. * heightx
 					- ( land_height - d );
 				if ( depthStrip[ 1 ][ d ] > height ) {
 					depthStrip[ 1 ][ d ] = height;
@@ -146,8 +146,8 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			double  offset = 0;
 			double  shade  = 0;
 
-			if ( env.detailedLandscape ) {
-				while ( ( depth < env.screenHeight ) && ( depthStrip[ 1 ][ depth ] <= y ) ) {
+			if ( env.detailed_landscape ) {
+				while ( ( depth < env.screen_height ) && ( depthStrip[ 1 ][ depth ] <= y ) ) {
 					++depth;
 				}
 
@@ -190,24 +190,24 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 				shade        = env.slope[ ROUND( angle ) ][ 0 ];
 			}
 
-			if ( env.ditherGradients ) {
+			if ( env.dither_gradients ) {
 				offset += get_rand() % 10 - 5;
 			}
 
-			if ( env.detailedLandscape ) {
-				offset += ( env.screenHeight - depth ) * 0.5;
+			if ( env.detailed_landscape ) {
+				offset += ( env.screen_height - depth ) * 0.5;
 			}
 
 			while ( ( y + offset ) < 0 ) {
 				offset /= 2;
 			}
-			while ( ( y + offset ) > env.screenHeight ) {
+			while ( ( y + offset ) > env.screen_height ) {
 				offset /= 2;
 			}
 
-			color = gradientColorPoint( land_gradients[ curland ], height, y + offset );
+			color = gradient_color_point( land_gradients[ cur_land ], height, y + offset );
 
-			if ( env.detailedLandscape ) {
+			if ( env.detailed_landscape ) {
 				float   h, s, v;
 				int32_t r = getr( color );
 				int32_t g = getg( color );
@@ -227,20 +227,20 @@ void generate_land( LevelCreator* lcr, int32_t xoffset, int32_t heightx ) {
 			}
 
 			if ( lcr->can_work() ) {
-				global.lockLand();
+				global.lock_land();
 				solid_mode();
-				putpixel( temp_land, x, env.screenHeight - y, color );
+				putpixel( temp_land, x, env.screen_height - y, color );
 				drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
-				global.unlockLand();
+				global.unlock_land();
 			}
 		} // End of looping y coordinate
 	}         // end of looping x coordinate
 
 	// Put temp land onto the real bitmap:
-	global.lockLand();
+	global.lock_land();
 	solid_mode();
-	blit( temp_land, global.terrain, 0, 0, 0, 0, env.screenWidth, env.screenHeight );
-	global.unlockLand();
+	blit( temp_land, global.terrain, 0, 0, 0, 0, env.screen_width, env.screen_height );
+	global.unlock_land();
 
 	// clean up
 	if ( temp_land ) {

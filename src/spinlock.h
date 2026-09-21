@@ -15,14 +15,19 @@
  **/
 class CSpinLock {
 public:
+	/// Construct an unlocked spinlock.
 	explicit CSpinLock();
+	/// Destroy the spinlock.
 	~CSpinLock();
 
 	CSpinLock( CSpinLock const& )             = delete;
 	CSpinLock& operator= ( CSpinLock const& ) = delete;
 
-	bool       hasLock();
+	/// Test whether the caller holds the lock.
+	bool       has_lock();
+	/// Acquire the lock (spin on contention).
 	void       lock();
+	/// Release the lock.
 	void       unlock();
 
 private:

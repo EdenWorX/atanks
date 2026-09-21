@@ -11,9 +11,9 @@ sGfxData::~sGfxData() {
 	this->destroy();
 }
 
-/// @brief should be called from ENVIRONMENT::destroy();
+/// @brief should be called from CEnvironment::destroy();
 void sGfxData::destroy() {
-	if ( initDone ) {
+	if ( init_done ) {
 		if ( topbar ) {
 			destroy_bitmap( topbar );
 		}
@@ -72,7 +72,7 @@ void sGfxData::destroy() {
 			}
 		}
 
-		initDone = false;
+		init_done = false;
 	}
 }
 
@@ -81,11 +81,11 @@ void sGfxData::first_init() {
 	// Note: This method is mostly uncommented, because the original
 	// function that did this was uncommented.
 
-	if ( initDone ) {
+	if ( init_done ) {
 		return;
 	}
 
-	auto colour_theme        = static_cast< int32_t >( env.colourTheme );
+	auto colour_theme        = static_cast< int32_t >( env.colour_theme );
 	explosion_gradient_strip = create_gradient_strip( explosion_gradients[ colour_theme ], 200 );
 	double expSize           = 25.;
 	double flmSize           = 10.;
@@ -131,17 +131,17 @@ void sGfxData::first_init() {
 		}
 	}
 
-	topbar                = create_bitmap( env.screenWidth, MENUHEIGHT );
+	topbar                = create_bitmap( env.screen_width, MENUHEIGHT );
 	topbar_gradient_strip = create_gradient_strip( topbar_gradient, 100 );
 
-	if ( !env.ditherGradients ) {
+	if ( !env.dither_gradients ) {
 		for ( int32_t i = 0; i < MENUHEIGHT; ++i ) {
 			float   adjCount = ( 100.f / MENUHEIGHT ) * static_cast< float >( i );
 			int32_t col      = getpixel( topbar_gradient_strip, 0, adjCount );
-			line( topbar, 0, i, env.screenWidth - 1, i, col );
+			line( topbar, 0, i, env.screen_width - 1, i, col );
 		}
 	} else {
-		for ( int32_t x = 0; x < env.screenWidth; ++x ) {
+		for ( int32_t x = 0; x < env.screen_width; ++x ) {
 			for ( int32_t y = 0; y < MENUHEIGHT; ++y ) {
 				float adjY   = ( 100.f / MENUHEIGHT ) * static_cast< float >( y );
 				int   offset = 0;
@@ -229,12 +229,12 @@ void sGfxData::first_init() {
 		}
 	}
 
-	initDone = true;
+	init_done = true;
 }
 
 // === Helper Functions ===
 // ========================
-BITMAP *create_gradient_strip( gradient const *grad, int32_t len ) {
+BITMAP *create_gradient_strip( sGradient const *grad, int32_t len ) {
 	BITMAP *strip = create_bitmap( 1, len );
 	if ( !strip ) {
 		return nullptr;
@@ -243,14 +243,14 @@ BITMAP *create_gradient_strip( gradient const *grad, int32_t len ) {
 	clear_to_color( strip, BLACK );
 
 	for ( int32_t currLine = 0; currLine < len; ++currLine ) {
-		int32_t color = gradientColorPoint( grad, len, currLine );
+		int32_t color = gradient_color_point( grad, len, currLine );
 		putpixel( strip, 0, currLine, color );
 	}
 
 	return strip;
 }
 
-int32_t gradientColorPoint( gradient const *grad, double len, double line ) {
+int32_t gradient_color_point( sGradient const *grad, double len, double line ) {
 	int32_t pointCount = 0;
 	double  point      = line / len;
 	int32_t color      = BLACK;

@@ -7,14 +7,14 @@
 
 
 /// @brief Default constructor
-DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, int32_t type_, int32_t delay_ )
-	: PHYSICAL_OBJECT( false )
-	, curWind( global.wind )
+CDecor::CDecor( double x_, double y_, double xv_, double yv_, int32_t max_radius, int32_t type_, int32_t delay_ )
+	: CPhysicalObject( false )
+	, cur_wind( global.wind )
 	, delay( delay_ )
-	, maxGravAccel( -4. * env.fall_vector )
-	, maxWind( env.windstrength )
-	, maxWindAccel( global.wind * env.FPS_mod )
-	, radius( maxRadius )
+	, max_grav_accel( -4. * env.fall_vector )
+	, max_wind( env.wind_strength )
+	, max_wind_accel( global.wind * env.fps_mod )
+	, radius( max_radius )
 	, type( type_ ) {
 	x  = x_;
 	y  = y_;
@@ -23,30 +23,30 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 
 	if ( DECOR_DIRT == type ) {
 		// The core data is taken from the meteors.
-		weapType = SML_METEOR + ( maxRadius / 2 ); // results in (0, 1, 1, 2, 2) for radius [1;5]
-		mass     = naturals[ weapType - WEAPONS ].mass;
-		drag     = naturals[ weapType - WEAPONS ].drag / 5.;
+		weap_type = SML_METEOR + ( max_radius / 2 ); // results in (0, 1, 1, 2, 2) for radius [1;5]
+		mass     = naturals[ weap_type - WEAPONS ].mass;
+		drag     = naturals[ weap_type - WEAPONS ].drag / 5.;
 
 		// Special physics for dirt debris:
-		physType = PT_DIRTBOUNCE;
+		phys_type = PT_DIRTBOUNCE;
 
 		// Only keep dirt alive while it is really moving,
 		// if it becomes too slow, only keep it for 2 seconds
-		maxAge = 2 * env.frames_per_second;
+		max_age = 2 * env.frames_per_second;
 
 		// The diameter is just used so it does not have to
-		// be calculated each time updateDirt() is called.
+		// be calculated each time update_dirt() is called.
 		diameter = radius * 2;
 
-		// Calculate how many pixels are needed per call to updateDirt()
-		grabPerCall = ( ( diameter + 1 ) * ( diameter + 1 ) ) / ( delay > 1 ? delay : 1 );
+		// Calculate how many pixels are needed per call to update_dirt()
+		grab_per_call = ( ( diameter + 1 ) * ( diameter + 1 ) ) / ( delay > 1 ? delay : 1 );
 	} else if ( DECOR_SMOKE == type ) {
 		int32_t tempCol = 128 + ( get_rand() % 64 );
 
-		if ( maxRadius <= 3 ) {
+		if ( max_radius <= 3 ) {
 			radius = 3;
 		} else {
-			radius = 3 + ( get_rand() % ( maxRadius - 2 ) );
+			radius = 3 + ( get_rand() % ( max_radius - 2 ) );
 		}
 
 		color = makecol( tempCol, tempCol, tempCol );
@@ -55,11 +55,11 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 
 		// maximum age depends on the maximum radius and the real radius,
 		// plus 0 to 2 extra seconds.
-		maxAge  = ( ( maxRadius - ( maxRadius - radius ) ) / 3 ) + ( get_rand() % 3 );
-		maxAge *= env.frames_per_second;
+		max_age  = ( ( max_radius - ( max_radius - radius ) ) / 3 ) + ( get_rand() % 3 );
+		max_age *= env.frames_per_second;
 
 		// Special physics for smoke, only for repulsion
-		physType = PT_SMOKE;
+		phys_type = PT_SMOKE;
 
 		// Smoke does not need the dirt grabber
 		ready = true;
@@ -67,44 +67,44 @@ DECOR::DECOR( double x_, double y_, double xv_, double yv_, int32_t maxRadius, i
 		destroy = true;
 	}
 
-	maxVel = env.maxVelocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
+	max_vel = env.max_velocity * ( 1.20 + ( mass / ( .01 * MAX_POWER ) ) );
 
-	// Add to the chain:
-	global.addObject( this );
+	// add to the chain:
+	global.add_object( this );
 }
 
 /// @brief Constructor with bitmap
-DECOR::DECOR(
+CDecor::CDecor(
 	double       x_,
 	double       y_,
 	double       xv_,
 	double       yv_,
-	int32_t      maxRadius,
+	int32_t      max_radius,
 	int32_t      type_,
 	int32_t      delay_,
 	sDebrisItem* deb_item,
 	sDebrisItem* met_item
 )
-	: DECOR( x_, y_, xv_, yv_, maxRadius, type_, delay_ ) {
+	: CDecor( x_, y_, xv_, yv_, max_radius, type_, delay_ ) {
 	// Everything done in delegated ctor, only img to set
 	dirt = deb_item;
-	setBitmap( dirt ? dirt->bmp : nullptr );
+	set_bitmap( dirt ? dirt->bmp : nullptr );
 	// Note: It is safe to distribute dirt->bmp, because bitmap normally holds
 	// global graphics and must not be destroyed.
 	meteor = met_item;
 
-	if ( ( nullptr == dirt ) || !hasBitmap() ) {
+	if ( ( nullptr == dirt ) || !has_bitmap() ) {
 		// Can't work without...
 		destroy = true;
 	}
 }
 
 /// @brief default destructor
-DECOR::~DECOR() {
+CDecor::~CDecor() {
 	if ( DECOR_DIRT == type ) {
 		// Draw dirt on terrain and add landslide
 		rotate_sprite( global.terrain, dirt->bmp, ROUND( x - radius ), ROUND( y - radius ), itofix( angle ) );
-		global.addLandSlide(x - radius - 1, x + radius + 1, false );
+		global.add_land_slide(x - radius - 1, x + radius + 1, false );
 	}
 
 	if ( dirt ) {
@@ -124,19 +124,19 @@ DECOR::~DECOR() {
 		++calcRadius;
 	} else if ( DECOR_SMOKE == type ) {
 		// The older, the larger...
-		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
+		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / max_age ) );
 	}
 
-	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
-	requireUpdate();
+	set_update_area( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
+	require_update();
 	this->update();
 
 	// Take out of the chain:
-	global.removeObject( this );
+	global.remove_object( this );
 }
 
 /// @brief let smoke drift and disperse with the wind
-void DECOR::applyPhysics() {
+void CDecor::applyPhysics() {
 	if ( destroy ) {
 		return;
 	}
@@ -153,15 +153,15 @@ void DECOR::applyPhysics() {
 
 		// Check whether movement ended
 		double movement = FABSDISTANCE2( xv, yv, 0, 0 );
-		bool   on_floor = isOnFloor(); // Needed again below.
+		bool   on_floor = is_on_floor(); // Needed again below.
 
-		if ( on_floor && ( ( hitSomething && ( movement < 0.8 ) ) || ( movement < 0.2 ) ) ) {
+		if ( on_floor && ( ( hit_something && ( movement < 0.8 ) ) || ( movement < 0.2 ) ) ) {
 
 			// It ended!
 
 			// fix y:
 			auto dirt_bottom = ROUND( y + dirt->bmp->h );
-			if ( ( ( y - radius ) > MENUHEIGHT ) && ( dirt_bottom < env.screenHeight )
+			if ( ( ( y - radius ) > MENUHEIGHT ) && ( dirt_bottom < env.screen_height )
 			     && ( PINK != getpixel( global.terrain, x, dirt_bottom ) ) ) {
 				--y;
 			}
@@ -169,41 +169,41 @@ void DECOR::applyPhysics() {
 			xv      = 0.;
 			yv      = 0.;
 			destroy = true;
-			requireUpdate();
+			require_update();
 
 		} else {
-			hitSomething = false; // Enable checking.
+			hit_something = false; // Enable checking.
 
 			// Now apply physics
-			repulseDecor();
-			PHYSICAL_OBJECT::applyPhysics();
+			repulse_decor();
+			CPhysicalObject::applyPhysics();
 
 			// Be sure x/y values are sane (Can drift into walls
 			// on rare wind conditions.)
 			if ( x < 2 ) {
 				x = 2;
 			}
-			if ( x > ( env.screenWidth - 2 ) ) {
-				x = env.screenWidth - 2;
+			if ( x > ( env.screen_width - 2 ) ) {
+				x = env.screen_width - 2;
 			}
-			if ( y > ( env.screenHeight - 2 ) ) {
-				y = env.screenHeight - 2;
+			if ( y > ( env.screen_height - 2 ) ) {
+				y = env.screen_height - 2;
 			}
 
 			// Maybe play a sound on bounce
-			if ( !global.skippingComputerPlay && ( old_yv > .5 ) && ( yv < -0.1 ) ) {
+			if ( !global.skipping_computer_play && ( old_yv > .5 ) && ( yv < -0.1 ) ) {
 				play_natural_sound( DIRT_FRAGMENT, ROUND( x ), radius * 16, 1200 - ( radius * 50 ) );
 			}
 		}
 
 		// raise age if movement is below 0.5
-		if ( ( on_floor || ( FABSDISTANCE2( xv, yv, 0, 0 ) < .5 ) ) && ( ++age > maxAge ) ) {
+		if ( ( on_floor || ( FABSDISTANCE2( xv, yv, 0, 0 ) < .5 ) ) && ( ++age > max_age ) ) {
 			destroy = true;
 		}
 
 	} else if ( DECOR_SMOKE == type ) {
 		// Apply wind first
-		int32_t ageMod = ROUND( std::abs( curWind / ( maxWind / 2.0 ) ) ) + 1;
+		int32_t ageMod = ROUND( std::abs( cur_wind / ( max_wind / 2.0 ) ) ) + 1;
 
 		/* This produces: (with max wind = 8)
 		 * wind = 0 : round(0 / (8 / 2)) + 1 = round(0 / 4) + 1 = 0 + 1 = 1 <-- normal aging
@@ -215,28 +215,29 @@ void DECOR::applyPhysics() {
 		age += ageMod;
 
 		// Set further values
-		// Try to reach half distance to the maximum values per second
-		double xaccel = ( ( xv + maxWindAccel ) / 2 ) / static_cast< double >( env.frames_per_second );
-		double yaccel = ( ( yv + maxGravAccel ) / 2 ) / static_cast< double >( env.frames_per_second / 10. );
+		// Try to reach half distance to the maximum values per second.
+		// The relaxation rate is tuned for 60 FPS, so scale it to the frame rate:
+		double xaccel = ( ( xv + max_wind_accel ) / 2 ) / static_cast< double >( env.frames_per_second ) / env.frame_count_mod;
+		double yaccel = ( ( yv + max_grav_accel ) / 2 ) / static_cast< double >( env.frames_per_second / 10. ) / env.frame_count_mod;
 
 		// Apply current acceleration
 		xv += xaccel;
 		yv += yaccel;
 
-		// Add repulsion:
-		repulseDecor();
+		// add repulsion:
+		repulse_decor();
 
 		// Be sure that neither xv outruns wind nor yv is
 		// higher than reverse gravity
-		if ( std::abs( xv ) > std::abs( curWind ) ) {
-			xv = curWind;
+		if ( std::abs( xv ) > std::abs( cur_wind ) ) {
+			xv = cur_wind;
 		}
-		if ( yv < maxGravAccel ) {
-			yv = maxGravAccel;
+		if ( yv < max_grav_accel ) {
+			yv = max_grav_accel;
 		}
 
 		// Don't push through the floor
-		if ( ( y + yv ) >= env.screenHeight ) {
+		if ( ( y + yv ) >= env.screen_height ) {
 			yv *= -0.5;
 			xv *= 0.95;
 		}
@@ -255,22 +256,22 @@ void DECOR::applyPhysics() {
 		y += yv;
 
 		// Destroy the smoke if it goes off-screen or is diffused
-		auto calcRadius = ROUND( radius * ( 4.0 * age / maxAge ) );
+		auto calcRadius = ROUND( radius * ( 4.0 * age / max_age ) );
 
-		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screenWidth + calcRadius ) )
-		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > maxAge ) ) {
+		if ( ( x < ( 1 - calcRadius ) ) || ( x >= ( env.screen_width + calcRadius ) )
+		     || ( y < ( MENUHEIGHT - calcRadius ) ) || ( age > max_age ) ) {
 			destroy = true;
 		}
 	}
 }
 
 /// @brief draw decor according to current settings and type.
-void DECOR::draw() {
+void CDecor::draw() {
 	if ( !ready && !destroy ) {
-		updateDirt();
+		update_dirt();
 		if ( ready ) {
 			// finished! See whether there are enough pixels
-			if ( gotPixels <= radius ) {
+			if ( got_pixels <= radius ) {
 				// nope.
 				destroy = true;
 			}
@@ -297,37 +298,37 @@ void DECOR::draw() {
 
 		// And draw it:
 		if ( y > MENUHEIGHT ) {
-			PHYSICAL_OBJECT::draw();
+			CPhysicalObject::draw();
 			++calcRadius;
 		}
 	} else if ( DECOR_SMOKE == type ) {
 		// The older, the larger...
-		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / maxAge ) );
+		calcRadius = static_cast< int32_t >( radius * ( 4.0 * age / max_age ) );
 
 		drawing_mode( DRAW_MODE_TRANS, nullptr, 0, 0 );
-		set_trans_blender( 0, 0, 0, 255 - ( 255 * age / maxAge ) );
+		set_trans_blender( 0, 0, 0, 255 - ( 255 * age / max_age ) );
 		circlefill( global.canvas, x, y, calcRadius, color );
 	}
 
 	drawing_mode( global.current_drawing_mode, nullptr, 0, 0 );
 
-	setUpdateArea( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
-	requireUpdate();
+	set_update_area( x - calcRadius - 1, y - calcRadius - 1, ( calcRadius * 2 ) + 2, ( calcRadius * 2 ) + 2 );
+	require_update();
 }
 
 /// In case of too much decor for the machine, allow forced ageing
-void DECOR::force_aging( int32_t frames ) {
+void CDecor::force_aging( int32_t frames ) {
 	age += frames;
-	if ( age > maxAge ) {
+	if ( age > max_age ) {
 		destroy = true;
 	}
 }
 
 /// return true if a dirt debris item "lies" on the floor, or is squeezed in a
 /// dirt slide.
-bool DECOR::isOnFloor() {
-	int32_t scr_r_x = env.screenWidth - 2;  // shortcut;
-	int32_t scr_b_y = env.screenHeight - 2; // ditto;
+bool CDecor::is_on_floor() {
+	int32_t scr_r_x = env.screen_width - 2;  // shortcut;
+	int32_t scr_b_y = env.screen_height - 2; // ditto;
 
 	// If the debris is above the screen or directly on the floor,
 	// return at once:
@@ -380,28 +381,28 @@ bool DECOR::isOnFloor() {
 }
 
 /// DIRT and Smoke (somewhat) can be repulsed, too
-void DECOR::repulseDecor() {
-	TANK*  lt     = nullptr;
+void CDecor::repulse_decor() {
+	CTank*  lt     = nullptr;
 	double xaccel = 0;
 	double yaccel = 0;
 
-	global.getHeadOfClass( CLASS_TANK, &lt );
+	global.get_head_of_class( CLASS_TANK, &lt );
 
 	while ( lt ) {
 		if ( !lt->destroy ) {
 
-			if ( lt->repulse( x + xv, y + yv, &xaccel, &yaccel, physType ) ) {
+			if ( lt->repulse( x + xv, y + yv, &xaccel, &yaccel, phys_type ) ) {
 				xv += xaccel;
 				yv += yaccel;
 			}
 		}
-		lt->getNext( &lt );
+		lt->get_next( &lt );
 	}
 }
 
 /// Small scale dirt grabber
-void DECOR::updateDirt() {
-	int32_t togo    = grabPerCall + 1;
+void CDecor::update_dirt() {
+	int32_t togo    = grab_per_call + 1;
 	auto    deb_rad = static_cast< double >( radius );
 
 	while ( togo ) {
@@ -423,7 +424,7 @@ void DECOR::updateDirt() {
 				auto   new_g   = ROUND( getg( tcol ) / ( 1.66 + deb_mod ) );
 				auto   new_b   = ROUND( getb( tcol ) / ( 1.33 + deb_mod ) );
 				putpixel( dirt->bmp, grab_x, grab_y, makecol( new_r, new_g, new_b ) );
-				++gotPixels;
+				++got_pixels;
 			}
 		} // End of position in range
 

@@ -1,25 +1,28 @@
-#ifndef ATANKS_SRC_BUTTON_H_INCLUDED
-#define ATANKS_SRC_BUTTON_H_INCLUDED 1
+#ifndef ATANKS_BUTTON_H_INCLUDED
+#define ATANKS_BUTTON_H_INCLUDED 1
 
 #include "box.h"
 #include "main.h"
 
-class BUTTON {
+/** @class CButton
+ * @brief Clickable menu button.
+ **/
+class CButton {
 public:
 	/* --------------------
 	 * --- constructors ---
 	 * --------------------
 	 */
 
-	// Minimum ctor without text
-	explicit BUTTON( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
+	/// Minimum ctor without text.
+	explicit CButton( int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_ );
 
-	// ctor for using a bitmap.
-	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
+	/// Ctor for using a bitmap.
+	CButton( char const* text_, bool text_only_, int32_t left_, int32_t top_, BITMAP* bmp_, BITMAP* hover_, BITMAP* depressed_
 	);
 
-	// ctor for drawing a manual box.
-	BUTTON( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
+	/// Ctor for drawing a manual box.
+	CButton( char const* text_, bool text_only_, int32_t left_, int32_t top_, int32_t width_, int32_t height_ );
 
 
 	/* ----------------------
@@ -27,11 +30,16 @@ public:
 	 * ----------------------
 	 */
 
+	/// Render the button.
 	void draw();
-	void getLocation( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
-	bool isMouseOver() const;
-	bool isPressed() const;
-	void setText( char const* text_ );
+	/// read the button geometry.
+	void get_location( int32_t& x, int32_t& y, int32_t& w, int32_t& h ) const;
+	/// Test mouse hover.
+	bool is_mouse_over() const;
+	/// Test button press.
+	bool is_pressed() const;
+	/// Replace the button text.
+	void set_text( char const* text_ );
 
 private:
 	/* -----------------------
@@ -42,10 +50,10 @@ private:
 	BITMAP*     bmp       = nullptr;
 	BITMAP*     depressed = nullptr;
 	BITMAP*     hover     = nullptr;
-	BOX         location;               //!< is {0, 0, 0, 0} by default
+	sBox         location;               //!< is {0, 0, 0, 0} by default
 	char const* text      = nullptr;
 	bool        text_only = false;      //!< If set to true, only the title is displayed.
 	int32_t     x1, y1, x2, y2, x3, y3; //!< Shortcuts, as those stay fixed.
 };
 
-#endif // ATANKS_SRC_BUTTON_H_INCLUDED
+#endif // ATANKS_BUTTON_H_INCLUDED
