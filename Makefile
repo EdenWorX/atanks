@@ -1,5 +1,5 @@
-.PHONY: aidebug all bsduser clean debug dist doc fulldebug i686-dist install osxuser \
-    source-dist tarball test test-all test-asan test-tsan test-ubsan user veryclean zipfile
+.PHONY: aidebug all bsduser clean cleanandprint debug dist doc fulldebug i686-dist install justprint osxuser source-dist \
+tarball test test-all test-asan test-tsan test-ubsan user veryclean zipfile
 
 # Note: Submit as "YES" to enable debugging
 DEBUG   := $(if $(DEBUG),$(DEBUG),NO)
@@ -18,6 +18,10 @@ DEBUG_PHYSICS := $(if $(DEBUG_PHYSICS),$(DEBUG_PHYSICS),NO)
 # ( Hint: If you enable more than one option above, you WANT to say YES here! ;-) )
 DEBUG_LOG_TO_FILE := $(if $(DEBUG_LOG_TO_FILE),$(DEBUG_LOG_TO_FILE),NO)
 
+# Set this to YES to have make/ninja show all build commands
+# Defaults to YES if make is called with --just-print/-n option, and to NO otherwise.
+JUST_PRINT := $(if $(JUST_PRINT),$(JUST_PRINT),NO)
+
 # Address and thread sanitizers are mutually exclusive (address wins);
 # undefined combines with either. Any sanitizer implies a debug build.
 # SANITIZE_LEAK was dropped: lsan is part of asan now.
@@ -26,7 +30,7 @@ SANITIZE_THREAD  := $(if $(SANITIZE_THREAD),$(SANITIZE_THREAD),NO)
 SANITIZE_UNDEF   := $(if $(SANITIZE_UNDEF),$(SANITIZE_UNDEF),NO)
 
 ifeq (YES,$(SANITIZE_LEAK))
-  $(warning SANITIZE_LEAK was dropped because lsan is part of asan now; use SANITIZE_ADDRESS=YES instead)
+	$(warning SANITIZE_LEAK was dropped because lsan is part of asan now; use SANITIZE_ADDRESS=YES instead)
 endif
 
 # The following is only used without debugging enabled.
@@ -49,7 +53,7 @@ INSTALLDIR  := $(if $(INSTALLDIR),$(INSTALLDIR),${PREFIX}/share/atanks)
 
 # If this is a user make goal, the install directory is forced to be local:
 ifneq (,$(findstring user,$(MAKECMDGOALS)))
-  INSTALLDIR := .
+	INSTALLDIR := .
 endif
 
 
@@ -69,9 +73,29 @@ FILENAME := $(TARGET)-$(VERSION)
 # -----------------------------------------------------------------------------------------------------------------------------
 # Tools to use (thin cmake+ninja wrapper)
 # -----------------------------------------------------------------------------------------------------------------------------
-CMAKE := cmake
-MAKE  := $(shell which make)
-RM    := $(shell which rm) -f
+CMAKE := $(if $(CMAKE),$(CMAKE),$(shell which cmake))
+MAKE  := $(if $(MAKE),$(MAKE),$(shell which make))
+NINJA := $(if $(NINJA),$(NINJA),$(shell which ninja))
+RM    := $(if $(RM),$(RM),$(shell which rm) -f)
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# Make sure "--just-print" gets translated over to ninja and make calls
+# -----------------------------------------------------------------------------------------------------------------------------
+ifneq (,$(findstring n,$(MAKEFLAGS)))
+	FILTER_ME = n
+	override MAKEFLAGS    := $(filter-out $(FILTER_ME),$(MAKEFLAGS))
+	override MAKEOVERRIDE := $(MAKEFLAGS)
+	# Explicitly set JUST_PRINT to "YES"
+	JUST_PRINT := YES
+endif
+
+# Simulate --just-print?
+ifeq (YES,$(JUST_PRINT))
+	DEBUG         := YES
+	MAKE_OPT      := --just-print --print-directory --keep-going --always-make --jobs=1
+	NINJA_OPT     := -v -j 1 -k 0 -t commands
+endif
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -83,31 +107,54 @@ BUILD_SUFFIX   := -release
 CMAKE_VERBOSE  := OFF
 HAVE_SANITIZER := NO
 ifeq (YES,$(SANITIZE_ADDRESS))
-  BUILD_SUFFIX   := -asan
-  HAVE_SANITIZER := YES
+	BUILD_SUFFIX   := -asan
+	HAVE_SANITIZER := YES
 else ifeq (YES,$(SANITIZE_THREAD))
-  BUILD_SUFFIX   := -tsan
-  HAVE_SANITIZER := YES
+	BUILD_SUFFIX   := -tsan
+	HAVE_SANITIZER := YES
 endif
 ifeq (YES,$(SANITIZE_UNDEF))
-  ifeq (YES,$(HAVE_SANITIZER))
-    BUILD_SUFFIX := ${BUILD_SUFFIX}-usan
-  else
-    BUILD_SUFFIX   := -usan
-    HAVE_SANITIZER := YES
-  endif
+	ifeq (YES,$(HAVE_SANITIZER))
+		BUILD_SUFFIX := ${BUILD_SUFFIX}-usan
+	else
+		BUILD_SUFFIX   := -usan
+		HAVE_SANITIZER := YES
+	endif
 endif
 ifeq (YES,$(HAVE_SANITIZER))
-  DEBUG := YES
+	DEBUG := YES
 endif
 ifeq (YES,$(DEBUG))
-  ifneq (YES,$(HAVE_SANITIZER))
-    BUILD_SUFFIX  := -debug
-  endif
-  CMAKE_VERBOSE := ON
+	ifneq (YES,$(HAVE_SANITIZER))
+		BUILD_SUFFIX  := -debug
+	endif
+	ifeq (NO,$(JUST_PRINT))
+		MAKE_OPT  := --print-directory --keep-going
+		NINJA_OPT := -v -j 1 -k 1
+	endif
+	CMAKE_VERBOSE := ON
+else
+	ifeq (NO,$(JUST_PRINT))
+		NINJA_OPT := -v -j 8 -k 4
+	endif
 endif
 
-BUILDDIR := $(BUILDDIR_BASE)$(BUILD_SUFFIX)
+
+# -----------------------------------------------------------------------------
+# Finalize build management wrappers
+# -----------------------------------------------------------------------------
+BUILDDIR    := $(BUILDDIR_BASE)$(BUILD_SUFFIX)
+CMAKE_CONF  := ${BUILDDIR}/build.ninja
+CMAKE_STAMP := $(BUILDDIR)/.stamp
+NINJA_DEST  := -C $(BUILDDIR)
+ifneq (, ${MAKE_OPT})
+	MAKE += ${MAKE_OPT}
+endif
+
+
+# -----------------------------------------------------------------------------------------------------------------------------
+# Build and configuration options
+# -----------------------------------------------------------------------------------------------------------------------------
 
 # BINDIR relative to PREFIX for -DATANKS_INSTALL_BINDIR.
 BINDIR_REL := $(patsubst $(PREFIX)/%,%,$(BINDIR))
@@ -115,10 +162,10 @@ BINDIR_REL := $(patsubst $(PREFIX)/%,%,$(BINDIR))
 # Flags forwarded to the CMake configure step.
 CMAKE_FLAGS := -G Ninja -DCMAKE_VERBOSE_MAKEFILE=$(CMAKE_VERBOSE) \
 	-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DATANKS_DATA_DIR=$(INSTALLDIR) -DATANKS_INSTALL_BINDIR=$(BINDIR_REL)  \
-	 -DDEBUG=$(DEBUG) -DDEBUG_AICORE=$(DEBUG_AICORE) -DDEBUG_AIMING=$(DEBUG_AIMING) -DDEBUG_EMOTION=$(DEBUG_EMOTION) \
-	 -DDEBUG_FINANCE=$(DEBUG_FINANCE) -DDEBUG_OBJECTS=$(DEBUG_OBJECTS) -DDEBUG_PHYSICS=$(DEBUG_PHYSICS) \
-	 -DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE) -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) -DSANITIZE_THREAD=$(SANITIZE_THREAD) \
-	 -DSANITIZE_UNDEF=$(SANITIZE_UNDEF) -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
+	-DDEBUG=$(DEBUG) -DDEBUG_AICORE=$(DEBUG_AICORE) -DDEBUG_AIMING=$(DEBUG_AIMING) -DDEBUG_EMOTION=$(DEBUG_EMOTION) \
+	-DDEBUG_FINANCE=$(DEBUG_FINANCE) -DDEBUG_OBJECTS=$(DEBUG_OBJECTS) -DDEBUG_PHYSICS=$(DEBUG_PHYSICS) \
+	-DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE) -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) -DSANITIZE_THREAD=$(SANITIZE_THREAD) \
+	-DSANITIZE_UNDEF=$(SANITIZE_UNDEF) -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
 
 # Built binary inside the configured tree (used by the dist targets).
 BUILDBINARY := $(BUILDDIR)/atanks
@@ -130,6 +177,16 @@ BUILDBINARY := $(BUILDDIR)/atanks
 
 all: configure
 	$(CMAKE) --build $(BUILDDIR)
+	+@( test "$(JUST_PRINT)" = "YES" && ( \
+		echo "Printing $@ build steps ..." &&                  \
+		echo "make[1]: Entering directory '$(PROJECT_DIR)'" && \
+		$(NINJA) $(NINJA_DEST) $(NINJA_OPT) &&                 \
+		echo "make[1]: Leaving directory '$(PROJECT_DIR)'"     \
+	) || \
+		echo "Building $@ ..." ;          \
+		$(CMAKE) --build "$(BUILDDIR)" ;  \
+		echo "$@ built"                   \
+	)
 
 # Always reconfigure: this keeps flag changes from going stale when the
 # same build directory is reused with different options.
@@ -196,10 +253,19 @@ doc: configure
 	$(CMAKE) --build $(BUILDDIR) --target doc
 
 clean:
-	$(RM) -r cmake-build*
-	$(RM) obj/* atanks
+	+@echo "[*] Performing clean..."
+	+$(NINJA) $(NINJA_DEST) -t cleandead
+
+cleanandprint: configure
+	+($(MAKE) clean DEBUG=YES)
+	+($(MAKE) all JUST_PRINT=YES DEBUG=YES)
+
+justprint: configure
+	+($(MAKE) all JUST_PRINT=YES DEBUG=YES)
 
 veryclean: clean
+	+@echo "[*] Performing verycleanclean..."
+	$(RM) -r cmake-build*
 
 
 # -----------------------------------------------------------------------------------------------------------------------------
