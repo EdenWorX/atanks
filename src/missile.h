@@ -121,6 +121,7 @@ private:
 	int32_t      grow_radius   = 0;
 	bool         is_growing    = false;
 	EMissileType missile_type  = MT_WEAPON;
+	double       roll_carry    = 0.; // Carry for frame-rate independent roller steps
 	CWeapon*      weap         = nullptr;
 };
 

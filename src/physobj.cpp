@@ -51,8 +51,9 @@ void CPhysicalObject::get_velocity( double &xv_, double &yv_ ) {
  * @return true if something was hit, false otherwise.
  */
 void CPhysicalObject::applyPhysics() {
-	// Apply wind to x movement
-	xv+= ( global.wind - xv ) / mass * drag * env.viscosity;
+	// Apply wind to x movement (frame-rate independent: the per-frame fraction
+	// is tuned for 60 FPS, so scale it to the actual frame rate)
+	xv+= ( global.wind - xv ) / mass * drag * env.viscosity / env.frame_count_mod;
 
 	// Apply the fall vector to y movement
 	yv += env.fall_vector;
@@ -152,8 +153,10 @@ void CPhysicalObject::applyPhysics() {
 				hitWall = false; // not reached
 				if ( jelly && hitTop ) {
 					nextY += 1.0;
-					yv     = static_cast< double >( ( get_rand() % 10 ) + 1 ) / 25.00; // 0.04 - 0.40
-					xv    /= static_cast< double >( ( get_rand() % 4 ) + 2 ) / 1.66;   // 1.20 - 3.01
+					// Fixed per-frame reaction velocity, tuned for 60 FPS
+					// (the xv damping below is a dimensionless per-event factor):
+					yv     = static_cast< double >( ( get_rand() % 10 ) + 1 ) / 25.00 / env.frame_count_mod; // 0.04 - 0.40
+					xv    /= static_cast< double >( ( get_rand() % 4 ) + 2 ) / 1.66;                         // 1.20 - 3.01
 				}
 			}
 			xv_cur -= deltaX;

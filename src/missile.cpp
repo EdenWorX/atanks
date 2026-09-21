@@ -393,7 +393,8 @@ struct sSDI {
 
 void CMissile::apply_physics_funky() {
 	// Funky Floats have a 0.75% chance to randomly change their direction
-	if ( 0 == ( get_rand() % 150 ) ) {
+	// (rate scaled to the frame rate so it stays 0.75% per 60 FPS frame)
+	if ( 0 == ( get_rand() % ROUND( 150 * env.frame_count_mod ) ) ) {
 
 		int32_t floatee_action = get_rand() % 4;
 
@@ -590,15 +591,20 @@ void CMissile::apply_physics_rolling() {
 			}
 		}
 
-		// Normal transversal movement:
-		x += xv > 0 ? 1 : xv < 0 ? -1 : 0;
+		// Normal transversal movement, one pixel per step at 60 FPS.
+		// Bank fractions so rollers keep their wall-clock speed at any rate:
+		roll_carry += 1. / env.frame_count_mod;
+		while ( roll_carry >= 1. ) {
+			roll_carry -= 1.;
+			x += xv > 0 ? 1 : xv < 0 ? -1 : 0;
 
-		// Adapt angle according to movement
-		if ( xv > 0.0 ) {
-			angle = ( angle + 3 ) % 256;
-		}
-		if ( xv < 0.0 ) {
-			angle = ( angle + 253 ) % 256;
+			// Adapt angle according to movement
+			if ( xv > 0.0 ) {
+				angle = ( angle + 3 ) % 256;
+			}
+			if ( xv < 0.0 ) {
+				angle = ( angle + 253 ) % 256;
+			}
 		}
 
 		// Fix y if the projectile threats to go through the floor
@@ -799,7 +805,9 @@ void CMissile::check_cluster() {
 				0
 			);
 			newmis->phys_type  = submunitionPhys;
-			newmis->countdown = newMissCount;
+			// Countdown is compared against the per-frame age, so scale the
+			// fixed frame count to the frame rate (60 FPS baseline).
+			newmis->countdown = ROUND( newMissCount * env.frame_count_mod );
 			newmis->set_update_area( newmis->x - 20, newmis->y - 20, 40, 40 );
 		} catch ( std::exception& e ) {
 			std::cerr << __func__ << " new CMissile: " << e.what() << std::endl;

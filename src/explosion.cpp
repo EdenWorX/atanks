@@ -903,13 +903,18 @@ void CExplosion::do_throw() {
 			dxv -= impact_xv / ( ( std::abs( dxv ) * .75 ) + 1.5 );
 			dyv -= impact_yv / ( ( std::abs( dyv ) * .75 ) + 1.5 );
 
-			// Maximum x and y velocity depends on the radius of the debris:
-			if ( std::abs( dxv ) > max_x_vel ) {
-				dxv = SIGNd( dxv ) * max_x_vel;
-			}
-			if ( dyv < max_y_vel ) {
-				dyv = max_y_vel;
-			}
+		// Maximum x and y velocity depends on the radius of the debris:
+		if ( std::abs( dxv ) > max_x_vel ) {
+			dxv = SIGNd( dxv ) * max_x_vel;
+		}
+		if ( dyv < max_y_vel ) {
+			dyv = max_y_vel;
+		}
+
+		// Frame-rate independent debris: the velocities above are fixed
+		// pixels per frame tuned for 60 FPS, so scale them to the frame rate.
+		dxv /= env.frame_count_mod;
+		dyv /= env.frame_count_mod;
 
 			// Move the decoration out to the rim of the final explosion:
 			double rimx = x + ROUND( std::cos( alpha ) * xrad );

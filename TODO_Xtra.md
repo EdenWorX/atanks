@@ -49,6 +49,14 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   `WP PF-1.15` verification. Status 2026-09-21: implemented in the working tree (`env.frame_count_mod` in
   `src/environment.h:159`, scaled explosion/floattext/volley/satellite/landslide/aim-dials/menu sites); builds, unit
   tests, and `make doc` are green, in-game 60-vs-120 comparison still pending with the user.
+- [ ] **High**: FPS-independence follow-ups found during validation of the above: (1) flying debris moved at twice the
+  wall-clock speed above 60 FPS because `CExplosion` debris velocities (`src/explosion.cpp:893-894`) were fixed
+  pixels-per-frame; (2) shot range shrank markedly at 120 FPS (user: "twice the power for the same distance") because the
+  per-frame wind/drag relaxation (`CPhysicalObject::applyPhysics()`, `src/physobj.cpp:55`) ran twice as often per second,
+  squaring the exponential decay — with smaller contributions from the unscaled napalm-jelly reaction velocity, cluster
+  submunition countdowns, funky-float direction chance, and roller pixel steps. All scaled to `env.frame_count_mod` in
+  the working tree (60 FPS behavior bit-identical); AI aiming needed no change (analytic, drag-agnostic at every rate).
+  Pending user in-game validation: range parity, debris speed, AI hit rate at 60 vs 120 FPS.
 
 ## Planned Features
 
