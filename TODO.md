@@ -8,7 +8,7 @@ a bare relative number. The document structure (heading hierarchy, title templat
 items complete by changing `[ ]` to `[x]`; a parent is complete only when all its children are complete. Finished items are
 removed once their essence is documented in `CHANGELOG.md`.
 
-## [ ] TODO-PF-1: Cleanup and Modernization
+## [x] TODO-PF-1: Cleanup and Modernization
 
 Retire obsolete build/packaging artifacts, consolidate license and version truth, move project references from SourceForge to
 GitHub, remove ancient workarounds and obsolete limits, normalize guards and naming, and migrate the project to the EdenWorX
@@ -174,15 +174,16 @@ content changes.
 Verify `AGENTS.md` already instructs agents to preserve `allegro.cfg` and not "clean it up"; adjust wording only if it
 contradicts the `README.md` paragraph from `PF-1.7.1`.
 
-### [ ] PF-1.8: Leave the legacy `TODO` file alone
+### [x] PF-1.8: Leave the legacy `TODO` file alone
 
 The file is almost a decade old and explicitly out of scope for now: do not triage it, do not act on it. Proper `TODO-PF-*`
 entries will be created by the user after `TODO-PF-1` is done.
 
-#### [ ] PF-1.8.1: Verify the legacy TODO file is untouched at PF-1 completion
+#### [x] PF-1.8.1: Verify the legacy TODO file is untouched at PF-1 completion
 
 At the end of `TODO-PF-1`, confirm `git diff --quiet -- TODO` reports no changes to the legacy file. If any PF-1 work touched
-it accidentally, revert. The user then creates post-PF-1 entries.
+it accidentally, revert. The user then creates post-PF-1 entries. Verified 2026-09-21: clean, last touch ancient
+(`10e4721`).
 
 None of the following exists yet: `CMakeLists.txt`, `config.h.in` / generated `config.h`, `CHANGELOG.md`, `make test` /
 `test-all` / `test-asan` / `test-ubsan` / `test-tsan`, `tools/run-cppcheck.sh`, `make doc`, Doxygen coverage of public APIs.
@@ -530,7 +531,7 @@ Replace the static-buffer parsing, delete `MAX_CONFIG_LINE` and its `@todo` in `
 save/load round-trip (settings persist across restart; old config files still load or are cleanly rejected). Verified
 2026-09-21: user confirmed save/load of games works and option changes persist across restart.
 
-### [ ] PF-1.17: Migrate weapons/item data to a documented format (late WP)
+### [x] PF-1.17: Migrate weapons/item data to a documented format (late WP)
 
 There is no spec for the positional `text/weapons*.txt` format beyond the parser code (`Load_Weapons_Text()`, `src/files.cpp`).
 As a late step of the modernization, switch to a documented format with a clear spec and a simple parser (CSV, INI, TOML or
@@ -555,7 +556,7 @@ once, display strings per language).
 Write the spec document for weapon/natural/item records (fields, types, sections, localization split between numeric stats and
 display strings), so data edits no longer require reading parser code. Done 2026-09-21 as `docs/weapons_toml_spec.md`.
 
-#### [ ] PF-1.17.3: Implement the parser and migrate the data
+#### [x] PF-1.17.3: Implement the parser and migrate the data
 
 Implement the simple parser, migrate `text/weapons*.txt` data and translation display strings, and adapt shop, AI weapon
 selection, and firing code. Verify parsed stats are identical to the legacy parser output and check in-game (buy screen
@@ -579,14 +580,17 @@ quantities/prices, fired shots). Split into Action Items below; each fits one fo
   Done 2026-09-21: 6 languages complete (56/6/24), pt_BR short by one weapon pair (index 55 `LRG_LAZER` falls back to
   English, same as the legacy loader); all files round-trip verified pairwise. ES/it authored from the UTF-8
   transcodes; `.txt` sources untouched.
-- [ ] **PF-1.17.3.4**: Reimplement `load_weapons_text()` on toml++ (strict base counts, lenient translations, typed reads;
+- [x] **PF-1.17.3.4**: Reimplement `load_weapons_text()` on toml++ (strict base counts, lenient translations, typed reads;
   needs Action Items `PF-1.17.3.1`–`PF-1.17.3.3`). Verify parsed stats identical to legacy output for all records and
   translations, plus green builds and unit tests.
   Status 2026-09-21: implemented in `src/files.cpp`; machine validation green (builds, `make test-all`, `make doc`,
-  English/French startup loads, broken file cleanly rejected); in-game validation (buy screen, fired shots) pending
-  with the user.
-- [ ] **PF-1.17.3.5**: Adapt shop/AI/firing consumers if needed, validate in-game (buy-screen quantities/prices, fired
+  English/French startup loads, broken file cleanly rejected); user validated in-game (buy screen, fired shots, no
+  text errors).
+- [x] **PF-1.17.3.5**: Adapt shop/AI/firing consumers if needed, validate in-game (buy-screen quantities/prices, fired
   shots of every class), then remove the legacy `.txt` files and update install lists and docs.
+  Done 2026-09-21: no consumer changes needed (identical structs); legacy `.txt` files removed, `README.md` updated
+  to TOML; user validated in-game with no text errors; builds, `make test-all`, and EN/FR startup smokes green
+  without the legacy files.
 
 ### Planned follow-ups (not yet numbered; become `TODO-PF-*` after `TODO-PF-1`)
 
@@ -607,6 +611,6 @@ quantities/prices, fired shots). Split into Action Items below; each fits one fo
 - [x] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).
 - [x] `make install` populates `bin/atanks`, metainfo, desktop file, icons, and data with no stray files (`WP PF-1.12`).
 - [ ] PLAY/PLAYERS with an empty roster force-creates a human player plus the default AI set instead of aborting.
-- [ ] `git grep "MAX_CONFIG_LINE" -- src` returns zero hits (static config buffers gone, `WP PF-1.16`).
+- [x] `git grep "MAX_CONFIG_LINE" -- src` returns zero hits (static config buffers gone, `WP PF-1.16`).
 - [x] toml++ resolves via CMake package, system header probe, and FetchContent `v3.4.0` with a green header check
   (`WP PF-1.17`).

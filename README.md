@@ -48,7 +48,7 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `src/extern/` | Bundled `dirent` shim for Windows (`dirent.h`, `dirent.c`) |
 | `button/`, `misc/`, `missile/`, `stock/`, `tank/`, `tankgun/`, `title/` | Runtime bitmap assets (`*.bmp`), installed as data |
 | `sound/` | Runtime sound assets (`*.wav`) |
-| `text/` | Localized in-game text files (`weapons*.txt`, `Help*.txt`, `ingame*.txt`, etc.) |
+| `text/` | Arsenal data (`weapons.toml`, `naturals.toml`, `items.toml`, `weapons_*.toml` translations) and localized in-game text files (`Help*.txt`, `ingame*.txt`, etc.) |
 | `unicode.dat` | Allegro datafile used for fonts; also the probe file for data-dir detection. An old manual addition; ignored (not touched) until the post-cleanup move away from Allegro 4 makes it obsolete |
 | `Makefile` | Primary GNU Make build (`VERSION 6.7`, the version single source of truth) |
 | `vs12/`, `vs14/` | Legacy Visual Studio 2013 / 2015 solutions (retired toolsets v120/v140); Windows builds go through CMake |
@@ -162,7 +162,8 @@ Installed by the `install` rules in `CMakeLists.txt` (mirroring the old `make in
 - `atanks.png` is installed to `.../share/icons/hicolor/48x48/apps`; `atanks.ico` is consumed by `src/atanks.rc` for the
   Windows build.
 
-Weapon/item stats come from `text/weapons*.txt` (see `Configuration`). Speech/quote text comes from the other `text/*.txt` files
+Weapon/item stats come from `text/weapons.toml`, `text/naturals.toml`, `text/items.toml` (see `Configuration` and
+`docs/weapons_toml_spec.md`). Speech/quote text comes from the other `text/*.txt` files
 via `TEXTBLOCK`.
 
 ### Platform-Specific Code
@@ -227,7 +228,7 @@ The following were classified as external by metadata inspection; their internal
   synchronizes with them once per frame in `update_objects()`, and finishes and joins them when the round ends.
   `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
   `CMakeLists.txt`).
-- Data flow for content: `text/weapons*.txt` -> `load_weapons_text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
+- Data flow for content: `text/weapons.toml` + `naturals.toml` + `items.toml` -> `load_weapons_text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
   -> shop UI, AI planning, firing, explosions. `text/*.txt` (speech/help) -> `CEnvironment::load_text_files()`
   (`src/environment.cpp`) -> `TEXTBLOCK*` fields -> menus, AI taunts, help screens.
 
@@ -309,10 +310,12 @@ None exist in the repository.
 - Main settings file: `<config_dir>/atanks-config.txt`, loaded by `load_config()` (`src/atanks.cpp`, via
   `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `save_game_settings()`.
   `--noconfig` skips loading.
-- Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h`) reads `<data_dir>/text/weapons*.txt`,
-  selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
-  always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
-  `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`EDataStage`, see `src/globaltypes.h`).
+- Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h`) reads `<data_dir>/text/weapons.toml`,
+  `naturals.toml`, `items.toml`, plus the `<data_dir>/text/weapons_*.toml` translation matching `env.language`
+  (`weapons_fr.toml`, `weapons_de.toml`, `weapons_it.toml`, `weapons.pt_BR.toml`, `weapons_ru.toml`, `weapons_sk.toml`,
+  `weapons_ES.toml`). English is
+  always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. See
+  `docs/weapons_toml_spec.md` for the record format.
 - Speech/help text: `CEnvironment::load_text_files()` (`src/environment.cpp`) loads `text/<base><suffix>` for `gloat`,
   `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
   `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (see `src/environment.h`).
@@ -465,15 +468,17 @@ Standalone helpers (not built by `Makefile`):
   pair, return the matching `EClass` from `get_class()`, add the files to the VS projects' file lists (CMake picks up
   `src/*.cpp` via `file(GLOB ...)` automatically), and wire creation/update/draw into `gameloop.cpp` and teardown into
   `CGlobalData::destroy` paths.
-- New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
-  strings), keep the numeric field count in sync with `load_weapons_text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
-  `src/main.h` if the count changes; check AI selection (`CAICore`), shop availability
+- New weapon or item: append a record to `text/weapons.toml`, `text/naturals.toml`, or `text/items.toml` (and its
+  translations for display
+  strings) with all keys per `docs/weapons_toml_spec.md`, keeping the array counts (`WEAPONS`/`NATURALS`/`ITEMS`)
+  exact; check AI selection (`CAICore`), shop availability
   (`CEnvironment::gen_items_list`), and
-  sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a
-  documented TOML format with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
+  sound/pic mappings. Note: the record layout is specified in `docs/weapons_toml_spec.md`, so data edits no longer
+  require reading parser code.
 - New option/menu entry: add the `EMenuClass`/`EEntryType` value in `src/optiontypes.h`, construct the item in
   `menu.cpp`/`optionscreens.cpp`, and persist it in `CEnvironment::save_to_file/load_from_file`.
-- New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `CEnvironment::load_text_files()`
+- New language: copy the `text/*.txt` matrix with the new suffix, add a `text/weapons_<suffix>.toml` translation
+  (name/desc only, see `docs/weapons_toml_spec.md`), extend the suffix lists in `CEnvironment::load_text_files()`
   and `load_weapons_text()`, and add the language to the `ELanguages` enum.
 - New asset: drop the numbered `N.bmp` / `N.wav` into the right folder (renumber existing files upward by hand to make room
   for inserted frames) and update the loader ranges in `environment.cpp` (`loadBitmaps`/`loadSounds`) and the `Makefile` install
