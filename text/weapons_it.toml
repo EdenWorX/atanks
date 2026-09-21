@@ -1,0 +1,347 @@
+# Atomic Tanks translated display strings (TOML).
+# name/desc only, applied by index over text/weapons.toml, text/naturals.toml, text/items.toml
+# per docs/weapons_toml_spec.md; short files fall back to English for the remaining entries.
+
+[[weapon]]
+name = "Missile Piccolo"
+desc = "Produce una piccola esplosione all'impatto"
+
+[[weapon]]
+name = "Missile Medio"
+desc = "Basso rendimento, piccola area esplosione"
+
+[[weapon]]
+name = "Missile Grande"
+desc = "Medio rendimento, media area esplosione"
+
+[[weapon]]
+name = "Bomba Nucleare Piccola"
+desc = "Alto rendimento, larga area esplosione"
+
+[[weapon]]
+name = "Bomba Nucleare"
+desc = "Altissimo rendimento, enorme area esplosione"
+
+[[weapon]]
+name = "Testata della Morte"
+desc = "Massivo, esplosione mortale"
+
+[[weapon]]
+name = "Piccola Diffusione"
+desc = "5 Piccoli missili in un sigolo colpo"
+
+[[weapon]]
+name = "Media Diffusione"
+desc = "5 Medio missili in un sigolo colpo"
+
+[[weapon]]
+name = "Grande Diffusione"
+desc = "5 Grandi missili in un sigolo colpo"
+
+[[weapon]]
+name = "Super Diffusione"
+desc = "4 Piccole Bombe Nucleari in un sigolo colpo"
+
+[[weapon]]
+name = "Mortale Diffusione"
+desc = "3 Bombe Nucleari in un sigolo colpo"
+
+[[weapon]]
+name = "Armageddon"
+desc = "3 Testate della Morte in un sigolo colpo"
+
+[[weapon]]
+name = "Missile Concatenato"
+desc = "Fuoco con un colpo di tre piccoli missili"
+
+[[weapon]]
+name = "Cannone Concatenato"
+desc = "Fuoco con un colpo di cinque piccoli missili"
+
+[[weapon]]
+name = "Jack Hammer"
+desc = "Fuoco con un colpo di otto piccoli missili"
+
+[[weapon]]
+name = "Shaped Charge"
+desc = "Esplosione orizzontale ad alto rendimento. Tutta l'energia e' focalizzata sui lati, incrementando la distruzione, ma riducendo l'area dell'esplosione."
+
+[[weapon]]
+name = "Wide Boy"
+desc = "Esplosione orizzontale devastante. Tutta l'energia e' focalizzata sui lati, incrementando la distruzione, ma riducendo l'area dell'esplosione."
+
+[[weapon]]
+name = "Cutter"
+desc = "Esplosione orizzontale che cancellera' tutto quello che trovera' per la strada. Tutta l'energia e' focalizzata sui lati, incrementando la distruzione, ma riducendo l'area dell'esplosione similarmente a quanto ottenuto con uno scoppio incontrollato."
+
+[[weapon]]
+name = "Roller Piccolo"
+desc = "Esplosione Media con dispositivo rotolante che esplodera' quando tocchera' qualcosa."
+
+[[weapon]]
+name = "Roller Grande"
+desc = "Esplosione Grande con dispositivo rotolante che esplodera' quando tocchera' qualcosa."
+
+[[weapon]]
+name = "Roller della Morte"
+desc = "Esplosione Enorme con dispositivo rotolante che esplodera' quando tocchera' qualcosa."
+
+[[weapon]]
+name = "MIRV Piccolo"
+desc = "Caduta un gruppo di grandi missili."
+
+[[weapon]]
+name = "Perforatore di Corazza"
+desc = "Un piccolo, potentissimo perforatore di corazza dei tank"
+
+[[weapon]]
+name = "Bomba Cluster"
+desc = "Spargimenti a Medio rendimento di mazzi di bombe a impatto"
+
+[[weapon]]
+name = "Super Cluster"
+desc = "Spargimenti ad Alto rendimento di mazzi di bombe a impatto"
+
+[[weapon]]
+name = "Bomba Funky"
+desc = "Imprevedibile ed altamente distruttivo"
+
+[[weapon]]
+name = "Funky Mortale"
+desc = "Imprevedibile ed estremamente distruttivo"
+
+[[weapon]]
+name = "Proietto Funky"
+desc = "Testata esplosiva a medio rendimento"
+
+[[weapon]]
+name = "Funky Quasi Mortale"
+desc = "Testata esplosiva ad alto rendimento"
+
+[[weapon]]
+name = "Proietto"
+desc = "Testata esplosiva a medio rendimento"
+
+[[weapon]]
+name = "Super Proietto"
+desc = "Testata esplosiva ad alto rendimento"
+
+[[weapon]]
+name = "Scavatore"
+desc = "Scava nel terreno fino alla superficie prima dell'esplosione, buono contro i carri armati sepolti. Lo Scavatore è progettato per uso sotterraneo e soffre di conseguenza all'esposiizone all'aria."
+
+[[weapon]]
+name = "Penetratore"
+desc = "Penetra sepolto prima di sorgere alla superficie. Il Penetratore esploderà sia all'uscita dal suolo, sia al contatto con gli oggetti sepolti. Questo missile è disegnato per scavare e soffre di conseguenza all'esposiizone all'aria."
+
+[[weapon]]
+name = "Piccola Bomba al Napalm"
+desc = "Copre l'area circostante con piccole quantita' di napalm intensamente in fiamme dopo l'impatto"
+
+[[weapon]]
+name = "Media Bomba al Napalm"
+desc = "Copre l'area circostante con napalm intensamente in fiamme dopo l'impatto"
+
+[[weapon]]
+name = "Grande Bomba al Napalm"
+desc = "Copre l'area circostante con grandi quantita' di napalm intensamente in fiamme dopo l'impatto"
+
+[[weapon]]
+name = "Napalm Gelatina"
+desc = "Gelatina chimica intensamente combustibile"
+
+[[weapon]]
+name = "Perforatrice"
+desc = "Esplosione Verticale che provoca un piccolo danno, ma crea un profondo buco nel terreno."
+
+[[weapon]]
+name = "Tremor"
+desc = "Produce un piccolo terremoto all'impatto"
+
+[[weapon]]
+name = "Onda d'urto"
+desc = "Produce un grande terremoto all'impatto"
+
+[[weapon]]
+name = "Spostamento tettonico"
+desc = "Produce un enorme terremoto all'impatto"
+
+[[weapon]]
+name = "Bomba Anti-Sommossa"
+desc = "Distrugge un piccolo volume di sporcizia senza danneggiare nulla"
+
+[[weapon]]
+name = "Pesante Bomba Anti-Sommossa"
+desc = "Distrugge un grande volume di sporcizia senza danneggiare nulla"
+
+[[weapon]]
+name = "Multi Bomba Anti-Sommossa"
+desc = "Taglia un cono di sporcizia direttamente davanti al cannone"
+
+[[weapon]]
+name = "Bomba Anti-Sommossa Esplodente"
+desc = "Taglia un grande cono di sporcizia direttamente davanti al cannone"
+
+[[weapon]]
+name = "Palla Sporca"
+desc = "Produce una piccola sfera di materiale per seppellire i vostri avversari"
+
+[[weapon]]
+name = "Grande Palla Sporca"
+desc = "Produce una grande sfera di materiale per seppellire i vostri avversari"
+
+[[weapon]]
+name = "Super Palla Sporca"
+desc = "Produce una enorme sfera di materiale per seppellire i vostri avversari"
+
+[[weapon]]
+name = "Sporcizia a Piccola Diffusione"
+desc = "Fa cadere dei piccoli mucchi di sporcizia sui vostri nemici"
+
+[[weapon]]
+name = "Cluster MIRV"
+desc = "Libera un mazzo di piccoli missili su quello che trova"
+
+[[weapon]]
+name = "Bomba Percentuale"
+desc = "Distrugge meta' della corazza dell'obiettivo"
+
+[[weapon]]
+name = "Riduttore"
+desc = "Abbassa la potenza esplosiva dei missili nemici."
+
+[[weapon]]
+name = "Theft Bomb"
+desc = "Steals 5k from opponent on impact."
+
+[[weapon]]
+name = "Laser Piccolo"
+desc = "Raggio Laser a 50kW."
+
+[[weapon]]
+name = "Laser Medio"
+desc = "Raggio Laser a 100kW."
+
+[[weapon]]
+name = "Laser Grande"
+desc = "Raggio Laser a 200kW."
+
+[[natural]]
+name = "Meteorite Piccolo"
+desc = "Un piccolo pezzo di roccia dallo spazio"
+
+[[natural]]
+name = "Meteorite Medio"
+desc = "Un pezzo medio di roccia dallo spazio"
+
+[[natural]]
+name = "Meteorite Grande"
+desc = "Un grande pezzo di roccia dallo spazio"
+
+[[natural]]
+name = "Lampo Piccolo"
+desc = "Un piccolo fulmine dal cielo."
+
+[[natural]]
+name = "Lampo Medio"
+desc = "Un fulmine medio dal cielo."
+
+[[natural]]
+name = "Lampo Grande"
+desc = "Un gran fulmine dal cielo."
+
+[[item]]
+name = "Teletrasporto"
+desc = "Teletrasporta il tank in una posizione random."
+
+[[item]]
+name = "Swapper"
+desc = "Scambia il posto con un altro tank"
+
+[[item]]
+name = "Teletrasporto Massiccio"
+desc = "Teletrasporta tutti i tank sullo schermo."
+
+[[item]]
+name = "Fan"
+desc = "Cambia il vento in forza e direzione"
+
+[[item]]
+name = "Vendetta"
+desc = "Un piccolo dispositivo di auto-distruzione, se avete deciso di andarvene, perche' non prenderne qualcuno con voi?"
+
+[[item]]
+name = "Rabbia di Morte"
+desc = "Un gran dispositivo di auto-distruzione. Distruzione reciprocamente assicurata."
+
+[[item]]
+name = "Furia Fatale"
+desc = "Fa finire tutto in grande stile"
+
+[[item]]
+name = "Scudo Leggero"
+desc = "Da una piccola protezione dalla distruzione"
+
+[[item]]
+name = "Scudo Medio"
+desc = "Protegge dalla distruzione"
+
+[[item]]
+name = "Scudo Pesante"
+desc = "Da una grande protezione dalla distruzione"
+
+[[item]]
+name = "Schermo di Repulsione Leggero"
+desc = "Respinge leggermente i missili nemici"
+
+[[item]]
+name = "Schermo di Repulsione Medio"
+desc = "Respinge i missili nemici"
+
+[[item]]
+name = "Schermo di Repulsione Pesante"
+desc = "Respinge pesantemente i missili nemici"
+
+[[item]]
+name = "Rinforzo Corazzatura"
+desc = "Aggiunge permanentemente un piccolo aumento di resistenza alla corazza del tank diminuendo cosi' il danno inferto ai vostri tank."
+
+[[item]]
+name = "Rinforzo Corazzatura in Acciaio"
+desc = "Aggiunge permanentemente un aumento di resistenza alla corazza del tank diminuendo cosi' il danno inferto ai vostri tank."
+
+[[item]]
+name = "Amplificatore di Intensita'"
+desc = "Permette un piccolo e permanente incremento ai danni fatti dalle vostre armi. L'efficienza diminuisce e quindi ogni acquisto supplementare ha un'influenza riduttrice."
+
+[[item]]
+name = "Forza Violenta"
+desc = "Permette un permanente incremento ai danni fatti dalle vostre armi. L'efficienza diminuisce e quindi ogni acquisto supplementare ha un'influenza riduttrice."
+
+[[item]]
+name = "Proiettili Lucidi"
+desc = "Un rivestimento di Teflon riduce la resistenza e l'influenza del vento sui vostri proiettili"
+
+[[item]]
+name = "Proiettili Scanalati"
+desc = "Piccole fossette nella superficie dei proiettili per una riduzione voluminosa della resistenza all'aria"
+
+[[item]]
+name = "Paracadute"
+desc = "Permette al tank di fluttuare lentamente a terra"
+
+[[item]]
+name = "Kit Auto-Riparazione"
+desc = "Ripara il tank un poco ogni volta. Ogni volta fornisce un piccolo aumento alla vostra corazza."
+
+[[item]]
+name = "Benzina"
+desc = "Permette al tank di muoversi sul terreno."
+
+[[item]]
+name = "Razzo"
+desc = "Solleva il tank nell'aria."
+
+[[item]]
+name = "Difesa anti missile - SDI"
+desc = "Offre una certa protezione contro i missili ricevuti."

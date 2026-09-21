@@ -1,0 +1,347 @@
+# Atomic Tanks translated display strings (TOML).
+# name/desc only, applied by index over text/weapons.toml, text/naturals.toml, text/items.toml
+# per docs/weapons_toml_spec.md; short files fall back to English for the remaining entries.
+
+[[weapon]]
+name = "Misil pequeño"
+desc = "Produce un bajo impacto de explosión"
+
+[[weapon]]
+name = "Misil medio"
+desc = "Bajo rendimiento, pequeña área de explosión"
+
+[[weapon]]
+name = "Misil largo"
+desc = "Rendimiento medio, áre media de explosión"
+
+[[weapon]]
+name = "Pequeña arma nuclear"
+desc = "Alto rendimiento, área larga de explosión"
+
+[[weapon]]
+name = "Arma nuclear"
+desc = "Muy alto rendimiento, enorme explosión"
+
+[[weapon]]
+name = "Cabeza de muerte"
+desc = "Masiva, explosión mortal"
+
+[[weapon]]
+name = "Pequeña propagación"
+desc = "5 Pequeños misiles en un único tiro"
+
+[[weapon]]
+name = "Media propagación"
+desc = "5 Misiles medios en un único disparo"
+
+[[weapon]]
+name = "Larga propagación"
+desc = "5 Largos misiles en un solo dispao"
+
+[[weapon]]
+name = "Super propagación"
+desc = "4 Pequeñas armas nucleares en un solo disparo"
+
+[[weapon]]
+name = "Propagación de muerte"
+desc = "3 Armas nucleares en un solo disparo"
+
+[[weapon]]
+name = "Armagedon"
+desc = "3 Cabezas de muerte en un solo disparo"
+
+[[weapon]]
+name = "Cadena de misiles"
+desc = "Disparos de tres pequeños misiles"
+
+[[weapon]]
+name = "Cañon de cadenas"
+desc = "Dispara 5 pequeños misiles"
+
+[[weapon]]
+name = "Jack Hammer"
+desc = "Disparo de 8 pequeños misiles"
+
+[[weapon]]
+name = "Carga formada"
+desc = "Alto rendimiento de explosión horizontal. Toda la energía es enfocada fuera de los lados, aumentado el daño hecho pero reduciendo el area total de explosión."
+
+[[weapon]]
+name = "Chico amplio"
+desc = "Explosión devastadora horizontal. Toda la energía es enfocada fuera de los lados, aumentado el daño hecho pero reduciendo el area total de explosión."
+
+[[weapon]]
+name = "Cutter"
+desc = "Explosión Horizontal que arrasará con algo del camino. Toda la energía es enfocada fuera de los lados, aumentado el daño hecho pero reduciendo el area total de explosión en comparación de una descontrolada explosión."
+
+[[weapon]]
+name = "Pequña apisonadora"
+desc = "Explosión media cuando la rueda golpee algo"
+
+[[weapon]]
+name = "Larga Apisonadora"
+desc = "Larga explosión cuando la rueda golpee algo"
+
+[[weapon]]
+name = "Apisonadora de muerte"
+desc = "Enorme explosión cuando la rueda golpee algo"
+
+[[weapon]]
+name = "Pequeña MIRV"
+desc = "Caida de un grupo de misiles largos desde el suelo"
+
+[[weapon]]
+name = "Armadura penetrante"
+desc = "Un pequeño, poderoso proyectil que noquea tanques"
+
+[[weapon]]
+name = "Grupo de Bombas"
+desc = "Medio rendimiento de impacto y dispersación de Bombas"
+
+[[weapon]]
+name = "Super Bombas"
+desc = "Alto rendimiento de impacto y dispersación de Bombas"
+
+[[weapon]]
+name = "Bomba divertida"
+desc = "Impredecible y altamente destructiva"
+
+[[weapon]]
+name = "Muerte divertida"
+desc = "Impredecible y extremadamente destructiva"
+
+[[weapon]]
+name = "Divertido bombazo"
+desc = "Rendimiento medio de explosión de ojiva"
+
+[[weapon]]
+name = "Mortalmente Divertido"
+desc = "Alto rendimiento de explosión de ojiva"
+
+[[weapon]]
+name = "Bombazo"
+desc = "Medio rendimiento de explosión de ojiva"
+
+[[weapon]]
+name = "Super Bombazo"
+desc = "Alto rendimiento de explosión de ojiva"
+
+[[weapon]]
+name = "Burrower"
+desc = "Burrows llegan a la superficie antes de explotar, bien contra tanques. El Burrower está diseñado para estar abajo y salir a la superficie con alta resistencia."
+
+[[weapon]]
+name = "Penetrador"
+desc = "Penetradores van abajo antes de ascender a la superficie. El Penetrador explotará al salir y tener contacto con cualquier objeto."
+
+[[weapon]]
+name = "Pequeña Bomba  Napalm "
+desc = "Pequeñas cantidades de dispersación de Napales de intensamente impacto"
+
+[[weapon]]
+name = "Media Bomba  Napalm "
+desc = "Quemadura intensa de impacto de Napalm"
+
+[[weapon]]
+name = "Larga Bomba Napalm"
+desc = "Cobertura circundante del area con intensamente ardimiento al impacto"
+
+[[weapon]]
+name = "Pasta Napalm"
+desc = "Ardimiento Intensamente químico"
+
+[[weapon]]
+name = "Taladror"
+desc = "Explosión vertical que  hace un pequeño daño, pero crea un profundo hoyo en el suelo."
+
+[[weapon]]
+name = "Temblor"
+desc = "Produce un pequeño terremoto al impacto"
+
+[[weapon]]
+name = "Ola de impresión"
+desc = "Produce un largo temblor de impacto"
+
+[[weapon]]
+name = "Cambio Tectónico"
+desc = "Produce un enorme temblor al impacto"
+
+[[weapon]]
+name = "Boma Disturbios"
+desc = "Destruye un pequeño volumen de suciedad sin perjudicar algo más"
+
+[[weapon]]
+name = "Pesada Bomba de Disturbios"
+desc = "Destruye un largo volumen de suciedad sin perjudicar algo más"
+
+[[weapon]]
+name = "Carga de Disturbios"
+desc = "Cortes a través de un cono que va directamente al frente del arma"
+
+[[weapon]]
+name = "Explosión de Disturbios"
+desc = "Cortes a través de un largo cono que va directamente al frente del arma"
+
+[[weapon]]
+name = "Bola de suciedad"
+desc = "PProduce una pequeña esfera de material que daña a tus oponentes"
+
+[[weapon]]
+name = "Larga Bola de Suciedad Dirt Ball"
+desc = "Produce una larga esfera de material que daña a tus oponentes "
+
+[[weapon]]
+name = "Super Bola de Suciedad"
+desc = "Produce una enorme esfera de material que daña a tus oponentes "
+
+[[weapon]]
+name = "Pequeña propagación de Suciedad"
+desc = "Pequeña gota de suciedad en tus enemigos"
+
+[[weapon]]
+name = "Grupo MIRV"
+desc = "Lanzamiento de pequeños misiles en caidas"
+
+[[weapon]]
+name = "Bomba Por Ciento"
+desc = "Destruye la mitad de protección de las armaduras"
+
+[[weapon]]
+name = "Theft Bomb"
+desc = "Steals 5k from opponent on impact."
+
+[[weapon]]
+name = "Reductor"
+desc = "Baja el poder de explosion de los misiles enemigos."
+
+[[weapon]]
+name = "Pequeño Laser"
+desc = "Emite 50kW de laser."
+
+[[weapon]]
+name = "Laser Medio"
+desc = "Emite 100kW de laser"
+
+[[weapon]]
+name = "Laser Largo"
+desc = "Emite poderosos 200kW de laser"
+
+[[natural]]
+name = "Pequeño Meteoro"
+desc = "Un pequeño trozo de roca de los cielos"
+
+[[natural]]
+name = "Meteoro Medio"
+desc = "Un  trozo mediano de roca de los cielos"
+
+[[natural]]
+name = "Meteoro Largo"
+desc = "Un  trozo largo de roca de los cielos"
+
+[[natural]]
+name = "Pequeño rayo relámpago"
+desc = "Un débil rayo de relámpago."
+
+[[natural]]
+name = "Medio rayo relámpago"
+desc = "Un rayo de relámpago"
+
+[[natural]]
+name = "Largo  rayo relámpago "
+desc = "Un poderoso rayo de relámpago"
+
+[[item]]
+name = "Teletransportador"
+desc = "Tele transporta el tanque a un lugar aleatorio"
+
+[[item]]
+name = "Cambiador"
+desc = "Cambia lugares con otro tanque"
+
+[[item]]
+name = "Gran Teletransportador"
+desc = "Tele transporta todos los tanques de la pantalla"
+
+[[item]]
+name = "Ventilador"
+desc = "Cambia la fuerza y dirección del viento"
+
+[[item]]
+name = "Venganza"
+desc = "Un pequeño dispositivo auto-destructor, si tienes que irte, por qué no llevarte a alguien contigo?"
+
+[[item]]
+name = "Ira Moribunda"
+desc = "Un dispositivo largo de auto-destrucción. Destrucción Mutuamente Segura."
+
+[[item]]
+name = "Furia Fatal"
+desc = "Acabalo todo con Estilo"
+
+[[item]]
+name = "Luz Protectora"
+desc = "Una pequeña cantidad de protección de daños"
+
+[[item]]
+name = "Escudo Medio"
+desc = "Protección contra daños"
+
+[[item]]
+name = "Escudo Pesado"
+desc = "Una larga cantidad de protección de daños "
+
+[[item]]
+name = "Escudo Repulsor de Luz"
+desc = "Repele ligeramente los misiles enemigos"
+
+[[item]]
+name = "Escudo Repulsor Medio"
+desc = "Repele los misiles enemigos"
+
+[[item]]
+name = "Pesado Escudo Repulsor"
+desc = "Repele fuertemente los misiles enemigos"
+
+[[item]]
+name = "Armadura Blindada"
+desc = "Permanentemente añade un pequeño incremento al daño que tus tanques pueden llevar. Cada compra adicional añade un pequeño monto a la armadura de tu tanque."
+
+[[item]]
+name = "Plasteel Plating"
+desc = "Permanentemente añade un pequeño incremento al daño que tus tanques pueden llevar. Cada compra adicional añade un pequeño monto a la armadura de tu tanque."
+
+[[item]]
+name = "Amplifcador de Intensidad"
+desc = "Un permanemte pequeño incremento al daño hecho por tus armas. La eficiencia disminuye y por tanto cada compra adicional tiene un afecto reducido."
+
+[[item]]
+name = "Fuerza Violenta"
+desc = "Un permanemte pequeño incremento al daño hecho por tus armas. La eficiencia disminuye y como un resultado de compra adicional provee un pequeño incremento."
+
+[[item]]
+name = "Proyectiles Mejorados"
+desc = "Una capa de Teflon para proyectiles que reduce el arrastre y afecta al viento"
+
+[[item]]
+name = "Proyectiles Perforados"
+desc = "Pequeños hoyuelos en la piel de los proyectiles para la reducción masica en el arrastre"
+
+[[item]]
+name = "Paracaídas"
+desc = "Permite al tanque flotar con delicadeza al suelo"
+
+[[item]]
+name = "Kit de Auto-Reparación"
+desc = "Repara un poco el tanque en cada turno. Cada kit adicional provee un pequeño increment a tu armadura."
+
+[[item]]
+name = "Combustible"
+desc = "Permite al tanque moverse en el terreno."
+
+[[item]]
+name = "Cohete"
+desc = "Lanzamientos del tanque al aire."
+
+[[item]]
+name = "SDI Missile Defensa"
+desc = "Ofrcece alguna protección contra la llegada de misiles."

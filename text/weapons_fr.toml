@@ -1,0 +1,347 @@
+# Atomic Tanks translated display strings (TOML).
+# name/desc only, applied by index over text/weapons.toml, text/naturals.toml, text/items.toml
+# per docs/weapons_toml_spec.md; short files fall back to English for the remaining entries.
+
+[[weapon]]
+name = "Small Missile"
+desc = "Produces a low impact explosion"
+
+[[weapon]]
+name = "Medium Missile"
+desc = "Low yield, small area explosion"
+
+[[weapon]]
+name = "Large Missile"
+desc = "Medium yield, medium area explosion"
+
+[[weapon]]
+name = "Small Nuke"
+desc = "High yield, large area explosion"
+
+[[weapon]]
+name = "Nuke"
+desc = "Very high yield, huge explosion"
+
+[[weapon]]
+name = "Death Head"
+desc = "Massive, deadly explosion"
+
+[[weapon]]
+name = "Small Spread"
+desc = "5 Small missiles in a single shot"
+
+[[weapon]]
+name = "Medium Spread"
+desc = "5 Medium missiles in a single shot"
+
+[[weapon]]
+name = "Large Spread"
+desc = "5 Large missiles in a single shot"
+
+[[weapon]]
+name = "Super Spread"
+desc = "4 Small Nukes in a single shot"
+
+[[weapon]]
+name = "Death Spread"
+desc = "3 Nukes in a single shot"
+
+[[weapon]]
+name = "Armageddon"
+desc = "3 Death Heads in a single shot"
+
+[[weapon]]
+name = "Chain Missile"
+desc = "Fires a volly of three small missiles"
+
+[[weapon]]
+name = "Chain Gun"
+desc = "Fires a volly of five small missiles"
+
+[[weapon]]
+name = "Jack Hammer"
+desc = "Fires a volly of eight small missiles"
+
+[[weapon]]
+name = "Shaped Charge"
+desc = "High yield horizontal explosion. All of the energy is focused out to the sides, increasing the damage done but reducing the overall area of the explosion."
+
+[[weapon]]
+name = "Wide Boy"
+desc = "Devastating horizontal explosion. All of the energy is focused out to the sides, increasing the damage done but reducing the overall area of the explosion."
+
+[[weapon]]
+name = "Cutter"
+desc = "Horizontal explosion that will obliterate anything that gets in the way. All of the energy is focused out to the sides, increasing the damage done but reducing the overall area of the explosion in comparison to a similar sized uncontrolled blast."
+
+[[weapon]]
+name = "Small Roller"
+desc = "Medium explosive which rolls downhill until it hits something"
+
+[[weapon]]
+name = "Large Roller"
+desc = "Large explosive which rolls downhill until it hits something"
+
+[[weapon]]
+name = "Death Roller"
+desc = "Huge explosive which rolls downhill until it hits something"
+
+[[weapon]]
+name = "Small MIRV"
+desc = "Drops a group of large missiles on the ground from above"
+
+[[weapon]]
+name = "Armour Piercing"
+desc = "A small, powerful shell that knocks out tanks"
+
+[[weapon]]
+name = "Cluster Bomb"
+desc = "Scatters medium yield bomblets on impact"
+
+[[weapon]]
+name = "Super Cluster"
+desc = "Scatters high yield bomblets on impact"
+
+[[weapon]]
+name = "Funky Bomb"
+desc = "Unpredictable and highly destructive"
+
+[[weapon]]
+name = "Funky Death"
+desc = "Unpredictable and extremely destructive"
+
+[[weapon]]
+name = "Funky Bomblet"
+desc = "Medium yield explosive warhead"
+
+[[weapon]]
+name = "Funky Deathlet"
+desc = "High yield explosive warhead"
+
+[[weapon]]
+name = "Bomblet"
+desc = "Medium yield explosive warhead"
+
+[[weapon]]
+name = "Super Bomblet"
+desc = "High yield explosive warhead"
+
+[[weapon]]
+name = "Burrower"
+desc = "Burrows back up to the surface before exploding, good against buried tanks. The Burrower is designed for below-ground use and suffers from high air-resistance."
+
+[[weapon]]
+name = "Penetrator"
+desc = "Penetrates below ground before rising to the surface. The Penetrator will either explode on exit from the ground or on contact with buried objects. This missile is designed for burrowing and as a result suffers from high air-resistance."
+
+[[weapon]]
+name = "Small Napalm Bomb"
+desc = "Scatters small quantities of intensely burning napalm on impact"
+
+[[weapon]]
+name = "Medium Napalm Bomb"
+desc = "Scatters intensely burning napalm on impact"
+
+[[weapon]]
+name = "Large Napalm Bomb"
+desc = "Covers the surrounding area with intensely burning napalm on impact"
+
+[[weapon]]
+name = "Napalm Jelly"
+desc = "Intensely burning chemical jelly"
+
+[[weapon]]
+name = "Driller"
+desc = "Vertical explosion that will do little damage, but create a deep hole in the ground."
+
+[[weapon]]
+name = "Tremor"
+desc = "Produce a small earthquake on impact"
+
+[[weapon]]
+name = "Shock Wave"
+desc = "Produce a large earthquake on impact"
+
+[[weapon]]
+name = "Tectonic Shift"
+desc = "Produce a huge earthquake on impact"
+
+[[weapon]]
+name = "Riot Bomb"
+desc = "Destroy a small volume of dirt without damaging anything else"
+
+[[weapon]]
+name = "Heavy Riot Bomb"
+desc = "Destroy a large volume of dirt without damaging anything else"
+
+[[weapon]]
+name = "Riot Charge"
+desc = "Cuts through a cone of dirt directly in front of the gun"
+
+[[weapon]]
+name = "Riot Blast"
+desc = "Cuts through a large cone of dirt directly in front of the gun"
+
+[[weapon]]
+name = "Dirt Ball"
+desc = "Produce a small sphere of material to bury your opponents"
+
+[[weapon]]
+name = "Large Dirt Ball"
+desc = "Produce a large sphere of material to bury your opponents"
+
+[[weapon]]
+name = "Super Dirt Ball"
+desc = "Produce a huge ball of material to bury your opponents"
+
+[[weapon]]
+name = "Small Dirt Spread"
+desc = "Drop little piles of dirt on your enemies"
+
+[[weapon]]
+name = "Cluster MIRV"
+desc = "Releases a cluster of small missiles on its way down"
+
+[[weapon]]
+name = "Per Cent Bomb"
+desc = "Destroys half of the target's armour"
+
+[[weapon]]
+name = "Reducer"
+desc = "Lowers the explosive power of an enemy's missiles."
+
+[[weapon]]
+name = "Theft Bomb"
+desc = "Steals 5k from opponent on impact."
+
+[[weapon]]
+name = "Small Laser"
+desc = "A 50kW laser beam."
+
+[[weapon]]
+name = "Medium Laser"
+desc = "A 100kW laser beam"
+
+[[weapon]]
+name = "Large Laser"
+desc = "A powerful 200kW laser beam"
+
+[[natural]]
+name = "Small Meteor"
+desc = "A small chunk of rock from the skies"
+
+[[natural]]
+name = "Medium Meteor"
+desc = "A medium chunk of rock from the skies"
+
+[[natural]]
+name = "Large Meteor"
+desc = "A large chunk of rock from the skies"
+
+[[natural]]
+name = "Small Lightning Bolt"
+desc = "A weak bolt of lightning."
+
+[[natural]]
+name = "Medium Lightning Bolt"
+desc = "A bolt of lightning"
+
+[[natural]]
+name = "Large Lightning Bolt"
+desc = "A powerful bolt of lightning"
+
+[[item]]
+name = "Teleport"
+desc = "Teleports the tank to a random location"
+
+[[item]]
+name = "Swapper"
+desc = "Swap places with another tank"
+
+[[item]]
+name = "Mass Teleport"
+desc = "Teleports all tanks on the screen"
+
+[[item]]
+name = "Fan"
+desc = "Change the wind strength and direction"
+
+[[item]]
+name = "Vengeance"
+desc = "A small self-destruct or auto-destruct device, if you've got to go, why not take someone with you?"
+
+[[item]]
+name = "Dying Wrath"
+desc = "A large self/auto-destruct device. Mutually Assured Destruction."
+
+[[item]]
+name = "Fatal Fury"
+desc = "End it all in style"
+
+[[item]]
+name = "Light Shield"
+desc = "A small amount of protection from damage"
+
+[[item]]
+name = "Medium Shield"
+desc = "Protects against  damage"
+
+[[item]]
+name = "Heavy Shield"
+desc = "A large amount of protection from damage"
+
+[[item]]
+name = "Light Repulsor Shield"
+desc = "Lightly repels enemy missiles"
+
+[[item]]
+name = "Medium Repulsor Shield"
+desc = "Repels enemy missiles"
+
+[[item]]
+name = "Heavy Repulsor Shield"
+desc = "Strongly repels enemy missiles"
+
+[[item]]
+name = "Armour Plating"
+desc = "Permanently add a small increase to the damage your tanks can take. Each additional purchase adds a slightly smaller amount to your tank's armour."
+
+[[item]]
+name = "Plasteel Plating"
+desc = "Permanently increase the damage your tanks can take. Each additional purchase adds a slightly smaller amount to your tank's armour."
+
+[[item]]
+name = "Intensity Amplifier"
+desc = "A small permanent increase to the damage done by your weapons. The efficiency decreases and therefore each additional purchase has a reduced affect."
+
+[[item]]
+name = "Violent Force"
+desc = "Permanently increase the damage done by your weapons. The efficiency decreases and as a result each additional purchase provides a smaller increase."
+
+[[item]]
+name = "Slick Projectiles"
+desc = "A Teflon coating for projectiles to reduce drag and the affect of the wind"
+
+[[item]]
+name = "Dimpled Projectiles"
+desc = "Small dimples in the skin of projectiles for massive reduction in drag"
+
+[[item]]
+name = "Parachute"
+desc = "Allows the tank to float gently to the ground"
+
+[[item]]
+name = "Auto-repair kit"
+desc = "Repairs the tank a little each turn. Each additional kit provides a slightly smaller increase to your armour."
+
+[[item]]
+name = "Fuel"
+desc = "Allows the tank to move across level terran."
+
+[[item]]
+name = "Rocket"
+desc = "Launches the tank into the air."
+
+[[item]]
+name = "SDI Missile Defense"
+desc = "Offers some protection against incoming missiles."

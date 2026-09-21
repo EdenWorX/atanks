@@ -1,0 +1,347 @@
+# Atomic Tanks translated display strings (TOML).
+# name/desc only, applied by index over text/weapons.toml, text/naturals.toml, text/items.toml
+# per docs/weapons_toml_spec.md; short files fall back to English for the remaining entries.
+
+[[weapon]]
+name = "Malá strela"
+desc = "Pri kontakte spôsobí malú explóziu"
+
+[[weapon]]
+name = "Stredná strela"
+desc = "Malá ráž, malá veľkosť explózie"
+
+[[weapon]]
+name = "Veľká strela"
+desc = "Stredná ráž, stredná veľkosť explózie"
+
+[[weapon]]
+name = "Malá jadrová bomba"
+desc = "Veľká ráž, veľká explózia"
+
+[[weapon]]
+name = "Jadrová bomba"
+desc = "Veľmi veľká ráž, obrovská explózia"
+
+[[weapon]]
+name = "Vraždiaca bomba"
+desc = "Obrovská smrtiaca explózia"
+
+[[weapon]]
+name = "Ľahké kobercové bombardovanie"
+desc = "5 malý striel v jednom výstrele"
+
+[[weapon]]
+name = "Stredné kobercové bombardovanie"
+desc = "5 stredných striel v jednom výstrele"
+
+[[weapon]]
+name = "Ťažké kobercové bombardovanie"
+desc = "5 veľkých striel v jednom výstrele"
+
+[[weapon]]
+name = "Superkobercové bombardovanie"
+desc = "4 malé jadrové bomby v jednom výstrele"
+
+[[weapon]]
+name = "Smrtiace kobercové bombardovanie"
+desc = "3 jadrové bomby v jednom výstrele"
+
+[[weapon]]
+name = "Armagedon"
+desc = "3 smrtiace hlavice v jednom výstrele"
+
+[[weapon]]
+name = "Reťazové strely"
+desc = "Vypáli skupinku troch malých striel"
+
+[[weapon]]
+name = "Samopal"
+desc = "Vypáli skupinku piatich malých striel"
+
+[[weapon]]
+name = "Pneumatické kladivo"
+desc = "Vypáli skupinku ôsmych malých striel"
+
+[[weapon]]
+name = "Kumulatívna nálož"
+desc = "Veľká horizontálna explózia. Všetka energia je rozprestrená do strán, čím sa zvyšuje škoda, no zmenšuje oblasť, na ktorú explózia pôsobí."
+
+[[weapon]]
+name = "Wide Boy"
+desc = "Zničujúca horizontálna explózia. Všetka energia je rozprestrená do strán, čím sa zvyšuje škoda, no zmenšuje oblasť, na ktorú explózia pôsobí."
+
+[[weapon]]
+name = "Orezávač"
+desc = "Horizontálna explózia, ktorá vyhladí všetko, čo jej príde do cesty. Všetka energia je rozprestrená do strán, čím sa zvyšuje škoda, no zmenšuje oblasť, na ktorú explózia pôsobí v porovnaní s neriadenou detonáciou podobnej sily."
+
+[[weapon]]
+name = "Malý valcovač"
+desc = "Stredná trhavina, ktorá sa valí z kopca až kým do niečo nenarazí"
+
+[[weapon]]
+name = "Veľký valcovač"
+desc = "Silná trhavina, ktorá sa valí z kopca až kým do niečo nenarazí"
+
+[[weapon]]
+name = "Smrtiaci valcovač"
+desc = "Veľmi silná trhavina, ktorá sa valí z kopca až kým do niečo nenarazí"
+
+[[weapon]]
+name = "Malá MIRV"
+desc = "Spustí z neba skupinu veľkých striel"
+
+[[weapon]]
+name = "Trhač brnenia"
+desc = "Malý silný náboj, ktorý dokáže zničiť tank"
+
+[[weapon]]
+name = "Trieštivá bomba"
+desc = "Rozhodí bombičky o strednej ráži, ktoré vybuchujú pri kontakte"
+
+[[weapon]]
+name = "Supertrieštivá bomba"
+desc = "Rozhodí bombičky o veľkej ráži, ktoré vybuchujú pri kontakte"
+
+[[weapon]]
+name = "Podivná bomba"
+desc = "Nepredvídateľná a vysoko deštruktívna"
+
+[[weapon]]
+name = "Podivná smrť"
+desc = "Nepredvídateľná a extrémne deštruktívna"
+
+[[weapon]]
+name = "Podivná bombička"
+desc = "Výbušná hlavica o strednej ráži"
+
+[[weapon]]
+name = "Podivná smrtiaca bombička"
+desc = "Výbušná hlavica o veľkej ráži"
+
+[[weapon]]
+name = "Bombička"
+desc = "Výbušná hlavica o strednej ráži"
+
+[[weapon]]
+name = "Superbombička"
+desc = "Výbušná hlavica o veľkej ráži"
+
+[[weapon]]
+name = "Zavŕtavač"
+desc = "Najprv sa zavŕta do povrchu, dobrá zbraň na zahrabané tanky. Zavŕtavač je určený pre použitie pod povrchom a nemá rád veľký odpor vzduchu."
+
+[[weapon]]
+name = "Prenikač"
+desc = "Podpovrchová zbraň, ktoré po čase začne stúpať na povrch. Prenikač exploduje buď pri kontakte s povrchom alebo pri kontakte so zahrabanými objektami. Táto strela je určená pre hrabanie a preto nemá rada veľký odpor vzduchu."
+
+[[weapon]]
+name = "Malá napalmová bomba"
+desc = "Rozhodí malé množstvo napalmu, ktorý pri kontakte intenzívne horí"
+
+[[weapon]]
+name = "Stredná napalmová bomba"
+desc = "Rozhodí napalm, ktorý pri kontakte intenzívne horí"
+
+[[weapon]]
+name = "Veľká napalmová bomba"
+desc = "Pokryje okolitú oblasť napalmom, ktorý pri kontakte intenzívne horí"
+
+[[weapon]]
+name = "Napalmové želé"
+desc = "Intenzívne horiace chemické želé"
+
+[[weapon]]
+name = "Vŕtač"
+desc = "Vertikálna explózia, ktorý urobí malú škodu, ale vytvorí hlbokú dieru v zemi."
+
+[[weapon]]
+name = "Otras"
+desc = "Pri kontakte spôsobí malé zemetrasenie"
+
+[[weapon]]
+name = "Tlaková vlna"
+desc = "Pri kontakte spôsobí veľké zemetrasenie"
+
+[[weapon]]
+name = "Tektonický posun"
+desc = "Pri kontakte spôsobí obrovské zemetrasenie"
+
+[[weapon]]
+name = "Hlučná bomba"
+desc = "Zničí malé množstvo zeme bez toho, aby poškodila čokoľvek iné"
+
+[[weapon]]
+name = "Veľká hlučná bomba"
+desc = "Zničí veľké množstvo zeminy bez toho, aby poškodila čokoľvek iné"
+
+[[weapon]]
+name = "Hlučná nálož"
+desc = "Priamo pred zbraňou vyreže do zeminy kužeľ"
+
+[[weapon]]
+name = "Hlučná detonácia"
+desc = "Priamo pred zbraňou vyreže do zeminy veľký kužeľ"
+
+[[weapon]]
+name = "Guľa so zeminou"
+desc = "Vytvorí malú guľku materiálu pre pochovanie vašich súperov"
+
+[[weapon]]
+name = "Veľká guľa so zeminou"
+desc = "Vytvorí veľkú guľu materiálu pre pochovanie vašich súperov"
+
+[[weapon]]
+name = "Superguľa so zeminou"
+desc = "Vytvorí obrovskú guľu materiálu pre pochovanie vašich súperov"
+
+[[weapon]]
+name = "Slabý nános zeminy"
+desc = "Zhodí malé kôpky zeminy na vašich nepriateľov"
+
+[[weapon]]
+name = "Trieštivé MIRV"
+desc = "Vypustí skupinku malých striel smerom dolu"
+
+[[weapon]]
+name = "Percentuálna bomba"
+desc = "Zničí polovicu brnenia cieľa"
+
+[[weapon]]
+name = "Redukovač"
+desc = "Znižuje explozívnu silu nepriateľských striel."
+
+[[weapon]]
+name = "Theft Bomb"
+desc = "Steals 5k from opponent on impact."
+
+[[weapon]]
+name = "Malý laser"
+desc = "50kW laserový lúč"
+
+[[weapon]]
+name = "Stredný laser"
+desc = "100kW laserový lúč"
+
+[[weapon]]
+name = "Veľký laser"
+desc = "Silný 200kW laserový lúč"
+
+[[natural]]
+name = "Malý meteorit"
+desc = "Malé kusy skál z oblohy"
+
+[[natural]]
+name = "Stredný meteorit"
+desc = "Stredne veľké kusy skál z oblohy"
+
+[[natural]]
+name = "Veľký meteorit"
+desc = "Veľké kusy skál z oblohy"
+
+[[natural]]
+name = "Slabý blesk"
+desc = "Slabý blesk"
+
+[[natural]]
+name = "Stredný blesk"
+desc = "Stredne silný blesk"
+
+[[natural]]
+name = "Silný blesk"
+desc = "Silný blesk"
+
+[[item]]
+name = "Teleport"
+desc = "Teleportuje tank na náhodné miesto"
+
+[[item]]
+name = "Výmena"
+desc = "Výmena miesta s iným tankom"
+
+[[item]]
+name = "Hromadný teleport"
+desc = "Teleportuje všetky tanky na obrazovke"
+
+[[item]]
+name = "Ventilátor"
+desc = "Zmení silu a smer vetra"
+
+[[item]]
+name = "Pomsta"
+desc = "Malé samo a autodeštrukčné zariadenie. Keď už musíte skončiť, tak prečo nevziať niekoho so sebou?"
+
+[[item]]
+name = "Smrteľný hnev"
+desc = "Veľké samo/autodeštrukčné zariadenie. Vzájomne zaistená deštrukcia."
+
+[[item]]
+name = "Osudové zúrenie"
+desc = "Štýlové zakončenie"
+
+[[item]]
+name = "Ľahký štít"
+desc = "Malé množstvo ochrany pred poškodením"
+
+[[item]]
+name = "Stredný štít"
+desc = "Chráni pred poškodením"
+
+[[item]]
+name = "Ťažký štít"
+desc = "Veľké množstvo ochrany pred poškodením"
+
+[[item]]
+name = "Ľahký odkloňovač striel"
+desc = "Jemne odkloní nepriateľské strely"
+
+[[item]]
+name = "Stredný odkloňovač striel"
+desc = "Odkloní nepriateľské strely"
+
+[[item]]
+name = "Ťažký odkloňovač striel"
+desc = "Výrazne odkloní nepriateľské strely"
+
+[[item]]
+name = "Bežné opancierovanie"
+desc = "Permanentne zvýši množstvo škody, ktorému váš tank dokáže odolať. Každý dodatočný nákup pridá o niečo menšie množstvo pancieru vášmu tanku."
+
+[[item]]
+name = "Plasteelové opancierovanie"
+desc = "Permanentne zvýši množstvo škody, ktorému váš tank dokáže odolať. Každý dodatočný nákup pridá o niečo menšie množstvo pancieru vášmu tanku."
+
+[[item]]
+name = "Zosilnenie intenzity"
+desc = "Malé permanentné zvýšenie účinnosti vašich zbraní. Účinnosť má klesajúcu tendenciu a tak každý dodatočný nákup má stále slabší efekt."
+
+[[item]]
+name = "Mohutná sila"
+desc = "Permanentné zvýšenie účinnosti vašich zbraní. Účinnosť má klesajúcu tendenciu a tak každý dodatočný nákup má stále slabší efekt."
+
+[[item]]
+name = "Klzké projektily"
+desc = "Teflónová vrstva pre projektily, ktoré znížia odpor a účinok vetra"
+
+[[item]]
+name = "Dierkované projektily"
+desc = "Malé dierky v plášti projektilov pre veľké zníženie odporu"
+
+[[item]]
+name = "Padák"
+desc = "Umožní tanku pomaly klesať k zemi"
+
+[[item]]
+name = "Súprava pre opravu"
+desc = "Po každom ťahu opravuje tank. Každá ďalšia súprava poskytuje o niečo menšie brnenie."
+
+[[item]]
+name = "Palivo"
+desc = "Umožňuje tanku pohybovať sa po vodorovnom teréne."
+
+[[item]]
+name = "Raketa"
+desc = "Vypustí tank do vzduchu."
+
+[[item]]
+name = "SDI raketová obrana"
+desc = "Poskytuje určitú ochranu proti prichádzajúcim strelám."

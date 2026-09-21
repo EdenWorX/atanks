@@ -574,8 +574,11 @@ quantities/prices, fired shots). Split into Action Items below; each fits one fo
   numerics with TOML int/float types, item `vals`); ES/it transcoded via latin-1 (no 0x80-0x9F bytes, identical to
   cp1252 here). New files `text/weapons.toml`, `text/naturals.toml`, `text/items.toml` (base split three ways per
   user decision, translations stay one file per language), `.txt` sources untouched.
-- [ ] **PF-1.17.3.3**: Author the 7 `text/weapons_*.toml` translations (name/desc only, base order, short files keep
+- [x] **PF-1.17.3.3**: Author the 7 `text/weapons_*.toml` translations (name/desc only, base order, short files keep
   English fallback per spec). No code changes yet.
+  Done 2026-09-21: 6 languages complete (56/6/24), pt_BR short by one weapon pair (index 55 `LRG_LAZER` falls back to
+  English, same as the legacy loader); all files round-trip verified pairwise. ES/it authored from the UTF-8
+  transcodes; `.txt` sources untouched.
 - [ ] **PF-1.17.3.4**: Reimplement `load_weapons_text()` on toml++ (strict base counts, lenient translations, typed reads;
   needs Action Items `PF-1.17.3.1`–`PF-1.17.3.3`). Verify parsed stats identical to legacy output for all records and
   translations, plus green builds and unit tests.

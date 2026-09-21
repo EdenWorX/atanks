@@ -1,0 +1,347 @@
+# Atomic Tanks translated display strings (TOML).
+# name/desc only, applied by index over text/weapons.toml, text/naturals.toml, text/items.toml
+# per docs/weapons_toml_spec.md; short files fall back to English for the remaining entries.
+
+[[weapon]]
+name = "Kleine Rakete"
+desc = "Kleine Explosion beim Einschlag."
+
+[[weapon]]
+name = "Mittlere Rakete"
+desc = "Kleine Wirkung, kleinflächige Explosion."
+
+[[weapon]]
+name = "Große Rakete"
+desc = "Mittlere Wirkung, mittelflächige Explosion."
+
+[[weapon]]
+name = "Kleine Atombombe"
+desc = "Große Wirkung, großflächige Explosion."
+
+[[weapon]]
+name = "Atombombe"
+desc = "Sehr große Wirkung, riesige Explosion."
+
+[[weapon]]
+name = "Totenkopf"
+desc = "Massive, tödliche Explosion."
+
+[[weapon]]
+name = "Kleiner Streuer"
+desc = "5 Kleine Raketen mit einem Schuss."
+
+[[weapon]]
+name = "Mittlerer Streuer"
+desc = "5 Mittlere Raketen mit einem Schuss."
+
+[[weapon]]
+name = "Großer Streuer"
+desc = "5 Große Raketen mit einem Schuss."
+
+[[weapon]]
+name = "Super Streuer"
+desc = "4 Kleine Atombomben mit einem Schuss."
+
+[[weapon]]
+name = "Todesstreuer"
+desc = "3 Atombomben mit einem Schuss."
+
+[[weapon]]
+name = "Armageddon"
+desc = "3 Totenköpfe mit einem Schuss."
+
+[[weapon]]
+name = "Kleine Raketenkette"
+desc = "Feuert drei kleine Raketen nacheinander ab."
+
+[[weapon]]
+name = "Raketenkette"
+desc = "Feuert fünf kleine Raketen nacheinander ab."
+
+[[weapon]]
+name = "Jack Hammer"
+desc = "Feuert acht kleine Raketen nacheinander ab."
+
+[[weapon]]
+name = "Shaped Charge"
+desc = "Hoch wirksame horizontale Explosion. Die gesamte Energie ist zu den Seiten fokusiert und erhöht den Schaden und verdampft die gesamte Umgebung im Bereich der Explosion."
+
+[[weapon]]
+name = "Wide Boy"
+desc = "Verheerende horizontale Explosion. Die gesamte Energie ist zu den Seiten fokusiert und erhöht den Schaden und verdampft die gesamte Umgebung im Bereich der Explosion."
+
+[[weapon]]
+name = "Cutter"
+desc = "Horizontale Explosion die alles auslöscht, was in ihren Weg kommt. Die gesamte Energie ist zu den Seiten fokusiert und erhöht den Schaden und verdampft die gesamte Umgebung im Bereich der Explosion, vergleichbar mit einer ebensogrßen unkontrollierten Sprengung."
+
+[[weapon]]
+name = "Kleiner Roller"
+desc = "Mittel explosiver Sprengsatz, der den Berg hinunter rollt bis er etwas trifft."
+
+[[weapon]]
+name = "Großer Roller"
+desc = "Großer explosiver Sprengsatz, der den Berg hinunter rollt bis er etwas trifft."
+
+[[weapon]]
+name = "Todesroller"
+desc = "Riesiger explosiver Sprengsatz, der den Berg hinunter rollt bis er etwas trifft."
+
+[[weapon]]
+name = "Kleiner MIRV"
+desc = "Wirft eine Gruppe großer Raketen von oben auf das Zielgebiet."
+
+[[weapon]]
+name = "Rüstungsknacker"
+desc = "Eine kleine, wirksame Granatedie die Panzer zerstören kann."
+
+[[weapon]]
+name = "Cluster Bombe"
+desc = "Streut einen mittelwirksamen Bombentepich, der beim Aufschlag explodiert."
+
+[[weapon]]
+name = "Super Cluster"
+desc = "Streut einen hochwirksamen Bombentepich, der beim Aufschlag explodiert."
+
+[[weapon]]
+name = "Funky Bombe"
+desc = "Unberechenbar und hoch zerstörerisch."
+
+[[weapon]]
+name = "Funky Tod"
+desc = "Unberechenbar und extrem zerstörerisch."
+
+[[weapon]]
+name = "Funky Bombenteppich"
+desc = "Mittel wirksamer explosiver Sprengkopf."
+
+[[weapon]]
+name = "Funky Todesteppich"
+desc = "Hoch wirksamer explosiver Sprengkopf."
+
+[[weapon]]
+name = "Bombenteppich"
+desc = "Mittel wirksamer explosiver Sprengkopf."
+
+[[weapon]]
+name = "Super Bombenteppich"
+desc = "Hoch wirksamer explosiver Sprengkopf."
+
+[[weapon]]
+name = "Erdfresser"
+desc = "Bohrt sich zurück zur Oberfläche bevor er explodiert. Gut gegen unterirdische Panzer. Der Erdfresser ist für unterirdische Einsätze entwickelt und leidet unter hohem Luftwiderstand."
+
+[[weapon]]
+name = "Penetrator"
+desc = "Bohrt sich unter die Oberfläche bevor er wieder zur Oberfläche kommt. The Penetrator explodiert entweder beim erreichen der Oberfläche oder bei Kontakt mit einem verschütteten Objekt. Diese Rakete ist für unterirdische Einsätze entwickelt und leidet unter hohem Luftwiderstand."
+
+[[weapon]]
+name = "Kleine Napalmbombe"
+desc = "Streut beim Einschlag kleine Mengen intensiv brennenden Napalms."
+
+[[weapon]]
+name = "Mittlere Napalmbombe"
+desc = "Streut beim Einschlag intensiv brennendes Napalm."
+
+[[weapon]]
+name = "Große Napalmbombe"
+desc = "Überzieht die Umgebung beim Einschlag mit intensiv brennendem Napalm."
+
+[[weapon]]
+name = "Napalmgel"
+desc = "Intensiv brennendes chemisches Gel."
+
+[[weapon]]
+name = "Bohrer"
+desc = "Vertikale Explosion, die kleinen Schaden anrichtet, aber ein tiefes Loch in die Oberfläche macht."
+
+[[weapon]]
+name = "Tremor"
+desc = "Erzeugt beim Einschlag ein kleines Erdbeben."
+
+[[weapon]]
+name = "Schockwelle"
+desc = "Erzeugt beim Einschlag ein großes Erdbeben."
+
+[[weapon]]
+name = "Tektonische Bombe"
+desc = "Erzeugt beim Einschlag ein riesiges Erdbeben."
+
+[[weapon]]
+name = "Rebellenbombe"
+desc = "Zerstört eine kleine Menge Erde ohne etwas anderes zu zerstören."
+
+[[weapon]]
+name = "Große Rebellenbombe"
+desc = "Zerstört eine große Menge Erde ohne etwas anderes zu zerstören."
+
+[[weapon]]
+name = "Kleiner Unruhestifter"
+desc = "Schneidet einen Kegel aus dem Untergrund, direkt vor der Mündung."
+
+[[weapon]]
+name = "Großer Unruhestifter"
+desc = "Schneidet einen großen Kegel aus dem Untergrund, direkt vor der Mündung."
+
+[[weapon]]
+name = "Dreckball"
+desc = "Erzeugt einen kleinen Hügel um den Gegner zu verschütten."
+
+[[weapon]]
+name = "Großer Dreckball"
+desc = "Erzeugt einen großen Hügel um den Gegner zu verschütten."
+
+[[weapon]]
+name = "Super Dreckball"
+desc = "Erzeugt einen riesen Hügel um den Gegner zu verschütten."
+
+[[weapon]]
+name = "Kleiner Dreckball"
+desc = "Drop little piles of dirt on your enemies"
+
+[[weapon]]
+name = "Cluster MIRV"
+desc = "Wirft eine Gruppe kleiner Raketen von oben auf das Zielgebiet."
+
+[[weapon]]
+name = "Prozent Bombe"
+desc = "Zerstört die Hälfte der gegnerischen Panzerung."
+
+[[weapon]]
+name = "Reduzierer"
+desc = "Vermindert die Kraft der gegnerischen Waffen um ein Drittel."
+
+[[weapon]]
+name = "Diebstahlbombe"
+desc = "Stiehlt dem Gegner 5k beim Einschlag."
+
+[[weapon]]
+name = "Kleiner Laser"
+desc = "Ein 50kW Laserstrahl."
+
+[[weapon]]
+name = "Mittlerer Laser"
+desc = "Ein 100kW Laserstrahl."
+
+[[weapon]]
+name = "Großer Laser"
+desc = "Ein kraftvoller 200kW Laserstrahl."
+
+[[natural]]
+name = "Kleiner Meteor"
+desc = "Ein kleiner Felsbrocken vom Himmel."
+
+[[natural]]
+name = "Mittlerer Meteor"
+desc = "Ein mittlerer Felsbrocken vom Himmel."
+
+[[natural]]
+name = "Großer Meteor"
+desc = "Ein großer Felsbrocken vom Himmel."
+
+[[natural]]
+name = "Kleiner Blitz"
+desc = "Ein schwacher Blitz."
+
+[[natural]]
+name = "Mittlerer Blitz"
+desc = "Ein Blitz."
+
+[[natural]]
+name = "Großer Blitz - Kugelbllitz"
+desc = "Ein starker Blitz."
+
+[[item]]
+name = "Teleport"
+desc = "Teleportiert den Panzer an einen zufälligen Ort."
+
+[[item]]
+name = "Tausch"
+desc = "Tauscht mit einem anderen Panzer den Platz."
+
+[[item]]
+name = "Massenteleportation"
+desc = "Teleportiert alle Panzer auf dem Bildschirm."
+
+[[item]]
+name = "Ventilator"
+desc = "Ändert Windstärke und -richtung."
+
+[[item]]
+name = "Vengeance"
+desc = "Ein kleiner Selbstzerstörer. Wenn Du gehen musst, warum nicht noch jemanden mitnehmen?"
+
+[[item]]
+name = "Todeswut"
+desc = "Ein großer Selbstzerstörer. Gleichgewicht des Schreckens."
+
+[[item]]
+name = "Tödliche Raserei"
+desc = "Beendet jedes Laben."
+
+[[item]]
+name = "Schwaches Schild"
+desc = "Ein kleiner Schutz."
+
+[[item]]
+name = "Mittleres Schild"
+desc = "Schutz gegen Schaden."
+
+[[item]]
+name = "Schweres Schild"
+desc = "EIn starker Schutz."
+
+[[item]]
+name = "Kleines Kraftfeld"
+desc = "Lässt feindliche Raketen leicht abprallen."
+
+[[item]]
+name = "Mittleres Kraftfeld"
+desc = "Lässt feindliche Raketen abprallen."
+
+[[item]]
+name = "Starkes Kraftfeld"
+desc = "Lässt feindliche Raketen stark abprallen."
+
+[[item]]
+name = "Verstärkte Rüstung"
+desc = "Erhöht die Treffer, die Dein Panzer einstecken kann ein wenig. Jeder weitere Kauf verstärkt die Rüstung Deines Panzers ein wenig."
+
+[[item]]
+name = "Plastahl Rüstung"
+desc = "Erhöht die Treffer, die Dein Panzer einstecken kann ein wenig. Jeder weitere Kauf verstärkt die Rüstung Deines Panzers ein wenig."
+
+[[item]]
+name = "Intensiver Verstärker"
+desc = "Eine kleine permanente Erhöhung des Schadens, den Deine Waffe anrichtet. Mit jedem Kauf zeigt der Verstärker weniger Wirkung, so dass weiter Käufe weniger zusätzlichen Schaden bringen."
+
+[[item]]
+name = "Brutaler Verstärker"
+desc = "Eine permanente Erhöhung des Schadens, den Deine Waffe anrichtet. Mit jedem Kauf zeigt der Verstärker weniger Wirkung, so dass weiter Käufe weniger zusätzlichen Schaden bringen."
+
+[[item]]
+name = "Glatte Projektile"
+desc = "Eine Teflonbeschichtung reduziert den Luftwiderstand und den Effekt des Windes."
+
+[[item]]
+name = "Genoppte Projektile"
+desc = "Kleine Noppen auf der Oberfläche der Projektile sorgen für eine massive Reduzierung des Luftwiderstandes."
+
+[[item]]
+name = "Fallschirm"
+desc = "Erlaubt es dem Panzer sanft auf dem Boden zu landen."
+
+[[item]]
+name = "Reparatursatz"
+desc = "Repariert den Panzer jede Runde ein wenig. Jeder weitere Reparatursatz unterstützt die Reparatur ein bisschen weniger."
+
+[[item]]
+name = "Benzin"
+desc = "Erlaubt es dem Panzer, sich auf ebenem Gelände zu bewegen."
+
+[[item]]
+name = "Rakete"
+desc = "Schießt den Panzer in die Luft."
+
+[[item]]
+name = "SDI Missile Defense System"
+desc = "Bietet etwas Schutz gegen ankommende Geschosse. Weiter Käufe erhöhen die Reichweite des SDI Systems. Es besteht eine Chance von 1% dass ein SDI Laser bei Gebrauch ausbrennt."
