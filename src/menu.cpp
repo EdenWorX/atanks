@@ -690,8 +690,14 @@ void CMenu::redraw_all( bool full_redraw ) {
 	// If this is a full redraw, the background and
 	// menu title must be drawn as well.
 	if ( full_redraw ) {
-		if ( ++bg_offset == INT_MAX ) {
-			bg_offset = 0;
+		// Frame-rate independent animation: advance the background offset by
+		// whole steps only, banking fractions across frames (60 FPS baseline).
+		bg_carry += 1. / env.frame_count_mod;
+		while ( bg_carry >= 1. ) {
+			bg_carry -= 1.;
+			if ( ++bg_offset == INT_MAX ) {
+				bg_offset = 0;
+			}
 		}
 		draw_menu_background( bg_type, bg_offset, bg_items );
 		textout_ex( global.canvas, font, title, title_x + 2, menu_y + 12, BLACK, -1 );
@@ -801,11 +807,21 @@ int32_t CMenu::operator() () {
 	int32_t    ms_per_frame    = 1000 / env.frames_per_second;
 	int32_t    mlb_x           = 0;
 	int32_t    mlb_y           = 0;
-	int32_t    mouse_clock     = MOUSE_RELEASE_DELAY;
+	int32_t    mouse_frames    = ROUND( MOUSE_RELEASE_DELAY * env.frame_count_mod );
+	int32_t    reduct_frames   = ROUND( MOUSE_DELAY_REDUCT * env.frame_count_mod );
+	int32_t    mouse_clock     = mouse_frames;
 	int32_t    mouse_round     = 0;
 	int32_t    mouse_reduct    = 0;
 	bool       has_ctrl_down   = false;
 	EEntryType last_clicked    = ET_NONE;
+
+	// Guard against pathological frame rates (60 FPS baseline can round to zero).
+	if ( mouse_frames < 1 ) {
+		mouse_frames = 1;
+	}
+	if ( reduct_frames < 1 ) {
+		reduct_frames = 1;
+	}
 
 	flush_inputs();
 	WIN_CLOCK_INIT
@@ -878,7 +894,7 @@ int32_t CMenu::operator() () {
 
 		// reset mouse clock if both are released
 		if ( mlb_is_released && mrb_is_released ) {
-			mouse_clock  = MOUSE_RELEASE_DELAY;
+			mouse_clock  = mouse_frames;
 			mouse_round  = 0;
 			mouse_reduct = 0;
 		}
@@ -908,16 +924,16 @@ int32_t CMenu::operator() () {
 		// Handle the mouse delay:
 		if ( !mouse_clock ) {
 			if ( ( ET_VALUE == last_clicked ) || ( ET_COLOR == last_clicked ) ) {
-				if ( MOUSE_DELAY_REDUCT == ++mouse_round ) {
+				if ( reduct_frames == ++mouse_round ) {
 					mouse_round = 0;
-					if ( ( ET_COLOR == last_clicked ) || ( ++mouse_reduct >= MOUSE_RELEASE_DELAY ) ) {
-						mouse_reduct = MOUSE_RELEASE_DELAY - 1;
+					if ( ( ET_COLOR == last_clicked ) || ( ++mouse_reduct >= mouse_frames ) ) {
+						mouse_reduct = mouse_frames - 1;
 					}
 				}
 			} else {
 				mouse_reduct = 0;
 			}
-			mouse_clock = MOUSE_RELEASE_DELAY - mouse_reduct;
+			mouse_clock = mouse_frames - mouse_reduct;
 		}
 
 		// Determine whether a click hit something

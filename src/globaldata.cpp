@@ -994,6 +994,10 @@ void CGlobalData::slide_land() {
 		return;
 	}
 
+	// Frame-rate independent falling: velocity accumulates per frame, so the
+	// gravity increment below scales quadratically with the per-frame step.
+	double const fall_step = 1. / env.frame_count_mod;
+
 	for ( int32_t col = 1; col < ( env.screen_width - 1 ); ++col ) {
 
 		// Skip this column if it is done or locked
@@ -1075,7 +1079,7 @@ void CGlobalData::slide_land() {
 					velocity[ col ] = fp[ col ]; // Or no sound would be played if done
 					done[ col ]     = 2;         // Recheck
 				} else {
-					velocity[ col ] += env.gravity;
+					velocity[ col ] += env.gravity * fall_step * fall_step;
 					drop_incr[ col ] += velocity[ col ];
 
 					auto    dropAdd  = ROUND( drop_incr[ col ] );

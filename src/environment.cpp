@@ -1640,9 +1640,10 @@ void CEnvironment::set_fps( int32_t new_FPS ) {
 		if ( new_FPS ) {
 			frames_per_second = new_FPS;
 		}
-		fps_mod     = 100. / static_cast< double >( frames_per_second );
-		fall_vector = gravity * fps_mod;
-		max_velocity = static_cast< double >( MAX_POWER ) * fps_mod / 100.;
+		frame_count_mod = static_cast< double >( frames_per_second ) / 60.;
+		fps_mod         = 100. / static_cast< double >( frames_per_second );
+		fall_vector     = gravity * fps_mod;
+		max_velocity    = static_cast< double >( MAX_POWER ) * fps_mod / 100.;
 	}
 }
 

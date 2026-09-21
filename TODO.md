@@ -550,13 +550,13 @@ quantities/prices, fired shots).
 
 ### Feature-Complete Checklist
 
-- [ ] `git grep "either version 2" -- src` returns zero hits (license headers consolidated, `WP PF-1.1`).
-- [ ] `git grep -i "GPL-2.0" -- io.github.EdenWorX.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
+- [x] `git grep "either version 2" -- src` returns zero hits (license headers consolidated, `WP PF-1.1`).
+- [x] `git grep -i "GPL-2.0" -- io.github.EdenWorX.atanks.metainfo.xml` returns zero hits (metadata matches `LICENSE`, `WP
   PF-1.1`).
 - [x] `git grep "6.5_rc1" -- vs12 vs14` returns zero hits (MSVC versions consolidated, `WP PF-1.2`).
-- [ ] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
-- [ ] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).
-- [ ] `make test` and `make test-all` run green (unit suite in release and debug dirs, `WP PF-1.11`).
-- [ ] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).
+- [x] `git ls-files dep/` shows only `.keep_dir` (dependency files untracked, `WP PF-1.4`).
+- [x] `cmake -S . -B <dir> -G Ninja` configures and `cmake --build <dir>` links `atanks` (CMake build works, `WP PF-1.9`).
+- [x] `make test` and `make test-all` run green (unit suite in release and debug dirs, `WP PF-1.11`).
+- [x] `make -n` maps each goal to its `cmake-build-*` directory (`-release`/`-debug`/`-asan`/`-tsan`/`-usan`, `WP PF-1.9`).
 - [x] `make install` populates `bin/atanks`, metainfo, desktop file, icons, and data with no stray files (`WP PF-1.12`).
 - [ ] PLAY/PLAYERS with an empty roster force-creates a human player plus the default AI set instead of aborting.

@@ -132,6 +132,8 @@ public:
 	 */
 
 	int32_t        color            = BLACK;          ///< Player color.
+	double         angle_carry      = 0.;             ///< Carry for frame-rate independent aim steps.
+	double         power_carry      = 0.;             ///< Carry for frame-rate independent power steps.
 	double         damage_multiplier = 1.;             ///< Damage multiplier.
 	double         defensive        = 0.;             ///< Offense/defense balance.
 	double         error_multiplier  = 0.;             ///< Aim error multiplier.

@@ -37,6 +37,18 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   not listed there); decide whether to re-host the images (e.g. in the GitHub repo) and update or drop the block.
 - [ ] **Low**: `README.md` claims `allegro-config` is absent on the documenting machine, but Allegro 4.4.3 is installed in the
   current environment. Reword to drop the machine-specific absence claim when that section is next touched.
+- [ ] **High**: game speed doubles when `FRAMES` is set above 60 (e.g. 120 Hz displays). The frame pacer (`check_fps()`,
+  `src/gameloop.cpp:661`) keeps real frame time correct, but only some motion is scaled by `env.fps_mod`
+  (`src/environment.cpp:1643`); fixed per-frame steps run twice as often per wall-clock second. Confirmed unscaled:
+  explosion pacing via `weap->etime` (`src/explosion.cpp:62,604`), `CFloatText` rise/sway velocities
+  (`src/floattext.cpp:121-122`), volley cadence (`weapon.delay * env.volley_delay`, `src/tank.cpp:151`,
+  `src/gameloop.cpp:178`), UFO satellite acceleration/velocity (`src/satellite.cpp:26-32`). Still to audit: land-slide
+  velocity (`CGlobalData::slide_land()`), tank aim/power adjust rates, menu-loop animation steps (`src/menu.cpp:801`). Fix
+  direction: scale frame-count delays by `frames_per_second / 60` and per-frame velocities by `60 / frames_per_second`
+  (new `env` factor next to `fps_mod`), then validate in-game at 60 vs 120 FPS. Found from user in-game testing during
+  `WP PF-1.15` verification. Status 2026-09-21: implemented in the working tree (`env.frame_count_mod` in
+  `src/environment.h:159`, scaled explosion/floattext/volley/satellite/landslide/aim-dials/menu sites); builds, unit
+  tests, and `make doc` are green, in-game 60-vs-120 comparison still pending with the user.
 
 ## Planned Features
 

@@ -45,10 +45,10 @@ private:
 	 */
 
 	CBeam*   beam   = nullptr;
-	int32_t x      = 0;
-	int32_t y      = MENUHEIGHT + 5;
-	int32_t xv     = -2;
-	int32_t prev_x = 0;
+	double   x      = 0;
+	int32_t  y      = MENUHEIGHT + 5;
+	double   xv     = -2;
+	double   prev_x = 0;
 };
 
 #endif // ATANKS_SATELLITE_H_INCLUDED

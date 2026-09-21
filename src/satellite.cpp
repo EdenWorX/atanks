@@ -10,9 +10,9 @@ SATELLITE::SATELLITE() : x( env.screen_width / 2 ) {
 
 void SATELLITE::draw() const {
 	drawing_mode( DRAW_MODE_SOLID, nullptr, 0, 0 );
-	draw_sprite( global.canvas, env.misc[ SATELLITE_IMAGE ], x, y );
-	global.make_update( x - 20, y, 80, 60 );
-	global.make_update( prev_x, y, 80, 60 );
+	draw_sprite( global.canvas, env.misc[ SATELLITE_IMAGE ], ROUND( x ), y );
+	global.make_update( ROUND( x ) - 20, y, 80, 60 );
+	global.make_update( ROUND( prev_x ), y, 80, 60 );
 }
 
 void SATELLITE::move() {
@@ -21,15 +21,19 @@ void SATELLITE::move() {
 		beam = nullptr;
 	}
 
+	// Frame-rate independent movement: acceleration and velocity are tuned
+	// for 60 FPS, so scale both by the per-frame step (exact trajectory).
+	double const step = 1. / env.frame_count_mod;
+
 	// reverse movement if the satellite reaches the screen borders
 	if ( x < -5 ) {
-		xv += 1;
+		xv += step;
 	} else if ( x > ( env.screen_width - 20 ) ) {
-		xv -= 1;
+		xv -= step;
 	}
 
 	prev_x  = x;
-	x      += xv;
+	x      += xv * step;
 
 	// If the satellite is firing, move the beam
 	if ( beam ) {

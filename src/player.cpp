@@ -38,6 +38,18 @@ static bool ctrlUsedUp        = false;
 static bool has_ctrl_pressed  = false;
 static bool has_shift_pressed = false;
 
+/// @brief Bank one frame's worth of control steps in @a carry and return the whole steps due.
+///
+/// Hold-to-repeat controls (aim angle/power keys, AI dial transfer) are tuned in steps per frame at 60 FPS.
+/// Banking fractions keeps the wall-clock rate constant at any frame rate: one step per frame at 60 FPS,
+/// one step every other frame at 120 FPS, two steps per frame at 30 FPS.
+static int32_t control_steps_due( double& carry ) {
+	carry += 1. / env.frame_count_mod;
+	int32_t const steps = static_cast< int32_t >( carry );
+	carry -= steps;
+	return steps;
+}
+
 /// @brief default ctor
 CPlayer::CPlayer() {
 
@@ -505,18 +517,33 @@ EControl CPlayer::computer_controls( CAICore* aicore, bool allow_fire ) {
 				tank->p  = ai_power;
 				tank->cw = ai_weap;
 			} else {
+				// Frame-rate independent transfer: bank fractions so the dials move
+				// at the same wall-clock rate at any frame rate (60 FPS baseline).
+				int32_t angle_steps = 0;
+				int32_t power_steps = 0;
+				if ( ( ai_angle != tank->a ) || ( ai_weap != tank->cw ) ) {
+					angle_steps = control_steps_due( angle_carry );
+				} else {
+					angle_carry = 0.;
+				}
+				if ( ai_power != tank->p ) {
+					power_steps = control_steps_due( power_carry );
+				} else {
+					power_carry = 0.;
+				}
+
 				// Transfer angle:
 				if ( ai_angle > tank->a ) {
-					++tank->a;
+					tank->a = std::min( tank->a + angle_steps, ai_angle );
 				} else if ( ai_angle < tank->a ) {
-					--tank->a;
+					tank->a = std::max( tank->a - angle_steps, ai_angle );
 				}
 
 				// Transfer power:
 				if ( ai_power > tank->p ) {
-					tank->p += 5;
+					tank->p = std::min( tank->p + ( 5 * power_steps ), ai_power );
 				} else if ( ai_power < tank->p ) {
-					tank->p -= 5;
+					tank->p = std::max( tank->p - ( 5 * power_steps ), ai_power );
 				}
 
 				// Transfer weapon information:
@@ -524,14 +551,20 @@ EControl CPlayer::computer_controls( CAICore* aicore, bool allow_fire ) {
 					changed_weapon  = false;
 
 					int32_t cw_mod  = tank->cw < ai_weap ? 1 : -1;
-					tank->cw       += cw_mod;
-
-					// Skip unusable items and those that are
-					// out of stock
-					while ( ( !env.is_item_available( tank->cw ) || ( ( tank->cw < WEAPONS ) && !nm[ tank->cw ] )
-					          || ( ( tank->cw >= WEAPONS ) && !ni[ tank->cw - WEAPONS ] ) )
-					        && ( tank->cw != ai_weap ) ) {
+					for ( int32_t step = 0; step < angle_steps; ++step ) {
 						tank->cw += cw_mod;
+
+						// Skip unusable items and those that are
+						// out of stock
+						while ( ( !env.is_item_available( tank->cw ) || ( ( tank->cw < WEAPONS ) && !nm[ tank->cw ] )
+						          || ( ( tank->cw >= WEAPONS ) && !ni[ tank->cw - WEAPONS ] ) )
+						        && ( tank->cw != ai_weap ) ) {
+							tank->cw += cw_mod;
+						}
+
+						if ( tank->cw == ai_weap ) {
+							break;
+						}
 					}
 				}
 			} // End of regular transfer
@@ -1879,72 +1912,90 @@ EControl CPlayer::human_controls( CAICore* aicore ) {
 	// Keyboard control in aim stage
 	if ( ( global.stage == STAGE_AIM ) && tank ) {
 		if ( ( key[ KEY_LEFT ] || key[ KEY_A ] ) && !ctrlUsedUp && ( tank->a < 270 ) ) {
-			if ( has_shift_pressed ) {
-				tank->a = std::min( tank->a + 5, 270 );
-			} else {
-				tank->a++;
-			}
-			global.update_menu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( angle_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->a = std::min( tank->a + ( 5 * steps ), 270 );
+				} else {
+					tank->a = std::min( tank->a + steps, 270 );
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_RIGHT ] || key[ KEY_D ] ) && !ctrlUsedUp && ( tank->a > 90 ) ) {
-			if ( has_shift_pressed ) {
-				tank->a = std::max( tank->a - 5, 90 );
-			} else {
-				tank->a--;
-			}
-			global.update_menu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( angle_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->a = std::max( tank->a - ( 5 * steps ), 90 );
+				} else {
+					tank->a = std::max( tank->a - steps, 90 );
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_DOWN ] || key[ KEY_S ] ) && !ctrlUsedUp && ( tank->p > 0 ) ) {
-			if ( has_shift_pressed ) {
-				tank->p = std::max( tank->p - 25, 0 );
-			} else {
-				tank->p -= 5;
-			}
-			global.update_menu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->p = std::max( tank->p - ( 25 * steps ), 0 );
+				} else {
+					tank->p -= 5 * steps;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_UP ] || key[ KEY_W ] ) && !ctrlUsedUp && ( tank->p < MAX_POWER ) ) {
-			if ( has_shift_pressed ) {
-				tank->p = std::min( tank->p + 25, MAX_POWER );
-			} else {
-				tank->p += 5;
-			}
-			global.update_menu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				if ( has_shift_pressed ) {
+					tank->p = std::min( tank->p + ( 25 * steps ), MAX_POWER );
+				} else {
+					tank->p += 5 * steps;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_PGUP ] || key[ KEY_R ] ) && !ctrlUsedUp && ( tank->p < MAX_POWER ) ) {
-			tank->p += 100;
-			if ( tank->p > MAX_POWER ) {
-				tank->p = MAX_POWER;
-			}
-			global.update_menu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				tank->p += 100 * steps;
+				if ( tank->p > MAX_POWER ) {
+					tank->p = MAX_POWER;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 
 		if ( ( key[ KEY_PGDN ] || key[ KEY_F ] ) && !ctrlUsedUp && ( tank->p > 0 ) ) {
-			tank->p -= 100;
-			if ( tank->p < 0 ) {
-				tank->p = 0;
-			}
-			global.update_menu = true;
-			if ( has_ctrl_pressed ) {
-				ctrlUsedUp = true;
+			int32_t const steps = has_ctrl_pressed ? 1 : control_steps_due( power_carry );
+			if ( steps > 0 ) {
+				tank->p -= 100 * steps;
+				if ( tank->p < 0 ) {
+					tank->p = 0;
+				}
+				global.update_menu = true;
+				if ( has_ctrl_pressed ) {
+					ctrlUsedUp = true;
+				}
 			}
 		}
 	}
@@ -2560,6 +2611,8 @@ void CPlayer::new_round() {
 	time_left_to_fire = env.max_fire_time;
 	skip_me           = false;
 	last_shield_used  = 0;
+	angle_carry       = 0.;
+	power_carry       = 0.;
 
 	// Save damage from opponents if there was some not processed.
 	// Although this would be done automatically once the AI takes

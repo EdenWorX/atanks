@@ -547,6 +547,7 @@ private:
 
 	int32_t          bg_items    = 0;
 	int32_t          bg_offset   = 0;
+	double           bg_carry    = 0.;
 	EBackgroundTypes bg_type     = BACKGROUND_BLANK;
 	int32_t          entry_cnt  = 0;          //!< Number of entries currently in the list.
 	int32_t          entry_sel  = -1;         //!< Currently selected entry or -1 if none is selected.

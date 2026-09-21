@@ -146,9 +146,9 @@ void CTank::activate_current_selection() {
 						0
 					);
 
-					// set up / check volley
+					// set up / check volley (frame count scaled to the frame rate, 60 FPS baseline)
 					if ( weapon[ cw ].delay && ( 0 == fire_another_shot ) ) {
-						fire_another_shot = weapon[ cw ].delay * env.volley_delay;
+						fire_another_shot = ROUND( weapon[ cw ].delay * env.volley_delay * env.frame_count_mod );
 					}
 
 					// Adapt missile drag if the player has dimpled/slick projectiles

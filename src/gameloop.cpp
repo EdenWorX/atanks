@@ -173,9 +173,13 @@ public:
 					tmp_tank = dynamic_cast< CTank* >( obj );
 
 					if ( !tmp_tank->destroy ) {
-						// Activate next volley shot if applicable
+						// Activate next volley shot if applicable (cadence scaled to the frame rate)
 						if ( tmp_tank->fire_another_shot ) {
-							if ( !( tmp_tank->fire_another_shot % env.volley_delay ) ) {
+							int32_t volley_frames = ROUND( env.volley_delay * env.frame_count_mod );
+							if ( volley_frames < 1 ) {
+								volley_frames = 1;
+							}
+							if ( !( tmp_tank->fire_another_shot % volley_frames ) ) {
 								has_action.store( true );
 								tmp_tank->activate_current_selection();
 							}

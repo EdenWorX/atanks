@@ -27,7 +27,10 @@ CFloatText::CFloatText(
 
 	half_color = get_shade_color( color, true, sky_col );
 	align     = alignment;
-	this->max_age = max_age;
+
+	// Scale the fixed frame-count lifetime to the frame rate (60 FPS baseline).
+	// Negative values are sentinels for an unlimited lifetime and stay untouched.
+	this->max_age = ( max_age < 0 ) ? max_age : ROUND( max_age * env.frame_count_mod );
 
 	if ( text_ ) {
 		set_text( text_ );
@@ -93,6 +96,10 @@ void CFloatText::applyPhysics() {
 		return;
 	}
 
+	// Frame-rate independent movement: the fixed per-frame velocities below
+	// are tuned for 60 FPS, so scale each step to the actual frame rate.
+	double const step = 1. / env.frame_count_mod;
+
 	if ( TS_HORIZONTAL == sway ) {
 		double x_dist = pos_x - x;
 		double rel_xv = static_cast< double >( sway - std::abs( x_dist ) ) / static_cast< double >( sway )
@@ -118,8 +125,8 @@ void CFloatText::applyPhysics() {
 			yv = -1. * rel_yv;
 		}
 	}
-	pos_x     += xv;
-	pos_y     += yv;
+	pos_x     += xv * step;
+	pos_y     += yv * step;
 
 	dim_cur.x  = ROUND( pos_x );
 	dim_cur.y  = ROUND( pos_y );

@@ -59,7 +59,7 @@ CExplosion::CExplosion( CPlayer* player_, double x_, double y_, double xv_, doub
 	}
 
 	radius = weap->radius;
-	etime  = weap->etime;
+	etime  = std::max( 1, ROUND( weap->etime * env.frame_count_mod ) );
 	damage = weap->damage;
 
 	// make sure dirt appears on the screen, not above the playing area,

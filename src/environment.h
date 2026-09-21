@@ -156,6 +156,7 @@ public:
 	int32_t      fog                = 0;                                ///< Fog density.
 	int32_t      font_height         = 0;                                ///< Fixed in ctor, no calls to text_height(font) needed.
 	double       fps_mod            = 0.;                               ///< Pre-calculated, used in many places.
+	double       frame_count_mod    = 1.;                               ///< Frame-count multiplier relative to the 60 FPS tuning baseline.
 	int32_t      frames_per_second  = 0;                                ///< Measured frame rate.
 	int32_t      full_screen        = FULL_SCREEN_FALSE;                ///< Fullscreen mode.
 	string       game_name;                                             ///< Game name.
