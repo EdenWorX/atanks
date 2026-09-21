@@ -3664,7 +3664,7 @@ bool CAICore::start( CPlayer* player_ ) {
  * @return true if the AI is still working, false if it has finished.
  */
 bool CAICore::status( int32_t& a_item, int32_t& a_angle, int32_t& a_power, EPlayerStages& pl_stage ) {
-	pl_stage = pl_stage;
+	pl_stage = this->pl_stage;
 
 	if ( is_working ) {
 		a_item  = weap_idx;

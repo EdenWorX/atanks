@@ -27,7 +27,7 @@ CFloatText::CFloatText(
 
 	half_color = get_shade_color( color, true, sky_col );
 	align     = alignment;
-	max_age    = max_age;
+	this->max_age = max_age;
 
 	if ( text_ ) {
 		set_text( text_ );
