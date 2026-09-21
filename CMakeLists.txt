@@ -1,19 +1,19 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# See LICENSE. Single source of truth for the version is project(VERSION ...)
-# below (cleanup task TODO.md, WP PF-1.9).
+# See LICENSE.
+# Single source of truth for the version is project(VERSION ...) below.
 
 cmake_minimum_required( VERSION 3.25 )
 
-project( atanks VERSION 6.7 LANGUAGES CXX )
+project( atanks VERSION 6.7.1 LANGUAGES CXX )
 
-# The legacy Makefile only wraps cmake+ninja (TODO.md, WP PF-1.9), so the
-# Ninja generator is mandatory. Windows builds keep using vs12/vs14.
+# The legacy Makefile only wraps cmake+ninja, so the Ninja generator is mandatory.
+# Windows builds keep using vs12/vs14 for now but should move to cmake asap.
 if ( NOT CMAKE_GENERATOR MATCHES "Ninja" )
 	message( FATAL_ERROR "atanks requires the Ninja generator (-G Ninja). "
 		 "Windows builds use vs12/atanks.sln or vs14/atanks.sln instead." )
 endif ()
 
-# Compile commands for clang-tidy and other tools (WP PF-1.12).
+# Compile commands for clang-tidy and other tools.
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 set( CMAKE_CXX_STANDARD 17 )
@@ -71,10 +71,9 @@ separate_arguments( ALLEGRO_LIBS )
 # Sources mirror the Makefile wildcard (sorted, auto-picked-up).
 file( GLOB ATANKS_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
 
-# Generated build configuration (WP PF-1.9.2). This replaces the legacy
-# -DVERSION= / -DDATA_DIR= / -DNETWORK / platform-define flag plumbing; the
-# legacy Makefile keeps passing -D flags until WP PF-1.9.4. Non-CMake builds
-# (Visual Studio) never define ATANKS_HAVE_CONFIG_H, so src/main.h skips the
+# Generated build configuration.
+# This replaces the legacy -DVERSION= / -DDATA_DIR= / -DNETWORK / platform-define flag plumbing.
+# Non-CMake builds (Visual Studio) never define ATANKS_HAVE_CONFIG_H, so src/main.h skips the
 # include there and keeps its missing-VERSION hard-error.
 if ( ATANKS_WITH_NETWORK )
 	set( NETWORK ON )
@@ -178,13 +177,10 @@ else ()
 	endif ()
 endif ()
 
-# tomlplusplus for the weapons/item data migration (WP PF-1.17). Header-only,
-# resolved like CppUTest with online as a last resort: a local install first
-# (CMake package config, then a system header probe — upstream ships no .pc
-# file, so there is no pkg-config tier), pinned FetchContent (release tag
-# v3.4.0) third. Only src/files.cpp will include the header (WP PF-1.17.3), so
-# include dirs stay off the global compile lines; the check below proves the
-# resolved headers work (result cached, re-verified after clean).
+# tomlplusplus for the weapons/item data. Header-only, resolved like CppUTest with online as a last resort:
+# a local install first (CMake package config, then a system header probe — upstream ships no .pc file, so there is no
+# pkg-config tier), pinned FetchContent (release tag v3.4.0) third. Only src/files.cpp will include the header, so include dirs
+# stay off the global compile lines; the check below proves the resolved headers work (result cached, re-verified after clean).
 set( ATANK_HAVE_TOMLPLUSPLUS OFF )
 find_package( tomlplusplus QUIET )
 find_path( TOMLPLUSPLUS_INCLUDE_DIR NAMES toml++/toml.hpp )
@@ -234,26 +230,21 @@ if ( NOT ATANK_TOMLPLUSPLUS_WORKS )
 	message( FATAL_ERROR "tomlplusplus headers unusable: remove the broken local install, or provide network for FetchContent" )
 endif ()
 
-# The TOML arsenal parser (WP PF-1.17.3) lives in src/files.cpp only.
+# The TOML arsenal parserlives in src/files.cpp only.
 if ( ATANK_HAVE_TOMLPLUSPLUS )
 	target_link_libraries( atanks PRIVATE ${ATANK_TOMLPLUSPLUS_TARGET} )
 endif ()
 
-# Install rules mirroring the Makefile install target. (Distribution, doc, and
-# analysis targets arrive in WP PF-1.9.4 and WP PF-1.12.)
+# Install rules mirroring the Makefile install target.
 
-# Unit tests (WP PF-1.11). The suite covers decoupled logic units only (no
-# Allegro or global-state references): random, zbuffer, spinlock,
-# optiontypes, box, clock, globaltypes.
+# Unit tests. The suite covers decoupled logic units only (no Allegro or global-state references):
+# random, zbuffer, spinlock, optiontypes, box, clock, globaltypes.
 include( CTest )
 if ( BUILD_TESTING )
-	# CppUTest resolution, online only as a last resort: a local install
-	# first (pkg-config probe, then CMake package config), pinned FetchContent
-	# (release tag v4.0) third. The probe order is deliberate: a broken
-	# installed CMake config fails with message(FATAL_ERROR), which QUIET
-	# cannot suppress, while pkg_check_modules fails softly. Fully offline
-	# without a system CppUTest 4.0+: configure with -DBUILD_TESTING=OFF to
-	# skip the suite.
+	# CppUTest resolution, online only as a last resort: a local install first (pkg-config probe, then CMake package
+	# config), pinned FetchContent (release tag v4.0) third. The probe order is deliberate: a broken installed CMake
+	# config fails with message(FATAL_ERROR), which QUIET cannot suppress, while pkg_check_modules fails softly.
+	# Fully offline without a system CppUTest 4.0+: configure with -DBUILD_TESTING=OFF to skip the suite.
 	set( ATANK_HAVE_CPPUTEST OFF )
 	find_package( PkgConfig QUIET )
 	if ( PkgConfig_FOUND )
@@ -308,13 +299,13 @@ if ( BUILD_TESTING )
 	endif ()
 endif ()
 
-# Documentation (WP PF-1.12). `make doc` builds the public API reference from
-# the headers into <builddir>/doc; undocumented public APIs fail the build so
-# coverage gaps stay visible. Plain builds never need Doxygen, so the
-# dependency stays optional and only the doc target reports its absence.
+# Documentation.
+# `make doc` builds the public API reference from the headers into <builddir>/doc; undocumented public APIs fail the build so
+# coverage gaps stay visible. Plain builds never need Doxygen, so the dependency stays optional and only the doc target reports
+# its absence.
 find_package( Doxygen QUIET )
-# Doxygen appends its own html/ subdir, so the output directory is docs/ and
-# the reference lands in docs/html/ (ignored build output, see .gitignore).
+# Doxygen appends its own html/ subdir, so the output directory is docs/ and the reference lands in docs/html/ (ignored build
+# output, see .gitignore).
 set( DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/docs" )
 set( DOXYGEN_WARN_LOG "${CMAKE_CURRENT_BINARY_DIR}/doc-warnings.log" )
 configure_file(
@@ -364,6 +355,13 @@ if ( CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME )
 	set( ATANKS_CLANGD_ADD_FLAGS "" )
 	string( APPEND ATANKS_CLANGD_ADD_FLAGS "    -I${CMAKE_BINARY_DIR}/,\n" )
 	string( APPEND ATANKS_CLANGD_ADD_FLAGS "    -I${CMAKE_SOURCE_DIR}/src,\n" )
+	if ( ATANK_TOMLPLUSPLUS_INCLUDE_DIRS )
+		foreach ( ATANK_TOML_DIR IN LISTS ATANK_TOMLPLUSPLUS_INCLUDE_DIRS )
+			string( APPEND ATANKS_CLANGD_ADD_FLAGS "    -I${ATANK_TOML_DIR}/,\n" )
+		endforeach ()
+	elseif ( TOMLPLUSPLUS_INCLUDE_DIR AND NOT TOMLPLUSPLUS_INCLUDE_DIR MATCHES "NOTFOUND" )
+		string( APPEND ATANKS_CLANGD_ADD_FLAGS "    -I${TOMLPLUSPLUS_INCLUDE_DIR}/,\n" )
+	endif ()
 
 	configure_file( .clangd.in "${CMAKE_SOURCE_DIR}/.clangd" @ONLY )
 	message( STATUS "Generated ${CMAKE_SOURCE_DIR}/.clangd for clangd/LSP" )
