@@ -505,7 +505,7 @@ targets and DEBUG flavors plus an in-game check to confirm behavior is preserved
 `make DEBUG=YES`, `make aidebug`, `make fulldebug`, `make test-all`, and `make doc` green; user confirmed in-game behavior
 preserved and identical game speed at 60 vs 120 FPS.
 
-### [ ] PF-1.16: Modernize config parsing, remove `MAX_CONFIG_LINE`
+### [x] PF-1.16: Modernize config parsing, remove `MAX_CONFIG_LINE`
 
 The constant (`src/files.h:6-7`) sizes static char arrays for configuration file loading, C89-style; replace the parsing with
 modern C++17 methods (the `sscanf()` lists were already removed in commit `f3c129bd`) and drop the constant and its `@todo`.
@@ -524,10 +524,11 @@ Design: one shared growing line reader in `src/files.h/.cpp` (keep `FILE*` flow,
 via `std::string::find`, keep section/record sentinels and `SAFE_*` conversion. Out of scope: weapons loader
 (`src/files.cpp:541,745`, `WP PF-1.17`) and `TEXTBLOCK` loader (`src/text.cpp:146`, other constant).
 
-#### [ ] PF-1.16.2: Reimplement parsing and drop the constant
+#### [x] PF-1.16.2: Reimplement parsing and drop the constant
 
 Replace the static-buffer parsing, delete `MAX_CONFIG_LINE` and its `@todo` in `src/files.h`, and verify with a config
-save/load round-trip (settings persist across restart; old config files still load or are cleanly rejected).
+save/load round-trip (settings persist across restart; old config files still load or are cleanly rejected). Verified
+2026-09-21: user confirmed save/load of games works and option changes persist across restart.
 
 ### [ ] PF-1.17: Migrate weapons/item data to a documented format (late WP)
 
@@ -535,10 +536,19 @@ There is no spec for the positional `text/weapons*.txt` format beyond the parser
 As a late step of the modernization, switch to a documented format with a clear spec and a simple parser (CSV, INI, TOML or
 YAML), document the spec, and migrate data, translations, shop, and AI selection code.
 
-#### [ ] PF-1.17.1: Decide CSV vs INI vs TOML vs YAML with the user
+#### [x] PF-1.17.1: Decide CSV vs INI vs TOML vs YAML with the user
 
 Compare dependency and build impact (hand-rolled INI or CSV parser vs a TOML or YAML library) and record the decision with
 rationale. No code changes yet.
+
+Decision 2026-09-21 (with user): TOML via tomlplusplus, consumed like CppUTest in three tiers — (1)
+`find_package(tomlplusplus)` against a local install, (2) system header probe (`find_path` for `toml++/toml.hpp`;
+header-only needs no link library, and upstream ships no `.pc` file so there is no pkg-config tier),
+(3) FetchContent pinned to `v3.4.0` as last resort. Rationale: typed values remove the `SAFE_` conversion layer and
+positional fragility; arrays-of-tables fit the 86-record lists; header-only means no legacy `.vcxproj` edits and no
+Windows build effort; C++17- and MSVC-compatible; include only from `src/files.cpp` to bound compile-time cost.
+Fallback if the wiring fails: hand-rolled CSV with a descriptive header row. Localizations stay split (numeric stats
+once, display strings per language).
 
 #### [ ] PF-1.17.2: Write the format specification
 

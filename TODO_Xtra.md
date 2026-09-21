@@ -37,7 +37,7 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   not listed there); decide whether to re-host the images (e.g. in the GitHub repo) and update or drop the block.
 - [ ] **Low**: `README.md` claims `allegro-config` is absent on the documenting machine, but Allegro 4.4.3 is installed in the
   current environment. Reword to drop the machine-specific absence claim when that section is next touched.
-- [ ] **High**: game speed doubles when `FRAMES` is set above 60 (e.g. 120 Hz displays). The frame pacer (`check_fps()`,
+- [x] **High**: game speed doubles when `FRAMES` is set above 60 (e.g. 120 Hz displays). The frame pacer (`check_fps()`,
   `src/gameloop.cpp:661`) keeps real frame time correct, but only some motion is scaled by `env.fps_mod`
   (`src/environment.cpp:1643`); fixed per-frame steps run twice as often per wall-clock second. Confirmed unscaled:
   explosion pacing via `weap->etime` (`src/explosion.cpp:62,604`), `CFloatText` rise/sway velocities
@@ -49,7 +49,7 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   `WP PF-1.15` verification. Status 2026-09-21: implemented in the working tree (`env.frame_count_mod` in
   `src/environment.h:159`, scaled explosion/floattext/volley/satellite/landslide/aim-dials/menu sites); builds, unit
   tests, and `make doc` are green, in-game 60-vs-120 comparison still pending with the user.
-- [ ] **High**: FPS-independence follow-ups found during validation of the above: (1) flying debris moved at twice the
+- [x] **High**: FPS-independence follow-ups found during validation of the above: (1) flying debris moved at twice the
   wall-clock speed above 60 FPS because `CExplosion` debris velocities (`src/explosion.cpp:893-894`) were fixed
   pixels-per-frame; (2) shot range shrank markedly at 120 FPS (user: "twice the power for the same distance"). Root
   cause of (2): gravity as a per-frame velocity increment must scale quadratically (`1/FPS^2`), but `fall_vector`
@@ -61,8 +61,8 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   the drag relaxation fix stands as correct first-order. AI aiming needed no change (its power formula even becomes
   FPS-invariant with correct gravity). Residual rate-class items, deferred as rare/cosmetic: repulsor-shield impulses,
   SDI check rate, naturals spawn rate, satellite shoot chance, wind random-walk rate, damage-flash threshold,
-  velocity-magnitude stop thresholds, menu millisecond truncation. Pending user in-game validation: range parity,
-  debris speed, AI hit rate at 60 vs 120 FPS.
+  velocity-magnitude stop thresholds, menu millisecond truncation. Validated 2026-09-21: user confirmed identical
+  shot distance (human and AI) and identical debris behavior at 60 vs 120 FPS.
 
 ## Planned Features
 
