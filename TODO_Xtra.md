@@ -12,12 +12,12 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   bitmaps (backtrace verified 2026-09-21). Reproduces identically with the legacy positional loader on a missing
   `weapons.txt`, so pre-existing and unrelated to the TOML migration; needs a guard (skip destroy of unloaded assets
   or clean `EXIT_FAILURE` before teardown). Found while validating `PF-1.17.3.4` with a deliberately broken file.
-- [ ] **High**: `make test*` broken environment-wide since 2026-09-21: the system CppUTest 4.0 install (headers, libs,
+- [x] **High**: `make test*` broken environment-wide since 2026-09-21: the system CppUTest 4.0 install (headers, libs,
   `.pc`) vanished, so tiers 1-2 miss, and the pinned `v4.0` FetchContent fallback fails because that release declares
-  `cmake_minimum_required` below the installed CMake 4.3 floor. Not caused by repo changes (the `atanks` binary still
-  configures and links; only `atanks_tests` is affected). Unblocks when the system package is reinstalled or the pin is
-  bumped (user decision; pin `v4.0` was agreed in `WP PF-1.11`). Meanwhile validate with `-DBUILD_TESTING=OFF` builds
-  plus manual in-game checks. Found while verifying `PF-1.17.3.1`.
+  `cmake_minimum_required` below the installed CMake 4.3 floor. Fixed 2026-09-21 without touching the agreed pin: set
+  `CMAKE_POLICY_VERSION_MINIMUM 3.5` narrowly around the FetchContent wiring (CMake's suggested escape) and cleared the
+  stale probe cache in existing build dirs (`cmake -U'pkgcfg_lib_CPPUTEST*' -U'CPPUTEST_*'`); `make test-all` green in
+  release and debug. Remaining noise: one `-Wnonnull` warning inside CppUTest's own `Utest.cpp` under GCC 16.
 - [ ] **High**: potential null-pointer dereference in `src/missile.cpp:413-423` (`MISSILE::applyPhysicsFunky`). `launchWeap`
   is null for any weapon type other than `FUNKY_BOMBLET`/`FUNKY_DEATHLET`, but line 419 dereferences it unconditionally
   while lines 420-422 guard with ternaries. Verified safe with shipped data (parents map to bomblet submunitions, and AI

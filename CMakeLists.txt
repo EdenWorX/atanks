@@ -271,10 +271,14 @@ if ( BUILD_TESTING )
 			include( FetchContent )
 			# Keep CppUTest's own suite out of our ctest run.
 			set( TESTS OFF CACHE BOOL "" FORCE )
+			# The v4.0 pin declares cmake_minimum_required(VERSION 3.1), below the CMake 4.x floor:
+			# allow the old floor narrowly around this FetchContent wiring (CMake's suggested escape).
+			set( CMAKE_POLICY_VERSION_MINIMUM 3.5 )
 			fetchcontent_declare( CppUTest
 					      GIT_REPOSITORY https://github.com/cpputest/cpputest.git
 					      GIT_TAG v4.0 )
 			fetchcontent_makeavailable( CppUTest )
+			unset( CMAKE_POLICY_VERSION_MINIMUM )
 			set( ATANK_CPPUTEST_LIBS CppUTest CppUTestExt )
 			set( ATANK_HAVE_CPPUTEST ON )
 		endif ()
