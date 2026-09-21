@@ -1,10 +1,6 @@
 # Weapons and Items Data Format (TOML)
 
-This document specifies the TOML replacement for the positional `text/weapons*.txt` format. It is written for
-`TODO.md`, `WP PF-1.17`: the format was decided in task `PF-1.17.1` (TOML via tomlplusplus, consumed like CppUTest),
-and the parser migration happens in task `PF-1.17.3`. After that task, data edits must no longer require reading
-parser code; this file is then the single source of truth for the format (the appendix documents the legacy layout
-only for migration reference).
+This document specifies the TOML format.
 
 ## Files and Localization
 
@@ -131,12 +127,6 @@ tech_level = 3
 sound      = 6
 vals       = []
 ```
-
-## Acceptance for the Migration (`PF-1.17.3`)
-
-Parsed stats from the TOML files must be identical to the legacy parser output for the shipped data (compare every
-numeric field of all 86 records plus the translated display strings), then validate in-game: buy-screen quantities
-and prices, fired shots of every weapon class, and shop availability by tech level.
 
 ## Appendix: Legacy Positional Layout (Reference Only)
 
