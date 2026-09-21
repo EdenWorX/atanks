@@ -12,14 +12,15 @@ weather, network play (host plus clients), and localized in-game text.
   `allegro-config --cppflags/--libs`). Allegro must be installed separately; it is not vendored in this repository.
 - Concurrency: POSIX threads on Linux and BSD (`Threads::Threads` in `CMakeLists.txt`),
   `std::thread`/`std::mutex`/`std::condition_variable` in game code, plus a custom spinlock (`src/spinlock.h`).
-- Version: the `VERSION` variable in `Makefile` (currently `6.7`) is the single source of truth. Older version strings in other
-  files will be synchronized or removed in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.2`–`WP PF-1.4`).
+- Version: the `VERSION` variable in `Makefile` (currently `6.7.1`, derived from `project(VERSION ...)` in
+  `CMakeLists.txt`) is the single source of truth. Older version strings elsewhere were synchronized during the 6.7.1 Cleanup
+  and Modernization.
 - License: `LICENSE` is the single source of truth. Formerly contradicting license information (old GPLv2 `COPYING` text,
   `either version 2 ... or later` source headers, `io.github.EdenWorX.atanks.metainfo.xml:5` declaring `GPL-2.0-or-later`) was
-  consolidated in the Cleanup and Modernization task (`TODO.md`, `WP PF-1.1`): headers now say version 3, the metainfo declares
+  consolidated during the 6.7.1 Cleanup and Modernization: headers now say version 3, the metainfo declares
   `GPL-3.0-or-later`, and `COPYING` is a pointer to `LICENSE`.
 - Issue reports go to `https://github.com/EdenWorX/atanks/issues`. This is a manual fork moved from SourceForge to GitHub;
-  updating the remaining SourceForge references is part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.6`).
+  updating the remaining SourceForge references was done during the 6.7.1 Cleanup and Modernization.
 
 ## Repository Status and Documentation Scope
 
@@ -50,14 +51,14 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `sound/` | Runtime sound assets (`*.wav`) |
 | `text/` | Arsenal data (`weapons.toml`, `naturals.toml`, `items.toml`, `weapons_*.toml` translations) and localized in-game text files (`Help*.txt`, `ingame*.txt`, etc.) |
 | `unicode.dat` | Allegro datafile used for fonts; also the probe file for data-dir detection. An old manual addition; ignored (not touched) until the post-cleanup move away from Allegro 4 makes it obsolete |
-| `Makefile` | Primary GNU Make build (`VERSION 6.7`, the version single source of truth) |
+| `Makefile` | Primary GNU Make build (`VERSION 6.7.1`, the version single source of truth) |
 | `vs12/`, `vs14/` | Legacy Visual Studio 2013 / 2015 solutions (retired toolsets v120/v140); Windows builds go through CMake |
 | `dep/` | Ignored GCC dependency files (`*.d`, legacy make outputs) plus `.keep_dir` placeholder |
 | `obj/` | Object output directory; only `.keep_dir` is tracked |
 | `README`, `README_ru.txt` | Original user documentation (English + Russian) |
 | `docs/Changelog.history` | Frozen release history up to 6.7 (renamed from `Changelog`; new releases go in `CHANGELOG.md`) |
-| `TODO` | Legacy prioritized bug/feature list (almost a decade old; explicitly frozen — ignore it for now, `TODO.md` `WP PF-1.8`) |
-| `TODO.md` | Canonical planning file (per `docs/todo_planning.md`); first item is `TODO-PF-1` Cleanup and Modernization |
+| `TODO` | Legacy prioritized bug/feature list (almost a decade old; frozen during the 6.7.1 cleanup — ignore it for now) |
+| `TODO.md` | Canonical planning file (per `docs/todo_planning.md`); `TODO-PF-1` Cleanup and Modernization was completed as 6.7.1 |
 | `docs/` | EdenWorX planning and release rules (`todo_planning.md`, `release_process.md`) |
 | `COPYING`, `LICENSE` | License pointer + full license text (`LICENSE` is the single source of truth) |
 | `credits.txt` | Authors, graphics, docs, translations, sound attributions |
@@ -155,8 +156,8 @@ Installed by the `install` rules in `CMakeLists.txt` (mirroring the old `make in
 - `button/*.bmp` (28 files, `0..27`), `misc/*.bmp` (18 files), `missile/*.bmp` (32 files, `0..31`), `stock/*.bmp` (80 files,
   `0..79`), `tank/*.bmp` (17 files), `tankgun/*.bmp` (10 files), `title/*.bmp` (4 files).
 - `sound/*.wav` (27 files: `00-07`, `10-22`, `30-32`, `40`).
-- `text/*.txt` (~90 files): per-topic per-language matrix for `gloat`, `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`,
-  `revenge`, `suicide`, `weapons`, `war_quotes`, `Help`, with language suffixes `_de`, `_fr`, `_it`, `_ru`, `_sk`, `_ES`,
+- `text/*.txt` (~75 files): per-topic per-language matrix for `gloat`, `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`,
+  `revenge`, `suicide`, `war_quotes`, `Help`, with language suffixes `_de`, `_fr`, `_it`, `_ru`, `_sk`, `_ES`,
   `.pt_BR` plus the English base file.
 - `unicode.dat` (5604 bytes, `file` reports `Allegro datafile`), `COPYING`, `README`, `TODO`, `Changelog.history`, `*.txt`.
 - `atanks.png` is installed to `.../share/icons/hicolor/48x48/apps`; `atanks.ico` is consumed by `src/atanks.rc` for the
@@ -249,15 +250,16 @@ The following were classified as external by metadata inspection; their internal
 | `vs12/atanks.sln`, `vs14/atanks.sln` | Legacy Visual Studio 2013 / 2015 solutions | Retired toolsets; Windows builds go through CMake (VS2026); see below for file details |
 
 Verified on this machine: `make user` configures `./cmake-build-release`, builds all 51 steps, and the binary reports
-`Atomic Tanks Version 6.7`.
+`Atomic Tanks Version 6.7.1`.
 
 ### Autotools / Make Build
 
 There is no Autotools setup (`configure`, `configure.in`, `aclocal.m4` do not exist). The `Makefile` is a thin cmake+ninja
-wrapper (`TODO.md`, `WP PF-1.9`); the real build lives in `CMakeLists.txt` (CMake 3.25+, Ninja mandatory):
+wrapper (introduced during the 6.7.1 cleanup); the real build lives in `CMakeLists.txt` (CMake 3.25+, Ninja mandatory):
 
 - Sources: `file(GLOB ... src/*.cpp)` with `CONFIGURE_DEPENDS`, so new files are picked up automatically.
-- Version single source of truth: `project(atanks VERSION 6.7 ...)`; `src/config.h.in` generates `config.h` with the version macros
+- Version single source of truth: `project(atanks VERSION 6.7.1 ...)`; `src/config.h.in` generates `config.h` with the
+  version macros
   (`VERSION`, `DATA_DIR`, `NETWORK`, platform flags) consumed via `src/main.h`.
 - Options mirror the old make knobs: `DEBUG` plus `DEBUG_AICORE/AIMING/EMOTION/FINANCE/OBJECTS/PHYSICS/LOG_TO_FILE`,
   `SANITIZE_ADDRESS/THREAD/UNDEF` (address beats thread; undefined combines; any sanitizer implies debug), `USE_LTO`,
@@ -279,14 +281,13 @@ wrapper (`TODO.md`, `WP PF-1.9`); the real build lives in `CMakeLists.txt` (CMak
 
 - BSD builds use the GNU `Makefile` (`make bsduser`); there is no separate BSD makefile.
 - Legacy `vs12` / `vs14` solutions target retired toolsets (VS2013: `Format 12.00`, toolset v120; VS2015: toolset v140,
-  `WindowsTargetPlatformVersion=8.1`). Both define `VERSION="6.7"` (matching `CMakeLists.txt`); `vs14` additionally defines
+  `WindowsTargetPlatformVersion=8.1`). Both define `VERSION="6.7.1"` (matching `CMakeLists.txt`); `vs14` additionally defines
   `DATA_DIR="."`. Both link one of `alleg44.lib / alleg44_64.lib / alleg44_d.lib / alleg44_64_d.lib` per configuration plus the
   Win32 system libraries. `vs14` embeds `../atanks.ico`. `README_allegro.txt` in each folder explains how to repoint
   include/library paths and swap the DLL variants. Current Windows builds go through CMake (VS2026), not these solutions.
 - Windows builds also pick up the tracked `allegro.cfg`, which disables vertical sync as a workaround for Allegro 4 sync
   problems there. The file is matched by `.gitignore` as Windows-local config but is kept in git deliberately — preserve it, do
-  not "clean it up". Broader UI-framework modernization away from Allegro 4 is deferred until after the Cleanup and
-  Modernization task (`TODO.md`).
+  not "clean it up". Broader UI-framework modernization away from Allegro 4 is deferred to a future task.
 
 ### Visual Studio Project Files
 
@@ -300,7 +301,7 @@ None exist in the repository.
 ## Configuration
 
 - Compile-time: `DATA_DIR` (`ATANKS_DATA_DIR` setting, default `<prefix>/share/atanks`, `"."` for `*user` goals), `VERSION`
-  (`project(VERSION 6.7)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
+  (`project(VERSION 6.7.1)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
   BSD only), `ATANKS_DEBUG*` flavors.
 - Runtime data directory, resolved by `CEnvironment::find_data_dir()` (`src/environment.cpp`): `--datadir` if readable,
   else the compiled `DATA_DIR` (verified by probing `unicode.dat` inside it), else `./` fallback.
@@ -405,25 +406,26 @@ Standalone helpers (not built by `Makefile`):
 
 - Automated unit suite exists: `tests/` (CppUTest, decoupled logic units) wired to `ctest`.
   - `make test` builds and runs the suite in the flag-selected build directory; `make test-all` runs it in release and debug.
-  - `make test-asan` / `test-ubsan` / `test-tsan` run the suite under sanitizers (`TODO.md`, `WP PF-1.11`).
+  - `make test-asan` / `test-ubsan` / `test-tsan` run the suite under sanitizers.
 - The closest equivalents to tests are:
   - `make -n <target>` dry-run to validate flag expansion (verified here for `make -n user`).
   - A full `make user` build followed by a `./cmake-build-release/atanks --windowed` smoke run.
   - `make debug` / `aidebug` / `fulldebug` builds plus the Valgrind helpers (`do_memcheck.sh`, `do_helgrind.sh`,
     `gdb_memcheck.sh` with `allegro.supp`) for memory/thread validation.
   - `CHANGELOG.md` entries as regression notes (e.g. 6.7 lists fixed crashes, AI, and land-creation bugs).
-  - Static-analysis and doc targets exist (`tools/run-cppcheck.sh`, `make doc`); full Doxygen coverage of public APIs is
-    still pending as part of the Cleanup and Modernization task (`TODO.md`, `WP PF-1.12`).
+  - Static-analysis and doc targets exist (`tools/run-cppcheck.sh`, `make doc`); public APIs carry full Doxygen coverage
+    since 6.7.1.
 - Accepted validation bar (the game is an interactive GUI application): a green `make test` (plus `make test-all` where
   affordable), plus manual validation — developers actually test their changes in-game.
-- Known-issue sources: `TODO.md` itself (canonical planning file, first item `TODO-PF-1` Cleanup and Modernization). The legacy
+- Known-issue sources: `TODO.md` itself (canonical planning file; `TODO-PF-1` Cleanup and Modernization was completed as
+  6.7.1). The legacy
   `TODO` file (1 bug
-  + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; proper `TODO-PF-*`
-    entries will be created after `TODO-PF-1` (`WP PF-1.8`). Also the `README` user documentation (buggy network client),
+  + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; new `TODO-PF-*`
+    entries will be created in a follow-up planning series. Also the `README` user documentation (buggy network client),
     and the `TODO`/`FIXME`/`BUG`/`HACK` grep surface, which only matches `DEBUG_LOG*` call sites rather than real markers.
-- Bug reports go to `https://github.com/EdenWorX/atanks/issues` (this fork moved from SourceForge to GitHub; updating the
-  remaining SourceForge references in `README`, `credits.txt`, the metainfo file, and help texts is part of `TODO.md`, `WP
-  PF-1.6`).
+- Bug reports go to `https://github.com/EdenWorX/atanks/issues` (this fork moved from SourceForge to GitHub during the 6.7.1
+  Cleanup and Modernization; the few remaining SourceForge references in `README`, `credits.txt`, the metainfo file, and help
+  texts are historical and kept deliberately).
 
 ## Development Workflow
 
@@ -492,10 +494,9 @@ Standalone helpers (not built by `Makefile`):
 - `CWeapon::get_delay_div()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
 - The `NETWORK` define reaches the code via generated `config.h` on Linux and BSD builds; macOS builds do not get it, and
   there is no CMake Windows build. Network play is currently a Linux-only first draft; proper network development is deferred
-  until after the Cleanup and Modernization task (`TODO.md`).
+  to a future task.
 - `allegro.cfg` (tracked) disables vertical sync on Windows builds, working around Allegro 4 sync problems there. Broader
-  UI-framework modernization away from Allegro 4 is deferred until after the Cleanup and Modernization task (`TODO.md`, `WP
-  PF-1.7`).
+  UI-framework modernization away from Allegro 4 is deferred to a future task.
 - The wrapper reconfigures on every invocation, so option changes cannot go stale in a reused build directory.
 - `vs12`/`vs14` projects do not define `DATA_DIR` (`vs12`) or define it as `"."` (`vs14`), so Windows builds read data from the
   working directory.
@@ -546,7 +547,7 @@ Standalone helpers (not built by `Makefile`):
 | `vs12/`, `vs14/` | IDE | Legacy VS2013 / VS2015 solutions (retired toolsets) |
 | `dep/`, `obj/.keep_dir` | build dirs | Ignored dependency files (legacy make outputs); object dir placeholder |
 | `README`, `README_ru.txt`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
-| `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in `WP PF-1.1`) |
+| `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in 6.7.1) |
 | `atanks.desktop`, `io.github.EdenWorX.atanks.metainfo.xml` | packaging | Desktop entry / AppStream metadata |
 | `allegro.supp`, `do_*.sh`, `gdb_memcheck.sh` | diagnostics | Valgrind suppressions and runners |
 | `.clang-format` | style | Formatter definition (clang-format 19+) |
