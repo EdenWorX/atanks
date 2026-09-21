@@ -550,10 +550,10 @@ Windows build effort; C++17- and MSVC-compatible; include only from `src/files.c
 Fallback if the wiring fails: hand-rolled CSV with a descriptive header row. Localizations stay split (numeric stats
 once, display strings per language).
 
-#### [ ] PF-1.17.2: Write the format specification
+#### [x] PF-1.17.2: Write the format specification
 
 Write the spec document for weapon/natural/item records (fields, types, sections, localization split between numeric stats and
-display strings), so data edits no longer require reading parser code.
+display strings), so data edits no longer require reading parser code. Done 2026-09-21 as `docs/weapons_toml_spec.md`.
 
 #### [ ] PF-1.17.3: Implement the parser and migrate the data
 
