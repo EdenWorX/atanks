@@ -8,12 +8,15 @@ only for migration reference).
 
 ## Files and Localization
 
-Numeric stats live in exactly one base file; display strings are translated per language. This split is kept from the
-legacy format, where English is always loaded first and a second pass overwrites only names and descriptions.
+Numeric stats live in three base files (one per record kind, mirroring the legacy sections); display strings are
+translated per language. This split is kept from the legacy format, where English is always loaded first and a second
+pass overwrites only names and descriptions.
 
 | File | Language | Contents |
 |---|---|---|
-| `text/weapons.toml` | English (base) | Stats plus `name`/`desc` for every record |
+| `text/weapons.toml` | English (base) | Weapon stats plus `name`/`desc` for every weapon |
+| `text/naturals.toml` | English (base) | Natural stats plus `name`/`desc` for every natural |
+| `text/items.toml` | English (base) | Item stats plus `name`/`desc` for every item |
 | `text/weapons_fr.toml` | French | `name`/`desc` only |
 | `text/weapons_de.toml` | German | `name`/`desc` only |
 | `text/weapons_it.toml` | Italian | `name`/`desc` only |
@@ -32,13 +35,13 @@ are free.
 Each file holds three arrays of tables. Order is significant: array index maps to the in-code enum, exactly like
 positional order does today.
 
-| Array | Entries | Index maps to |
-|---|---|---|
-| `[[weapon]]` | Exactly 56 | `EWeaponType` 0 (`SML_MIS`) to 55 (`LRG_LAZER`), see `src/weapon.h` |
-| `[[natural]]` | Exactly 6 | `EWeaponType` 56 (`SML_METEOR`) to 61 (`LRG_LIGHTNING`) |
-| `[[item]]` | Exactly 24 | `EItemType` 0 (`ITEM_TELEPORT`) to 23 (`ITEM_SDI`), see `src/item.h` |
+| Array | File | Entries | Index maps to |
+|---|---|---|---|
+| `[[weapon]]` | `weapons.toml` | Exactly 56 | `EWeaponType` 0 (`SML_MIS`) to 55 (`LRG_LAZER`), see `src/weapon.h` |
+| `[[natural]]` | `naturals.toml` | Exactly 6 | `EWeaponType` 56 (`SML_METEOR`) to 61 (`LRG_LIGHTNING`) |
+| `[[item]]` | `items.toml` | Exactly 24 | `EItemType` 0 (`ITEM_TELEPORT`) to 23 (`ITEM_SDI`), see `src/item.h` |
 
-The base file must hold exactly these counts, else loading fails with an error. Translation files hold the same
+Each base file must hold exactly its count, else loading fails with an error. Translation files hold the same
 arrays in the same order but with only `name`/`desc` keys; they are applied by index. A short translation file
 leaves the remaining entries in English (several legacy translations are incomplete, e.g. Spanish); entries past
 the counts are ignored. Unknown keys and missing keys in the base file are load errors, so typos fail loudly
