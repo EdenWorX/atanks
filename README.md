@@ -8,7 +8,7 @@ supports human players, AI bots (multiple difficulty levels), teams (Jedi / Sith
 weather, network play (host plus clients), and localized in-game text.
 
 - Language: C++ (built with `-std=c++17`, see `CMAKE_CXX_STANDARD 17` in `CMakeLists.txt`).
-- Graphics/audio/input library: Allegro 4 (`#include <allegro.h>` in `src/main.h:56`; the CMake build queries
+- Graphics/audio/input library: Allegro 4 (`#include <allegro.h>` in `src/main.h`; the CMake build queries
   `allegro-config --cppflags/--libs`). Allegro must be installed separately; it is not vendored in this repository.
 - Concurrency: POSIX threads on Linux and BSD (`Threads::Threads` in `CMakeLists.txt`),
   `std::thread`/`std::mutex`/`std::condition_variable` in game code, plus a custom spinlock (`src/spinlock.h`).
@@ -32,7 +32,7 @@ analysis per `.gitignore` and `git ls-files --other`:
   Windows builds as a workaround for Allegro 4 sync problems).
 - Screenshots: `screenshot_*.*` (`screenshot_0001..0007.bmp`, `screenshot_001/002.bmp` on disk).
 - Agent/IDE-local state: `.opencode/` (including `node_modules`), `.aiignore`, `.idea/workspace.xml`, `talk_*.md`.
-- `AGENTS.md` itself is matched by `.gitignore:79` and is therefore untracked-by-design documentation.
+- `AGENTS.md` itself is matched by a `.gitignore` rule and is therefore untracked-by-design documentation.
 
 External or bundled third-party material was identified by metadata only and was not deeply analyzed: `src/extern/dirent.{h,c}`
 (Kevlin Henney Win32 dirent shim), the Allegro 4 system library, and the tracked Windows runtime DLLs `alleg44.dll` /
@@ -67,10 +67,9 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `alleg44.dll`, `alleg44_64.dll` | Tracked Windows Allegro runtime DLLs (32/64-bit) |
 | `allegro.supp` | Valgrind suppression file for Allegro/ALSA/X11 noise |
 | `do_memcheck.sh`, `do_helgrind.sh`, `gdb_memcheck.sh` | Valgrind/helgrind/gdb helpers that run `./atanks` |
+| `tests/` | CppUTest unit suite for decoupled logic units, wired to `ctest` via `make test` |
 | `.clang-format` | clang-format style definition (requires clang-format 19+) |
 | `.gitignore`, `.idea/*`, `cb/*` | Ignore rules and IDE metadata |
-
-There is no test directory and no test target in any build file.
 
 ## Components
 
@@ -78,20 +77,19 @@ There is no test directory and no test target in any build file.
 
 One program is built: `atanks` (`atanks.exe` on `WIN32`).
 
-- Entry point: `int32_t main(int32_t argc, char** argv)` in `src/atanks.cpp:1494`, closed by Allegro's `END_OF_MAIN()` in
-  `src/atanks.cpp:1648`.
-- Startup sequence in `main` (`src/atanks.cpp:1494-1647`):
-  1. `parse_args()` (`src/atanks.cpp:1134`), called at `:1498`.
-  2. `env.find_data_dir()` (`:1508`); failure exits with `EXIT_FAILURE`.
-  3. `game_version` derived from `VERSION` (`:1513-1518`).
-  4. `env.find_config_dir()` (`:1522`), then `load_config()` or `create_config()` (`:1525-1526`).
-  5. `env.load_game_files()` (`:1530`); failure exits.
-  6. Optional `NETWORK` threads (`Send_And_Receive`, update checker, `:1535-1562`).
-  7. Main-menu loop (`:1568-1613`) dispatching on `global.get_command()`: help, options, players, credits, network game, demo,
+- Entry point: `int32_t main(int32_t argc, char** argv)` in `src/atanks.cpp`, closed by Allegro's `END_OF_MAIN()`.
+- Startup sequence in `main`:
+  1. `parse_args()`.
+  2. `env.find_data_dir()`; failure exits with `EXIT_FAILURE`.
+  3. `game_version` derived from `VERSION`.
+  4. `env.find_config_dir()`, then `load_config()` or `create_config()`.
+  5. `env.load_game_files()`; failure exits.
+  6. Optional `NETWORK` threads (`Send_And_Receive`, update checker).
+  7. Main-menu loop dispatching on `global.get_command()`: help, options, players, credits, network game, demo,
      or local play.
-  8. `save_game_settings()`, `env.destroy()`, `global.destroy()`, `allegro_exit()` (`:1633-1642`).
-- Round execution funnels into `game()` declared in `src/gameloop.h:7` via `play_local()` (`src/atanks.cpp:1313`), `play_demo()`
-  (`:1257`), and `play_networked()` (`:1383`; without `-DNETWORK` this path reports an error, `:1398-1410`).
+  8. `save_game_settings()`, `env.destroy()`, `global.destroy()`, `allegro_exit()`.
+- Round execution funnels into `game()` declared in `src/gameloop.h` via `play_local()`, `play_demo()`,
+  and `play_networked()` (without `-DNETWORK` this path reports an error).
 
 ### Libraries
 
@@ -115,15 +113,15 @@ narrow responsibilities:
 
 ### Shared/Internal Utility Code
 
-- `src/main.h` is the common include hub: it requires `debug.h` first (comment at `src/main.h:39-42`), then Allegro headers,
-  then `globaltypes.h` and `wrap_dirent.h`, then the C++ standard headers. It defines `BUFFER_SIZE 256` (`:28`), `HOME_DIR`
-  (`"AppData"` on Windows, `"HOME"` on Linux, `:137-141`), the `DATA_DIR` fallback `"."` (`:143-145`), math helpers (`SIGN`,
-  `SIGNd`, `ROUND`, `ROUNDu`, `FABSDISTANCE2`, `:150-160`), sleep helpers (`USLEEP`, `MSLEEP`, `LINUX_SLEEP`, `LINUX_REST`,
-  `:119-127`), and MSVC portability shims (`:102-115`).
-- `src/externs.h:48-49` re-exports the two globals as `extern` for every translation unit except `src/atanks.cpp` (guarded by
-  `ATANKS_ATANKS_CPP`, `:45-80`). It also declares shared scalars and the three content catalogs (`:53-69`).
-- Content catalogs, defined in `src/files.cpp:26-28`: `CWeapon weapon[WEAPONS]`, `CWeapon naturals[NATURALS]`, `CItem item[ITEMS]`,
-  with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (`src/main.h:264-267`).
+- `src/main.h` is the common include hub: it requires `debug.h` first, then Allegro headers,
+  then `globaltypes.h` and `wrap_dirent.h`, then the C++ standard headers. It defines `BUFFER_SIZE 256`, `HOME_DIR`
+  (`"AppData"` on Windows, `"HOME"` on Linux), the `DATA_DIR` fallback `"."`, math helpers (`SIGN`,
+  `SIGNd`, `ROUND`, `ROUNDu`, `FABSDISTANCE2`), sleep helpers (`USLEEP`, `MSLEEP`, `LINUX_SLEEP`, `LINUX_REST`),
+  and MSVC portability shims.
+- `src/externs.h` re-exports the two globals as `extern` for every translation unit except `src/atanks.cpp` (guarded by
+  `ATANKS_ATANKS_CPP`). It also declares shared scalars and the three content catalogs.
+- Content catalogs, defined in `src/files.cpp`: `CWeapon weapon[WEAPONS]`, `CWeapon naturals[NATURALS]`, `CItem item[ITEMS]`,
+  with sizes `WEAPONS 56`, `NATURALS 6`, `ITEMS 24` (see `src/main.h`).
 - `src/bitmap.h` is a forwarder declaring `struct BITMAP; struct sGradient;`.
 - `src/gfxData.h` (`sGfxData`) owns generated sGradient strips and explosion graphics.
 - `src/random.h` / `src/perlin.cpp` provide random numbers (`CHANGELOG.md` 6.7 entry notes thread-local modernized RNG) and
@@ -169,12 +167,12 @@ via `TEXTBLOCK`.
 
 ### Platform-Specific Code
 
-- `src/debug.h:9-32` detects `ATANKS_IS_WINDOWS`, `ATANKS_IS_MSVC` (including the `ATANKS_HAS_MSVC12_BUG` workaround for
+- `src/debug.h` detects `ATANKS_IS_WINDOWS`, `ATANKS_IS_MSVC` (including the `ATANKS_HAS_MSVC12_BUG` workaround for
   `_MSC_VER < 1900`), `ATANKS_IS_BSD`, and `ATANKS_IS_LINUX`; anything else is a compile `#error`.
-- `src/main.h:46-60` handles `ALLEGRO_NO_MAGIC_MAIN`, `ALLEGRO_HAVE_STDINT_H`, and `winalleg.h` inclusion on Windows; `:64-74`
+- `src/main.h` handles `ALLEGRO_NO_MAGIC_MAIN`, `ALLEGRO_HAVE_STDINT_H`, and `winalleg.h` inclusion on Windows;
   handles MSVC `PATH_MAX`, `_USE_MATH_DEFINES`, and POSIX-vs-MSVC headers.
-- `src/winclock.h` plus `USLEEP`/`MSLEEP` in `src/main.h:126-134` work around an MSVC12 chrono problem.
-- `src/wrap_dirent.h:9-16` includes `extern/dirent.h` on MSVC and the system `<dirent.h>` elsewhere. `src/files.cpp:786-840` has
+- `src/winclock.h` plus `USLEEP`/`MSLEEP` in `src/main.h` work around an MSVC12 chrono problem.
+- `src/wrap_dirent.h` includes `extern/dirent.h` on MSVC and the system `<dirent.h>` elsewhere. `src/files.cpp` has
   separate `scandir` paths for Win32 vs POSIX.
 - `src/atanks.rc` (Windows resources: `A ICON ../atanks.ico`, Allegro icon, `VERSIONINFO`) and `src/resource.h` (MSVC-generated
   defines) are used only by the Visual Studio builds.
@@ -183,16 +181,16 @@ via `TEXTBLOCK`.
 
 The following were classified as external by metadata inspection; their internals were not analyzed:
 
-- **Allegro 4 (system dependency).** Evidence: `README:23-26,32-33` requires the Allegro (development) package; `Makefile`
-  queries `allegro-config` for Linux/macOS builds (`:134,140,148,150`); `vs12|vs14/README_allegro.txt` explain how to repoint
-  include/lib paths to a local Allegro; `io.github.EdenWorX.atanks.metainfo.xml:19` states the game "runs on any platform
+- **Allegro 4 (system dependency).** Evidence: `README` requires the Allegro (development) package; `Makefile`
+  queries `allegro-config` for Linux/macOS builds; `vs12|vs14/README_allegro.txt` explain how to repoint
+  include/lib paths to a local Allegro; `io.github.EdenWorX.atanks.metainfo.xml` states the game "runs on any platform
   Allegro4 runs on". Role: graphics, sound, input,
   timers. The build fails without it (verified: `allegro-config` is absent on this machine, and even `make -n user` prints
   `allegro-config: Datei oder Verzeichnis nicht gefunden`).
 - **`src/extern/dirent.{h,c}` (bundled shim).** Evidence: header comment `Declaration of POSIX directory browsing functions and
-  types for Win32. Author: Kevlin Henney ... Created March 1997. Updated June 2003` (`src/extern/dirent.h:4-12`) with a
-  permissive use/copy/modify/distribute grant (`:31-41`). Role: POSIX `opendir/readdir` for MSVC builds only, selected by
-  `src/wrap_dirent.h:10-14` and compiled in the `.vcxproj` files; the GNU build uses the system `<dirent.h>`.
+  types for Win32. Author: Kevlin Henney ... Created March 1997. Updated June 2003` (`src/extern/dirent.h`) with a
+  permissive use/copy/modify/distribute grant. Role: POSIX `opendir/readdir` for MSVC builds only, selected by
+  `src/wrap_dirent.h` and compiled in the `.vcxproj` files; the GNU build uses the system `<dirent.h>`.
 - **Windows Allegro runtime DLLs.** `alleg44.dll` (832512 bytes) and `alleg44_64.dll` (998400 bytes) are tracked release
   runtimes for 32/64-bit Windows (per `vs12|vs14/README_allegro.txt`, only Release DLLs are kept in git; Debug/import libraries
   are user-supplied and matched by `.gitignore` rules `alleg44*.lib`, `alleg44*-debug.*`, `alleg44*_d.*`).
@@ -225,12 +223,13 @@ The following were classified as external by metadata inspection; their internal
   CExplosion, CFloatText, COUNT`).
 - Round stages follow `ERoundStages` (`STAGE_AIM, STAGE_FIRE, STAGE_SCOREBOARD, STAGE_ENDGAME`).
 - Threading: `CAICore` runs bot planning off the main thread (`mutex`/`condition_variable`, `start/stop/status` in
-  `src/aicore.h`); `gameloop.cpp:89-243` spawns one `ObjectUpdater` thread per class behind `updMutex/updCondition` (`:85-86`)
-  and joins them at `:497-541`. `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
+  `src/aicore.h`); `gameloop.cpp` spawns one `ObjectUpdater` thread per class behind `updMutex/updCondition`,
+  synchronizes with them once per frame in `update_objects()`, and finishes and joins them when the round ends.
+  `SANITIZE_THREAD=YES` builds define `USE_MUTEX_INSTEAD_OF_SPINLOCK` (thread-sanitizer logic in
   `CMakeLists.txt`).
 - Data flow for content: `text/weapons*.txt` -> `load_weapons_text()` (`src/files.cpp`) -> `weapon[]/naturals[]/item[]` globals
   -> shop UI, AI planning, firing, explosions. `text/*.txt` (speech/help) -> `CEnvironment::load_text_files()`
-  (`src/environment.cpp:966ff`) -> `TEXTBLOCK*` fields -> menus, AI taunts, help screens.
+  (`src/environment.cpp`) -> `TEXTBLOCK*` fields -> menus, AI taunts, help screens.
 
 ## Build System
 
@@ -302,45 +301,45 @@ None exist in the repository.
 - Compile-time: `DATA_DIR` (`ATANKS_DATA_DIR` setting, default `<prefix>/share/atanks`, `"."` for `*user` goals), `VERSION`
   (`project(VERSION 6.7)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
   BSD only), `ATANKS_DEBUG*` flavors.
-- Runtime data directory, resolved by `CEnvironment::find_data_dir()` (`src/environment.cpp:387-416`): `--datadir` if readable,
+- Runtime data directory, resolved by `CEnvironment::find_data_dir()` (`src/environment.cpp`): `--datadir` if readable,
   else the compiled `DATA_DIR` (verified by probing `unicode.dat` inside it), else `./` fallback.
-- Runtime config directory, resolved by `CEnvironment::find_config_dir()` (`src/environment.cpp:363-384`): `-c <path>` if given,
-  else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, `src/main.h:144-148`). `Copy_Config_File()`
-  (`src/files.cpp:334-390`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
-- Main settings file: `<config_dir>/atanks-config.txt`, loaded by `load_config()` (`src/atanks.cpp:727-757`, via
-  `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `save_game_settings()` (`:1448-1463`).
+- Runtime config directory, resolved by `CEnvironment::find_config_dir()` (`src/environment.cpp`): `-c <path>` if given,
+  else `$HOME/.atanks` (`HOME_DIR` = `HOME` on Linux, `AppData` on Windows, see `src/main.h`). `Copy_Config_File()`
+  (`src/files.cpp`) migrates a legacy `$HOME/.atanks-config.txt` into the directory.
+- Main settings file: `<config_dir>/atanks-config.txt`, loaded by `load_config()` (`src/atanks.cpp`, via
+  `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `save_game_settings()`.
   `--noconfig` skips loading.
-- Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h:27`) reads `<data_dir>/text/weapons*.txt`,
+- Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h`) reads `<data_dir>/text/weapons*.txt`,
   selecting the suffix by `env.language` (`weapons.txt`, `weapons_{fr,de,sk,ru,ES,it}.txt`, `weapons.pt_BR.txt`). English is
   always loaded first for numeric stats; a second pass overwrites only `name`/`desc` for localization. Sections `*WEAPONS*` /
-  `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`EDataStage`, `src/globaltypes.h:81-86`).
-- Speech/help text: `CEnvironment::load_text_files()` (`src/environment.cpp:966ff`) loads `text/<base><suffix>` for `gloat`,
+  `*NATURALS*` / `*ITEMS*` carry `DS_NAME`/`DS_DESC`/`DS_DATA` triples (`EDataStage`, see `src/globaltypes.h`).
+- Speech/help text: `CEnvironment::load_text_files()` (`src/environment.cpp`) loads `text/<base><suffix>` for `gloat`,
   `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`, `revenge`, `suicide` (suffixes `.txt`, `_fr`, `_de`, `_it`, `.pt_BR`,
-  `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (`src/environment.h:248-257`).
-- Savegames: `<config_dir>/<game_name>.sav`, format `VERSION/GLOBAL/CEnvironment/PLAYERS/***EOF***` (`src/files.cpp:43-77`);
-  listing via `find_saved_games()` (`*.sav` filter, `src/files.cpp:786-840`).
-- Music: `Create_Music_Folder()` ensures a `music/` folder in the config dir (`src/files.cpp:395-412`); custom `*.bmp` files are
-  picked up by `Find_Bitmaps()` (`:848-893`).
+  `_ru`, `_sk`, `_ES`) plus `war_quotes[_it|_ru|_ES].txt`, into `TEXTBLOCK*` fields (see `src/environment.h`).
+- Savegames: `<config_dir>/<game_name>.sav`, format `VERSION/GLOBAL/CEnvironment/PLAYERS/***EOF***` (see `src/files.cpp`);
+  listing via `find_saved_games()` (`*.sav` filter, see `src/files.cpp`).
+- Music: `Create_Music_Folder()` ensures a `music/` folder in the config dir (see `src/files.cpp`); custom `*.bmp` files are
+  picked up by `Find_Bitmaps()`.
 
 ## Runtime Behavior
 
 - Default invocation `./cmake-build-release/atanks` (run from the project root) equals `--windowed --width 800 --tall 600
-  --datadir . depth 32` (`README:116-119`; defaults `DEFAULT_SCREEN_WIDTH 800` / `DEFAULT_SCREEN_HEIGHT 600` in
-  `src/globaltypes.h:23-24`).
+  --datadir . depth 32` (per the `README` user documentation; defaults `DEFAULT_SCREEN_WIDTH 800` / `DEFAULT_SCREEN_HEIGHT 600` in
+  `src/globaltypes.h`).
 - First run with no human player opens the player-creation screen automatically; afterwards the flow is Players -> select tanks
-  (2-10) -> buy screen (left-click buys, right-click sells, `Done` confirms) -> battle (`README:122-152`).
-- In-battle keys (`README:155-176`): Space fires/selects, Enter confirms, Up/Down power and menu cycling, Left/Right gun aim and
+  (2-10) -> buy screen (left-click buys, right-click sells, `Done` confirms) -> battle (see the `README` user documentation).
+- In-battle keys (see the `README` user documentation): Space fires/selects, Enter confirms, Up/Down power and menu cycling, Left/Right gun aim and
   buy/sell, Esc cancels, F1 screenshot, F10 AI-takeover (or save on the buy screen), `v`/`V` volume down/up, `~` (or `#` on
   German keyboards) scoreboard.
-- Network play (still rough per `README:179-214`): the host enables Networking in Options -> Network and restarts; clients set
+- Network play (still rough, see the `README` user documentation): the host enables Networking in Options -> Network and restarts; clients set
   Server Address to the host IP and choose Network Game. Client tanks are color-coded (Jedi green, Sith purple, Neutral blue,
-  player red). `TODO:5` records a bug: the network client must not get unlimited shots.
+  player red). The legacy `TODO` file records a bug: the network client must not get unlimited shots.
 - Screenshot key F1 writes `screenshot_*.*` files (a `.gitignore`d artifact).
 - Environment variables: `HOME` (Linux) or `AppData` (Windows) locates the config directory.
 
 ## Command-Line Tools
 
-Main binary flags, parsed by `parse_args()` (`src/atanks.cpp:1134-1255`, help text at `:1413-1429`):
+Main binary flags, parsed by `parse_args()` (help text printed by the binary itself):
 
 | Flag | Effect |
 |---|---|
@@ -359,7 +358,7 @@ Main binary flags, parsed by `parse_args()` (`src/atanks.cpp:1134-1255`, help te
 | `--nobackground` | Hide the green menu background |
 | `--nothread`, `--thread` | Accepted but ignored (deprecated) |
 
-Missing option values print `ERROR: Missing argument` and exit `EXIT_FAILURE` (`:1248-1251`).
+Missing option values print `ERROR: Missing argument` and exit `EXIT_FAILURE`.
 
 Standalone helpers (not built by `Makefile`):
 
@@ -372,11 +371,11 @@ Standalone helpers (not built by `Makefile`):
 ## Data Flow
 
 1. Startup resolves `data_dir` and `config_dir`, loads `atanks-config.txt`, players, weapon stats, text blocks, bitmaps, fonts,
-   sounds, and background music (`CEnvironment::load_game_files()`, `src/environment.cpp:1311`).
+   sounds, and background music (`CEnvironment::load_game_files()` in `src/environment.cpp`).
 2. CMenu/options/player/shop screens mutate `CEnvironment` (options, rosters) and `CPlayer` objects (names, colors, teams,
    inventories, money).
-3. `game()` (`src/gameloop.cpp:246`) runs a round: `init_new_round()` (`:261`), `set_tank_settings()` (`:270`), spawn of the
-   `CAICore` thread and per-class `ObjectUpdater` threads, then the frame loop (`:316-489`) over stages `STAGE_AIM -> STAGE_FIRE
+3. `game()` (in `src/gameloop.cpp`) runs a round: `init_new_round()`, `set_tank_settings()`, spawn of the
+   `CAICore` thread and per-class `ObjectUpdater` threads, then the frame loop over stages `STAGE_AIM -> STAGE_FIRE
    -> STAGE_SCOREBOARD -> STAGE_ENDGAME`.
 4. Firing creates `CMissile`/`CBeam` objects; impacts create `CExplosion`s, which deform `global.surface`/`global.terrain`, throw
    tanks, apply damage (with `CTank::damage_lock`), spawn debris/floattext, and may trigger AI revenge/panic logic via opponent
@@ -387,17 +386,17 @@ Standalone helpers (not built by `Makefile`):
 ## Error Handling and Logging
 
 - Fatal startup failures (missing data dir, unreadable game files) print an error and return `EXIT_FAILURE` from `main`
-  (`src/atanks.cpp:1508-1533`).
-- `parse_args()` rejects missing values with `ERROR: Missing argument` (`src/atanks.cpp:1248-1251`).
-- `DEBUG_LOG(...)` and its flavors (`DEBUG_LOG_AIM/EMO/AI/FIN/OBJ/PHY`, `src/debug.h:105-170`) compile to no-ops unless the
+  (see `src/atanks.cpp`).
+- `parse_args()` rejects missing values with `ERROR: Missing argument` (see `src/atanks.cpp`).
+- `DEBUG_LOG(...)` and its flavors (`DEBUG_LOG_AIM/EMO/AI/FIN/OBJ/PHY`, see `src/debug.h`) compile to no-ops unless the
   matching `ATANKS_DEBUG*` macro is defined; with `ATANKS_DEBUG` they call `debug_log()` with `file:line|function()` position
-  info (`AT hugeET_POS`, `:92-102`).
-- `debug_log()` (`src/debug.cpp:19-68`) writes to `atanks.log` on Windows or when `ATANKS_DEBUG_LOGTOFILE` is set, otherwise to
+  info (`ATANKS_GET_POS`).
+- `debug_log()` (see `src/debug.cpp`) writes to `atanks.log` on Windows or when `ATANKS_DEBUG_LOGTOFILE` is set, otherwise to
   `stdout`; output is mutex-protected.
-- MSVC-incompatible POSIX calls are shimmed in `src/main.h:109-122` (`snprintf`, `strncpy`, `access`, `strcasecmp`, `strdup`,
+- MSVC-incompatible POSIX calls are shimmed in `src/main.h` (`snprintf`, `strncpy`, `access`, `strcasecmp`, `strdup`,
   `unlink`, `mkdir`).
 - In-game failures are surfaced modally where practical (e.g. the non-`NETWORK` network-game path reports an error instead of
-  crashing, `src/atanks.cpp:1398-1410`).
+  crashing, see `src/atanks.cpp`).
 
 ## Testing and Validation
 
@@ -417,7 +416,7 @@ Standalone helpers (not built by `Makefile`):
 - Known-issue sources: `TODO.md` itself (canonical planning file, first item `TODO-PF-1` Cleanup and Modernization). The legacy
   `TODO` file (1 bug
   + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; proper `TODO-PF-*`
-    entries will be created after `TODO-PF-1` (`WP PF-1.8`). Also `README:209-216` (buggy network client),
+    entries will be created after `TODO-PF-1` (`WP PF-1.8`). Also the `README` user documentation (buggy network client),
     and the `TODO`/`FIXME`/`BUG`/`HACK` grep surface, which only matches `DEBUG_LOG*` call sites rather than real markers.
 - Bug reports go to `https://github.com/EdenWorX/atanks/issues` (this fork moved from SourceForge to GitHub; updating the
   remaining SourceForge references in `README`, `credits.txt`, the metainfo file, and help texts is part of `TODO.md`, `WP
@@ -468,10 +467,10 @@ Standalone helpers (not built by `Makefile`):
   `CGlobalData::destroy` paths.
 - New weapon or item: extend the `*WEAPONS*` / `*ITEMS*` sections of `text/weapons.txt` (and its translations for display
   strings), keep the numeric field count in sync with `load_weapons_text()`, and adjust the `WEAPONS`/`ITEMS` sizes in
-  `src/main.h:264-267` if the count changes; check AI selection (`CAICore`), shop availability
+  `src/main.h` if the count changes; check AI selection (`CAICore`), shop availability
   (`CEnvironment::gen_items_list`), and
-  sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a documented format
-  (INI or YAML) with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
+  sound/pic mappings. Note: there is no spec for this positional format beyond the parser code; migration to a
+  documented TOML format with a clear spec and simple parser is planned as a late step (`TODO.md`, `WP PF-1.17`).
 - New option/menu entry: add the `EMenuClass`/`EEntryType` value in `src/optiontypes.h`, construct the item in
   `menu.cpp`/`optionscreens.cpp`, and persist it in `CEnvironment::save_to_file/load_from_file`.
 - New language: copy the `text/*.txt` matrix with the new suffix, extend the suffix lists in `CEnvironment::load_text_files()`
@@ -482,9 +481,9 @@ Standalone helpers (not built by `Makefile`):
 
 ## Important Technical Nuances
 
-- `src/main.h` include order is load-bearing: `debug.h` must precede Allegro headers on Windows (`src/main.h:39-42`).
-- `globals.h` may only be included from `src/atanks.cpp`; every other unit uses `externs.h` (`src/globals.h:1-3`,
-  `src/externs.h:45-80`).
+- `src/main.h` include order is load-bearing: `debug.h` must precede Allegro headers on Windows (see `src/main.h`).
+- `globals.h` may only be included from `src/atanks.cpp`; every other unit uses `externs.h` (see `src/globals.h`,
+  `src/externs.h`).
 - `CWeapon::get_delay_div()` guards volley weapons whose `delay` is zero (avoids division by zero for multi-shot weapons).
 - The `NETWORK` define reaches the code via generated `config.h` on Linux and BSD builds; macOS builds do not get it, and
   there is no CMake Windows build. Network play is currently a Linux-only first draft; proper network development is deferred
@@ -502,13 +501,13 @@ Standalone helpers (not built by `Makefile`):
 
 ## Known Issues and TODO Sources
 
-- `TODO:4-5`: network client must not get unlimited shots (bug).
-- `TODO:7-18`: missing buy-screen scrollbar, missing buy-screen randomize button, field-repair-kit item, radar-resistant
+- The legacy `TODO` file: network client must not get unlimited shots (bug).
+- The legacy `TODO` file: missing buy-screen scrollbar, missing buy-screen randomize button, field-repair-kit item, radar-resistant
   missile, more frequent client ground-surface updates, client buying screen, semi-destructible rocks.
-- `TODO:29-49`: under consideration — underground mines, firework rockets, shootable UFO, scalable main window (blocked on
+- The legacy `TODO` file, under consideration — underground mines, firework rockets, shootable UFO, scalable main window (blocked on
   Allegro 5 / a port the file calls a no-opt), an entry literally questioning its own meaning (`Harder ground -> What is that
   supposed to mean?`), high-voltage missiles, tornadoes, another armor level.
-- `README:209-216`: buggy network client side.
+- The `README` user documentation: buggy network client side.
 - `CHANGELOG.md` entry (6.7) lists recently fixed crashes and AI bugs; older entries in `docs/Changelog.history` document
   recurring AI-strength and SDI-tuning adjustments.
 
