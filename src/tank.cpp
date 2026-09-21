@@ -306,12 +306,14 @@ void CTank::activate_current_selection() {
 		// --- Rocket ("I beliiiieve Ay Can Flaaaaaaaayy") ---
 		//-----------------------------------------------------
 		else if ( ITEM_ROCKET == ci ) {
-			yv  = -10;
+			// Fixed per-frame launch speeds tuned for 60 FPS:
+			double const step = 1. / env.frame_count_mod;
+			yv  = -10. * step;
 			y  -= 10;
 			if ( a < 180 ) {
-				xv += 0.3;
+				xv += 0.3 * step;
 			} else if ( a > 180 ) {
-				xv -= 0.3;
+				xv -= 0.3 * step;
 			}
 			// If this leads to falling damage, make sure it is a self hit:
 			add_damage( player, 0. );
@@ -651,7 +653,7 @@ void CTank::applyPhysics() {
 			}
 
 			// Reset falling delay and apply damage at once
-			delay_fall = env.landslide_delay * 100;
+			delay_fall = ROUND( env.landslide_delay * 100 * env.frame_count_mod );
 			apply_damage();
 		} // End of fall stop
 
@@ -665,22 +667,26 @@ void CTank::applyPhysics() {
 
 			yv += env.fall_vector;
 
+			// Fixed per-frame speeds below are tuned for 60 FPS.
+			double const step = 1. / env.frame_count_mod;
+
 			// Check for parachute opening
 			if ( para ) {
 				if ( para < 3 ) {
 					++para;
 				}
 
-				// With a parachute, wind can blow the tank away
-				xv += ( global.wind - xv ) / mass * ( drag + 0.35 ) * env.viscosity;
+				// With a parachute, wind can blow the tank away.
+				// The relaxation rate is tuned for 60 FPS, too.
+				xv += ( global.wind - xv ) / mass * ( drag + 0.35 ) * env.viscosity * step;
 
 				// Limit yv, we have a parachute!
-				if ( yv > 0.5 ) {
-					yv = 0.5;
+				if ( yv > ( 0.5 * step ) ) {
+					yv = 0.5 * step;
 				}
 			} else {
 				// If we have parachutes, deploy one:
-				if ( ( player->ni[ ITEM_PARACHUTE ] ) && ( yv >= 1.0 ) ) {
+				if ( ( player->ni[ ITEM_PARACHUTE ] ) && ( yv >= ( 1.0 * step ) ) ) {
 					para = 1;
 					player->ni[ ITEM_PARACHUTE ]--;
 				}
@@ -1534,7 +1540,7 @@ void CTank::new_round( int32_t pos_x, int32_t pos_y ) {
 	sh         = 0;
 	sht        = ITEM_NO_SHIELD;
 	repulsion  = 0;
-	delay_fall = env.landslide_delay * 100;
+	delay_fall = ROUND( env.landslide_delay * 100 * env.frame_count_mod );
 
 	// Re-calculate max life
 	double tmpL = ( player->ni[ ITEM_ARMOUR ] * item[ ITEM_ARMOUR ].vals[ 0 ] )

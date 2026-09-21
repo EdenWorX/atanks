@@ -827,7 +827,7 @@ void CEnvironment::load_from_file( FILE* file ) {
 				if ( gravity < 0.025 ) {
 					gravity = 0.15;
 				}
-				fall_vector = gravity * fps_mod;
+				fall_vector = gravity * fps_mod / frame_count_mod;
 			} else if ( !strcasecmp( field.c_str(), "techlevel" ) ) {
 				SAFE_STOI( weapontech_level, value );
 				itemtech_level = weapontech_level; // for backward compatibility
@@ -1622,7 +1622,9 @@ void CEnvironment::set_fps( int32_t new_FPS ) {
 		}
 		frame_count_mod = static_cast< double >( frames_per_second ) / 60.;
 		fps_mod         = 100. / static_cast< double >( frames_per_second );
-		fall_vector     = gravity * fps_mod;
+		// Gravity is a per-frame velocity increment (acceleration), so unlike
+		// velocities it scales quadratically to stay frame-rate independent.
+		fall_vector     = gravity * fps_mod / frame_count_mod;
 		max_velocity    = static_cast< double >( MAX_POWER ) * fps_mod / 100.;
 	}
 }

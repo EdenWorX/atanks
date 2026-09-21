@@ -125,7 +125,7 @@ private:
 	CPlayer*   credit_to = nullptr;
 	double    damage   = 0.;
 	CSpinLock damage_lock;
-	int32_t   delay_fall       = env.landslide_delay * 100; //!< time the tank will hover
+	int32_t   delay_fall       = ROUND( env.landslide_delay * 100 * env.frame_count_mod ); //!< time the tank will hover
 	int32_t   flash_damage      = 0;
 	bool      is_teleported     = false; //!< Set to true if a teleport occurs to award falling damage.
 	int32_t   max_life          = 100;   //!< amount awarded at beginning of round

@@ -215,9 +215,10 @@ void CDecor::applyPhysics() {
 		age += ageMod;
 
 		// Set further values
-		// Try to reach half distance to the maximum values per second
-		double xaccel = ( ( xv + max_wind_accel ) / 2 ) / static_cast< double >( env.frames_per_second );
-		double yaccel = ( ( yv + max_grav_accel ) / 2 ) / static_cast< double >( env.frames_per_second / 10. );
+		// Try to reach half distance to the maximum values per second.
+		// The relaxation rate is tuned for 60 FPS, so scale it to the frame rate:
+		double xaccel = ( ( xv + max_wind_accel ) / 2 ) / static_cast< double >( env.frames_per_second ) / env.frame_count_mod;
+		double yaccel = ( ( yv + max_grav_accel ) / 2 ) / static_cast< double >( env.frames_per_second / 10. ) / env.frame_count_mod;
 
 		// Apply current acceleration
 		xv += xaccel;

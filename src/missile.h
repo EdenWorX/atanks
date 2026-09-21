@@ -122,6 +122,7 @@ private:
 	bool         is_growing    = false;
 	EMissileType missile_type  = MT_WEAPON;
 	double       roll_carry    = 0.; // Carry for frame-rate independent roller steps
+	double       spin_carry    = 0.; // Carry for frame-rate independent meteor tumble
 	CWeapon*      weap         = nullptr;
 };
 

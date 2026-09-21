@@ -51,12 +51,18 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   tests, and `make doc` are green, in-game 60-vs-120 comparison still pending with the user.
 - [ ] **High**: FPS-independence follow-ups found during validation of the above: (1) flying debris moved at twice the
   wall-clock speed above 60 FPS because `CExplosion` debris velocities (`src/explosion.cpp:893-894`) were fixed
-  pixels-per-frame; (2) shot range shrank markedly at 120 FPS (user: "twice the power for the same distance") because the
-  per-frame wind/drag relaxation (`CPhysicalObject::applyPhysics()`, `src/physobj.cpp:55`) ran twice as often per second,
-  squaring the exponential decay — with smaller contributions from the unscaled napalm-jelly reaction velocity, cluster
-  submunition countdowns, funky-float direction chance, and roller pixel steps. All scaled to `env.frame_count_mod` in
-  the working tree (60 FPS behavior bit-identical); AI aiming needed no change (analytic, drag-agnostic at every rate).
-  Pending user in-game validation: range parity, debris speed, AI hit rate at 60 vs 120 FPS.
+  pixels-per-frame; (2) shot range shrank markedly at 120 FPS (user: "twice the power for the same distance"). Root
+  cause of (2): gravity as a per-frame velocity increment must scale quadratically (`1/FPS^2`), but `fall_vector`
+  used the linear `fps_mod` (`1/FPS`) — at 120 FPS gravity pulled twice as hard in wall time (proven by replicating the
+  integrator: linear gives ranges 273/154/82 px at 30/60/120 FPS, quadratic gives 150/154/156). Fixed via
+  `fall_vector = gravity * fps_mod / frame_count_mod` (`CEnvironment::set_fps()` plus the gravity-option path), with
+  the same second-order treatment for land-slide gravity (already quadratic), satellite accel/velocity (exact),
+  parachute relaxation/cap/deploy, rocket launch velocity, cartoon hover delay, smoke relaxation, and meteor tumble;
+  the drag relaxation fix stands as correct first-order. AI aiming needed no change (its power formula even becomes
+  FPS-invariant with correct gravity). Residual rate-class items, deferred as rare/cosmetic: repulsor-shield impulses,
+  SDI check rate, naturals spawn rate, satellite shoot chance, wind random-walk rate, damage-flash threshold,
+  velocity-magnitude stop thresholds, menu millisecond truncation. Pending user in-game validation: range parity,
+  debris speed, AI hit rate at 60 vs 120 FPS.
 
 ## Planned Features
 

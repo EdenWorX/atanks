@@ -222,7 +222,12 @@ void CMissile::applyPhysics() {
 	if ( ( PT_NORMAL == phys_type ) || ( PT_DIGGING == phys_type ) ) {
 
 		if ( ( SML_METEOR <= weap_type ) && ( LRG_METEOR >= weap_type ) ) {
-			angle = ( angle + spin ) % 360;
+			// Fixed per-frame tumble tuned for 60 FPS:
+			spin_carry += 1. / env.frame_count_mod;
+			while ( spin_carry >= 1. ) {
+				spin_carry -= 1.;
+				angle = ( angle + spin ) % 360;
+			}
 		} else {
 			angle = ROUND( RAD2DEG( atan( yv / xv ) ) * 256. / 360. ) - 64 + ( xv < 0 ? 128 : 0 );
 		}
