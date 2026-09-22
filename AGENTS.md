@@ -13,7 +13,7 @@
 - `TODO.md` (with `docs/todo_planning.md` rules) — canonical planning overview (status table); detailed plans live in
   per-item files (`TODO_PF-<nr>.md`, `TODO_GI-<nr>.md`, `TODO_II-<nr>.md`). New work items go here as `TODO-GI-*` /
   `TODO-II-*` / `TODO-PF-*` with category-prefixed Work Package numbers (e.g. `WP PF-1.1`). Follow the fixed heading
-  hierarchy (`##` phase, `###` Work Package, `####` Implementation Task, `- [ ]` Action Item) and title templates from
+  hierarchy (`#` item title, `##` Work Package, `###` Implementation Task, `- [ ]` Action Item) and title templates from
   `docs/todo_planning.md` when adding or restructuring items — the hierarchy lives in the per-item files, `TODO.md`
   holds only the overview table plus one row per item.
 - For the task at hand, the relevant headers/sources under `src/` (see `Project Map for Agents` below).

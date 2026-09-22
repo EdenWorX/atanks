@@ -37,19 +37,19 @@ items of different categories.
 ## Document Structure
 
 Per-item files (`TODO_PF-<nr>.md`, `TODO_GI-<nr>.md`, `TODO_II-<nr>.md`) use this fixed heading hierarchy so the CLion
-Structure Viewer (`##` chapters, `###` sections, `####` subsections) and human readers get a stable overview:
+Structure Viewer (`#` title, `##` chapters, `###` sections) and human readers get a stable overview:
 
-- Phase (to-do item) → `##` chapter: `## [ ] TODO-<type>-<nr>: <title>`
-- Work Package → `###` section: `### [ ] <type>-<nr>.<wp>: <title>`
-- Implementation Task → `####` subsection: `#### [ ] <type>-<nr>.<wp>.<task>: <title>`
+- Phase (to-do item) → `#` title of the file: `# TODO-<type>-<nr>: <title>`
+- Work Package → `##` chapter: `## [ ] <type>-<nr>.<wp>: <title>`
+- Implementation Task → `###` section: `### [ ] <type>-<nr>.<wp>.<task>: <title>`
 - Action Item (optional) → unordered list item: `- [ ] **<type>-<nr>.<wp>.<task>.<action>**: <short description>`
 
 Structural rules:
 
-- One `##` chapter per to-do item; never nest phases. The only other `###` sections inside a phase are Work Packages plus the
+- One `#` title per to-do item file; never nest items. The only other `##` chapters are Work Packages plus the
   `Planned follow-ups` and `Feature-Complete Checklist` sections.
 - The `WP ` prefix is used in prose references (e.g. `WP PF-1.1`), not in the Work Package heading itself, which carries the
-  bare category-prefixed number (e.g. `### [ ] PF-1.1: <title>`).
+  bare category-prefixed number (e.g. `## [ ] PF-1.1: <title>`).
 - Action Item numbers always use dots (`PF-1.1.1.1`), never dashes.
 - Do not group Work Packages under theme subheadings; record ordering constraints as `Dependencies:` notes in the Work Package
   description instead.
@@ -66,8 +66,10 @@ table with one row per to-do item. Columns, in order: `Item`, `Description`, `Fi
 
 - `Item`: the category-prefixed item number (`PF-1`, `GI-1`, `II-2`).
 - `Description`: a very short (few-word) summary of the item.
-- `File`: a link to the written plan file (`[TODO_PF-2](./TODO_PF-2.md)`), or `_none_` while no plan file exists yet.
-- `Status`: one of `not planned`, `planned`, `_in progress_`, `**completed**`.
+- `File`: a link to the written plan file (`[TODO-PF-2](./TODO_PF-2.md)`), or `_none_` while no plan file exists yet.
+- `Status`: one of `not planned`, `in planning`, `not started`, `planned`, `_in progress_`, `**completed**`. `in planning` means
+  the plan file exists and is being drafted; `not started` means planning is finished (or was deemed sufficient) and
+  implementation has not begun; `planned` means the plan is complete and awaits implementation.
 
 "Human-readable" means the columns are aligned with padding spaces. Markdown rendering ignores the padding, but aligned
 columns are far easier to read for humans. Table rows are exempt from the 128-column prose limit. Example:
@@ -75,7 +77,7 @@ columns are far easier to read for humans. Table rows are exempt from the 128-co
 | Item | Description                          | File                        | Status        |
 |------|--------------------------------------|-----------------------------|---------------|
 | PF-1 | Cleanup and Modernization            | _none_                      | **completed** |
-| PF-2 | Add modern update check              | [TODO_PF-2](./TODO_PF-2.md) | _in progress_ |
+| PF-2 | Add modern update check              | [TODO-PF-2](./TODO_PF-2.md) | in planning   |
 | GI-1 | Verify `cur_x`/`cur_y` in `tank.cpp` | _none_                      | not planned   |
 
 ## Classification and Numbering
