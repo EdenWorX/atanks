@@ -49,7 +49,7 @@ LANGUAGE LANG_NEUTRAL,
                                                                                                                        "criptio"
                                                                                                                        "n",
 	"Atomic Tanks" VALUE "FileVersion", "6.7.1.0" VALUE "LegalCopyright",
-	"See credits.txt and COPYING.txt" VALUE "OriginalFilename", "atanks.exe" VALUE "ProductName",
+	"See credits.txt and COPYING" VALUE "OriginalFilename", "atanks.exe" VALUE "ProductName",
 	"Atomic Tanks" VALUE "ProductVersion", "6.7.1.0" END END BLOCK "VarFileInfo" BEGIN VALUE "Translation", 0x409,
 	1252 END END
 

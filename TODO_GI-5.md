@@ -6,27 +6,42 @@ its own).
 
 Source: `TODO_Xtra.md` (`General Issues`). Status: see the overview table in `TODO.md`.
 
-## [ ] GI-5.1: Analysis
+## [x] GI-5.1: Analysis
 
 Confirm the mismatch between the `LegalCopyright` string in `src/atanks.rc` and the tracked `COPYING` filename, and check
 whether any other resource string carries the same stale suffix.
 
-## [ ] GI-5.2: Discussion
+Findings (2026-09-22 session): mismatch confirmed — `COPYING` is tracked, `COPYING.txt` does not exist. Line 52 is the
+only `.txt` reference in the file, and its sibling `credits.txt` exists, so exactly one string is stale. Landing
+choice goes to WP GI-5.2.
+
+## [x] GI-5.2: Discussion
 
 Confirm with the user whether the fix lands on its own or rides along with the next version-string edit of the resource.
 
-## [ ] GI-5.3: Implementation, fix the reference
+Decision (2026-09-22 session): **fix alone now** — single stale string, no version-string work pending.
+
+## [x] GI-5.3: Implementation, fix the reference
 
 Correct the filename reference. No further parts expected.
 
-## [ ] GI-5.4: Tests
+Implemented 2026-09-22: `COPYING.txt` → `COPYING` in the `LegalCopyright` string (`src/atanks.rc:52`). Verified:
+`make test` green; string syntax intact by inspection.
+
+## [x] GI-5.4: Tests
 
 No behavior change; verify the resource still compiles in a Windows/CMake resource build if available.
 
-## [ ] GI-5.5: Documentation
+No Windows resource compiler available in this session; change is a quoted-string literal only (syntax intact), and
+`make test` is green. Windows compile check flagged for an environment with VS2026 if ever needed.
+
+## [x] GI-5.5: Documentation
 
 No doc changes.
 
-## [ ] GI-5.6: Final testing and finalization
+## [x] GI-5.6: Final testing and finalization
 
 Confirm the reference, then close the item per `docs/todo_planning.md`.
+
+Reference confirmed (`COPYING` tracked, string fixed). Item finished; removal from `TODO.md` plus plan-file deletion
+waits for the next release per the Removal Rule.

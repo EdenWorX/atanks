@@ -17,9 +17,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 - [x] **Medium**: `teleport.cpp` condition review — fixed 2026-09-22 (remote-end null guard, non-copyable, else cleanup).
 - [x] **Low**: redundant conditional assignments — fixed 2026-09-22 (plain assignments, plus `set_color`).
 - [x] **Low**: `shop.cpp` findings — fixed 2026-09-22 (`std::fill`, `weap` const, bare `teamFee`).
-- [ ] **Low**: `src/atanks.rc:52` references `COPYING.txt`, but the file is named `COPYING` (no `.txt`). Left untouched because
-  version-string work on that file belongs to `WP PF-1.2`; fix the filename reference when that package edits the resource.
-  Planned as TODO-GI-5 (see TODO.md).
+- [x] **Low**: `atanks.rc` COPYING.txt reference — fixed 2026-09-22 (now `COPYING`).
 - [ ] **Low**: `src/optiontypes.h:10` says "or (at your menu) any later version" — "menu" is a typo for "option" in the
   license header. Left untouched because header normalization belonged to completed `WP PF-1.1`; fix with any future edit of
   that header.

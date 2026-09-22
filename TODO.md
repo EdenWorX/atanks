@@ -17,7 +17,7 @@ row per item.
 | GI-2  | teleport.cpp condition review    | _none_                         | **completed** |
 | GI-3  | Redundant conditional assignment | _none_                         | **completed** |
 | GI-4  | shop.cpp finding review          | _none                          | **completed** |
-| GI-5  | atanks.rc COPYING.txt reference  | [TODO-GI-5](./TODO_GI-5.md)    | not started   |
+| GI-5  | atanks.rc COPYING.txt reference  | [TODO-GI-5](./TODO_GI-5.md)    | **completed** |
 | GI-6  | optiontypes.h license typo       | [TODO-GI-6](./TODO_GI-6.md)    | not started   |
 | GI-7  | Metainfo screenshot URLs         | [TODO-GI-7](./TODO_GI-7.md)    | not started   |
 | GI-8  | README allegro-config claim      | [TODO-GI-8](./TODO_GI-8.md)    | not started   |
