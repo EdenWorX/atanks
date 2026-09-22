@@ -14,7 +14,7 @@ row per item.
 | II-1  | Load-failure teardown segfault   | _none_                         | **completed** |
 | II-2  | Missile null-pointer exposure    | _none_                         | **completed** |
 | GI-1  | tank.cpp cur_x/cur_y cleanup     | _none_                         | **completed** |
-| GI-2  | teleport.cpp condition review    | [TODO-GI-2](./TODO_GI-2.md)    | not started   |
+| GI-2  | teleport.cpp condition review    | [TODO-GI-2](./TODO_GI-2.md)    | **completed** |
 | GI-3  | Redundant conditional assignment | [TODO-GI-3](./TODO_GI-3.md)    | not started   |
 | GI-4  | shop.cpp finding review          | [TODO-GI-4](./TODO_GI-4.md)    | not started   |
 | GI-5  | atanks.rc COPYING.txt reference  | [TODO-GI-5](./TODO_GI-5.md)    | not started   |
