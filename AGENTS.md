@@ -96,7 +96,7 @@
 
 Defined by `.clang-format` (clang-format 19 or later) and the existing tree:
 
-- `ColumnLimit: 140`, `LineEnding: LF`, `IndentWidth: 8`, `TabWidth: 8`, `UseTab: AlignWithSpaces`.
+- `ColumnLimit: 128`, `LineEnding: LF`, `IndentWidth: 8`, `TabWidth: 8`, `UseTab: AlignWithSpaces`.
 - Braces attach (all `BraceWrapping ...After*: false`, `BeforeCatch/BeforeElse: false`); short blocks only when empty
   (`AllowShortBlocksOnASingleLine: Empty`); short functions/lambdas inline; short loops allowed on one line.
 - `BinPackArguments: false`, `BinPackParameters: OnePerLine` — one parameter per line in declarations.
@@ -251,7 +251,7 @@ Defined by `.clang-format` (clang-format 19 or later) and the existing tree:
 
 - Documentation files (`AGENTS.md`, `README.md`, `TODO.md`, `TODO_Xtra.md`, `docs/*`) use a maximum line length of 128
   characters. Table rows are exempt and may be longer when a row cannot be split.
-- The `.clang-format` `ColumnLimit` (currently 140) applies only to C/C++ source files and headers, never to documentation
+- The `.clang-format` `ColumnLimit` (currently 128) applies only to C/C++ source files and headers, never to documentation
   files.
 - When writing or rewrapping documentation, preserve tables, fenced code blocks, and ASCII diagrams verbatim; only reflow prose
   paragraphs and list-item text.

@@ -37,7 +37,7 @@ for the planning rules and `docs/release_process.md` for the release process). O
 - Obsolete artifacts removed: `Makefile.bsd`, `atanks-4.3.spec`, tracked `dep/*.d` files, `exporter/`, `cb/` (Code::Blocks),
   `-DUBUNTU` branches and the `ubuntu` target.
 - Naming normalized tree-wide (`C`-prefixed classes, `E`-prefixed enums, snake_case functions/variables/members,
-  `ATANKS_<NAME>_H_INCLUDED` guards, `.clang-format` at 140 columns); the convention is recorded in `AGENTS.md`/`README.md`.
+  `ATANKS_<NAME>_H_INCLUDED` guards, `.clang-format` at 128 columns); the convention is recorded in `AGENTS.md`/`README.md`.
 - Config and savegame parsing modernized: one shared growing line reader (`read_config_line`/`split_config_field` in
   `src/files.cpp`) replaces the static char buffers (`MAX_CONFIG_LINE` removed); overlong lines no longer split silently.
 - Remaining risky C-string handling replaced (player names are `std::string` now).

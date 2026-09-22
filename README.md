@@ -446,7 +446,7 @@ Standalone helpers (not built by `Makefile`):
 ## Coding Conventions
 
 - Language standard: C++17 (`CMAKE_CXX_STANDARD 17`); no C++20+ features. Style is defined by `.clang-format`
-  (clang-format 19 or later): 140-column limit, attached braces, one parameter per line in declarations, left-aligned
+  (clang-format 19 or later): 128-column limit, attached braces, one parameter per line in declarations, left-aligned
   pointers, sorted case-sensitive includes.
 - Naming: variables and functions in snake_case (`var_name`, `func_name()`), classes and structs in PascalCase (`MyClass`),
   templates in PascalCase with `T` prefix (`TContainer`), constants and macros in UPPER_SNAKE (`MAX_SIZE`); prefix `C` for
