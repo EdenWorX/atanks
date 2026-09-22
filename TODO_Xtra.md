@@ -18,10 +18,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 - [x] **Low**: redundant conditional assignments — fixed 2026-09-22 (plain assignments, plus `set_color`).
 - [x] **Low**: `shop.cpp` findings — fixed 2026-09-22 (`std::fill`, `weap` const, bare `teamFee`).
 - [x] **Low**: `atanks.rc` COPYING.txt reference — fixed 2026-09-22 (now `COPYING`).
-- [ ] **Low**: `src/optiontypes.h:10` says "or (at your menu) any later version" — "menu" is a typo for "option" in the
-  license header. Left untouched because header normalization belonged to completed `WP PF-1.1`; fix with any future edit of
-  that header.
-  Planned as TODO-GI-6 (see TODO.md).
+- [x] **Low**: `optiontypes.h` license typo — fixed 2026-09-22 ("menu" → "option").
 - [ ] **Low**: the 12 screenshot URLs in `io.github.EdenWorX.atanks.metainfo.xml` (`<image>https://atanks.sourceforge.io/...`)
   still point at the old SourceForge site, which this fork no longer controls. Out of scope for `WP PF-1.6` (screenshots were
   not listed there); decide whether to re-host the images (e.g. in the GitHub repo) and update or drop the block.
