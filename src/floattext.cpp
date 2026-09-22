@@ -338,17 +338,14 @@ void CFloatText::reset_sway() {
 		pos_x = x + ( ( 1 + ( get_rand() % ( sway / 2 ) ) ) * ( get_rand() % 2 ? -1 : 1 ) );
 		xv    = SIGNd( pos_x - x );
 	} else if ( TS_VERTICAL == sway ) {
-		pos_y = y;
-		yv    = -1.;
+		yv = -1.;
 	}
 	dim_cur.x = ROUND( pos_x );
 	dim_cur.y = ROUND( pos_y );
 }
 
 void CFloatText::set_color( int32_t color_ ) {
-	if ( color != color_ ) {
-		color = color_;
-	}
+	color = color_;
 
 	int32_t left    = LEFT == align ? dim_cur.x + ( dim_cur.w / 2 ) : dim_cur.x - ( dim_cur.w / 2 );
 	int32_t top     = LEFT == align ? dim_cur.y + ( dim_cur.h / 2 ) : dim_cur.y - ( dim_cur.h / 2 );

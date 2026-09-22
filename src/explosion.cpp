@@ -741,9 +741,7 @@ void CExplosion::do_clear() {
 			has_slid = true;
 		}
 
-		if ( !has_cleared ) {
-			has_cleared = true;
-		}
+		has_cleared = true;
 	}
 }
 

@@ -15,10 +15,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 
 - [x] **Medium**: `tank.cpp` `cur_x`/`cur_y` cleanup — fixed 2026-09-22 (declarations moved into the loop body).
 - [x] **Medium**: `teleport.cpp` condition review — fixed 2026-09-22 (remote-end null guard, non-copyable, else cleanup).
-- [ ] **Low**: `if (x) x=false` patterns logically equivalent to plain assignment (cppcheck `duplicateConditionalAssign`)
-  in `src/tank.cpp:632`, `src/explosion.cpp:744`, and `src/floattext.cpp:342`. Found during `WP PF-1.12` triage; simplify when
-  those functions are next touched.
-  Planned as TODO-GI-3 (see TODO.md).
+- [x] **Low**: redundant conditional assignments — fixed 2026-09-22 (plain assignments, plus `set_color`).
 - [ ] **Low**: `src/shop.cpp:831,912,931` (raw loop vs `std::fill`, `weap` const-correctness, unused `teamFee`) needs
   gameplay-context review. Found during `WP PF-1.12` triage.
   Planned as TODO-GI-4 (see TODO.md).

@@ -631,9 +631,7 @@ void CTank::applyPhysics() {
 		// Check whether a previous fall just ends:
 		if ( ( yv > 0. ) && ( ( y >= bottom ) || ( PINK != pix_col ) || on_tank ) ) {
 			add_damage( credit_to, yv * 10. );
-			if ( is_teleported ) {
-				is_teleported = false;
-			}
+			is_teleported = false;
 
 			// 10 points of damage are 'free' when falling
 			// Note: This negates any damage when parachuting as well.
