@@ -1069,14 +1069,12 @@ int32_t CTank::how_buried( int32_t *left, int32_t *right ) {
 	int32_t result      = 0;
 	int32_t old_x       = 0;
 	int32_t old_y       = 0;
-	int32_t cur_x       = 0;
-	int32_t cur_y       = 0;
 	double  angles_seen = 0.;
 
 	// Angles are from right (90) to left (270) counterclockwise
 	for ( int32_t ta = 90; ta < 270; ++ta ) {
-		cur_x = ROUND( x + ( env.slope[ ta ][ 0 ] * turr_off_x ) );
-		cur_y = ROUND( y + ( env.slope[ ta ][ 1 ] * turr_off_y ) );
+		int32_t cur_x = ROUND( x + ( env.slope[ ta ][ 0 ] * turr_off_x ) );
+		int32_t cur_y = ROUND( y + ( env.slope[ ta ][ 1 ] * turr_off_y ) );
 
 		if ( ( cur_x != old_x ) || ( cur_y != old_y ) ) {
 			if ( PINK != getpixel( global.terrain, cur_x, cur_y ) ) {

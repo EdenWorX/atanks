@@ -13,10 +13,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 
 ## General Issues
 
-- [ ] **Medium**: `src/tank.cpp:1066-1067` assigns `cur_x`/`cur_y` without ever reading them (cppcheck `unreadVariable`,
-  `variableScope`). Found during `WP PF-1.12` triage; needs gameplay-context review to decide whether the assignments (and
-  their computations) can go or something was meant to consume them.
-  Planned as TODO-GI-1 (see TODO.md).
+- [x] **Medium**: `tank.cpp` `cur_x`/`cur_y` cleanup — fixed 2026-09-22 (declarations moved into the loop body).
 - [ ] **Medium**: `src/teleport.cpp:91,101,207` conditions reported always-true (cppcheck `knownConditionTrueFalse`), and
   `src/teleport.cpp:112` lacks copy semantics (`noCopyConstructor`, `noOperatorEq`). Found during `WP PF-1.12` triage; needs
   gameplay-context review.
