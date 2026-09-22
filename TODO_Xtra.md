@@ -16,9 +16,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 - [x] **Medium**: `tank.cpp` `cur_x`/`cur_y` cleanup — fixed 2026-09-22 (declarations moved into the loop body).
 - [x] **Medium**: `teleport.cpp` condition review — fixed 2026-09-22 (remote-end null guard, non-copyable, else cleanup).
 - [x] **Low**: redundant conditional assignments — fixed 2026-09-22 (plain assignments, plus `set_color`).
-- [ ] **Low**: `src/shop.cpp:831,912,931` (raw loop vs `std::fill`, `weap` const-correctness, unused `teamFee`) needs
-  gameplay-context review. Found during `WP PF-1.12` triage.
-  Planned as TODO-GI-4 (see TODO.md).
+- [x] **Low**: `shop.cpp` findings — fixed 2026-09-22 (`std::fill`, `weap` const, bare `teamFee`).
 - [ ] **Low**: `src/atanks.rc:52` references `COPYING.txt`, but the file is named `COPYING` (no `.txt`). Left untouched because
   version-string work on that file belongs to `WP PF-1.2`; fix the filename reference when that package edits the resource.
   Planned as TODO-GI-5 (see TODO.md).

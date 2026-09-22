@@ -8,6 +8,7 @@
 #include "text.h" // for draw_text_in_box()
 #include "weapon.h"
 
+#include <algorithm>
 #include <sstream>
 
 #define SHOP_BAR_HEIGHT 29
@@ -179,7 +180,7 @@ void Shop::check_mouse_position() {
 	if ( hoverOver != hoverOver_new ) {
 		if ( hoverOver_new > -1 ) {
 			if ( hoverOver_new < WEAPONS ) {
-				CWeapon* weap = &weapon[ hoverOver_new ];
+				CWeapon const* weap = &weapon[ hoverOver_new ];
 				info_text.assign( "Radius: " ).append( std::to_string( weap->radius ) );
 				info_text.append( "\nYield : " )
 					.append( std::to_string( calc_potential_dmg( hoverOver_new ) * weap->spread ) );
@@ -827,9 +828,7 @@ void Shop::reset( int32_t pl ) {
 	need_draw         = false;
 	selected_item     = -1;
 
-	for ( auto& entry : trolley ) {
-		entry = 0;
-	}
+	std::fill( trolley, trolley + THINGS, 0 );
 	wheel_pos = mouse_z;
 }
 
@@ -909,7 +908,7 @@ bool shop( CLevelCreator* lvl_creator ) {
  *  Calculate the potential damage for a given weapon.
  */
 static int32_t calc_potential_dmg( int32_t weap_num ) {
-	CWeapon* weap = &weapon[ weap_num ];
+	CWeapon const* weap = &weapon[ weap_num ];
 
 	if ( ( weap->submunition >= 0 ) && ( weap->numSubmunitions > 0 ) ) {
 		return weapon[ weap->submunition ].damage * weap->numSubmunitions;
@@ -928,7 +927,7 @@ static void divide_team_money() {
 	int32_t jediCount = 0;
 	int32_t sithMoney = 0;
 	int32_t sithCount = 0;
-	int32_t teamFee   = 0;
+	int32_t teamFee;
 
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		// Sum up team money:
