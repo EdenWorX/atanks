@@ -73,7 +73,7 @@ CTeleport::CTeleport(
 	// Ensure the destination is not occupied by another tank:
 	bool need_check = ( type != ITEM_SWAPPER );
 	while ( need_check ) {
-		CTank* lt   = nullptr;
+		CTank* lt  = nullptr;
 		need_check = false;
 
 		global.get_head_of_class( CLASS_TANK, &lt );
@@ -87,8 +87,8 @@ CTeleport::CTeleport(
 				     || ( destination_x >= ( env.screen_width - ( obj_radius * 2 ) ) ) ) {
 					destination_x -= ROUND( std::abs( lt->x - destination_x ) );
 				}
-				// Or move right
-				else if ( destination_x < ( env.screen_width - ( obj_radius * 2 ) ) ) {
+				// Or move right (the negated if above already implies this condition, so a plain else suffices)
+				else {
 					destination_x += ROUND( std::abs( lt->x - destination_x ) );
 				}
 
@@ -97,8 +97,8 @@ CTeleport::CTeleport(
 				     || ( destination_y >= ( env.screen_height - ( obj_radius * 2 ) ) ) ) {
 					destination_y -= ROUND( std::abs( lt->y - destination_y ) );
 				}
-				// Or move down
-				else if ( destination_y < ( env.screen_height - ( obj_radius * 2 ) ) ) {
+				// Or move down (the negated if above already implies this condition, so a plain else suffices)
+				else {
 					destination_y += ROUND( std::abs( lt->y - destination_y ) );
 				}
 			}
@@ -114,17 +114,17 @@ CTeleport::CTeleport(
 		std::cerr << "Error creating CTeleport: " << e.what() << std::endl;
 	}
 
-	play_fire_sound( ITEM_TELEPORT + WEAPONS, ROUND( x ), 255, 1000 );
+	play_fire_sound( ITEM_TELEPORT + WEAPONS, ROUND( x ), 255, 1'000 );
 
 #ifdef NETWORK
 	// this seems to be the teleport we usually use
-	int   playerindex = 0;
-	bool  found       = false;
+	int    playerindex = 0;
+	bool   found       = false;
 	CTank* the_tank    = dynamic_cast< CTank* >( target_obj );
 
 	// match the player with the tank
 	while ( ( playerindex < env.num_game_players ) && ( !found ) ) {
-		if ( ( env.players[ playerindex ]->tank ) && ( env.players[ playerindex ]->tank == the_tank ) ) {
+		if ( ( env.players[playerindex]->tank ) && ( env.players[playerindex]->tank == the_tank ) ) {
 			found = true;
 		} else {
 			++playerindex;
@@ -132,7 +132,7 @@ CTeleport::CTeleport(
 	}
 
 	if ( found ) {
-		char buffer[ 64 ] = { 0x0 };
+		char buffer[64] = { 0x0 };
 		snprintf( buffer, 63, "CTeleport %d %d %d", playerindex, destination_x, destination_y );
 		env.send_to_clients( buffer );
 	}
@@ -146,8 +146,8 @@ CTeleport::CTeleport( CTeleport* remote_end, int32_t dest_x, int32_t dest_y ) : 
 	this->x = dest_x;
 	this->y = dest_y;
 	if ( remote ) {
-		clock      = remote_end->start_clock;
-		radius     = remote_end->radius;
+		clock       = remote_end->start_clock;
+		radius      = remote_end->radius;
 		start_clock = remote_end->start_clock;
 	}
 
@@ -201,9 +201,20 @@ void CTeleport::draw() {
 	maxblobs           += pRadius * 4;
 
 	BITMAP* tempBitmap  = create_bitmap( radius * 2, radius * 2 );
-	blit( global.canvas, tempBitmap, ROUND( remote->x - radius ), ROUND( remote->y - radius ), 0, 0, radius * 2, radius * 2
-	);
+	// remote is null when the target-end allocation failed (see constructor); the analyzer cannot see that path.
+	// cppcheck-suppress knownConditionTrueFalse
+	if ( remote ) {
+		blit( global.canvas,
+		      tempBitmap,
+		      ROUND( remote->x - radius ),
+		      ROUND( remote->y - radius ),
+		      0,
+		      0,
+		      radius * 2,
+		      radius * 2 );
+	}
 
+	// remote stays null when the target-end allocation failed (see constructor); without it there is nothing to draw.
 	if ( object && remote ) {
 		remote->draw();
 	}
@@ -212,8 +223,8 @@ void CTeleport::draw() {
 	set_trans_blender( 0, 0, 0, transMod );
 
 	for ( auto i = ROUND( maxblobs + pClock ); i > pClock; --i ) {
-		auto    xOff  = ROUND( perlin_2d_point( 1.0, 200, 1278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
-		auto    yOff  = ROUND( perlin_2d_point( 1.0, 200, 9734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
+		auto    xOff  = ROUND( perlin_2d_point( 1.0, 200, 1'278 + x + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
+		auto    yOff  = ROUND( perlin_2d_point( 1.0, 200, 9'734 + y + ( i * 100 ), pClock, 0.25, 6 ) * pRadius );
 		int32_t t_col = getpixel( tempBitmap, pRadius + xOff, pRadius + yOff );
 		circlefill( global.canvas, x + xOff, y + yOff, blobSize, t_col );
 	}

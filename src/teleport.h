@@ -82,6 +82,10 @@ private:
 	// Target constructor
 	CTeleport( CTeleport* remote_end, int32_t dest_x, int32_t dest_y );
 
+	// Non-copyable: shallow copies would corrupt the remote-end destroy protocol in the destructor.
+	CTeleport( CTeleport const& )            = delete;
+	CTeleport& operator=( CTeleport const& ) = delete;
+
 
 	/* -----------------------
 	 * --- Private members ---

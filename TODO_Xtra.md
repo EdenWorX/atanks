@@ -14,10 +14,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 ## General Issues
 
 - [x] **Medium**: `tank.cpp` `cur_x`/`cur_y` cleanup — fixed 2026-09-22 (declarations moved into the loop body).
-- [ ] **Medium**: `src/teleport.cpp:91,101,207` conditions reported always-true (cppcheck `knownConditionTrueFalse`), and
-  `src/teleport.cpp:112` lacks copy semantics (`noCopyConstructor`, `noOperatorEq`). Found during `WP PF-1.12` triage; needs
-  gameplay-context review.
-  Planned as TODO-GI-2 (see TODO.md).
+- [x] **Medium**: `teleport.cpp` condition review — fixed 2026-09-22 (remote-end null guard, non-copyable, else cleanup).
 - [ ] **Low**: `if (x) x=false` patterns logically equivalent to plain assignment (cppcheck `duplicateConditionalAssign`)
   in `src/tank.cpp:632`, `src/explosion.cpp:744`, and `src/floattext.cpp:342`. Found during `WP PF-1.12` triage; simplify when
   those functions are next touched.
