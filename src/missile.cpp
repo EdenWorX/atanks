@@ -421,15 +421,20 @@ void CMissile::apply_physics_funky() {
 					: FUNKY_DEATHLET == weap_type
 						? &weapon[ FUNKY_DEATH ]
 						: nullptr;
-				double speed =
-					( launchWeap->launchSpeed
-				          + ROUND( ( launchWeap ? launchWeap->speedVariation : 0.0 )
-				                   * ( launchWeap ? launchWeap->launchSpeed : 0.0 )
-				                   * noise( get_rand() % 1000000 ) ) )
-					* env.fps_mod;
-				double fdiff = ABSDISTANCE2( floatee_tgt->x, floatee_tgt->y, x, y );
-				xv           = ( floatee_tgt->x - x ) / fdiff * speed;
-				yv           = ( floatee_tgt->y - y ) / fdiff * speed;
+#ifdef ATANKS_DEBUG
+				assert( nullptr != launchWeap && "Funky homing without parent record" );
+#endif
+				if ( launchWeap ) {
+					double speed =
+						( launchWeap->launchSpeed
+						          + ROUND( launchWeap->speedVariation * launchWeap->launchSpeed
+						                   * noise( get_rand() % 1000000 ) ) )
+						* env.fps_mod;
+					double fdiff = ABSDISTANCE2( floatee_tgt->x, floatee_tgt->y, x, y );
+					xv           = ( floatee_tgt->x - x ) / fdiff * speed;
+					yv           = ( floatee_tgt->y - y ) / fdiff * speed;
+				}
+				// Without a parent record (future weapon data), skip homing and keep drifting.
 			}
 		}
 	}
