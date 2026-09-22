@@ -5,7 +5,7 @@
 Standard: Latest                          # Use the latest language standard supported by clang-format
 DisableFormat: false                      # Enable formatting (false = enabled)
 
-ColumnLimit: 140                          # Maximum line width before breaking lines
+ColumnLimit: 128                          # Maximum line width before breaking lines
 LineEnding: LF                            # Use Unix-style line endings (LF)
 IndentWidth: 8                            # Number of spaces for each indentation level
 TabWidth: 8                               # Width of tab characters in spaces
