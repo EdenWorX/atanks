@@ -13,6 +13,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build g++ pkg-config git liballegro4-dev
+        allegro-config --version
+        cmake --version
+        ninja --version
     - name: make
       run: make DEBUG=YES
     - name: test
