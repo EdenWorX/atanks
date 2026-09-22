@@ -82,6 +82,4 @@ Thumbs.db
 
 # AI files
 .opencode/
-.aiignore
-AGENTS.md
 talk_*.md
