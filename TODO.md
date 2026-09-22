@@ -20,7 +20,7 @@ row per item.
 | GI-5  | atanks.rc COPYING.txt reference  | _none_                         | **completed** |
 | GI-6  | optiontypes.h license typo       | _none_                         | **completed** |
 | GI-7  | Metainfo screenshot URLs         | _none_                         | **completed** |
-| GI-8  | README allegro-config claim      | [TODO-GI-8](./TODO_GI-8.md)    | not started   |
+| GI-8  | README allegro-config claim      | [TODO-GI-8](./TODO_GI-8.md)    | **completed** |
 | PF-2  | Modern update checker            | [TODO-PF-2](./TODO_PF-2.md)    | not started   |
 | PF-3  | atanks2 rename and Allegro move  | [TODO-PF-3](./TODO_PF-3.md)    | not started   |
 | PF-4  | Full networking system           | [TODO-PF-4](./TODO_PF-4.md)    | not started   |
