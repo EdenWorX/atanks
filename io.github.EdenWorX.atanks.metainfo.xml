@@ -20,45 +20,6 @@
     </p>
   </description>
 
-  <screenshots>
-    <screenshot type="default">
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot29.png</image>
-    </screenshot>
-    <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot28.png</image>
-    </screenshot>
-      <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot30.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot27.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot19.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot20.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot21.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot22.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot23.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot24.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot25.png</image>
-    </screenshot>
-        <screenshot>
-      <image>https://atanks.sourceforge.io/Screenshots/scrnshot26.jpg</image>
-    </screenshot>
-  </screenshots>
-
   <url type="homepage">https://github.com/EdenWorX/atanks</url>
   <url type="bugtracker">https://github.com/EdenWorX/atanks/issues</url>
 

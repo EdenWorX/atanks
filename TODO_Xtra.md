@@ -19,10 +19,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 - [x] **Low**: `shop.cpp` findings — fixed 2026-09-22 (`std::fill`, `weap` const, bare `teamFee`).
 - [x] **Low**: `atanks.rc` COPYING.txt reference — fixed 2026-09-22 (now `COPYING`).
 - [x] **Low**: `optiontypes.h` license typo — fixed 2026-09-22 ("menu" → "option").
-- [ ] **Low**: the 12 screenshot URLs in `io.github.EdenWorX.atanks.metainfo.xml` (`<image>https://atanks.sourceforge.io/...`)
-  still point at the old SourceForge site, which this fork no longer controls. Out of scope for `WP PF-1.6` (screenshots were
-  not listed there); decide whether to re-host the images (e.g. in the GitHub repo) and update or drop the block.
-  Planned as TODO-GI-7 (see TODO.md).
+- [x] **Low**: metainfo screenshot URLs — fixed 2026-09-22 (uncontrolled block dropped).
 - [ ] **Low**: `README.md` claims `allegro-config` is absent on the documenting machine, but Allegro 4.4.3 is installed in the
   current environment. Reword to drop the machine-specific absence claim when that section is next touched.
   Planned as TODO-GI-8 (see TODO.md).
