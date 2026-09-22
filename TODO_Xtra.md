@@ -87,3 +87,31 @@ file is frozen per `WP PF-1.8` and is not triaged here either.
   (`WP PF-1.6.4`) could not — the `atanks` binary, `atanks.desktop`, icons, save/config paths, and user-visible titles. Scope
   includes the binary and desktop-entry names, the AppStream ID, build/install rules, docs and metadata, and user-facing
   strings; decide with the user whether `atanks2` also marks a compatibility break (savegames, network protocol).
+- [ ] **Upgrade**: replace the current slim networking capabilities with a full networking system that allow true mult-player
+  games over local network and the internet. _Moved from `TODO`_: Make sure network client doesn't get unlimited shots.
+- [ ] **Feature**: _Moved from `TODO`_: Add scroll bar to buying screen.
+- [ ] **Feature**: _Moved from `TODO`_: Add randomize button to buying screen to have items automatically purchased.
+- [ ] **Feature**: _Moved from `TODO`_: Add a "field repair kit" item: Spend a turn to repair your tank rather than fire.
+  Limited uses, heals more than Auto Repair Kit.
+- [ ] **Feature**: _Moved from `TODO`_: Add a radar resistant missile: A missile designed to avoid the missile defence system
+  by masking its heat signature. Yield: Large missile
+- [ ] **Feature**: _Moved from `TODO`_: Add rocks as semi-destructable items. Explosions look normal, but the carving radius
+  is halved, so that the amount of debris and the size of the chunk taken out are quartered.
+- [ ] **Feature**: _Moved from `TODO`_: Add underground mines
+  - This feature needs a discussion about what it actually means and what the effect on the game will be
+- [ ] **Feature**: _Moved from `TODO`_: rocket-like fireworks
+  - This feature needs a discussion about what it actually means and what the effect on the game will be
+- [ ] **Feature**: _Moved from `TODO`_: Make it possible to shoot down the UFO
+- [ ] **Feature**: _Moved from `TODO`_: Make main window scalable
+  - This feature is blocked until the transition away from Allegro 4 is done
+- [ ] **Feature**: _Moved from `TODO`_: Add an option to make the ground harder
+  - Possible options, like "hard", "rock" and "steel" could cause the carving radius be multiplied by 0.75, 0.5 and 0.1
+  - The carving radius is the radius of the ground being removed by an explosion and the base for the amount of debris sent flying
+  - This feature needs a discussion whether and how this effects the riot weapons
+  - This feature needs a discussion whether the dirt weapons generate a small amount of damage
+- [ ] **Feature**: _Moved from `TODO`_: Add high voltage missiles (discharge on impact or when within range)
+  - (Idea by Bharat Dhareshwar)
+- [ ] **Feature**: _Moved from `TODO`_: Add tornadoes which pick up tanks and objects. Objects could be the new rocks
+  - (Idea by Bharat Dhareshwar)
+- [ ] **Feature**: _Moved from `TODO`_: Add Another level of armour improvement
+  - This feature needs a discussion about what it actually means and what the effect on the game will be
