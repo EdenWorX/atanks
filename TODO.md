@@ -16,7 +16,7 @@ row per item.
 | GI-1  | tank.cpp cur_x/cur_y cleanup     | _none_                         | **completed** |
 | GI-2  | teleport.cpp condition review    | _none_                         | **completed** |
 | GI-3  | Redundant conditional assignment | _none_                         | **completed** |
-| GI-4  | shop.cpp finding review          | [TODO-GI-4](./TODO_GI-4.md)    | not started   |
+| GI-4  | shop.cpp finding review          | [TODO-GI-4](./TODO_GI-4.md)    | **completed** |
 | GI-5  | atanks.rc COPYING.txt reference  | [TODO-GI-5](./TODO_GI-5.md)    | not started   |
 | GI-6  | optiontypes.h license typo       | [TODO-GI-6](./TODO_GI-6.md)    | not started   |
 | GI-7  | Metainfo screenshot URLs         | [TODO-GI-7](./TODO_GI-7.md)    | not started   |
