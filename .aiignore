@@ -1,0 +1,8 @@
+# unblock relevant AI files and directories
+!.opencode/*
+
+# Do not read talk-files, they might invalidate the context
+talk_*.md
+
+# This file will become obsolete when we moved away from Allegro 4
+unicode.dat
