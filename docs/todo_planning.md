@@ -1,11 +1,19 @@
 # EdenWorX To-Do Planning Rules
 
-This document defines how to-do items are written, classified, numbered, and tracked in `TODO.md`. It is the canonical
-reference for the planning rules;
-`TODO.md` itself holds only the open to-do items and their detailed plans, or a list of `TODO_<feature>.md` files if the plan
-list gets too extensive.
+This document defines how to-do items are written, classified, numbered, and tracked in the planning files referenced in
+`TODO.md`. It is the canonical reference for the planning rules; `TODO.md` itself holds only the open to-do items as an
+overview table and references their detailed plans in corresponding per-item files (see `TODO.md Overview Table` below).
 
-In the latter case these rules also apply to every `TODO_<feature>.md` file!
+These rules also apply to every per-item file!
+
+## Plan Files
+
+Detailed plans live in one file per to-do item: even a single item plan (TODO-PF-1, Cleanup and Modernization) grew beyond
+any acceptable single-file size, so a second item would have pushed `TODO.md` over every limit. One file per item is the
+only rational layout.
+
+Per-item plan files are named `TODO_<CAT>-<nr>.md`: the category prefix plus the item number, e.g. `TODO_PF-1.md`,
+`TODO_GI-1.md`, `TODO_II-2.md` (underscore after `TODO`, hyphen between category and number).
 
 ## Hierarchy
 
@@ -23,13 +31,13 @@ To-do items use a four-level hierarchy so coding agents and humans can refer to 
   - Number format: `<CAT>-<item>.<wp>.<task>.<action>`, e.g. `GI-1.1.1.1`.
 
 **Mandatory rule**: Work Package, Implementation Task, and Action Item references must always use the full category-prefixed
-number (e.g. `WP PF-1.1`, task `PF-1.1.1`). Never write a bare relative number such as `WP 1.1`, which is ambiguous across
+number (e.g. `PF-1.1`, task `PF-1.1.1`). Never write a bare relative number such as `1.1`, which is ambiguous across
 items of different categories.
 
 ## Document Structure
 
-`TODO.md` (and any `TODO_<feature>.md` split) uses this fixed heading hierarchy so the CLion Structure Viewer (`##` chapters,
-`###` sections, `####` subsections) and human readers get a stable overview:
+Per-item files (`TODO_PF-<nr>.md`, `TODO_GI-<nr>.md`, `TODO_II-<nr>.md`) use this fixed heading hierarchy so the CLion
+Structure Viewer (`##` chapters, `###` sections, `####` subsections) and human readers get a stable overview:
 
 - Phase (to-do item) → `##` chapter: `## [ ] TODO-<type>-<nr>: <title>`
 - Work Package → `###` section: `### [ ] <type>-<nr>.<wp>: <title>`
@@ -51,6 +59,25 @@ Structural rules:
 - Keep prose (descriptions, task text) wrapped at 128 columns per the repository documentation guidelines; headings that cannot
   be split are exempt like table rows.
 
+## TODO.md Overview Table
+
+`TODO.md` keeps the general explanation plus a reference to these rules, and one status chapter: a human-readable overview
+table with one row per to-do item. Columns, in order: `Item`, `Description`, `File`, `Status`.
+
+- `Item`: the category-prefixed item number (`PF-1`, `GI-1`, `II-2`).
+- `Description`: a very short (few-word) summary of the item.
+- `File`: a link to the written plan file (`[TODO_PF-2](./TODO_PF-2.md)`), or `_none_` while no plan file exists yet.
+- `Status`: one of `not planned`, `planned`, `_in progress_`, `**completed**`.
+
+"Human-readable" means the columns are aligned with padding spaces. Markdown rendering ignores the padding, but aligned
+columns are far easier to read for humans. Table rows are exempt from the 128-column prose limit. Example:
+
+| Item | Description                          | File                        | Status        |
+|------|--------------------------------------|-----------------------------|---------------|
+| PF-1 | Cleanup and Modernization            | _none_                      | **completed** |
+| PF-2 | Add modern update check              | [TODO_PF-2](./TODO_PF-2.md) | _in progress_ |
+| GI-1 | Verify `cur_x`/`cur_y` in `tank.cpp` | _none_                      | not planned   |
+
 ## Classification and Numbering
 
 To-do items are classified into three kinds, each with its own numbering that restarts at 1:
@@ -65,15 +92,15 @@ To-do items are classified into three kinds, each with its own numbering that re
 - A parent item should only be marked complete when all child items below it are complete.
 - An Implementation Task should only be marked complete after:
   - The relevant code is implemented.
-  - Existing behavior is preserved.
   - The project builds successfully.
   - Relevant tests are added or updated where practical.
+  - All tests finish successfully
 - If an agent discovers that an item is too large, it should split it into smaller child items before implementing it.
 
 ## Removal Rule
 
-- Once a to-do item (`TODO-*-*`) is finished and its essence has been   documented in `CHANGELOG.md`, it is removed from
-  `TODO.md`.
+- Once a to-do item (`TODO-*-*`) is finished and its essence has been documented in `CHANGELOG.md`, its overview-table row
+  is removed from `TODO.md`, and its detailed plan file `TODO_<item>.md` is deleted.
 
 ## Versioning Rules
 
@@ -86,6 +113,10 @@ version do not get their own entry, only if they trigger a new release.
 
 ## Cross-Referencing
 
-- `TODO.md` is the canonical source for the open to-do items and their Work Packages and Tasks.
-- Work Package, Implementation Task, and Action Item references always use the full category-prefixed number (e.g. `WP PF-1.1`,
+- `TODO.md` is the canonical source for the open to-do items and their detailed plan references.
+- Work Package, Implementation Task, and Action Item references always use the full category-prefixed number (e.g. `PF-1.1`,
   task `PF-1.1.1`), never a bare relative number.
+- The `File` column of the overview table links each item to its plan file; while no plan file exists yet the cell holds
+  `_none_`.
+- When a to-do item is removed after its completion, all cross-references must be resolved and removed (e.g. replaced with a
+  changelog reference or the now existing status or state).
