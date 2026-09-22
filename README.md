@@ -57,7 +57,6 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `obj/` | Object output directory; only `.keep_dir` is tracked |
 | `README`, `README_ru.txt` | Original user documentation (English + Russian) |
 | `docs/Changelog.history` | Frozen release history up to 6.7 (renamed from `Changelog`; new releases go in `CHANGELOG.md`) |
-| `TODO` | Legacy prioritized bug/feature list (almost a decade old; frozen during the 6.7.1 cleanup — ignore it for now) |
 | `TODO.md` | Canonical planning file (per `docs/todo_planning.md`); `TODO-PF-1` Cleanup and Modernization was completed as 6.7.1 |
 | `docs/` | EdenWorX planning and release rules (`todo_planning.md`, `release_process.md`) |
 | `COPYING`, `LICENSE` | License pointer + full license text (`LICENSE` is the single source of truth) |
@@ -159,7 +158,7 @@ Installed by the `install` rules in `CMakeLists.txt` (mirroring the old `make in
 - `text/*.txt` (~75 files): per-topic per-language matrix for `gloat`, `ingame`, `instr`, `panic`, `kamikaze`, `retaliation`,
   `revenge`, `suicide`, `war_quotes`, `Help`, with language suffixes `_de`, `_fr`, `_it`, `_ru`, `_sk`, `_ES`,
   `.pt_BR` plus the English base file.
-- `unicode.dat` (5604 bytes, `file` reports `Allegro datafile`), `COPYING`, `README`, `TODO`, `Changelog.history`, `*.txt`.
+- `unicode.dat` (5604 bytes, `file` reports `Allegro datafile`), `COPYING`, `README`, `Changelog.history`, `*.txt`.
 - `atanks.png` is installed to `.../share/icons/hicolor/48x48/apps`; `atanks.ico` is consumed by `src/atanks.rc` for the
   Windows build.
 
@@ -337,7 +336,7 @@ None exist in the repository.
   German keyboards) scoreboard.
 - Network play (still rough, see the `README` user documentation): the host enables Networking in Options -> Network and restarts; clients set
   Server Address to the host IP and choose Network Game. Client tanks are color-coded (Jedi green, Sith purple, Neutral blue,
-  player red). The legacy `TODO` file records a bug: the network client must not get unlimited shots.
+  player red). The `TODO_Xtra.md` file records a bug: the network client must not get unlimited shots.
 - Screenshot key F1 writes `screenshot_*.*` files (a `.gitignore`d artifact).
 - Environment variables: `HOME` (Linux) or `AppData` (Windows) locates the config directory.
 
@@ -417,12 +416,8 @@ Standalone helpers (not built by `Makefile`):
     since 6.7.1.
 - Accepted validation bar (the game is an interactive GUI application): a green `make test` (plus `make test-all` where
   affordable), plus manual validation — developers actually test their changes in-game.
-- Known-issue sources: `TODO.md` itself (canonical planning file; `TODO-PF-1` Cleanup and Modernization was completed as
-  6.7.1). The legacy
-  `TODO` file (1 bug
-  + 7 features + ~10 under consideration) is almost a decade old and explicitly frozen — ignore it for now; new `TODO-PF-*`
-    entries will be created in a follow-up planning series. Also the `README` user documentation (buggy network client),
-    and the `TODO`/`FIXME`/`BUG`/`HACK` grep surface, which only matches `DEBUG_LOG*` call sites rather than real markers.
+- Known-issue sources: `TODO_Xtra.md` only — its `Important Issues`, `General Issues`, and `Planned Features` sections
+  (including the ideas moved over from the removed legacy `TODO` file, still awaiting real to-do item numbers).
 - Bug reports go to `https://github.com/EdenWorX/atanks/issues` (this fork moved from SourceForge to GitHub during the 6.7.1
   Cleanup and Modernization; the few remaining SourceForge references in `README`, `credits.txt`, the metainfo file, and help
   texts are historical and kept deliberately).
@@ -507,15 +502,19 @@ Standalone helpers (not built by `Makefile`):
 
 ## Known Issues and TODO Sources
 
-- The legacy `TODO` file: network client must not get unlimited shots (bug).
-- The legacy `TODO` file: missing buy-screen scrollbar, missing buy-screen randomize button, field-repair-kit item, radar-resistant
-  missile, more frequent client ground-surface updates, client buying screen, semi-destructible rocks.
-- The legacy `TODO` file, under consideration — underground mines, firework rockets, shootable UFO, scalable main window (blocked on
-  Allegro 5 / a port the file calls a no-opt), an entry literally questioning its own meaning (`Harder ground -> What is that
-  supposed to mean?`), high-voltage missiles, tornadoes, another armor level.
+- Open known issues live in `TODO_Xtra.md`: under `Important Issues`, the load-failure teardown segfault
+  (`CEnvironment::destroy()` on partially loaded bitmaps) and the `src/missile.cpp` null-pointer exposure for new weapon
+  data; under `General Issues`, the cppcheck triage items (`tank.cpp` `cur_x`/`cur_y`, teleport conditions, plus
+  low-priority cleanups). Fixed entries stay there as regression notes (CppUTest environment, frame-rate physics).
+- Planned work also lives in `TODO_Xtra.md` (`Planned Features`): the post-PF-1 upgrades (modern update checker, `atanks2`
+  rename, full networking, including the network client shot limit) and the ideas moved over from the removed legacy `TODO`
+  file (buy-screen scrollbar and randomize button, field repair kit, radar-resistant missile, semi-destructible rocks,
+  underground mines, fireworks, shootable UFO, scalable main window, harder ground, high-voltage missiles, tornadoes,
+  another armor level). None has a real to-do item number yet; `TODO.md` holds only the planning overview table (`PF-1`
+  completed as 6.7.1).
 - The `README` user documentation: buggy network client side.
-- `CHANGELOG.md` entry (6.7) lists recently fixed crashes and AI bugs; older entries in `docs/Changelog.history` document
-  recurring AI-strength and SDI-tuning adjustments.
+- `CHANGELOG.md` (`## 6.7.1`) lists the completed Cleanup and Modernization; older entries in `docs/Changelog.history`
+  document recurring AI-strength and SDI-tuning adjustments.
 
 ## Files and Directories Reference
 
@@ -546,7 +545,7 @@ Standalone helpers (not built by `Makefile`):
 | `Makefile` | build | GNU build (primary) |
 | `vs12/`, `vs14/` | IDE | Legacy VS2013 / VS2015 solutions (retired toolsets) |
 | `dep/`, `obj/.keep_dir` | build dirs | Ignored dependency files (legacy make outputs); object dir placeholder |
-| `README`, `README_ru.txt`, `TODO`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, legacy tasks (frozen, ignore for now), canonical planning file + planning/release rules, attributions |
+| `README`, `README_ru.txt`, `TODO.md`, `docs/`, `credits.txt` | docs | User docs, canonical planning file + planning/release rules, attributions |
 | `COPYING`, `LICENSE` | legal | Pointer + full license text (`LICENSE` is the single source of truth; consolidated in 6.7.1) |
 | `atanks.desktop`, `io.github.EdenWorX.atanks.metainfo.xml` | packaging | Desktop entry / AppStream metadata |
 | `allegro.supp`, `do_*.sh`, `gdb_memcheck.sh` | diagnostics | Valgrind suppressions and runners |

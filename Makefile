@@ -298,10 +298,8 @@ i686-dist: all
 # -----------------------------------------------------------------------------------------------------------------------------
 # Distribution file lists
 # -----------------------------------------------------------------------------------------------------------------------------
-DISTCOMMON := \
-atanks/*.dat atanks/COPYING atanks/README atanks/TODO \
-atanks/Changelog atanks/BUGS atanks/*.txt
+DISTCOMMON := atanks/*.dat atanks/COPYING atanks/README atanks/Changelog atanks/BUGS atanks/*.txt
 
 # Kept for reference only: the install itself moved to CMakeLists.txt.
 # WP PF-1.10 updates this list when Changelog becomes docs/Changelog.history.
-INCOMMON   := COPYING README TODO docs/Changelog.history *.txt unicode.dat
+INCOMMON   := COPYING README docs/Changelog.history *.txt unicode.dat
