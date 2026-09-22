@@ -1,9 +1,9 @@
 # TODO Extra: Issues and Planned Features
 
 This file tracks issues and planned features discovered while decomposing `TODO-PF-1` in `TODO.md` that fall outside any Work
-Package scope there. `TODO.md` remains the canonical source for the planned work; the deferred post-PF-1 follow-ups (network
+Package scope there. `TODO.md` remains the canonical planning overview; the deferred post-PF-1 follow-ups (network
 functionality, UI-framework modernization) live in its Planned follow-ups section and are not duplicated here. The legacy `TODO`
-file is frozen per `WP PF-1.8` and is not triaged here either.
+file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved in the `Planned Features` section below).
 
 ## Important Issues
 
