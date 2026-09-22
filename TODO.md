@@ -1,12 +1,14 @@
 # TODO
 
-Canonical planning rules: `docs/todo_planning.md`. Release rules:`docs/release_process.md`.
+Canonical planning rules: `docs/todo_planning.md`. Release rules: `docs/release_process.md`.
 
-Numbering: `TODO-GI-*` (defects), `TODO-II-*` (design constraints), `TODO-PF-*` (planned features).
+Numbering: `TODO-GI-*` (defects), `TODO-II-*` (design constraints), `TODO-PF-*` (planned features). Detailed plans live in
+per-item files (`TODO_PF-<nr>.md`, `TODO_GI-<nr>.md`, `TODO_II-<nr>.md`); this file holds only the overview table plus one
+row per item.
 
-## [x] TODO-PF-1: Cleanup and Modernization
+## Status
 
-Done 2026-09-21, released as 6.7.1: CMake build with wrapper `Makefile`, consolidated license/version truth, SourceForge to
-GitHub move, normalized naming and guards, modernized config parsing, TOML arsenal data, frame-rate-independent physics.
-Details in `CHANGELOG.md` (`## 6.7.1`); the git log records the individual steps.
+| Item | Description               | File   | Status        |
+|------|---------------------------|--------|---------------|
+| PF-1 | Cleanup and Modernization | _none_ | **completed** |
 
