@@ -7,12 +7,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 
 ## Important Issues
 
-- [ ] **High**: segfault when game-data loading fails: if arsenal loading returns false, `main` prints the error but then
-  crashes with SIGSEGV in `CEnvironment::destroy()` → `destroy_bitmap()` during `exit()` cleanup of partially loaded
-  bitmaps (backtrace verified 2026-09-21). Reproduces identically with the legacy positional loader on a missing
-  `weapons.txt`, so pre-existing and unrelated to the TOML migration; needs a guard (skip destroy of unloaded assets
-  or clean `EXIT_FAILURE` before teardown). Found while validating `PF-1.17.3.4` with a deliberately broken file.
-  Planned as TODO-II-1 (see TODO.md).
+- [x] **High**: load-failure teardown segfault — fixed 2026-09-22 (arsenal loads before graphics init, fail fast).
 - [x] **High**: `make test*` env failure (system CppUTest gone, v4.0 vs CMake 4.3 floor) — fixed 2026-09-21 (shim).
 - [ ] **High**: potential null-pointer dereference in `src/missile.cpp:413-423` (`MISSILE::applyPhysicsFunky`). `launchWeap`
   is null for any weapon type other than `FUNKY_BOMBLET`/`FUNKY_DEATHLET`, but line 419 dereferences it unconditionally

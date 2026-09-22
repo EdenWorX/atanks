@@ -83,6 +83,7 @@ static char const* do_winner();
 static void        endgame_cleanup();
 void               init_mouse_cursor();
 static void        init_game_settings();
+static void        init_graphics_and_assets();
 static void        initialise_players();
 static bool        load_config();
 static bool        load_players( FILE* file );
@@ -175,11 +176,6 @@ static void create_config() {
 	// Perform game initialization
 	init_game_settings();
 	env.load_text_files();
-	init_mouse_cursor();
-
-	// At least one human player must be created, plus the default AI set
-	create_human_player();
-	create_ai_players();
 }
 
 /// @brief Draw the endgame screen and return the winner name
@@ -510,12 +506,19 @@ static void init_game_settings() {
 		env.colour_depth = 16;
 	}
 	set_color_depth( env.colour_depth );
+}
 
+/// @brief Set the graphics mode and load all assets needing it.
+///
+/// Must run after the configuration is known and the arsenal files have loaded successfully (see `main`), so that
+/// load failures exit while almost nothing is allocated. Covers everything the old monolithic `init_game_settings`
+/// did past Allegro core init and colour depth setup: graphics mode, `first_init`, bitmaps, sounds, fonts.
+static void init_graphics_and_assets() {
 	// Now the screen mode can be set
 	if ( set_gfx_mode( screen_mode, env.screen_width, env.screen_height, 0, 0 ) < 0 ) {
 		perror( "set_gfx_mode" );
 
-		status = set_gfx_mode( screen_mode, 800, 600, 0, 0 );
+		int32_t status = set_gfx_mode( screen_mode, 800, 600, 0, 0 );
 
 		if ( status < 0 ) {
 			exit( 1 );
@@ -1482,13 +1485,26 @@ int32_t main( int32_t argc, char** argv ) {
 	env.find_config_dir();
 
 	// load or create a configuration
+	bool fresh_config = false;
 	if ( !load_config() ) {
 		create_config();
+		fresh_config = true;
 	}
 
 	// Load game files
 	if ( !env.load_game_files() ) {
 		return EXIT_FAILURE; // message already out
+	}
+
+	// Initialize graphics and load all assets needing them. Runs only after the fallible loads above succeeded, so
+	// load failures exit while almost nothing is allocated (see TODO-II-1).
+	init_graphics_and_assets();
+
+	if ( fresh_config ) {
+		// First run: create one human player plus the default AI set. Needs the graphics assets (misc bitmaps) for
+		// the player editor, so it must run after the initialization above.
+		create_human_player();
+		create_ai_players();
 	}
 
 
