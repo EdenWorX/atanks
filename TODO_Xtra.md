@@ -9,13 +9,7 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 
 - [x] **High**: load-failure teardown segfault — fixed 2026-09-22 (arsenal loads before graphics init, fail fast).
 - [x] **High**: `make test*` env failure (system CppUTest gone, v4.0 vs CMake 4.3 floor) — fixed 2026-09-21 (shim).
-- [ ] **High**: potential null-pointer dereference in `src/missile.cpp:413-423` (`MISSILE::applyPhysicsFunky`). `launchWeap`
-  is null for any weapon type other than `FUNKY_BOMBLET`/`FUNKY_DEATHLET`, but line 419 dereferences it unconditionally
-  while lines 420-422 guard with ternaries. Verified safe with shipped data (parents map to bomblet submunitions, and AI
-  mind-shots reuse those types), so any new weapon data or physics assignment putting `PT_FUNKY_FLOAT` on another type
-  segfaults. Found via cppcheck `nullPointer` during `WP PF-1.12`; fix with a defensive guard when that function is next
-  touched, not here (gameplay physics needs in-game validation).
-  Planned as TODO-II-2 (see TODO.md).
+- [x] **High**: missile null-pointer exposure — fixed 2026-09-22 (debug assert plus skip-homing fallback).
 
 ## General Issues
 
