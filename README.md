@@ -186,8 +186,7 @@ The following were classified as external by metadata inspection; their internal
   queries `allegro-config` for Linux/macOS builds; `vs12|vs14/README_allegro.txt` explain how to repoint
   include/lib paths to a local Allegro; `io.github.EdenWorX.atanks.metainfo.xml` states the game "runs on any platform
   Allegro4 runs on". Role: graphics, sound, input,
-  timers. The build fails without it (verified: `allegro-config` is absent on this machine, and even `make -n user` prints
-  `allegro-config: Datei oder Verzeichnis nicht gefunden`).
+ timers. The build fails without it.
 - **`src/extern/dirent.{h,c}` (bundled shim).** Evidence: header comment `Declaration of POSIX directory browsing functions and
   types for Win32. Author: Kevlin Henney ... Created March 1997. Updated June 2003` (`src/extern/dirent.h`) with a
   permissive use/copy/modify/distribute grant. Role: POSIX `opendir/readdir` for MSVC builds only, selected by
