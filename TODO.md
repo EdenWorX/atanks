@@ -13,7 +13,7 @@ row per item.
 | PF-1  | Cleanup and Modernization        | _none_                         | **completed** |
 | II-1  | Load-failure teardown segfault   | _none_                         | **completed** |
 | II-2  | Missile null-pointer exposure    | _none_                         | **completed** |
-| GI-1  | tank.cpp cur_x/cur_y cleanup     | [TODO-GI-1](./TODO_GI-1.md)    | **completed** |
+| GI-1  | tank.cpp cur_x/cur_y cleanup     | _none_                         | **completed** |
 | GI-2  | teleport.cpp condition review    | [TODO-GI-2](./TODO_GI-2.md)    | not started   |
 | GI-3  | Redundant conditional assignment | [TODO-GI-3](./TODO_GI-3.md)    | not started   |
 | GI-4  | shop.cpp finding review          | [TODO-GI-4](./TODO_GI-4.md)    | not started   |
