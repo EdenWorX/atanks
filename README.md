@@ -309,6 +309,10 @@ None exist in the repository.
 - Main settings file: `<config_dir>/atanks-config.txt`, loaded by `load_config()` (`src/atanks.cpp`, via
   `env.load_from_file()` plus per-player `CPlayer::load_from_file`) and written by `save_game_settings()`.
   `--noconfig` skips loading.
+- Update checker: at startup a background thread fetches the latest release tag from the GitHub releases API
+  (`https://api.github.com/repos/EdenWorX/atanks/releases/latest`, needs libcurl at build time) and shows a message
+  in the menu when a newer version exists. Controlled by the `CHECKUPDATES` setting (`env.check_for_updates`,
+  Options menu); failures (offline, no network) stay silent.
 - Weapon/item stats: `load_weapons_text()` (`src/files.cpp`, declared in `src/files.h`) reads `<data_dir>/text/weapons.toml`,
   `naturals.toml`, `items.toml`, plus the `<data_dir>/text/weapons_*.toml` translation matching `env.language`
   (`weapons_fr.toml`, `weapons_de.toml`, `weapons_it.toml`, `weapons.pt_BR.toml`, `weapons_ru.toml`, `weapons_sk.toml`,

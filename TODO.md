@@ -21,7 +21,7 @@ row per item.
 | GI-6  | optiontypes.h license typo       | _none_                         | **completed** |
 | GI-7  | Metainfo screenshot URLs         | _none_                         | **completed** |
 | GI-8  | README allegro-config claim      | _none_                         | **completed** |
-| PF-2  | Modern update checker            | [TODO-PF-2](./TODO_PF-2.md)    | not started   |
+| PF-2  | Modern update checker            | [TODO-PF-2](./TODO_PF-2.md)    | _in progress_ |
 | PF-3  | atanks2 rename and Allegro move  | [TODO-PF-3](./TODO_PF-3.md)    | not started   |
 | PF-4  | Full networking system           | [TODO-PF-4](./TODO_PF-4.md)    | not started   |
 | PF-5  | Buy-screen scrollbar             | [TODO-PF-5](./TODO_PF-5.md)    | not started   |
