@@ -68,6 +68,13 @@ execute_process( COMMAND ${ALLEGRO_CONFIG} --libs OUTPUT_VARIABLE ALLEGRO_LIBS O
 separate_arguments( ALLEGRO_CPPFLAGS )
 separate_arguments( ALLEGRO_LIBS )
 
+# libcurl for the GitHub release update checker (TODO-PF-2). Optional: without it the game builds and runs with the
+# checker compiled out (notably the legacy Visual Studio builds, which never define ATANKS_HAVE_CONFIG_H anyway).
+find_package( CURL QUIET )
+if ( CURL_FOUND )
+	set( ATANKS_HAVE_CURL ON )
+endif ()
+
 # Sources mirror the Makefile wildcard (sorted, auto-picked-up).
 file( GLOB ATANKS_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp" )
 
@@ -108,6 +115,10 @@ if ( ATANKS_WITH_NETWORK OR NOT APPLE )
 	target_link_libraries( atanks PRIVATE Threads::Threads m ${ALLEGRO_LIBS} )
 else ()
 	target_link_libraries( atanks PRIVATE ${ALLEGRO_LIBS} )
+endif ()
+
+if ( ATANKS_HAVE_CURL )
+	target_link_libraries( atanks PRIVATE CURL::libcurl )
 endif ()
 
 # Any sanitizer implies a debug build: the Makefile wrapper maps sanitizer
@@ -285,6 +296,7 @@ if ( BUILD_TESTING )
 				tests/test_box.cpp
 				tests/test_clock.cpp
 				tests/test_globaltypes.cpp
+				tests/test_update.cpp
 				src/random.cpp
 				src/zbuffer.cpp
 				src/spinlock.cpp

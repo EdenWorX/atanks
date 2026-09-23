@@ -11,6 +11,9 @@
 /* Defined for builds with network support (Linux and BSD only). */
 #cmakedefine NETWORK
 
+/* Defined when libcurl was found: enables the GitHub release update checker (TODO-PF-2). */
+#cmakedefine ATANKS_HAVE_CURL
+
 /* Platform flag plumbing moved from -DLINUX / -DMACOSX. Only MACOSX has
  * consumers in the tree (src/files.cpp); LINUX is defined for parity. */
 #cmakedefine ATANKS_PLATFORM_MACOSX
