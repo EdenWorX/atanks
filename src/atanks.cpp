@@ -37,8 +37,14 @@
 
 #ifdef NETWORK
 #  include "client.h"
+#endif
 
+#if defined( NETWORK ) || defined( ATANKS_HAVE_CURL )
 #  include <thread>
+#endif
+
+#ifdef ATANKS_HAVE_CURL
+#  include <curl/curl.h>
 #endif
 
 #define HELP_REQUESTED     ( -100 )
@@ -1512,15 +1518,14 @@ int32_t main( int32_t argc, char** argv ) {
 	sSendReceive* send_receive   = nullptr;
 	std::thread*       network_thread = nullptr;
 
-#if 0 // legacy SourceForge update checker disabled; a modern replacement is planned (see TODO_Xtra.md)
-	// Create the update checker thread:
-	UpdateData updateData( "projects.sourceforge.net", "version.txt", "atanks.sourceforge.net" );
-
+#ifdef ATANKS_HAVE_CURL
+	// Create the update checker thread (GitHub releases endpoint, see TODO-PF-2).
+	// libcurl needs process-wide init before any thread uses it; the option is honored
+	// inside the thread and failures stay silent like the legacy checker.
+	curl_global_init( CURL_GLOBAL_DEFAULT );
+	UpdateData   updateData;
 	std::thread updateThread( std::ref( updateData ) );
-	if ( env.check_for_updates ) {
-		global.update_string = updateData.update_string;
-	}
-#endif // 0
+#endif // ATANKS_HAVE_CURL
 
 	// Initialize network if allowed and wanted
 	if ( env.network_enabled && allow_network ) {
@@ -1605,10 +1610,16 @@ int32_t main( int32_t argc, char** argv ) {
 		delete network_thread;
 		free( send_receive );
 	}
-#if 0 // legacy SourceForge update checker disabled (see TODO_Xtra.md)
-	updateThread.join();
-#endif // 0
 #endif // NETWORK
+
+#ifdef ATANKS_HAVE_CURL
+	// Join the update checker thread, then publish its result (see TODO-PF-2).
+	updateThread.join();
+	curl_global_cleanup();
+	if ( env.check_for_updates ) {
+		global.update_string = updateData.update_string;
+	}
+#endif // ATANKS_HAVE_CURL
 
 	if ( !save_game_settings( full_path.c_str() ) ) {
 		// This is a very critical issue, but as we are ending here, we just report it
