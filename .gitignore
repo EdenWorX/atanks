@@ -5,73 +5,79 @@
 
 
 # Build and project directories
-*.layout
-obj/*
 !obj/.keep_dir
+*.layout
 .clangd
+obj/*
+
 
 # Patch directory, it is purely for diff submissions
-patches
-patches_sent
 *.patch
 *patch*.zip
+patches
+patches_sent
 
 
 # build results
 *.dep
-dep/*.d
 *.o
 atanks
+core
+dep/*.d
 # CMake build directories owned by the Makefile wrapper
 cmake-build*/
 # Default make install destination (PROJECT_DIR/install)
 install/
 # Generated Doxygen API reference (make doc)
-docs/html/
 !vs12/atanks*
 !vs13/atanks*
 devtools
-core
+docs/html/
 
 
 # VS12/VS13/VS14 temp and build files
 *.aps
-*.suo
-*.opensdf
-*.sdf
-*.pdb
-*.psess
-*.vsp
 *.exe
 *.ilk
 *.iobj
 *.ipdb
-vs*/Debug_x86
-vs*/Release_x86
-vs*/Debug_x64/
-vs*/Release_x64/
-vs*/atanks.vcxproj.user
-vs*/atanks.VC.opendb
+*.opensdf
+*.pdb
+*.psess
+*.sdf
+*.suo
+*.vsp
 vs*/.obj
+vs*/Debug_x64/
+vs*/Debug_x86
+vs*/Release_x64/
+vs*/Release_x86
+vs*/atanks.VC.opendb
+vs*/atanks.vcxproj.user
+
 
 # Allegro build stuff
-alleg44*.lib
 alleg44*-debug.*
+alleg44*.lib
 alleg44*_d.*
 allegro.log
 
 
 # Helpers, logs, AI upgrade specific READMEs
-atanks.log
-memcheck.log
-TODO_akut
-sound/new
-sound/edit
+.aiignore
+.opencode/
+AGENTS.md
 AI_Workflow.txt
+TODO_akut
 atanks-*aiu*.README
 atanks-upgrade.README
+atanks.log
 atanks_web_icon_*.png
 mail_*.txt
+memcheck.log
+sound/edit
+sound/new
+talk_*.md
 
 # This one is specific for the windows build:
 allegro.cfg
@@ -79,7 +85,3 @@ allegro.cfg
 # Screenshots
 screenshot_*.*
 Thumbs.db
-
-# AI files
-.opencode/
-talk_*.md

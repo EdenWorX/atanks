@@ -1,5 +1,5 @@
 #!/bin/bash
-# Static analysis runner for atanks (TODO.md, WP PF-1.12).
+# Static analysis runner for atanks (docs/TODO.md, WP PF-1.12).
 #
 # Usage: bash tools/run-cppcheck.sh [build-dir]
 #
@@ -11,10 +11,10 @@
 # Run it before committing changes that touch C++ sources or headers.
 #
 # Triaged findings (accepted, not fixed — actionable ones live as issues in
-# TODO_Xtra.md instead). Accepted style, no action: cstyleCast,
+# docs/TODO_Xtra.md instead). Accepted style, no action: cstyleCast,
 # dangerousTypeCast, noCopyConstructor, noOperatorEq, useStlAlgorithm,
 # constVariablePointer, constParameterPointer, constParameterReference,
-# variableScope (except the tank.cpp/shop.cpp instances in TODO_Xtra.md),
+# variableScope (except the tank.cpp/shop.cpp instances in docs/TODO_Xtra.md),
 # functionStatic, redundantAssignment, redundantInitialization,
 # uselessOverride, clarifyCalculation, duplicateAssignExpression.
 # Accepted false positives, with reasoning: invalidPrintfArgType_uint for %lu
@@ -30,7 +30,7 @@
 # are regression checks by intent carry // cppcheck-suppress comments at the
 # site instead. Genuinely suspicious findings (missile null dereference,
 # unread variables, teleport conditions, duplicate assignments) need
-# gameplay-context review and are tracked as issues in TODO_Xtra.md.
+# gameplay-context review and are tracked as issues in docs/TODO_Xtra.md.
 
 set -u
 
