@@ -346,7 +346,7 @@ install( FILES atanks.desktop DESTINATION share/applications )
 install( FILES atanks.png DESTINATION share/icons/hicolor/48x48/apps )
 file( GLOB ATANKS_DATA_TOPFILES
       "${CMAKE_CURRENT_SOURCE_DIR}/COPYING"
-      "${CMAKE_CURRENT_SOURCE_DIR}/README"
+      "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
       "${CMAKE_CURRENT_SOURCE_DIR}/docs/Changelog.history"
       "${CMAKE_CURRENT_SOURCE_DIR}/*.txt"
       "${CMAKE_CURRENT_SOURCE_DIR}/unicode.dat" )

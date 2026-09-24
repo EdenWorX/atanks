@@ -13,7 +13,8 @@ any acceptable single-file size, so a second item would have pushed `TODO.md` ov
 only rational layout.
 
 Per-item plan files are named `TODO_<CAT>-<nr>.md`: the category prefix plus the item number, e.g. `TODO_PF-1.md`,
-`TODO_GI-1.md`, `TODO_II-2.md` (underscore after `TODO`, hyphen between category and number).
+`TODO_GI-1.md`, `TODO_II-2.md` (underscore after `TODO`, hyphen between category and number). All planning files,
+including `TODO.md` itself, live in `docs/`.
 
 ## Hierarchy
 

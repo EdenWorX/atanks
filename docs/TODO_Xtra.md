@@ -29,11 +29,11 @@ file was removed after the 6.7.1 Cleanup and Modernization (its ideas preserved 
 - [ ] **Upgrade**: develop a modern update checker to replace the disabled legacy SourceForge checker in `src/atanks.cpp`
   (masked with `#if 0`, with its farewell URL). The replacement needs a version endpoint on project infrastructure the fork
   controls (e.g. GitHub) and should reuse the `env.check_for_updates` option and the `update_data`/`update_string` plumbing
-  where practical. Decided with the user during `WP PF-1.6`; no post-PF-1 item number assigned yet.
+  where practical. Decided with the user during `WP PF-1.6`.
   Planned as TODO-PF-2 (see TODO.md).
 - [ ] **Upgrade**: transition the project to `atanks2` ("Atomic Tanks 2") as part of the big post-PF-1 updates, notably
-  the UI-framework modernization away from Allegro 4 (including removal of the then-obsolete `unicode.dat`; until then the
-  file is ignored, not touched). Rationale: this fork coexists with the
+  the UI-framework modernization away from Allegro 4 (abstraction-first; `unicode.dat` moves to an Allegro 4 assets
+  subdirectory while Allegro 4 stays). Rationale: this fork coexists with the
   still-active upstream project, so a distinct project name resolves the remaining install collisions the AppStream rename
   (`WP PF-1.6.4`) could not — the `atanks` binary, `atanks.desktop`, icons, save/config paths, and user-visible titles. Scope
   includes the binary and desktop-entry names, the AppStream ID, build/install rules, docs and metadata, and user-facing
