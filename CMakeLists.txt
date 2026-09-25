@@ -4,7 +4,7 @@
 
 cmake_minimum_required( VERSION 3.25 )
 
-project( atanks VERSION 6.7.1 LANGUAGES CXX )
+project( atanks VERSION 6.7.2 LANGUAGES CXX )
 
 # The legacy Makefile only wraps cmake+ninja, so the Ninja generator is mandatory.
 # Windows builds keep using vs12/vs14 for now but should move to cmake asap.
