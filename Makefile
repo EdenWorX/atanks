@@ -1,8 +1,11 @@
-.PHONY: aidebug all bsduser clean cleanandprint debug dist doc fulldebug i686-dist install justprint osxuser source-dist \
-tarball test test-all test-asan test-tsan test-ubsan user veryclean zipfile
+.PHONY: aidebug all bsduser clean cleanandprint configure debug dist doc fulldebug i686-dist install justprint osxuser \
+source-dist tarball test test-all test-asan test-tsan test-ubsan user veryclean zipfile
 
 # Note: Submit as "YES" to enable debugging
 DEBUG   := $(if $(DEBUG),$(DEBUG),NO)
+
+# Enable network play. Also enables update checker if libcurl is found
+WITH_NETWORK := $(if $(WITH_NETWORK),$(WITH_NETWORK),ON)
 
 # The following switches can be used to fine-tune the debugging output:
 # Note: DEBUG_AICORE can be used to enable both DEBUG_AIMING and DEBUG_EMOTION
@@ -164,8 +167,8 @@ CMAKE_FLAGS := -G Ninja -DCMAKE_VERBOSE_MAKEFILE=$(CMAKE_VERBOSE) \
 	-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DATANKS_DATA_DIR=$(INSTALLDIR) -DATANKS_INSTALL_BINDIR=$(BINDIR_REL)  \
 	-DDEBUG=$(DEBUG) -DDEBUG_AICORE=$(DEBUG_AICORE) -DDEBUG_AIMING=$(DEBUG_AIMING) -DDEBUG_EMOTION=$(DEBUG_EMOTION) \
 	-DDEBUG_FINANCE=$(DEBUG_FINANCE) -DDEBUG_OBJECTS=$(DEBUG_OBJECTS) -DDEBUG_PHYSICS=$(DEBUG_PHYSICS) \
-	-DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE) -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) -DSANITIZE_THREAD=$(SANITIZE_THREAD) \
-	-DSANITIZE_UNDEF=$(SANITIZE_UNDEF) -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
+	-DDEBUG_LOG_TO_FILE=$(DEBUG_LOG_TO_FILE) -DATANKS_WITH_NETWORK=$(WITH_NETWORK) -DSANITIZE_ADDRESS=$(SANITIZE_ADDRESS) \
+	-DSANITIZE_THREAD=$(SANITIZE_THREAD) -DSANITIZE_UNDEF=$(SANITIZE_UNDEF) -DUSE_LTO=$(USE_LTO) -DGCCUSESGOLD=$(GCCUSESGOLD)
 
 # Built binary inside the configured tree (used by the dist targets).
 BUILDBINARY := $(BUILDDIR)/atanks
@@ -190,7 +193,6 @@ all: configure
 
 # Always reconfigure: this keeps flag changes from going stale when the
 # same build directory is reused with different options.
-.PHONY: configure
 configure: CMakeLists.txt src/config.h.in
 	$(CMAKE) -S . -B $(BUILDDIR) $(CMAKE_FLAGS)
 

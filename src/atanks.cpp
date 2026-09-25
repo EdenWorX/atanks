@@ -73,9 +73,9 @@ static int32_t client_socket = -1;
 /*************************
 *** External variables ***
 *************************/
-extern CWeapon weapon[ WEAPONS ];    // from files.cpp
-extern CWeapon naturals[ NATURALS ]; // from files.cpp
-extern CItem   item[ ITEMS ];        // from files.cpp
+extern CWeapon weapon[WEAPONS];    // from files.cpp
+extern CWeapon naturals[NATURALS]; // from files.cpp
+extern CItem   item[ITEMS];        // from files.cpp
 
 
 /*****************************
@@ -173,7 +173,7 @@ static void create_config() {
 	env.temp_screen_height = env.screen_height;
 	env.half_width         = env.screen_width / 2;
 	env.half_height        = env.screen_height / 2;
-	env.menu_begin_y        = ( env.screen_height - 400 ) / 2;
+	env.menu_begin_y       = ( env.screen_height - 400 ) / 2;
 	if ( env.menu_begin_y < 0 ) {
 		env.menu_begin_y = 0;
 	}
@@ -188,17 +188,17 @@ static void create_config() {
 /// or nullptr if no winner was found. The returned text is static
 /// and must *NOT* be freed.
 static char const* do_winner() {
-	static char return_string[ 257 ] = { 0 };
+	static char return_string[257] = { 0 };
 
 	// Get the dimensions of the score board and the texts right:
 	int32_t lh = env.font_height + 3; // The line height.
-	int32_t pd = 10;                 // Padding. How much space to the board border.
+	int32_t pd = 10;                  // Padding. How much space to the board border.
 
 	// Find out longest player name and score length do determine the
 	// score board size and score entry positions
-	char head_name[ 5 ]   = "Name";
-	char head_value[ 6 ]  = "Value";
-	char head_score[ 30 ] = { 0 };
+	char head_name[5]   = "Name";
+	char head_value[6]  = "Value";
+	char head_score[30] = { 0 };
 	snprintf( head_score, 29, " %6s %6s %6s %6s", "Kills", "Killed", "Diff", "Won" );
 
 	int32_t namLen = text_length( font, head_name );
@@ -206,88 +206,86 @@ static char const* do_winner() {
 	int32_t scoLen = text_length( font, head_score );
 
 	// While checking for the winner, determine the real lengths needed
-	int32_t  idx_bastion            = -1; // Bastion Player with the highest score
-	int32_t  idx_neutral            = -1; // Neutral player with the highest score
-	int32_t  idx_rogue              = -1; // Rogue Player with the highest score
-	int32_t  idx_winner             = -1; // Player with the highest score
-	int32_t  maxdiff                = INT32_MIN;
-	int32_t  maxscore               = -1;
-	int32_t  maxkills               = -1;
-	int32_t  minkilled              = INT32_MAX;
-	bool     multiwinner            = false;
-	CPlayer** players                = env.players; // short cut
-	int32_t  pl_money[ MAXPLAYERS ] = { 0 };
+	int32_t   idx_bastion          = -1; // Bastion Player with the highest score
+	int32_t   idx_neutral          = -1; // Neutral player with the highest score
+	int32_t   idx_rogue            = -1; // Rogue Player with the highest score
+	int32_t   idx_winner           = -1; // Player with the highest score
+	int32_t   maxdiff              = INT32_MIN;
+	int32_t   maxscore             = -1;
+	int32_t   maxkills             = -1;
+	int32_t   minkilled            = INT32_MAX;
+	bool      multiwinner          = false;
+	CPlayer** players              = env.players; // short cut
+	int32_t   pl_money[MAXPLAYERS] = { 0 };
 
 	for ( int32_t z = 0; z < env.num_game_players; z++ ) {
 
 		// Check the length of the name
-		int32_t curLen = text_length( font, players[ z ]->get_name() );
+		int32_t curLen = text_length( font, players[z]->get_name() );
 		if ( curLen > namLen ) {
 			namLen = curLen;
 		}
 
 		// Sum up weapons worth
 		for ( int32_t j = 0; j < WEAPONS; ++j ) {
-			if ( weapon[ j ].amt && players[ z ]->nm[ j ] ) {
-				pl_money[ z ] += ( weapon[ j ].cost / weapon[ j ].amt ) * players[ z ]->nm[ j ];
+			if ( weapon[j].amt && players[z]->nm[j] ) {
+				pl_money[z] += ( weapon[j].cost / weapon[j].amt ) * players[z]->nm[j];
 			}
 		}
 
 		// Sum up items worth
 		for ( int32_t j = 0; j < ITEMS; ++j ) {
-			if ( item[ j ].amt && players[ z ]->ni[ j ] ) {
-				pl_money[ z ] += ( item[ j ].cost / item[ j ].amt ) * players[ z ]->ni[ j ];
+			if ( item[j].amt && players[z]->ni[j] ) {
+				pl_money[z] += ( item[j].cost / item[j].amt ) * players[z]->ni[j];
 			}
 		}
 
 		// Check value length
-		char valTxt[ 32 ] = { 0 };
-		snprintf( valTxt, 16, " %14s", add_comma( pl_money[ z ] ) );
+		char valTxt[32] = { 0 };
+		snprintf( valTxt, 16, " %14s", add_comma( pl_money[z] ) );
 		curLen = text_length( font, valTxt );
 		if ( curLen > valLen ) {
 			valLen = curLen;
 		}
 
 		// Check the length of the score
-		char    scoTxt[ 30 ] = { 0 };
-		int32_t kill_diff    = players[ z ]->kills - players[ z ]->killed;
-		snprintf( scoTxt, 29, " %6d %6d %6d %6d", players[ z ]->kills, players[ z ]->killed, kill_diff, players[ z ]->score );
+		char    scoTxt[30] = { 0 };
+		int32_t kill_diff  = players[z]->kills - players[z]->killed;
+		snprintf( scoTxt, 29, " %6d %6d %6d %6d", players[z]->kills, players[z]->killed, kill_diff, players[z]->score );
 		curLen = text_length( font, scoTxt );
 		if ( curLen > scoLen ) {
 			scoLen = curLen;
 		}
 
 		// Determine whether a new winner or a draw situation is found
-		if ( ( players[ z ]->score == maxscore ) && ( players[ z ]->kills == maxkills )
-		     && ( players[ z ]->killed == minkilled ) ) {
+		if ( ( players[z]->score == maxscore ) && ( players[z]->kills == maxkills )
+		     && ( players[z]->killed == minkilled ) ) {
 			multiwinner = true;
-			if ( TEAM_NEUTRAL == players[ z ]->team ) {
+			if ( TEAM_NEUTRAL == players[z]->team ) {
 				idx_neutral = z;
 			}
-		} else if ( (players[z]->score > maxscore)
-		         || ( (players[z]->score == maxscore)
-		           && (kill_diff > maxdiff) )
-		         || ( (players[z]->score == maxscore)
-		           && (kill_diff == maxdiff)
-		           && (players[z]->kills > maxkills) ) ) {
+		} else if (
+			( players[z]->score > maxscore ) || ( ( players[z]->score == maxscore ) && ( kill_diff > maxdiff ) )
+		        || ( ( players[z]->score == maxscore ) && ( kill_diff == maxdiff ) && ( players[z]->kills > maxkills ) )
+		) {
 			// Note: killed doesn't need to be checked. the same
 			// amount of kills with less killed score would mean
 			// a better diff anyway.
 			maxdiff     = kill_diff;
-			maxkills    = players[ z ]->kills;
-			maxscore    = players[ z ]->score;
-			minkilled   = players[ z ]->killed;
+			maxkills    = players[z]->kills;
+			maxscore    = players[z]->score;
+			minkilled   = players[z]->killed;
 			idx_winner  = z;
 			multiwinner = false;
-			if ( TEAM_NEUTRAL == players[ z ]->team ) {
+			if ( TEAM_NEUTRAL == players[z]->team ) {
 				idx_neutral = z;
 			}
 		}
 
-		if ( TEAM_BASTION == players[ z ]->team ) {
+		if ( TEAM_BASTION == players[z]->team ) {
 			idx_bastion = z;
 		}
-		if ( TEAM_ROGUE == players[ z ]->team ) {
+		if ( TEAM_ROGUE == players[z]->team ) {
 			idx_rogue = z;
 		}
 	} // end of checking players
@@ -298,16 +296,16 @@ static char const* do_winner() {
 	int32_t x  = env.half_width - ( w / 2 );
 	int32_t y  = env.half_height - ( h / 2 );
 	int32_t qy = y + h + pd;
-	sBox     qarea( x + pd, qy, w - ( 2 * pd ), env.screen_height - pd - qy );
+	sBox    qarea( x + pd, qy, w - ( 2 * pd ), env.screen_height - pd - qy );
 
 	// stop mouse during drawing
 	SHOW_MOUSE( nullptr )
 
-	global.make_update( x, y - pd - env.misc[ 9 ]->h, w, h + pd + env.misc[ 9 ]->h );
+	global.make_update( x, y - pd - env.misc[9]->h, w, h + pd + env.misc[9]->h );
 
 	// Draw the winning bitmap, the background and the border
 	draw_simple_bg( false );
-	draw_sprite( global.canvas, env.misc[ 9 ], env.half_width - ( env.misc[ 9 ]->w / 2 ), y - env.misc[ 9 ]->h - pd );
+	draw_sprite( global.canvas, env.misc[9], env.half_width - ( env.misc[9]->w / 2 ), y - env.misc[9]->h - pd );
 	rectfill( global.canvas, x, y, x + w, y + h, BLACK );
 	rect( global.canvas, x, y, x + w, y + h, WHITE );
 	rect( global.canvas, x + 1, y + 1, x + w - 1, y + h - 1, GREY );
@@ -321,16 +319,16 @@ static char const* do_winner() {
 	// Draw winner names and info about all players
 	if ( multiwinner ) {
 		// check for team win
-		if ( TEAM_BASTION == players[ idx_winner ]->team ) {
-			if ( ( ( idx_rogue >= 0 ) && ( players[ idx_rogue ]->score == players[ idx_winner ]->score ) )
-			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
+		if ( TEAM_BASTION == players[idx_winner]->team ) {
+			if ( ( ( idx_rogue >= 0 ) && ( players[idx_rogue]->score == players[idx_winner]->score ) )
+			     || ( ( idx_neutral >= 0 ) && ( players[idx_neutral]->score == players[idx_winner]->score ) ) ) {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
 			}
-		} else if ( TEAM_ROGUE == players[ idx_winner ]->team ) {
-			if ( ( ( idx_bastion >= 0 ) && ( players[ idx_bastion ]->score == players[ idx_winner ]->score ) )
-			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
+		} else if ( TEAM_ROGUE == players[idx_winner]->team ) {
+			if ( ( ( idx_bastion >= 0 ) && ( players[idx_bastion]->score == players[idx_winner]->score ) )
+			     || ( ( idx_neutral >= 0 ) && ( players[idx_neutral]->score == players[idx_winner]->score ) ) ) {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
@@ -339,17 +337,17 @@ static char const* do_winner() {
 			snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 		}
 	} else {
-		if ( TEAM_BASTION == players[ idx_winner ]->team ) {
+		if ( TEAM_BASTION == players[idx_winner]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
-		} else if ( TEAM_ROGUE == players[ idx_winner ]->team ) {
+		} else if ( TEAM_ROGUE == players[idx_winner]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
 		} else {
-			snprintf( return_string, 256, "%s: %s", env.ingame->get_line( 47 ), players[ idx_winner ]->get_name() );
+			snprintf( return_string, 256, "%s: %s", env.ingame->get_line( 47 ), players[idx_winner]->get_name() );
 		}
 	}
 
 	// Print the title lines
-	textprintf_centre_ex( global.canvas, font, env.half_width, y, players[ idx_winner ]->color, -1, "%s", return_string );
+	textprintf_centre_ex( global.canvas, font, env.half_width, y, players[idx_winner]->color, -1, "%s", return_string );
 
 	// to make the following easier, skip the two used lines
 	// (The title and one blank)
@@ -391,7 +389,7 @@ static char const* do_winner() {
 			WHITE,
 			-1,
 			" %14s",
-			add_comma( pl_money[ score->idx ] )
+			add_comma( pl_money[score->idx] )
 		);
 		textprintf_right_ex( global.canvas, font, scoStart + ( 1 * scoWidth ), y + ( z * lh ), GREEN, -1, " %6d", score->kills );
 		textprintf_right_ex( global.canvas, font, scoStart + ( 2 * scoWidth ), y + ( z * lh ), RED, -1, " %6d", score->killed );
@@ -425,18 +423,18 @@ static char const* do_winner() {
 
 static void endgame_cleanup() {
 	while ( env.num_game_players > 0 ) {
-		if ( env.players[ 0 ]->tank ) {
-			delete env.players[ 0 ]->tank;
-			env.players[ 0 ]->tank = nullptr;
+		if ( env.players[0]->tank ) {
+			delete env.players[0]->tank;
+			env.players[0]->tank = nullptr;
 		}
 
 		// make sure networked clients say good-bye and return
 		// to old AI level
-		if ( env.players[ 0 ]->type >= NETWORK_CLIENT ) {
-			env.players[ 0 ]->type = env.players[ 0 ]->previous_type;
+		if ( env.players[0]->type >= NETWORK_CLIENT ) {
+			env.players[0]->type = env.players[0]->previous_type;
 		}
 
-		env.remove_game_player( env.players[ 0 ] );
+		env.remove_game_player( env.players[0] );
 	}
 
 	global.clear_objects();
@@ -463,7 +461,7 @@ void init_mouse_cursor() {
 	if ( env.os_mouse ) {
 		show_os_cursor( MOUSE_CURSOR_ARROW );
 	} else {
-		set_mouse_sprite( env.misc[ 0 ] );
+		set_mouse_sprite( env.misc[0] );
 		set_mouse_sprite_focus( 0, 0 );
 	}
 }
@@ -582,7 +580,7 @@ static void init_graphics_and_assets() {
 				sound_type = DIGI_AUTODETECT;
 				break;
 		}
-#endif   // ATANKS_IS_LINUX
+#endif // ATANKS_IS_LINUX
 
 		int32_t channels = detect_digi_driver( sound_type );
 
@@ -674,22 +672,22 @@ static void init_graphics_and_assets() {
 	env.window.h = 0;
 
 	for ( int32_t z = 0; z < env.max_screen_updates; z++ ) {
-		global.updates[ z ].x = 0;
-		global.updates[ z ].y = 0;
-		global.updates[ z ].w = 0;
-		global.updates[ z ].h = 0;
+		global.updates[z].x = 0;
+		global.updates[z].y = 0;
+		global.updates[z].w = 0;
+		global.updates[z].h = 0;
 	}
 }
 
 static void initialise_players() {
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
-		env.players[ z ]->money = env.start_money;
-		env.players[ z ]->score = 0;
-		if ( ( HUMAN_PLAYER != env.players[ z ]->type ) && ( PERPLAY_PREF == env.players[ z ]->pref_type ) ) {
-			env.players[ z ]->generate_preferences();
+		env.players[z]->money = env.start_money;
+		env.players[z]->score = 0;
+		if ( ( HUMAN_PLAYER != env.players[z]->type ) && ( PERPLAY_PREF == env.players[z]->pref_type ) ) {
+			env.players[z]->generate_preferences();
 		}
-		env.players[ z ]->initialise( false );
-		env.players[ z ]->type_saved = env.players[ z ]->type;
+		env.players[z]->initialise( false );
+		env.players[z]->type_saved = env.players[z]->type;
 	}
 }
 
@@ -730,16 +728,16 @@ static bool load_players( FILE* file ) {
 
 	if ( env.all_players ) {
 		for ( int32_t i = 0; i < env.num_permanent_players; ++i ) {
-			if ( env.all_players[ i ] ) {
-				delete env.all_players[ i ];
+			if ( env.all_players[i] ) {
+				delete env.all_players[i];
 			}
-			env.all_players[ i ] = nullptr;
+			env.all_players[i] = nullptr;
 		}
 		free( env.all_players );
 		env.all_players = nullptr;
 	}
 
-	env.all_players = (CPlayer**)malloc( sizeof( CPlayer* ) * max_pl );
+	env.all_players = ( CPlayer** )malloc( sizeof( CPlayer* ) * max_pl );
 
 	if ( !env.all_players ) {
 		fprintf( stderr, "%s:%d : Failed to allocate memory for all_players\n", __FILE__, __LINE__ );
@@ -747,7 +745,7 @@ static bool load_players( FILE* file ) {
 	}
 
 	for ( int32_t i = 0; i < max_pl; ++i ) {
-		env.all_players[ i ] = nullptr;
+		env.all_players[i] = nullptr;
 	}
 
 	int32_t pl_count = 0;
@@ -767,16 +765,16 @@ static bool load_players( FILE* file ) {
 		}
 
 		if ( status ) {
-			player_new->index            = pl_count;
-			env.all_players[ pl_count++ ] = player_new;
+			player_new->index           = pl_count;
+			env.all_players[pl_count++] = player_new;
 			if ( pl_count == max_pl ) {
 				max_pl               += 5;
-				auto new_player_list  = (CPlayer**)realloc( env.all_players, sizeof( CPlayer* ) * max_pl );
+				auto new_player_list  = ( CPlayer** )realloc( env.all_players, sizeof( CPlayer* ) * max_pl );
 				if ( new_player_list ) {
 					env.all_players = new_player_list;
 				}
 				for ( int32_t i = pl_count; i < max_pl; ++i ) {
-					env.all_players[ i ] = nullptr;
+					env.all_players[i] = nullptr;
 				}
 			}
 		} else {
@@ -792,71 +790,71 @@ static bool load_players( FILE* file ) {
 static int32_t menu() {
 	int32_t result     = SIG_OK;
 	int32_t shift_menu = env.half_height < 240 ? 240 - env.half_height : 0;
-	int32_t move_btn   = env.button[ 0 ]->w / 2;
+	int32_t move_btn   = env.button[0]->w / 2;
 	int32_t bn         = env.language == EL_RUSSIAN ? MENUBUTTONS * 2 : 0;
 
-	CButton  but_play(
-                env.half_width - move_btn,
-                env.half_height - 235 + shift_menu,
-                env.button[ bn ],
-                env.button[ bn ],
-                env.button[ bn + 1 ]
-        );
+	CButton but_play(
+		env.half_width - move_btn,
+		env.half_height - 235 + shift_menu,
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
+	);
 	bn += 2;
 	CButton but_help(
 		env.half_width - move_btn,
 		env.half_height - 185 + shift_menu,
-		env.button[ bn ],
-		env.button[ bn ],
-		env.button[ bn + 1 ]
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
 	);
 	bn += 2;
 	CButton but_options(
 		env.half_width - move_btn,
 		env.half_height - 135 + shift_menu,
-		env.button[ bn ],
-		env.button[ bn ],
-		env.button[ bn + 1 ]
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
 	);
 	bn += 2;
 	CButton but_players(
 		env.half_width - move_btn,
 		env.half_height - 85 + shift_menu,
-		env.button[ bn ],
-		env.button[ bn ],
-		env.button[ bn + 1 ]
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
 	);
 	bn += 2;
 	CButton but_credits(
 		env.half_width - move_btn,
 		env.half_height - 35 + shift_menu,
-		env.button[ bn ],
-		env.button[ bn ],
-		env.button[ bn + 1 ]
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
 	);
 	bn += 2;
 	CButton but_quit(
 		env.half_width - move_btn,
 		env.half_height + 65 + shift_menu,
-		env.button[ bn ],
-		env.button[ bn ],
-		env.button[ bn + 1 ]
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
 	);
 	bn += 2;
 	CButton but_network(
 		env.half_width - move_btn,
 		env.half_height + 15 + shift_menu,
-		env.button[ bn ],
-		env.button[ bn ],
-		env.button[ bn + 1 ]
+		env.button[bn],
+		env.button[bn],
+		env.button[bn + 1]
 	);
 
-	CButton* button[ MENUBUTTONS ] = {
+	CButton* button[MENUBUTTONS] = {
 		&but_play, &but_help, &but_options, &but_players, &but_credits, &but_network, &but_quit
 	};
 
 	// Initialization of the menu
-	global.stop_window    = true;
+	global.stop_window   = true;
 	fi                   = 1;
 	lx                   = 0;
 	ly                   = 0;
@@ -904,9 +902,9 @@ static int32_t menu() {
 
 			// See where the mouse is
 			for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-				if ( button[ z ]->is_mouse_over() ) {
+				if ( button[z]->is_mouse_over() ) {
 					if ( ( btn_over > -1 ) && ( btn_over != z ) ) {
-						button[ z ]->draw();
+						button[z]->draw();
 						need_draw = true;
 					}
 
@@ -918,7 +916,7 @@ static int32_t menu() {
 			// Handle mouse click
 			if ( mouse_b & 1 ) {
 				for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-					if ( button[ z ]->is_pressed() ) {
+					if ( button[z]->is_pressed() ) {
 						need_draw = true;
 						done      = true;
 						if ( z == 0 ) {
@@ -995,7 +993,7 @@ static int32_t menu() {
 			K = 0;
 
 			// Print out update info if any
-			if ( ( global.update_string ) && ( global.update_string[ 0 ] ) ) {
+			if ( ( global.update_string ) && ( global.update_string[0] ) ) {
 				textout_centre_ex(
 					global.canvas,
 					font,
@@ -1039,7 +1037,7 @@ static int32_t menu() {
 			draw_simple_bg( true );
 
 			for ( int32_t z = 0; z < MENUBUTTONS; z++ ) {
-				button[ z ]->draw();
+				button[z]->draw();
 
 				// draw a rectangle around the selected button
 				if ( ( z == currentindex ) || ( z == oldindex ) ) {
@@ -1061,7 +1059,7 @@ static int32_t menu() {
 			need_draw = false;
 			oldindex  = currentindex;
 		} // End of if need_draw
-	}         // End of menu loop
+	} // End of menu loop
 
 	clear_keybuf();
 
@@ -1103,7 +1101,7 @@ static void new_game() {
 static int32_t parse_args( int32_t argc, char** argv ) {
 	for ( int32_t c = 1; c < argc; ++c ) {
 		bool        has_value = true;
-		std::string arg( argv[ c ] );
+		std::string arg( argv[c] );
 
 		if ( ( arg == SWITCH_HELP ) || ( arg == "--help" ) ) {
 			print_text_help();
@@ -1115,8 +1113,8 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 			screen_mode = GFX_AUTODETECT_WINDOWED;
 			full_screen = FULL_SCREEN_FALSE;
 		} else if ( ( arg == "-d" ) || ( arg == "--depth" ) ) {
-			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
-				std::string next_arg( argv[ ++c ] );
+			if ( ( c < ( argc - 1 ) ) && ( argv[c + 1][0] != '-' ) ) {
+				std::string next_arg( argv[++c] );
 				int32_t     val = 32;
 
 				SAFE_STOI( val, next_arg );
@@ -1132,8 +1130,8 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				has_value = false;
 			}
 		} else if ( ( arg == "-w" ) || ( arg == "--width" ) ) {
-			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
-				std::string next_arg( argv[ ++c ] );
+			if ( ( c < ( argc - 1 ) ) && ( argv[c + 1][0] != '-' ) ) {
+				std::string next_arg( argv[++c] );
 				int32_t     val = 512;
 
 				SAFE_STOI( val, next_arg );
@@ -1150,8 +1148,8 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				has_value = false;
 			}
 		} else if ( ( arg == "-t" ) || ( arg == "--tall" ) || ( arg == "--height" ) ) {
-			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
-				std::string next_arg( argv[ ++c ] );
+			if ( ( c < ( argc - 1 ) ) && ( argv[c + 1][0] != '-' ) ) {
+				std::string next_arg( argv[++c] );
 				int32_t     val = 320;
 
 				SAFE_STOI( val, next_arg );
@@ -1168,8 +1166,8 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				has_value = false;
 			}
 		} else if ( arg == "--datadir" ) {
-			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
-				std::string next_arg( argv[ ++c ] );
+			if ( ( c < ( argc - 1 ) ) && ( argv[c + 1][0] != '-' ) ) {
+				std::string next_arg( argv[++c] );
 
 				if ( next_arg.length() <= PATH_MAX ) {
 					env.data_dir = next_arg;
@@ -1183,8 +1181,8 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 				has_value = false;
 			}
 		} else if ( arg == "-c" ) {
-			if ( ( c < ( argc - 1 ) ) && ( argv[ c + 1 ][ 0 ] != '-' ) ) {
-				std::string next_arg( argv[ ++c ] );
+			if ( ( c < ( argc - 1 ) ) && ( argv[c + 1][0] != '-' ) ) {
+				std::string next_arg( argv[++c] );
 
 				if ( next_arg.length() <= PATH_MAX ) {
 					env.config_dir = next_arg;
@@ -1224,15 +1222,15 @@ static int32_t parse_args( int32_t argc, char** argv ) {
 }
 
 static void play_demo() {
-	int32_t  old_skip   = env.skip_computer_play;
-	uint32_t old_rounds = env.rounds;
-	bool     old_music  = env.play_music;
+	int32_t  old_skip    = env.skip_computer_play;
+	uint32_t old_rounds  = env.rounds;
+	bool     old_music   = env.play_music;
 
-	global.demo_mode    = true;
+	global.demo_mode     = true;
 	env.load_game        = false;
-	env.play_music      = false;
+	env.play_music       = false;
 
-	env.rounds          = ( get_rand() % 101 ) + ( get_rand() % 101 ) + 50;
+	env.rounds           = ( get_rand() % 101 ) + ( get_rand() % 101 ) + 50;
 	global.current_round = env.rounds - ( get_rand() % env.rounds );
 
 	// Be sure to have at least 10 rounds left
@@ -1250,19 +1248,19 @@ static void play_demo() {
 	// set up a bunch of players (non-human, less than 10)
 	env.num_game_players = 0;
 	for ( int32_t i = 0; i < env.num_permanent_players; ++i ) {
-		if ( ( env.all_players[ i ]->type > HUMAN_PLAYER ) && ( i < MAXPLAYERS ) ) {
-			env.add_game_player( env.all_players[ i ] );
+		if ( ( env.all_players[i]->type > HUMAN_PLAYER ) && ( i < MAXPLAYERS ) ) {
+			env.add_game_player( env.all_players[i] );
 		}
 	}
 
 	new_game();
 
 	for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-		env.players[ i ]->new_game();
+		env.players[i]->new_game();
 
 		// give them money to spend:
-		env.players[ i ]->money +=
-			static_cast< int32_t >( env.players[ i ]->type * 25000 * ( env.rounds - global.current_round ) );
+		env.players[i]->money +=
+			static_cast< int32_t >( env.players[i]->type * 25'000 * ( env.rounds - global.current_round ) );
 	}
 
 	while ( ( global.current_round > 0 ) && ( !global.is_close_btn_pressed() ) ) {
@@ -1273,10 +1271,10 @@ static void play_demo() {
 	}
 
 	endgame_cleanup();
-	global.demo_mode     = false;
+	global.demo_mode       = false;
 	env.skip_computer_play = old_skip;
-	env.play_music       = old_music;
-	env.rounds           = old_rounds;
+	env.play_music         = old_music;
+	env.rounds             = old_rounds;
 }
 
 static void play_local() {
@@ -1292,7 +1290,7 @@ static void play_local() {
 		if ( !env.load_game ) {
 			global.current_round = env.rounds;
 			for ( int32_t i = 0; i < env.num_game_players; ++i ) {
-				env.players[ i ]->new_game();
+				env.players[i]->new_game();
 			}
 		}
 
@@ -1324,8 +1322,8 @@ static void play_local() {
 		// only show winner if finished all rounds and not broken off the last
 		// round by exiting or quitting
 		if ( ( global.current_round == 0 ) && ( global.get_command() == GLOBAL_COMMAND_PLAY ) ) {
-			char        buffer[ 512 ] = { 0 };
-			char const* winner        = do_winner();
+			char        buffer[512] = { 0 };
+			char const* winner      = do_winner();
 
 			if ( winner ) {
 				if ( 0 > snprintf( buffer, 255, "GAMEEND The game went to %s.", winner ) ) {
@@ -1342,7 +1340,7 @@ static void play_local() {
 			readkey();
 
 			for ( int i = 0; i < env.num_game_players; i++ ) {
-				env.players[ i ]->type = env.players[ i ]->type_saved;
+				env.players[i]->type = env.players[i]->type_saved;
 			}
 		}
 		endgame_cleanup();
@@ -1365,7 +1363,7 @@ static void play_networked() {
 		cerr << "ERROR: Unable to connect to server " << env.server_name << ", port " << env.server_port << endl;
 	}
 #else
-	char noNetworkMsg[ 200 ] = { 0 };
+	char noNetworkMsg[200] = { 0 };
 	snprintf(
 		noNetworkMsg,
 		199,
@@ -1424,7 +1422,7 @@ static bool save_game_settings( char const* path ) {
 	env.save_to_file( file );
 
 	for ( int32_t i = 0; i < env.num_permanent_players; ++i ) {
-		env.all_players[ i ]->save_to_file( file );
+		env.all_players[i]->save_to_file( file );
 	}
 
 	fclose( file );
@@ -1449,14 +1447,14 @@ static void show_options() {
 
 static void title() {
 	SHOW_MOUSE( nullptr )
-	blit( env.title[ 0 ],
+	blit( env.title[0],
 	      screen,
 	      0,
 	      0,
-	      env.half_width - ( env.title[ 0 ]->w / 2 ),
-	      env.half_height - ( env.title[ 0 ]->h / 2 ),
-	      env.title[ 0 ]->w,
-	      env.title[ 0 ]->h );
+	      env.half_width - ( env.title[0]->w / 2 ),
+	      env.half_height - ( env.title[0]->h / 2 ),
+	      env.title[0]->w,
+	      env.title[0]->h );
 	clear_keybuf();
 }
 
@@ -1516,20 +1514,20 @@ int32_t main( int32_t argc, char** argv ) {
 
 #ifdef NETWORK /// new networking area
 	sSendReceive* send_receive   = nullptr;
-	std::thread*       network_thread = nullptr;
+	std::thread*  network_thread = nullptr;
 
-#ifdef ATANKS_HAVE_CURL
+#  ifdef ATANKS_HAVE_CURL
 	// Create the update checker thread (GitHub releases endpoint, see TODO-PF-2).
 	// libcurl needs process-wide init before any thread uses it; the option is honored
 	// inside the thread and failures stay silent like the legacy checker.
 	curl_global_init( CURL_GLOBAL_DEFAULT );
-	UpdateData   updateData;
+	UpdateData  updateData;
 	std::thread updateThread( std::ref( updateData ) );
-#endif // ATANKS_HAVE_CURL
+#  endif // ATANKS_HAVE_CURL
 
 	// Initialize network if allowed and wanted
 	if ( env.network_enabled && allow_network ) {
-		send_receive = (sSendReceive*)calloc( 1, sizeof( sSendReceive ) );
+		send_receive = ( sSendReceive* )calloc( 1, sizeof( sSendReceive ) );
 		if ( !send_receive ) {
 			cerr << "ERROR: Could not create networking data." << endl;
 		}
@@ -1565,6 +1563,13 @@ int32_t main( int32_t argc, char** argv ) {
 			global.set_command( GLOBAL_COMMAND_QUIT );
 		}
 
+#if defined( NETWORK ) && defined( ATANKS_HAVE_CURL )
+		// did the update checker thread find something?
+		if ( env.check_for_updates && updateData.update_string[0] ) {
+			global.update_string = updateData.update_string;
+		}
+#endif
+
 		// determine which menu item is selected
 		switch ( global.get_command() ) {
 			case GLOBAL_COMMAND_HELP:
@@ -1593,10 +1598,10 @@ int32_t main( int32_t argc, char** argv ) {
 				play_local();
 				break;
 		} // end of menu switch
-	} while ( ( global.get_command() != GLOBAL_COMMAND_QUIT ) );
+	} while (( global.get_command() != GLOBAL_COMMAND_QUIT ));
 
 	// print out if there is an update
-	if ( ( global.update_string ) && ( global.update_string[ 0 ] ) ) {
+	if ( ( global.update_string ) && ( global.update_string[0] ) ) {
 		cout << global.update_string << endl;
 		global.update_string = nullptr;
 	}
@@ -1610,16 +1615,13 @@ int32_t main( int32_t argc, char** argv ) {
 		delete network_thread;
 		free( send_receive );
 	}
-#endif // NETWORK
 
-#ifdef ATANKS_HAVE_CURL
-	// Join the update checker thread, then publish its result (see TODO-PF-2).
+#  ifdef ATANKS_HAVE_CURL
+	// Join the update checker thread
 	updateThread.join();
 	curl_global_cleanup();
-	if ( env.check_for_updates ) {
-		global.update_string = updateData.update_string;
-	}
-#endif // ATANKS_HAVE_CURL
+#  endif // ATANKS_HAVE_CURL
+#endif   // NETWORK
 
 	if ( !save_game_settings( full_path.c_str() ) ) {
 		// This is a very critical issue, but as we are ending here, we just report it
@@ -1632,9 +1634,7 @@ int32_t main( int32_t argc, char** argv ) {
 
 	allegro_exit();
 
-#if 0 // legacy SourceForge farewell URL disabled (see TODO_Xtra.md)
-	cout << "See https://atanks.sourceforge.io for the latest news and downloads." << endl;
-#endif // 0
+	cout << "See https://github.com/EdenWorX/atanks for the latest news and updates." << endl;
 
 	return result;
 }
