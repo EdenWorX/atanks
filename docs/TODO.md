@@ -37,7 +37,7 @@ row per item.
 | PF-15 | High-voltage missiles            | [TODO-PF-15](./TODO_PF-15.md)  | not started   |
 | PF-16 | Tornadoes                        | [TODO-PF-16](./TODO_PF-16.md)  | not started   |
 | PF-17 | Another armor level              | [TODO-PF-17](./TODO_PF-17.md)  | not started   |
-| PF-18 | Bastion/Rogue names+colors       | [TODO-PF-18](./TODO_PF-18.md)  | **completed** |
+| PF-18 | Bastion/Rogue names+colors       | _none_                         | **completed** |
 
 PF-1 done 2026-09-21, released as 6.7.1: CMake build with wrapper `Makefile`, consolidated license/version truth, SourceForge to
 GitHub move, normalized naming and guards, modernized config parsing, TOML arsenal data, frame-rate-independent physics.
