@@ -64,6 +64,9 @@ intent).
 
 User docs (`README.md`) and technical docs (`docs/README.md`) updated for the new names and colors.
 
-## [ ] PF-18.7: Final testing and finalization
+## [x] PF-18.7: Final testing and finalization
 
 In-game validation (team selection, network colors), then close the item per `docs/todo_planning.md`.
+
+Validated 2026-09-22: user tested in-game, everything solid. Item finished; removal from `docs/TODO.md` plus plan-file
+deletion waits for the next release per the Removal Rule.
