@@ -43,8 +43,8 @@ Nepodarilo sa uložiť hru.
 Výber farieb
 Renderujem oblohu
 Renderujem krajinku
-Víťaz: Jedi
-Víťaz: Sith
+Víťaz: Bastion
+Víťaz: Rogue
 Víťaz
 Remíza
               Hráčske skóre                   Výhry:Prehry
@@ -64,9 +64,9 @@ Bežný
 Klasický
 Veľký šedý
 T34
-Sith
+Rogue
 Neutrálny
-Jedi
+Bastion
 Návrat
 Hlavné menu
 Ukončiť

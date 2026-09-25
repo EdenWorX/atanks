@@ -43,8 +43,8 @@ Erro ao gravar o jogo.
 Escolha de Cores
 Desenho do Céu 
 Desenho das Paisagem
-Ganhou: Jedi
-Ganhou: Sith
+Ganhou: Bastion
+Ganhou: Rogue
 Ganhou
 Igualidade
               Pontuações Jogadores           Ganhos:Percas
@@ -64,9 +64,9 @@ Normal
 Clássico
 Big Grey
 T34
-Sith
+Rogue
 Neutral
-Jedi
+Bastion
 Voltar
 Menu Principal
 Saír

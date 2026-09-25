@@ -43,8 +43,8 @@ Failed to save game.
 Choosing colours
 Rendering Sky
 Rendering Landscape
-Winner: Jedi
-Winner: Sith
+Winner: Bastion
+Winner: Rogue
 Winner
 Draw
               Player Scores                   Kill:Die
@@ -64,9 +64,9 @@ Normal
 Classic
 Big Grey
 T34
-Sith
+Rogue
 Neutral
-Jedi
+Bastion
 Zuruck
 HauptMenu
 Verlassen
