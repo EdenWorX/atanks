@@ -2401,8 +2401,8 @@ bool CAICore::get_memory() {
 	/// === 2) Copy opponents information ===
 
 	idx             = 0;
-	int32_t    jcnt = 0;          // Jedi count
-	int32_t    scnt = 0;          // Sith count;
+	int32_t    bcnt = 0;          // Bastion count
+	int32_t    rcnt = 0;          // Rogue count;
 	double     dail = ai_level_d; // [d]ouble [ai]_[l]evel
 	sOpponent* opp  = nullptr;
 
@@ -2473,21 +2473,21 @@ bool CAICore::get_memory() {
 
 				// team_mod is a multiplier reflecting the general behaviour
 				// against the own and other teams.
-				if ( TEAM_JEDI == player->team ) {
-					// Jedi go strongly for Sith and protect their team
+				if ( TEAM_BASTION == player->team ) {
+					// Bastion go strongly for Rogue and protect their team
 					if ( mem_curr->onSameTeam ) {
 						mem_curr->team_mod = ( 2. + dail ) / -2.; // [-1.5; -4.]
-					} else if ( TEAM_SITH == opp->opponent->team ) {
+					} else if ( TEAM_ROGUE == opp->opponent->team ) {
 						mem_curr->team_mod = 2. * ai_level;       // [2;12]
 					} else {
 						mem_curr->team_mod = ai_level;            // [1; 6]
 					}
-				} else if ( TEAM_SITH == player->team ) {
-					// Sith go for everyone, slightly favouring Jedi and do
+				} else if ( TEAM_ROGUE == player->team ) {
+					// Rogue go for everyone, slightly favouring Bastion and do
 					// not care that much hitting their own team members.
 					if ( mem_curr->onSameTeam ) {
 						mem_curr->team_mod = ( 2. + dail ) / -3.; // [-1; -2.66]
-					} else if ( TEAM_JEDI == opp->opponent->team ) {
+					} else if ( TEAM_BASTION == opp->opponent->team ) {
 						mem_curr->team_mod = 1.25 * ai_level;     // [1.25;7.5]
 					} else {
 						mem_curr->team_mod = ai_level;            // [1   ;6  ]
@@ -2495,16 +2495,16 @@ bool CAICore::get_memory() {
 				} else {
 					// Neutrals go slightly more for the teams, and less for
 					// other neutrals. This is supposed to reflect the fact
-					// that Jedi and Sith have friends with them helping them
+					// that Bastion and Rogue have friends with them helping them
 					// out. Neutrals are all alone and considered less dangerous.
 					if ( TEAM_NEUTRAL == opp->opponent->team ) {
 						mem_curr->team_mod = 1. + ( dail / 2. ); // => [1.5;4.]
 					} else {
 						mem_curr->team_mod = .5 + dail;          // => [1.5;6.5]
-						if ( TEAM_JEDI == opp->opponent->team ) {
-							++jcnt;
+						if ( TEAM_BASTION == opp->opponent->team ) {
+							++bcnt;
 						} else {
-							++scnt;
+							++rcnt;
 						}
 					}
 				} // end of team_mod determination
@@ -2516,19 +2516,19 @@ bool CAICore::get_memory() {
 		++idx;
 	} while ( opp && mem_curr );
 
-	// If this is a neutral player, it has counted jedi and sith. This is
+	// If this is a neutral player, it has counted bastion and rogue. This is
 	// done to raise the team_mod whenever any of these teams sport more
 	// than one remaining tank.
-	if ( ( TEAM_NEUTRAL == player->team ) && ( ( jcnt > 1 ) || ( scnt > 1 ) ) ) {
-		double j_mod = dail / 10. * static_cast< double >( jcnt - 1 );
-		double s_mod = dail / 10. * static_cast< double >( scnt - 1 );
+	if ( ( TEAM_NEUTRAL == player->team ) && ( ( bcnt > 1 ) || ( rcnt > 1 ) ) ) {
+		double j_mod = dail / 10. * static_cast< double >( bcnt - 1 );
+		double s_mod = dail / 10. * static_cast< double >( rcnt - 1 );
 		mem_curr     = mem_head;
 
 		while ( mem_curr ) {
 
-			if ( ( TEAM_JEDI == mem_curr->entry->opponent->team ) && ( jcnt > 1 ) ) {
+			if ( ( TEAM_BASTION == mem_curr->entry->opponent->team ) && ( bcnt > 1 ) ) {
 				mem_curr->team_mod += j_mod;
-			} else if ( ( TEAM_SITH == mem_curr->entry->opponent->team ) && ( scnt > 1 ) ) {
+			} else if ( ( TEAM_ROGUE == mem_curr->entry->opponent->team ) && ( rcnt > 1 ) ) {
 				mem_curr->team_mod += s_mod;
 			}
 
@@ -4765,8 +4765,8 @@ void CAICore::update_weap_score( weentry_t* pWeap ) const {
 		// axis rates, and the full rate limit might become lower or higher than
 		// this 10%. This is wanted as bots "only estimate".
 		double rate_limit = ( player->defensive + .75 ) / 10.;
-		// result: Over-offensive Sith: (-1.25 + 0.75) / 10. => 0.5 / 10. =>  5%
-		//         Over-defensive Jedi: ( 1.25 + 0.75) / 10. => 2.0 / 10. => 20%
+		// result: Over-offensive Rogue: (-1.25 + 0.75) / 10. => 0.5 / 10. =>  5%
+		//         Over-defensive Bastion: ( 1.25 + 0.75) / 10. => 2.0 / 10. => 20%
 
 		while ( op ) {
 

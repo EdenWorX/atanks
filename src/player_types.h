@@ -94,7 +94,7 @@ enum EPlayerEdit {
 /** @enum ETeamTypes
  * @brief determines the team a player belongs to
  **/
-enum ETeamTypes { TEAM_SITH = 0, TEAM_NEUTRAL, TEAM_JEDI, TEAM_COUNT };
+enum ETeamTypes { TEAM_ROGUE = 0, TEAM_NEUTRAL, TEAM_BASTION, TEAM_COUNT };
 
 /// Shift the team by a signed offset.
 ETeamTypes &operator+= ( ETeamTypes &src, int32_t val );

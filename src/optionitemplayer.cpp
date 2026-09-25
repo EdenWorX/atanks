@@ -222,7 +222,7 @@ void COptionItemPlayer::display( bool show_full ) {
 				global.canvas,
 				font,
 				team_Indicator[ pTeam ],
-				xLeft - ( TEAM_SITH == pTeam ? 1 : 0 ),
+				xLeft - ( TEAM_ROGUE == pTeam ? 1 : 0 ),
 				xTop + 1,
 				team_color_fg[ pTeam ],
 				-1

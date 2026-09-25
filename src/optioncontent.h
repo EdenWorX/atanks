@@ -1465,24 +1465,24 @@ char const* const OPTION_CLASS_TEXT[ TC_TEXTCLASS_COUNT ][ EL_LANGUAGE_COUNT ][ 
          * --- TC_PLAYERTEAM  --- *
          * ----------------------- */
 		/* === EL_ENGLISH === */
-		{ "Sith", "Neutral", "Jedi", nullptr },
+		{ "Rogue", "Neutral", "Bastion", nullptr },
          /* ===	EL_PORTUGUESE === */
 		/* ===== Needs to be translated ===== */
-		{ "Sith", "Neutral", "Jedi", nullptr },
+		{ "Rogue", "Neutral", "Bastion", nullptr },
          /* ===	EL_FRENCH === */
 		/* ===== Needs to be translated ===== */
-		{ "Sith", "Neutral", "Jedi", nullptr },
+		{ "Rogue", "Neutral", "Bastion", nullptr },
          /* ===	EL_GERMAN === */
-		{ "Sith", "Neutral", "Jedi", nullptr },
+		{ "Rogue", "Neutral", "Bastion", nullptr },
          /* ===	EL_SLOVAK === */
-		{ "Sith", "Neutrálny", "Jedi", nullptr },
+		{ "Rogue", "Neutrálny", "Bastion", nullptr },
          /* ===	EL_RUSSIAN === */
-		{ "Ситх", "Нейтральный", "Джедай", nullptr },
+		{ "Роуг", "Нейтральный", "Бастион", nullptr },
          /* ===	EL_SPANISH === */
 		/* ===== Needs to be translated ===== */
-		{ "Sith", "Neutral", "Jedi", nullptr },
+		{ "Rogue", "Neutral", "Bastion", nullptr },
          /* ===	EL_ITALIAN === */
-		{ "Sith", "Neutrale", "Jedi", nullptr },
+		{ "Rogue", "Neutrale", "Bastion", nullptr },
 
 	 },
 	{

@@ -1346,12 +1346,12 @@ void CPlayer::generate_preferences() {
 	pain_sensitivity    = static_cast< double >( get_rand() % 3001 ) / 1000;            // [0;3]
 
 	// Now 'defensive' can be modified by team:
-	if ( team == TEAM_JEDI ) {
+	if ( team == TEAM_BASTION ) {
 		defensive += static_cast< double >( get_rand() % 501 ) / 1000.;
 		if ( defensive > 1.25 ) {
 			defensive = 1.25; // + 1.25 is Super Defensive
 		}
-	} else if ( team == TEAM_SITH ) {
+	} else if ( team == TEAM_ROGUE ) {
 		defensive -= static_cast< double >( get_rand() % 501 ) / 1000.;
 		if ( defensive < -1.25 ) {
 			defensive = -1.25; // - 1.25 is Super Aggressive
@@ -1876,14 +1876,14 @@ char const* CPlayer::get_team_name() const {
 	static char team_name[ 9 ] = { 0 };
 
 	switch ( team ) {
-		case TEAM_JEDI:
-			snprintf( team_name, 8, "%s", "Jedi" );
+		case TEAM_BASTION:
+			snprintf( team_name, 8, "%s", "Bastion" );
 			break;
 		case TEAM_NEUTRAL:
 			snprintf( team_name, 8, "%s", "Neutral" );
 			break;
-		case TEAM_SITH:
-			snprintf( team_name, 8, "%s", "Sith" );
+		case TEAM_ROGUE:
+			snprintf( team_name, 8, "%s", "Rogue" );
 			break;
 		case TEAM_COUNT:
 		default:
@@ -2174,7 +2174,7 @@ bool CPlayer::load_from_file( FILE* file ) {
 			} else if ( !strcasecmp( field.c_str(), "TEAM" ) ) {
 				int32_t val = 0;
 				SAFE_STOI( val, value );
-				if ( ( val >= 0 ) && ( val <= TEAM_JEDI ) ) {
+				if ( ( val >= 0 ) && ( val <= TEAM_BASTION ) ) {
 					team = static_cast< ETeamTypes >( val );
 				}
 			} else if ( !strcasecmp( field.c_str(), "TYPE" ) ) {
@@ -3053,7 +3053,7 @@ int32_t edit_player( CPlayer** target, int32_t ) {
 		nullptr,
 		BLACK,
 		TC_PLAYERTEAM,
-		static_cast< int32_t >( TEAM_JEDI ),
+		static_cast< int32_t >( TEAM_BASTION ),
 		itemLeft,
 		itemY,
 		150,
@@ -3207,7 +3207,7 @@ int32_t new_player( CPlayer** target, int32_t ) {
 		nullptr,
 		BLACK,
 		TC_PLAYERTEAM,
-		static_cast< int32_t >( TEAM_JEDI ),
+		static_cast< int32_t >( TEAM_BASTION ),
 		itemLeft,
 		itemY,
 		150,

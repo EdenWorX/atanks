@@ -806,8 +806,8 @@ static inline void clear_voices() {
 }
 
 static inline void check_winner() {
-	bool    all_jedi     = true;
-	bool    all_sith     = true;
+	bool    all_bastion  = true;
+	bool    all_rogue    = true;
 	int32_t player_count = 0;
 	int32_t last_alive   = -1;
 
@@ -815,11 +815,11 @@ static inline void check_winner() {
 		CTank* tank = env.players[ i ]->tank;
 		if ( tank && tank->l && !tank->destroy && tank->player ) {
 			ETeamTypes team = tank->player->team;
-			if ( TEAM_SITH != team ) {
-				all_sith = false;
+			if ( TEAM_ROGUE != team ) {
+				all_rogue = false;
 			}
-			if ( TEAM_JEDI != team ) {
-				all_jedi = false;
+			if ( TEAM_BASTION != team ) {
+				all_bastion = false;
 			}
 
 			last_alive = i;
@@ -829,10 +829,10 @@ static inline void check_winner() {
 
 	if ( !player_count ) {
 		winner = WINNER_DRAW;
-	} else if ( all_jedi ) {
-		winner = WINNER_JEDI;
-	} else if ( all_sith ) {
-		winner = WINNER_SITH;
+	} else if ( all_bastion ) {
+		winner = WINNER_BASTION;
+	} else if ( all_rogue ) {
+		winner = WINNER_ROGUE;
 	} else if ( 1 == player_count ) {
 		winner = last_alive;
 	} else {
@@ -1244,21 +1244,21 @@ static inline bool explode_tanks() {
 
 	// Check how many tanks are still alive and whether they are from
 	// different teams
-	bool all_jedi       = true;
-	bool all_sith       = true;
-	bool all_jedi_alive = true;
-	bool all_sith_alive = true;
-	bool do_explode     = false;
+	bool all_bastion       = true;
+	bool all_rogue         = true;
+	bool all_bastion_alive = true;
+	bool all_rogue_alive   = true;
+	bool do_explode        = false;
 
 	global.get_head_of_class( CLASS_TANK, &tank );
 
 	while ( tank ) {
 		// Look for teams for any tanks including exploding ones
-		if ( tank->player && ( TEAM_JEDI != tank->player->team ) ) {
-			all_jedi = false;
+		if ( tank->player && ( TEAM_BASTION != tank->player->team ) ) {
+			all_bastion = false;
 		}
-		if ( tank->player && ( TEAM_SITH != tank->player->team ) ) {
-			all_sith = false;
+		if ( tank->player && ( TEAM_ROGUE != tank->player->team ) ) {
+			all_rogue = false;
 		}
 
 		// Look for alive tanks
@@ -1266,11 +1266,11 @@ static inline bool explode_tanks() {
 			tanks_left = true;
 
 			// Note down if alive tanks are from other teams
-			if ( tank->player && ( TEAM_JEDI != tank->player->team ) ) {
-				all_jedi_alive = false;
+			if ( tank->player && ( TEAM_BASTION != tank->player->team ) ) {
+				all_bastion_alive = false;
 			}
-			if ( tank->player && ( TEAM_SITH != tank->player->team ) ) {
-				all_sith_alive = false;
+			if ( tank->player && ( TEAM_ROGUE != tank->player->team ) ) {
+				all_rogue_alive = false;
 			}
 
 		} else {
@@ -1285,8 +1285,8 @@ static inline bool explode_tanks() {
 		return false;
 	}
 
-	// If tanks are left that are only jedi or sith, vengeance is disallowed:
-	bool allow_vengeance = ( tanks_left && !all_jedi && !all_sith );
+	// If tanks are left that are only bastion or rogue, vengeance is disallowed:
+	bool allow_vengeance = ( tanks_left && !all_bastion && !all_rogue );
 
 	// Now explode what has to go
 	global.get_head_of_class( CLASS_TANK, &tank );
@@ -1306,8 +1306,8 @@ static inline bool explode_tanks() {
 			 */
 			bool do_vengeance = allow_vengeance;
 			if ( do_vengeance
-			     && ( ( all_jedi_alive && ( TEAM_JEDI == tank->player->team ) )
-			          || ( all_sith_alive && ( TEAM_SITH == tank->player->team ) ) ) ) {
+			     && ( ( all_bastion_alive && ( TEAM_BASTION == tank->player->team ) )
+			          || ( all_rogue_alive && ( TEAM_ROGUE == tank->player->team ) ) ) ) {
 				do_vengeance = false;
 			}
 
@@ -1707,10 +1707,10 @@ static inline void draw_eor_scoreboard() {
 		h -= 2 * pd;
 
 		// First title line, the winner
-		if ( winner == WINNER_JEDI ) {
-			textout_centre_ex( global.canvas, font, "Jedi Win!", env.half_width, y, WHITE, -1 );
-		} else if ( winner == WINNER_SITH ) {
-			textout_centre_ex( global.canvas, font, "Sith Win!", env.half_width, y, WHITE, -1 );
+		if ( winner == WINNER_BASTION ) {
+			textout_centre_ex( global.canvas, font, "Bastion Win!", env.half_width, y, WHITE, -1 );
+		} else if ( winner == WINNER_ROGUE ) {
+			textout_centre_ex( global.canvas, font, "Rogue Win!", env.half_width, y, WHITE, -1 );
 		} else if ( winner == WINNER_DRAW ) {
 			textout_centre_ex( global.canvas, font, "Draw", env.half_width, y, WHITE, -1 );
 		} else {

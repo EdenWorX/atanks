@@ -254,15 +254,15 @@ bool parse_client_data( char *buffer ) {
 		SAFE_STOI( the_team, args[ 2 ] );
 		if ( ( the_team < env.num_game_players ) && ( the_team >= 0 ) ) {
 			env.players[ player_number ]->team = static_cast< ETeamTypes >( the_team );
-			if ( the_team == TEAM_JEDI ) {
-				colour = makecol( 0, 255, 0 );
-			} else if ( the_team == TEAM_SITH ) {
-				colour = makecol( 255, 0, 255 );
-			} else if ( the_team == TEAM_NEUTRAL ) {
+			if ( the_team == TEAM_BASTION ) {
 				colour = makecol( 0, 0, 255 );
+			} else if ( the_team == TEAM_ROGUE ) {
+				colour = makecol( 255, 0, 0 );
+			} else if ( the_team == TEAM_NEUTRAL ) {
+				colour = makecol( 0, 255, 0 );
 			}
 			if ( env.players[ player_number ] == global.client_player ) {
-				colour = makecol( 255, 0, 0 );
+				colour = makecol( 255, 0, 255 );
 			}
 			env.players[ player_number ]->color = colour;
 		}

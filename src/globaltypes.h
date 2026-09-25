@@ -255,7 +255,7 @@ enum EWallTypes { WALL_RUBBER = 0, WALL_STEEL, WALL_SPRING, WALL_WRAP, WALL_RAND
 /** @enum EWinner
  * @brief All possible winning sets
  **/
-enum EWinner { WINNER_NO_WIN = 101, WINNER_DRAW = 102, WINNER_JEDI = 104, WINNER_SITH = 105 };
+enum EWinner { WINNER_NO_WIN = 101, WINNER_DRAW = 102, WINNER_BASTION = 104, WINNER_ROGUE = 105 };
 
 
 #endif // ATANKS_GLOBALTYPES_H_INCLUDED
