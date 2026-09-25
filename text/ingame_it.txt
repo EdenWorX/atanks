@@ -43,8 +43,8 @@ Salvataggio gioco fallito.
 Scegli i colori
 Rendering Cielo
 Rendering Panorama
-Vincitore: Jedi
-Vincitore: Sith
+Vincitore: Bastion
+Vincitore: Rogue
 Vincitore
 Draw
               Punteggio Giocatore                   Ucciso:Morto
@@ -64,9 +64,9 @@ Normale
 Classico
 Big Grey
 T34
-Sith
+Rogue
 Neutrale
-Jedi
+Bastion
 Return
 Menu Pricipale
 Esci
