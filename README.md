@@ -8,7 +8,7 @@ between rounds, and blow up the opposition. The last tank standing wins the roun
 - Local play plus rough network play
 - Localized in-game text
 
-Current release: v6.7.1 — see [CHANGELOG.md](./CHANGELOG.md). Bug reports go to the
+Current release: v6.7.2 — see [CHANGELOG.md](./CHANGELOG.md). Bug reports go to the
 [issue board](https://github.com/EdenWorX/atanks/issues).
 
 ## Quick start

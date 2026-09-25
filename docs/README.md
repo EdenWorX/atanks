@@ -14,7 +14,7 @@ weather, network play (host plus clients), and localized in-game text.
   `allegro-config --cppflags/--libs`). Allegro must be installed separately; it is not vendored in this repository.
 - Concurrency: POSIX threads on Linux and BSD (`Threads::Threads` in `CMakeLists.txt`),
   `std::thread`/`std::mutex`/`std::condition_variable` in game code, plus a custom spinlock (`src/spinlock.h`).
-- Version: the `VERSION` variable in `Makefile` (currently `6.7.1`, derived from `project(VERSION ...)` in
+- Version: the `VERSION` variable in `Makefile` (currently `6.7.2`, derived from `project(VERSION ...)` in
   `CMakeLists.txt`) is the single source of truth. Older version strings elsewhere were synchronized during the 6.7.1 Cleanup
   and Modernization.
 - License: `LICENSE` is the single source of truth. Formerly contradicting license information (old GPLv2 `COPYING` text,
@@ -53,7 +53,7 @@ Top-level tracked entries (`git ls-files`, directories sorted):
 | `sound/` | Runtime sound assets (`*.wav`) |
 | `text/` | Arsenal data (`weapons.toml`, `naturals.toml`, `items.toml`, `weapons_*.toml` translations) and localized in-game text files (`Help*.txt`, `ingame*.txt`, etc.) |
 | `unicode.dat` | Allegro datafile used for fonts; also the probe file for data-dir detection. An old manual addition; ignored (not touched) until the post-cleanup move away from Allegro 4 makes it obsolete |
-| `Makefile` | Primary GNU Make build (`VERSION 6.7.1`, the version single source of truth) |
+| `Makefile` | Primary GNU Make build (`VERSION 6.7.2`, the version single source of truth) |
 | `vs12/`, `vs14/` | Legacy Visual Studio 2013 / 2015 solutions (retired toolsets v120/v140); Windows builds go through CMake |
 | `dep/` | Ignored GCC dependency files (`*.d`, legacy make outputs) plus `.keep_dir` placeholder |
 | `obj/` | Object output directory; only `.keep_dir` is tracked |
@@ -250,7 +250,7 @@ The following were classified as external by metadata inspection; their internal
 | `vs12/atanks.sln`, `vs14/atanks.sln` | Legacy Visual Studio 2013 / 2015 solutions | Retired toolsets; Windows builds go through CMake (VS2026); see below for file details |
 
 Verified on this machine: `make user` configures `./cmake-build-release`, builds all 51 steps, and the binary reports
-`Atomic Tanks Version 6.7.1`.
+`Atomic Tanks Version 6.7.2`.
 
 ### Autotools / Make Build
 
@@ -258,7 +258,7 @@ There is no Autotools setup (`configure`, `configure.in`, `aclocal.m4` do not ex
 wrapper (introduced during the 6.7.1 cleanup); the real build lives in `CMakeLists.txt` (CMake 3.25+, Ninja mandatory):
 
 - Sources: `file(GLOB ... src/*.cpp)` with `CONFIGURE_DEPENDS`, so new files are picked up automatically.
-- Version single source of truth: `project(atanks VERSION 6.7.1 ...)`; `src/config.h.in` generates `config.h` with the
+- Version single source of truth: `project(atanks VERSION 6.7.2 ...)`; `src/config.h.in` generates `config.h` with the
   version macros
   (`VERSION`, `DATA_DIR`, `NETWORK`, platform flags) consumed via `src/main.h`.
 - Options mirror the old make knobs: `DEBUG` plus `DEBUG_AICORE/AIMING/EMOTION/FINANCE/OBJECTS/PHYSICS/LOG_TO_FILE`,
@@ -281,7 +281,7 @@ wrapper (introduced during the 6.7.1 cleanup); the real build lives in `CMakeLis
 
 - BSD builds use the GNU `Makefile` (`make bsduser`); there is no separate BSD makefile.
 - Legacy `vs12` / `vs14` solutions target retired toolsets (VS2013: `Format 12.00`, toolset v120; VS2015: toolset v140,
-  `WindowsTargetPlatformVersion=8.1`). Both define `VERSION="6.7.1"` (matching `CMakeLists.txt`); `vs14` additionally defines
+  `WindowsTargetPlatformVersion=8.1`). Both define `VERSION="6.7.2"` (matching `CMakeLists.txt`); `vs14` additionally defines
   `DATA_DIR="."`. Both link one of `alleg44.lib / alleg44_64.lib / alleg44_d.lib / alleg44_64_d.lib` per configuration plus the
   Win32 system libraries. `vs14` embeds `../atanks.ico`. `README_allegro.txt` in each folder explains how to repoint
   include/library paths and swap the DLL variants. Current Windows builds go through CMake (VS2026), not these solutions.
@@ -301,7 +301,7 @@ None exist in the repository.
 ## Configuration
 
 - Compile-time: `DATA_DIR` (`ATANKS_DATA_DIR` setting, default `<prefix>/share/atanks`, `"."` for `*user` goals), `VERSION`
-  (`project(VERSION 6.7.1)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
+  (`project(VERSION 6.7.2)`, via generated `config.h`), platform flags (`LINUX` / `MACOSX` in `config.h`), `NETWORK` (Linux and
   BSD only), `ATANKS_DEBUG*` flavors.
 - Runtime data directory, resolved by `CEnvironment::find_data_dir()` (`src/environment.cpp`): `--datadir` if readable,
   else the compiled `DATA_DIR` (verified by probing `unicode.dat` inside it), else `./` fallback.

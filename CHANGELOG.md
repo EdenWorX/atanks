@@ -5,6 +5,33 @@ changes. Finished to-do items from `TODO.md` are removed once their essence is d
 for the planning rules and `docs/release_process.md` for the release process). Older history is preserved exactly as it was in
 `docs/Changelog.history`.
 
+## 6.7.2 (2026-09-25)
+
+### Added
+
+- Modern update checker: GitHub Releases API over HTTPS via optional libcurl (`ATANKS_HAVE_CURL`; builds
+  without it), background thread with timeouts, silent failure, numeric `MAJOR.MINOR.PATCH` tuple comparison, and
+  `tests/test_update.cpp` unit tests. Controlled by the `CHECKUPDATES` setting, documented in the Configuration chapter.
+- Team rename Bastion/Rogue with network color rotation: Bastion blue, Rogue red, Neutral green, own
+  client tank purple. Enumerator values frozen, so savegames keep working.
+
+### Changed
+
+- Documentation front page: welcoming root `README.md`; the technical reference moved to `docs/README.md`; all
+  `TODO*.md` planning files moved to `docs/` with a casual prose `TODO.md` mirror in the root; install rules and
+  cross-references follow the moves.
+- AppStream metainfo screenshot block dropped (uncontrolled SourceForge URLs).
+- CI workflow installs its build dependencies (CMake, ninja, Allegro 4 development files).
+
+### Fixed
+
+- Load-failure teardown segfault: the arsenal loads before graphics/asset init, so load failures exit
+  with `EXIT_FAILURE` while almost nothing is allocated; first-run player creation moved after graphics init.
+- Missile null-pointer exposure: debug assert plus skip-homing fallback in `CMissile::apply_physics_funky`.
+- `tank.cpp` `cur_x`/`cur_y` scope, teleport null-guard plus non-copyable `CTeleport` plus redundant branches, redundant
+  conditional assignments, shop const-correctness and `std::fill`, `atanks.rc` `COPYING` reference, and `optiontypes.h`
+  license typo.
+
 ## 6.7.1 (2026-09-21)
 
 ### Added
