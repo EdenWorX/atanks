@@ -29,4 +29,3 @@ Nothing open right now.
 - High-voltage missiles
 - Tornadoes that pick up tanks and objects
 - One more armor level
-- New team names (Bastion and Rogue) with new colors
