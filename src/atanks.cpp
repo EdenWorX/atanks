@@ -206,9 +206,9 @@ static char const* do_winner() {
 	int32_t scoLen = text_length( font, head_score );
 
 	// While checking for the winner, determine the real lengths needed
-	int32_t  idx_jedi               = -1; // Jedi Player with the highest score
+	int32_t  idx_bastion            = -1; // Bastion Player with the highest score
 	int32_t  idx_neutral            = -1; // Neutral player with the highest score
-	int32_t  idx_sith               = -1; // SitH Player with the highest score
+	int32_t  idx_rogue              = -1; // Rogue Player with the highest score
 	int32_t  idx_winner             = -1; // Player with the highest score
 	int32_t  maxdiff                = INT32_MIN;
 	int32_t  maxscore               = -1;
@@ -284,11 +284,11 @@ static char const* do_winner() {
 			}
 		}
 
-		if ( TEAM_JEDI == players[ z ]->team ) {
-			idx_jedi = z;
+		if ( TEAM_BASTION == players[ z ]->team ) {
+			idx_bastion = z;
 		}
-		if ( TEAM_SITH == players[ z ]->team ) {
-			idx_sith = z;
+		if ( TEAM_ROGUE == players[ z ]->team ) {
+			idx_rogue = z;
 		}
 	} // end of checking players
 
@@ -321,15 +321,15 @@ static char const* do_winner() {
 	// Draw winner names and info about all players
 	if ( multiwinner ) {
 		// check for team win
-		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
-			if ( ( ( idx_sith >= 0 ) && ( players[ idx_sith ]->score == players[ idx_winner ]->score ) )
+		if ( TEAM_BASTION == players[ idx_winner ]->team ) {
+			if ( ( ( idx_rogue >= 0 ) && ( players[ idx_rogue ]->score == players[ idx_winner ]->score ) )
 			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
 			}
-		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
-			if ( ( ( idx_jedi >= 0 ) && ( players[ idx_jedi ]->score == players[ idx_winner ]->score ) )
+		} else if ( TEAM_ROGUE == players[ idx_winner ]->team ) {
+			if ( ( ( idx_bastion >= 0 ) && ( players[ idx_bastion ]->score == players[ idx_winner ]->score ) )
 			     || ( ( idx_neutral >= 0 ) && ( players[ idx_neutral ]->score == players[ idx_winner ]->score ) ) ) {
 				snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 			} else {
@@ -339,9 +339,9 @@ static char const* do_winner() {
 			snprintf( return_string, 256, "%s", env.ingame->get_line( 48 ) );
 		}
 	} else {
-		if ( TEAM_JEDI == players[ idx_winner ]->team ) {
+		if ( TEAM_BASTION == players[ idx_winner ]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->get_line( 45 ) );
-		} else if ( TEAM_SITH == players[ idx_winner ]->team ) {
+		} else if ( TEAM_ROGUE == players[ idx_winner ]->team ) {
 			snprintf( return_string, 256, "%s", env.ingame->get_line( 46 ) );
 		} else {
 			snprintf( return_string, 256, "%s: %s", env.ingame->get_line( 47 ), players[ idx_winner ]->get_name() );

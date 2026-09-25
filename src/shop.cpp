@@ -923,64 +923,64 @@ static void divide_team_money() {
 		return;
 	}
 
-	int32_t jediMoney = 0;
-	int32_t jediCount = 0;
-	int32_t sithMoney = 0;
-	int32_t sithCount = 0;
+	int32_t bastionMoney = 0;
+	int32_t bastionCount = 0;
+	int32_t rogueMoney   = 0;
+	int32_t rogueCount   = 0;
 	int32_t teamFee;
 
 	for ( int32_t z = 0; z < env.num_game_players; ++z ) {
 		// Sum up team money:
-		if ( env.players[ z ]->team == TEAM_JEDI ) {
+		if ( env.players[ z ]->team == TEAM_BASTION ) {
 			teamFee = ROUND( env.players[ z ]->money / 4. );
 			if ( teamFee > MAX_TEAM_AMOUNT ) {
 				teamFee = MAX_TEAM_AMOUNT;
 			}
-			jediMoney += teamFee;
-			jediCount++;
-		} else if ( env.players[ z ]->team == TEAM_SITH ) {
+			bastionMoney += teamFee;
+			bastionCount++;
+		} else if ( env.players[ z ]->team == TEAM_ROGUE ) {
 			teamFee = ROUND( env.players[ z ]->money / 4. );
 			if ( teamFee > MAX_TEAM_AMOUNT ) {
 				teamFee = MAX_TEAM_AMOUNT;
 			}
-			sithMoney += teamFee;
-			sithCount++;
+			rogueMoney += teamFee;
+			rogueCount++;
 		}
 		// Note: The team Fee is not docked, yet, as it is not clear
 		// whether there is more than one team member.
 	}
 
-	DEBUG_LOG_FIN( "Overview", "Jedi Count: %d - Sith Count: %d", jediCount, sithCount )
+	DEBUG_LOG_FIN( "Overview", "Bastion Count: %d - Rogue Count: %d", bastionCount, rogueCount )
 
 	// Now apply the team money (if any):
-	if ( jediCount > 1 ) {
-		DEBUG_LOG_FIN( "Overview", "The Jedi summed up a pool of %13d credits!", jediMoney )
-		jediMoney = ROUND( jediMoney * .9 / jediCount );
-		DEBUG_LOG_FIN( "Overview", "Every Jedi will receive %10d credits out of the pool!", jediMoney )
+	if ( bastionCount > 1 ) {
+		DEBUG_LOG_FIN( "Overview", "The Bastion summed up a pool of %13d credits!", bastionMoney )
+		bastionMoney = ROUND( bastionMoney * .9 / bastionCount );
+		DEBUG_LOG_FIN( "Overview", "Every Bastion will receive %10d credits out of the pool!", bastionMoney )
 		for ( int32_t z = 0; z < env.num_game_players; ++z ) {
-			if ( TEAM_JEDI == env.players[ z ]->team ) {
+			if ( TEAM_BASTION == env.players[ z ]->team ) {
 				teamFee = ROUND( env.players[ z ]->money / 4. );
 				if ( teamFee > MAX_TEAM_AMOUNT ) {
 					teamFee = MAX_TEAM_AMOUNT;
 				}
 				env.players[ z ]->money -= teamFee;
-				env.players[ z ]->money += jediMoney;
+				env.players[ z ]->money += bastionMoney;
 			}
 		}
 	}
 
-	if ( sithCount > 1 ) {
-		DEBUG_LOG_FIN( "Overview", "The Sith summed up a pool of %13d credits!", sithMoney )
-		sithMoney = ROUND( sithMoney * .9 / sithCount );
-		DEBUG_LOG_FIN( "Overview", "Every Sith will receive %10d credits out of the pool!", sithMoney )
+	if ( rogueCount > 1 ) {
+		DEBUG_LOG_FIN( "Overview", "The Rogue summed up a pool of %13d credits!", rogueMoney )
+		rogueMoney = ROUND( rogueMoney * .9 / rogueCount );
+		DEBUG_LOG_FIN( "Overview", "Every Rogue will receive %10d credits out of the pool!", rogueMoney )
 		for ( int32_t z = 0; z < env.num_game_players; ++z ) {
-			if ( TEAM_SITH == env.players[ z ]->team ) {
+			if ( TEAM_ROGUE == env.players[ z ]->team ) {
 				teamFee = ROUND( env.players[ z ]->money / 4. );
 				if ( teamFee > MAX_TEAM_AMOUNT ) {
 					teamFee = MAX_TEAM_AMOUNT;
 				}
 				env.players[ z ]->money -= teamFee;
-				env.players[ z ]->money += sithMoney;
+				env.players[ z ]->money += rogueMoney;
 			}
 		}
 	}

@@ -123,17 +123,17 @@ void CEnvironment::credit_winners( int32_t winner ) const {
 
 	int32_t team_members = 0;
 
-	if ( winner == WINNER_JEDI ) {
+	if ( winner == WINNER_BASTION ) {
 		for ( int32_t i = 0; i < num_game_players; ++i ) {
-			if ( TEAM_JEDI == players[ i ]->team ) {
+			if ( TEAM_BASTION == players[ i ]->team ) {
 				players[ i ]->score++;
 				players[ i ]->won++;
 				team_members++;
 			}
 		}
-	} else if ( winner == WINNER_SITH ) {
+	} else if ( winner == WINNER_ROGUE ) {
 		for ( int32_t i = 0; i < num_game_players; ++i ) {
-			if ( TEAM_SITH == players[ i ]->team ) {
+			if ( TEAM_ROGUE == players[ i ]->team ) {
 				players[ i ]->score++;
 				players[ i ]->won++;
 				team_members++;
@@ -149,8 +149,8 @@ void CEnvironment::credit_winners( int32_t winner ) const {
 	if ( team_members ) {
 		int32_t team_bonus = scoreRoundWinBonus / team_members;
 		for ( int32_t i = 0; i < num_game_players; ++i ) {
-			if ( ( ( winner == WINNER_JEDI ) && ( players[ i ]->team == TEAM_JEDI ) )
-			     || ( ( winner == WINNER_SITH ) && ( players[ i ]->team == TEAM_SITH ) ) ) {
+			if ( ( ( winner == WINNER_BASTION ) && ( players[ i ]->team == TEAM_BASTION ) )
+			     || ( ( winner == WINNER_ROGUE ) && ( players[ i ]->team == TEAM_ROGUE ) ) ) {
 				players[ i ]->money += team_bonus;
 			}
 		}
