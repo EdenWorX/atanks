@@ -3,7 +3,7 @@
 A turn-based artillery duel in the Scorched Earth / Worms tradition: drive your tank, buy weapons and defensive items
 between rounds, and blow up the opposition. The last tank standing wins the round.
 
-- Human players and AI bots (several difficulty levels), teams (Jedi / Sith / Neutral)
+- Human players and AI bots (several difficulty levels), teams (Bastion / Rogue / Neutral)
 - Destructible terrain, wind and weather
 - Local play plus rough network play
 - Localized in-game text
@@ -31,7 +31,7 @@ Other build paths: `make` then `make install` for a system install (`PREFIX=` an
 ## How to play
 
 When you first run the game with no human player, the player creation screen opens automatically: enter a name and
-pick a tank colour. Afterwards choose **Players**, select 2–10 tanks (don't forget yourself!), and press **Play**.
+pick a tank colour. Afterwards choose **Play**, select 2–10 tanks (don't forget yourself!), and press **Okay**.
 
 The buy screen lets you spend money on weapons and defensive items: left-click buys, right-click sells, **Done**
 confirms. There is no perfect combination, so experiment a little.
@@ -56,8 +56,8 @@ Run `./cmake-build-release/atanks -h` for all command-line options.
 ## Network play
 
 Network play works but is still rough. The host enables Networking under Options → Network and restarts; clients set
-Server Address to the host IP and choose Network Game. Client tanks are color-coded: Jedi green, Sith purple, Neutral
-blue, your own tank red. The client side is buggy — see Known issues below.
+Server Address to the host IP and choose Network Game. Client tanks are color-coded: Bastion blue, Rogue red, Neutral
+green, your own tank purple. The client side is buggy — see Known issues below.
 
 ## Known issues
 

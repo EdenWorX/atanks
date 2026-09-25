@@ -6,7 +6,7 @@
 
 Atomic Tanks is a turn-based artillery game in the Scorched Earth / Worms tradition. Each player controls a tank, buys weapons
 and defensive items between rounds, and fires projectiles in turn-based order. The last tank standing wins the round. The game
-supports human players, AI bots (multiple difficulty levels), teams (Jedi / Sith / Neutral), destructible terrain, wind and
+supports human players, AI bots (multiple difficulty levels), teams (Bastion / Rogue / Neutral), destructible terrain, wind and
 weather, network play (host plus clients), and localized in-game text.
 
 - Language: C++ (built with `-std=c++17`, see `CMAKE_CXX_STANDARD 17` in `CMakeLists.txt`).
@@ -143,7 +143,7 @@ narrow responsibilities:
 | Beams (lasers) | `src/beam.h/.cpp` | Laser-class weapons parallel to ballistic missiles |
 | Arsenal data | `src/weapon.h/.cpp`, `src/item.h/.cpp` | Plain records: 56 weapons + 6 naturals + 24 items; unified index `THINGS = WEAPONS+ITEMS` |
 | Player state | `src/player.h/.cpp` | Economy, inventories `nm[WEAPONS]/ni[ITEMS]`, personality, opponent memory, shop prefs, save/load, speech-line selection |
-| Player/AI types | `src/player_types.h/.cpp` | `EPlayerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `EPlayerStages`, `ETeamTypes{SITH,NEUTRAL,JEDI}`, modular enum arithmetic |
+| Player/AI types | `src/player_types.h/.cpp` | `EPlayerType` (HUMAN..DEADLY..NETWORK_CLIENT..), `EPlayerStages`, `ETeamTypes{ROGUE,NEUTRAL,BASTION}`, modular enum arithmetic |
 | AI | `src/aicore.h/.cpp` (`CAICore`) | Background-thread bot with documented pipeline: initialize, target/weapon selection, attack calculation, aiming traces, writeback |
 | Shop | `src/shop.h/.cpp` (`bool shop(CLevelCreator*)`) | Inter-round buy/sell UI |
 | Scoring | `src/score.h/.cpp` (`sScore`, `sort_scores()`) | Caller deletes the returned array |
@@ -340,8 +340,8 @@ None exist in the repository.
   buy/sell, Esc cancels, F1 screenshot, F10 AI-takeover (or save on the buy screen), `v`/`V` volume down/up, `~` (or `#` on
   German keyboards) scoreboard.
 - Network play (still rough, see the `README` user documentation): the host enables Networking in Options -> Network and restarts; clients set
-  Server Address to the host IP and choose Network Game. Client tanks are color-coded (Jedi green, Sith purple, Neutral blue,
-  player red). The `TODO_Xtra.md` file records a bug: the network client must not get unlimited shots.
+  Server Address to the host IP and choose Network Game. Client tanks are color-coded (Bastion blue, Rogue red, Neutral green,
+  player purple). The `docs/TODO_Xtra.md` file records a bug: the network client must not get unlimited shots.
 - Screenshot key F1 writes `screenshot_*.*` files (a `.gitignore`d artifact).
 - Environment variables: `HOME` (Linux) or `AppData` (Windows) locates the config directory.
 
